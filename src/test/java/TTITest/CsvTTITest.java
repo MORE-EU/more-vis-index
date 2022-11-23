@@ -3,7 +3,6 @@ package TTITest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.more2020.visual.config.ApplicationProperties;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
@@ -12,14 +11,6 @@ import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
 import eu.more2020.visual.index.csv.CsvTTI;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FileReader;
@@ -32,31 +23,24 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@ActiveProfiles("test")
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = ApplicationProperties.class)
-@EnableConfigurationProperties
 public class CsvTTITest {
 
-    @Autowired
-    private ApplicationProperties applicationProperties;
 
-    @Value("${application.timeFormat}")
-    private String timeFormat;
-
-    @Value("${application.delimiter}")
-    private String delimiter;
     //    public String csv = "/opt/more-workspace/BEBEZE/bbz1.csv";
     public String farmName;
     public String id;
 
     public CsvTTI csvTTI;
 
+    public String workspacePath = "/opt/more-workspace";
+
+    public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
+    public String delimiter = ",";
+
     private AbstractDataset getDataset() throws IOException {
-        Assert.notNull(id, "Id must not be null!");
         ObjectMapper mapper = new ObjectMapper();
         Farm farm = new Farm();
-        File metadataFile = new File(applicationProperties.getWorkspacePath() + "/" + farmName, farmName + ".meta.json");
+        File metadataFile = new File(workspacePath + "/" + farmName, farmName + ".meta.json");
         if (metadataFile.exists()) {
             FileReader reader = new FileReader(metadataFile);
             JsonNode jsonNode = mapper.readTree(reader);
@@ -68,7 +52,7 @@ public class CsvTTITest {
                 if(datasetId.equals(id)) {
                     String name = d.get("name").asText();
                     String type = d.get("type").asText();
-                    String path = applicationProperties.getWorkspacePath() + "/" + farmName +  "/" + d.get("path").asText();
+                    String path = workspacePath + "/" + farmName +  "/" + d.get("path").asText();
                     switch (type){
                         case "CSV":
                             Integer csvTimeCol = d.get("timeCol").asInt();
@@ -214,7 +198,7 @@ public class CsvTTITest {
     public void test_solar() throws IOException {
         farmName = "solar";
         id = "eugene";
-        File metadataFile = new File(applicationProperties.getWorkspacePath() + "/" + farmName, id + ".csv");
+        File metadataFile = new File(workspacePath + "/" + farmName, id + ".csv");
         String csv = metadataFile.getAbsolutePath();
         CsvDataset csvDataset = (CsvDataset) getDataset();
         this.csvTTI = new CsvTTI(csv, Objects.requireNonNull((CsvDataset) getDataset()));

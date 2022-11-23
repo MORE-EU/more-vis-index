@@ -2,22 +2,13 @@ package TTITest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.more2020.visual.config.ApplicationProperties;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Farm;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.index.parquet.ParquetTTI;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.Assert;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileReader;
@@ -28,29 +19,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-@ActiveProfiles("test")
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = ApplicationProperties.class)
-@EnableConfigurationProperties
 public class ParquetTTITest {
 
-    @Autowired
-    private ApplicationProperties applicationProperties;
-
-    @Value("${application.timeFormat}")
-    private String timeFormat;
-
-    @Value("${application.delimiter}")
-
-    private String delimiter;
     public String farmName;
     public String id;
 
+
+    public String workspacePath = "/opt/more-workspace";
+
+    public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
+    public String delimiter = ",";
+
     private AbstractDataset getDataset() throws IOException {
-        Assert.notNull(id, "Id must not be null!");
         ObjectMapper mapper = new ObjectMapper();
         Farm farm = new Farm();
-        File metadataFile = new File(applicationProperties.getWorkspacePath() + "/" + farmName, farmName + ".meta.json");
+        File metadataFile = new File(workspacePath + "/" + farmName, farmName + ".meta.json");
         if (metadataFile.exists()) {
             FileReader reader = new FileReader(metadataFile);
             JsonNode jsonNode = mapper.readTree(reader);
@@ -62,7 +45,7 @@ public class ParquetTTITest {
                 if(datasetId.equals(id)) {
                     String name = d.get("name").asText();
                     String type = d.get("type").asText();
-                    String path = applicationProperties.getWorkspacePath() + "/" + farmName +  "/" + d.get("path").asText();
+                    String path = workspacePath + "/" + farmName +  "/" + d.get("path").asText();
                     switch (type){
                         case "CSV":
                             Integer csvTimeCol = d.get("timeCol").asInt();
@@ -118,7 +101,7 @@ public class ParquetTTITest {
         farmName = "BEBEZE2";
         id = "bbz2";
 
-        File metadataFile = new File(applicationProperties.getWorkspacePath() + "/" + farmName, id + ".parquet");
+        File metadataFile = new File(workspacePath + "/" + farmName, id + ".parquet");
         String filePath = metadataFile.getAbsolutePath();
         double startInit = System.currentTimeMillis();
         ParquetDataset parquetDataset = (ParquetDataset) getDataset();
@@ -151,7 +134,7 @@ public class ParquetTTITest {
         farmName = "solar";
         id = "basil";
 
-        File metadataFile = new File(applicationProperties.getWorkspacePath() + "/" + farmName, id + ".parquet");
+        File metadataFile = new File(workspacePath + "/" + farmName, id + ".parquet");
         String filePath = metadataFile.getAbsolutePath();
         double startInit = System.currentTimeMillis();
         ParquetDataset parquetDataset = (ParquetDataset) getDataset();
