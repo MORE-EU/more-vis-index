@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -116,11 +117,11 @@ public class CsvTTI {
         return this.formatter;
     }
 
-    public String[] testRandomAccess (LocalDateTime time, List<Integer> measures) throws IOException {
+    public String[] testRandomAccess (long time, List<Integer> measures) throws IOException {
         return this.csvRandomAccessReader.getData(time, measures);
     }
 
-    public ArrayList<String[]> testRandomAccessRange (TimeRange range,  List<Integer> measures) throws IOException {
+    public ArrayList<String[]> testRandomAccessRange (TimeRange range, List<Integer> measures) throws IOException {
         return this.csvRandomAccessReader.getData(range, measures);
     }
 

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,8 +110,8 @@ public class ParquetTTITest {
         parquetTTI.initialize();
         System.out.println("Initialization Time: " + (System.currentTimeMillis() - startInit) / 1000);
 
-        LocalDateTime startTime = LocalDateTime.parse("2018-04-01 00:04:41", parquetTTI.getFormatter());
-        LocalDateTime endTime = LocalDateTime.parse("2018-04-08 00:00:59", parquetTTI.getFormatter());
+        long startTime = LocalDateTime.parse("2018-04-01 00:04:41", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2018-04-08 00:00:59", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         ArrayList<String[]> rows;
         double startTest = System.currentTimeMillis();
         rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
@@ -118,8 +119,8 @@ public class ParquetTTITest {
         System.out.println(getRow(rows.get(rows.size() - 1)));
         System.out.println("1 Week Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
 
-        startTime = LocalDateTime.parse("2018-03-01 00:00:00", parquetTTI.getFormatter());
-        endTime = LocalDateTime.parse("2018-04-01 00:00:00", parquetTTI.getFormatter());
+        startTime = LocalDateTime.parse("2018-03-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        endTime = LocalDateTime.parse("2018-04-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         startTest = System.currentTimeMillis();
         rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
         System.out.println(getRow(rows.get(0)));
@@ -142,8 +143,8 @@ public class ParquetTTITest {
         parquetTTI.initialize();
         System.out.println("Initialization Time: " + (System.currentTimeMillis() - startInit) / 1000);
 
-        LocalDateTime startTime = LocalDateTime.parse("2013-01-01 00:04:41", parquetTTI.getFormatter());
-        LocalDateTime endTime = LocalDateTime.parse("2013-01-08 00:00:59", parquetTTI.getFormatter());
+        long startTime = LocalDateTime.parse("2013-01-01 00:04:41", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2013-01-08 00:00:59", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         ArrayList<String[]> rows;
         double startTest = System.currentTimeMillis();
         rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
@@ -151,8 +152,8 @@ public class ParquetTTITest {
         System.out.println(getRow(rows.get(rows.size() - 1)));
         System.out.println("1 Week Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
 
-        startTime = LocalDateTime.parse("2013-03-01 00:00:00", parquetTTI.getFormatter());
-        endTime = LocalDateTime.parse("2013-04-01 00:00:00", parquetTTI.getFormatter());
+        startTime = LocalDateTime.parse("2013-03-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        endTime = LocalDateTime.parse("2013-04-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         startTest = System.currentTimeMillis();
         rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
         System.out.println(getRow(rows.get(0)));

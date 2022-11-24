@@ -43,9 +43,9 @@ public class CsvDataset extends AbstractDataset {
             .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
             .toFormatter(), getTimeCol(), getDelimiter(), getHasHeader(), getMeasures());
         this.setHeader(getHasHeader() ? csvRandomAccessReader.parseHeader() : new String[0]);
-        LocalDateTime from = csvRandomAccessReader.parseStringToDate(csvRandomAccessReader.parseNext()[this.getTimeCol()]);
+        long from = csvRandomAccessReader.parseStringToTimestamp(csvRandomAccessReader.parseNext()[this.getTimeCol()]);
         csvRandomAccessReader.goToEnd();
-        LocalDateTime to = csvRandomAccessReader.parseStringToDate(csvRandomAccessReader.parseNext()[this.getTimeCol()]);
+        long to = csvRandomAccessReader.parseStringToTimestamp(csvRandomAccessReader.parseNext()[this.getTimeCol()]);
         dataFileInfo.setTimeRange(new TimeRange(from, to));
     }
 

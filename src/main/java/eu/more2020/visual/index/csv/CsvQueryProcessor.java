@@ -49,12 +49,12 @@ public class CsvQueryProcessor {
     }
 
     public QueryResults prepareQueryResults(CsvTreeNode root, HashMap<Integer, Double[]> filter) throws IOException {
-        List<Integer> startLabels = getLabels(query.getRange().getFrom());
-        List<Integer> endLabels = getLabels(query.getRange().getTo());
+//        List<Integer> startLabels = getLabels(query.getRange().getFrom());
+//        List<Integer> endLabels = getLabels(query.getRange().getTo());
 
-        fileInputStream = new FileInputStream(tti.getCsv());
-        this.processQueryNodes(root, startLabels, endLabels, true, true, 0);
-        fileInputStream.close();
+//        fileInputStream = new FileInputStream(tti.getCsv());
+//        this.processQueryNodes(root, startLabels, endLabels, true, true, 0);
+//        fileInputStream.close();
 
         queryResults.setMeasureStats(tti.getMeasureStats());
         return queryResults;
@@ -114,21 +114,21 @@ public class CsvQueryProcessor {
                 queryResults.setIoCount(queryResults.getIoCount() + 1);
                 previousDate = currentDate;
                 currentDate = tti.parseStringToDate(row[dataset.getTimeCol()]).truncatedTo(TimeSeriesIndexUtil.TEMPORAL_HIERARCHY.get(freqLevel - 1).getBaseUnit());
-                if (!currentDate.equals(previousDate) && previousDate != null) {
-                    if (query.getRange() == null || query.getRange().contains(previousDate)) {
-                        queryResults.getData().add(new DataPoint(previousDate, nodeSelectionFromFile(statsAccumulators)));
-                    }
-                    statsAccumulators = new DoubleSummaryStatistics[measures.size()];
-                    for (int j = 0; j < statsAccumulators.length; j++) {
-                        statsAccumulators[j] = new DoubleSummaryStatistics();
-                    }
-                }
-                for (int j = 0; j < measures.size(); j++) {
-                    statsAccumulators[j].accept(Double.parseDouble(row[measures.get(j)]));
-                }
-                if (i == treeNode.getDataPointCount() - 1 && (query.getRange() == null || query.getRange().contains(currentDate))) {
-                    queryResults.getData().add(new DataPoint(currentDate, nodeSelectionFromFile(statsAccumulators)));
-                }
+//                if (!currentDate.equals(previousDate) && previousDate != null) {
+//                    if (query.getRange() == null || query.getRange().contains(previousDate)) {
+//                        queryResults.getData().add(new DataPoint(previousDate, nodeSelectionFromFile(statsAccumulators)));
+//                    }
+//                    statsAccumulators = new DoubleSummaryStatistics[measures.size()];
+//                    for (int j = 0; j < statsAccumulators.length; j++) {
+//                        statsAccumulators[j] = new DoubleSummaryStatistics();
+//                    }
+//                }
+//                for (int j = 0; j < measures.size(); j++) {
+//                    statsAccumulators[j].accept(Double.parseDouble(row[measures.get(j)]));
+//                }
+//                if (i == treeNode.getDataPointCount() - 1 && (query.getRange() == null || query.getRange().contains(currentDate))) {
+//                    queryResults.getData().add(new DataPoint(currentDate, nodeSelectionFromFile(statsAccumulators)));
+//                }
             }
         }
     }

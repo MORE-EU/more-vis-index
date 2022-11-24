@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +28,8 @@ public class CsvRandomAccessReader extends RandomAccessReader {
     private final Integer timeCol;
     private final String delimeter;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private long startTime;
+    private long endTime;
     private CsvParser parser;
     private Duration frequency;
     private List<Integer> measures;
@@ -62,18 +65,17 @@ public class CsvRandomAccessReader extends RandomAccessReader {
 
     public Duration sample() throws IOException {
         if(hasHeader) this.readNewLine();
-        this.startTime = parseStringToDate(parser.parseLine(this.readNewLine())[timeCol]);
+        this.startTime = parseStringToTimestamp(parser.parseLine(this.readNewLine())[timeCol]);
         long startOffset = this.current;
-        LocalDateTime secondTime = parseStringToDate(parser.parseLine(this.readNewLine())[0]);
+        long secondTime = parseStringToTimestamp(parser.parseLine(this.readNewLine())[0]);
         goToEnd();
         String lastLine = this.readNewLine();
-        this.frequency = Duration.between(this.startTime, secondTime);
-        this.endTime = parseStringToDate(parser.parseLine(lastLine)[0]);
-        this.size = Duration.between(this.startTime, this.endTime).dividedBy(this.frequency);
+        this.frequency = Duration.of(this.startTime - secondTime, ChronoUnit.MILLIS);
+        this.endTime = parseStringToTimestamp(parser.parseLine(lastLine)[0]);
 
         this.setDirection(DIRECTION.FORWARD);
         this.seek(startOffset);
-        int sample_count = (int) (this.size * 0.2);
+        int sample_count = 1000000;
         long diff_sum = 0;
         long curr_offset = this.getFilePointer() - 1;
         int i = 0;
@@ -89,13 +91,13 @@ public class CsvRandomAccessReader extends RandomAccessReader {
         return this.frequency;
     }
 
-    private long findPosition(LocalDateTime time) { return Duration.between(this.startTime, time).dividedBy(this.frequency);}
+    private long findPosition(long time) { return Duration.of(this.startTime - time, ChronoUnit.MILLIS).dividedBy(this.frequency);}
 
     private long findProbabilisticOffset(long position) throws IOException {
         return Math.min(meanByteSize * position, (this.channel.size() - 100 * meanByteSize));
     }
 
-    private long findOffset(LocalDateTime time) throws IOException {
+    private long findOffset(long time) throws IOException {
         long position = findPosition(time);
         long probabilisticOffset = findProbabilisticOffset(position);
 
@@ -103,15 +105,15 @@ public class CsvRandomAccessReader extends RandomAccessReader {
         this.seek(probabilisticOffset);
 
         String line = this.readNewLine();
-        LocalDateTime firstTimeFound = parseStringToDate(this.parseLine(line)[0]);
-        LocalDateTime timeFound;
-        if (firstTimeFound.isAfter(time)) {
+        long firstTimeFound = parseStringToTimestamp(this.parseLine(line)[0]);
+        long timeFound;
+        if (firstTimeFound > time) {
             this.setDirection(DIRECTION.BACKWARD);
             while(true) {
                 long prevOffset = this.getFilePointer();
                 line = this.readNewLine();
-                timeFound = parseStringToDate(this.parseLine(line)[0]);
-                if(timeFound.isBefore(time) || timeFound.isEqual(time)) return prevOffset;
+                timeFound = parseStringToTimestamp(this.parseLine(line)[0]);
+                if(timeFound <= time) return prevOffset;
             }
         }
         else {
@@ -119,8 +121,8 @@ public class CsvRandomAccessReader extends RandomAccessReader {
             while(true) {
                 long prevOffset = this.getFilePointer();
                 line = this.readNewLine();
-                timeFound = parseStringToDate(this.parseLine(line)[0]);
-                if(timeFound.isAfter(time) || timeFound.isEqual(time)) return prevOffset - 1;
+                timeFound = parseStringToTimestamp(this.parseLine(line)[0]);
+                if(timeFound >= time) return prevOffset - 1;
             }
         }
     }
@@ -154,6 +156,11 @@ public class CsvRandomAccessReader extends RandomAccessReader {
 
     public LocalDateTime parseStringToDate(String s) {return LocalDateTime.parse(s, formatter);}
 
+    public long parseStringToTimestamp(String s) {
+        ZonedDateTime zonedDateTime = LocalDateTime.parse(s, formatter).atZone(ZoneId.systemDefault());
+        return zonedDateTime.toInstant().toEpochMilli();
+    }
+
     public ArrayList<String[]> getData(TimeRange range, List<Integer> measures) throws IOException {
         if(!measures.equals(this.measures)) updateMeasures(measures);
         ArrayList<String[]> rows = new ArrayList<>();
@@ -162,14 +169,14 @@ public class CsvRandomAccessReader extends RandomAccessReader {
         this.seek(fromOffset);
         this.setDirection(DIRECTION.FORWARD);
         String line;
-        while(this.getFilePointer() <= toOffset + 1){
+        while(this.getFilePointer() <= toOffset){
             line = this.readNewLine();
             if(!line.isEmpty()) rows.add(parseLine(line));
         }
         return rows;
     }
 
-    public String[] getData(LocalDateTime time, List<Integer> measures) throws IOException {
+    public String[] getData(long time, List<Integer> measures) throws IOException {
         if(!measures.equals(this.measures)) updateMeasures(measures);
         long position = findPosition(time);
         long probabilisticOffset = findProbabilisticOffset(position);
@@ -178,21 +185,21 @@ public class CsvRandomAccessReader extends RandomAccessReader {
         this.seek(probabilisticOffset);
 
         String line = this.readNewLine();
-        LocalDateTime firstTimeFound = parseStringToDate(parseLine(line)[0]);
-        LocalDateTime timeFound;
-        if (firstTimeFound.isAfter(time)) {
+        long firstTimeFound = parseStringToTimestamp(parseLine(line)[0]);
+        long timeFound;
+        if (firstTimeFound > time) {
             this.setDirection(DIRECTION.BACKWARD);
             do {
                 line = this.readNewLine();
-                timeFound = parseStringToDate(this.parseLine(line)[0]);
-            } while (!timeFound.isBefore(time) && !timeFound.isEqual(time));
+                timeFound = parseStringToTimestamp(this.parseLine(line)[0]);
+            } while (!(timeFound <= time));
         }
         else{
             this.setDirection(DIRECTION.FORWARD);
             do {
                 line = this.readNewLine();
-                timeFound = parseStringToDate(this.parseLine(line)[0]);
-            } while (!timeFound.isAfter(time) && !timeFound.isEqual(time));
+                timeFound = parseStringToTimestamp(this.parseLine(line)[0]);
+            } while (!(timeFound >= (time)));
         }
         return parseLine(line);
     }

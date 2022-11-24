@@ -9,69 +9,51 @@ import java.util.Objects;
 
 public class TimeRange implements Serializable {
 
-    private LocalDateTime from;
-    private LocalDateTime to;
+    private long from;
+    private long to;
 
     public TimeRange() {
     }
 
-    public TimeRange(LocalDateTime from, LocalDateTime to) {
+    public TimeRange(long from, long to) {
         this.from = from;
         this.to = to;
     }
 
-    public LocalDateTime getFrom() {
+    public long getFrom() {
         return from;
     }
 
-    public void setFrom(LocalDateTime from) {
+    public void setFrom(long from) {
         this.from = from;
     }
 
-    public LocalDateTime getTo() {
+    public long getTo() {
         return to;
     }
 
-    public void setTo(LocalDateTime to) {
+    public void setTo(long to) {
         this.to = to;
     }
 
-    public boolean contains(LocalDateTime x) {
-        return (from.isBefore(x) && to.isAfter(x)) || from.isEqual(x) || to.isEqual(x);
+    public boolean contains(long x) {
+        return (from > x && to < x) || from == x || to == x;
     }
 
     public boolean intersects(TimeRange other) {
-        return (this.from.isBefore(other.to) && this.to.isAfter(other.from));
+        return (this.from < (other.to) && this.to > (other.from));
     }
 
     public boolean encloses(TimeRange other) {
-        return (this.from.isBefore(other.from) && this.to.isAfter(other.to));
+        return (this.from < (other.from) && this.to > (other.to));
     }
 
     public TimeRange span(TimeRange other) {
-        int fromCmp = from.compareTo(other.from);
-        int toCmp = to.compareTo(other.to);
-        if (fromCmp <= 0 && toCmp >= 0) {
-            return this;
-        } else if (fromCmp >= 0 && toCmp <= 0) {
-            return other;
-        } else {
-            LocalDateTime newFrom = (fromCmp <= 0) ? from : other.from;
-            LocalDateTime newTo = (toCmp >= 0) ? to : other.to;
-            return new TimeRange(newFrom, newTo);
-        }
+      return new TimeRange(0, 0);
     }
 
     public float getSize() {
-        return to.getNano() - from.getNano();
-    }
-
-
-    public List toList() {
-        List<LocalDateTime> list = new ArrayList<>(2);
-        list.add(this.from);
-        list.add(this.to);
-        return list;
+        return to - from;
     }
 
     public double distanceFrom(TimeRange other) {

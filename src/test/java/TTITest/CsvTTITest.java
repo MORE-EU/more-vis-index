@@ -17,6 +17,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +75,6 @@ public class CsvTTITest {
                                 }
                                 csvDataset.setMeasures(csvMeasures);
                             }
-                            System.out.println(csvMeasures);
                             return csvDataset;
                         case "parquet":
                             String parquetTimeCol = d.get("timeCol").asText();
@@ -107,7 +109,7 @@ public class CsvTTITest {
     private void calculateM4(TimeRange timeRange, AbstractDataset dataset, ViewPort viewPort){
         Duration samplingFreq = dataset.getSamplingFreq();
         int noOfGroups = Math.floorDiv(viewPort.getWidth(), 4);
-        long pointsInRange = Duration.between(timeRange.getFrom(), timeRange.getTo()).dividedBy(samplingFreq);
+        long pointsInRange = Duration.of(timeRange.getFrom() - timeRange.getTo(), ChronoUnit.MILLIS).dividedBy(samplingFreq);
         int groupSize = (int) pointsInRange / noOfGroups;
 
         System.out.println(samplingFreq.multipliedBy(groupSize));
@@ -144,8 +146,8 @@ public class CsvTTITest {
 //        System.out.println("Random 3rd Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
 //        System.out.println();
 
-        LocalDateTime startTime = LocalDateTime.parse("2018-03-01 00:00:00", csvTTI.getFormatter());
-        LocalDateTime endTime = LocalDateTime.parse("2018-03-08 00:00:00", csvTTI.getFormatter());
+        long startTime = LocalDateTime.parse("2018-03-01 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2018-03-08 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         ArrayList<String[]> rows;
         startTest = System.currentTimeMillis();
         TimeRange timeRange = new TimeRange(startTime, endTime);
@@ -157,8 +159,8 @@ public class CsvTTITest {
         calculateM4(timeRange, csvDataset, viewPort);
 
 
-        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter());
-        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter());
+        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
         startTest = System.currentTimeMillis();
         timeRange = new TimeRange(startTime, endTime);
         rows = csvTTI.testRandomAccessRange(timeRange, csvDataset.getMeasures());
@@ -174,8 +176,8 @@ public class CsvTTITest {
 //        reversedLinesFileReader.readLines(1296000);
 //        System.out.println("Similar reader test : " + (System.currentTimeMillis() - startTest) / 1000);
 
-        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter());
-        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter());
+        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
         startTest = System.currentTimeMillis();
         List<Integer> newMeasures = Arrays.stream(new int[]{1, 2, 3, 4, 5, 6, 7}).boxed().collect(Collectors.toList());
         rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), newMeasures);
@@ -220,8 +222,8 @@ public class CsvTTITest {
 //        System.out.println("Random 1st Search Time: " + (System.currentTimeMillis() - startTest) / 1000);
 //        System.out.println();
 
-        LocalDateTime startTime = LocalDateTime.parse("2013-01-01 00:00:00", csvTTI.getFormatter());
-        LocalDateTime endTime = LocalDateTime.parse("2013-02-08 00:00:00", csvTTI.getFormatter());
+        long startTime = LocalDateTime.parse("2013-01-01 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+        long endTime = LocalDateTime.parse("2013-02-08 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
         ArrayList<String[]> rows;
         startTest = System.currentTimeMillis();
         rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), csvDataset.getMeasures());
@@ -230,8 +232,8 @@ public class CsvTTITest {
         System.out.println(getRow(rows.get(rows.size() - 1)));
         System.out.println();
 
-        startTime = LocalDateTime.parse("2013-01-01 16:00:00", csvTTI.getFormatter());
-        endTime = LocalDateTime.parse("2013-05-01 08:55:23", csvTTI.getFormatter());
+        startTime = LocalDateTime.parse("2013-01-01 16:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+        endTime = LocalDateTime.parse("2013-05-01 08:55:23", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
         startTest = System.currentTimeMillis();
         rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), csvDataset.getMeasures());
         System.out.println("4 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
@@ -239,8 +241,8 @@ public class CsvTTITest {
         System.out.println(getRow(rows.get(rows.size() - 1)));
         System.out.println();
 
-        startTime = LocalDateTime.parse("2013-05-01 12:09:03", csvTTI.getFormatter());
-        endTime = LocalDateTime.parse("2013-05-02 09:41:23", csvTTI.getFormatter());
+        startTime = LocalDateTime.parse("2013-05-01 12:09:03", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+        endTime = LocalDateTime.parse("2013-05-02 09:41:23", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
         startTest = System.currentTimeMillis();
         List<Integer> newMeasures = csvDataset.getMeasures();
         newMeasures.add(4);
