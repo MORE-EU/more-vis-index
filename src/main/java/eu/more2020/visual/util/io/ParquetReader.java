@@ -26,24 +26,21 @@ public class ParquetReader {
 
 
     private final String filePath;
-    private final ParquetDataset dataset;
     private final ParquetFileReader reader;
     private final MessageType schema;
     private final DateTimeFormatter formatter;
     private final MessageColumnIO columnIO;
+    private final Integer timeCol;
+    private List<Integer> measures;
+
     private LocalDateTime startTime;
     private Duration frequency;
-    private List<Integer> measures;
     private long size;
     private long partitionSize;
-    private boolean isInitialized = false;
 
-    public ParquetReader(String filePath, ParquetDataset dataset, DateTimeFormatter formatter) throws IOException {
-        this(filePath, dataset, dataset.getMeasures(), formatter);
-    }
-    public ParquetReader(String filePath, ParquetDataset dataset, List<Integer> measures, DateTimeFormatter formatter) throws IOException {
+    public ParquetReader(String filePath,  Integer timeCol, List<Integer> measures, DateTimeFormatter formatter) throws IOException {
         this.filePath = filePath;
-        this.dataset = dataset;
+        this.timeCol = timeCol;
         this.measures = measures;
         this.formatter = formatter;
         this.reader = ParquetFileReader.open(HadoopInputFile.fromPath(new Path(this.filePath), new Configuration()));
@@ -62,7 +59,7 @@ public class ParquetReader {
         PageReadStore rowGroup = this.reader.readRowGroup(probabilisticRowGroupID);
         RecordReader rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
         SimpleGroup row = (SimpleGroup) rowGroupReader.read();
-        LocalDateTime probabilisticTime =  parseStringToDate(row.getBinary(dataset.getTimeCol(), 0).toStringUsingUTF8());
+        LocalDateTime probabilisticTime =  parseStringToDate(row.getBinary(timeCol, 0).toStringUsingUTF8());
 
         if (time.isBefore(probabilisticTime)) {
             while((probabilisticTime.isAfter(time) && !probabilisticTime.isEqual(time))) {
@@ -70,7 +67,7 @@ public class ParquetReader {
                 rowGroup = this.reader.readRowGroup(probabilisticRowGroupID);
                 rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
                 row = (SimpleGroup) rowGroupReader.read();
-                probabilisticTime = parseStringToDate(row.getBinary(dataset.getTimeCol(), 0).toStringUsingUTF8());
+                probabilisticTime = parseStringToDate(row.getBinary(timeCol, 0).toStringUsingUTF8());
             }
         }
         else if(time.isAfter(probabilisticTime)) {
@@ -79,7 +76,7 @@ public class ParquetReader {
                 rowGroup = this.reader.readRowGroup(probabilisticRowGroupID);
                 rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
                 row = (SimpleGroup) rowGroupReader.read();
-                probabilisticTime = parseStringToDate(row.getBinary(dataset.getTimeCol(), 0).toStringUsingUTF8());
+                probabilisticTime = parseStringToDate(row.getBinary(timeCol, 0).toStringUsingUTF8());
             }
         }
         return Math.max(probabilisticRowGroupID - 1, 0);
@@ -97,25 +94,21 @@ public class ParquetReader {
         return rowGroups;
     }
 
-    private void sample() throws IOException{
+    public Duration sample() throws IOException{
         PageReadStore firstRowGroup = reader.readRowGroup(0);
         this.partitionSize = firstRowGroup.getRowCount();
         RecordReader firstRowGroupReader = columnIO.getRecordReader(firstRowGroup, new GroupRecordConverter(schema));
         SimpleGroup row = (SimpleGroup) firstRowGroupReader.read();
-        this.startTime =  parseStringToDate(row.getBinary(dataset.getTimeCol(), 0).toStringUsingUTF8()); // Get date col
+        this.startTime =  parseStringToDate(row.getBinary(timeCol, 0).toStringUsingUTF8()); // Get date col
         row = (SimpleGroup) firstRowGroupReader.read();
-        LocalDateTime secondTime =  parseStringToDate(row.getBinary(dataset.getTimeCol(), 0).toStringUsingUTF8());
+        LocalDateTime secondTime =  parseStringToDate(row.getBinary(timeCol, 0).toStringUsingUTF8());
         this.frequency = Duration.between(startTime, secondTime);
-    }
-
-    public void initialize() throws IOException {
-        sample();
-        this.isInitialized = true;
+        return this.frequency;
     }
 
     public String[] getRow(SimpleGroup rowGroup){
         String[] row = new String[this.measures.size() + 1];
-        String time = rowGroup.getBinary(dataset.getTimeCol(), 0).toStringUsingUTF8();
+        String time = rowGroup.getBinary(timeCol, 0).toStringUsingUTF8();
         row[0] = time;
         int j = 1;
         for (Integer column : this.measures){
@@ -125,7 +118,6 @@ public class ParquetReader {
     }
 
     public ArrayList<String[]> getData(TimeRange range, List<Integer> measures) throws IOException {
-        if(!isInitialized) this.initialize();
         if(!measures.equals(this.measures)) this.measures = measures;
         long fromPosition = findPosition(range.getFrom());
         long toPosition = findPosition(range.getTo());

@@ -15,8 +15,6 @@ import java.util.*;
 
 public class ParquetTTI {
 
-    private static final Logger LOG = LogManager.getLogger(CsvTTI.class);
-
     private ParquetDataset dataset;
     private String filePath;
     private int objectsIndexed = 0;
@@ -39,12 +37,13 @@ public class ParquetTTI {
 
     public void initialize() throws IOException {
         this.objectsIndexed = 0;
+        List<Integer> measures = dataset.getMeasures();
         measureStats = new HashMap<>();
         for (Integer measureIndex : dataset.getMeasures()) {
             measureStats.put(measureIndex, new DoubleSummaryStatistics());
         }
-        this.parquetReader = new ParquetReader(filePath, dataset, formatter);
-        this.parquetReader.initialize();
+        this.parquetReader = new ParquetReader(filePath, dataset.getTimeCol(), measures, formatter);
+        this.dataset.setSamplingFreq(this.parquetReader.sample());
         this.isInitialized = true;
     }
 
