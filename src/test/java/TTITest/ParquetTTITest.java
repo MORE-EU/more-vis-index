@@ -9,6 +9,8 @@ import eu.more2020.visual.domain.Farm;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.index.parquet.ParquetTTI;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -30,6 +32,8 @@ public class ParquetTTITest {
 
     public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
     public String delimiter = ",";
+
+    final static Logger logger = LoggerFactory.getLogger(ParquetTTITest.class);
 
     private AbstractDataset getDataset() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -101,7 +105,6 @@ public class ParquetTTITest {
     public void test_wind() throws IOException {
         farmName = "BEBEZE2";
         id = "bbz2";
-
         File metadataFile = new File(workspacePath + "/" + farmName, id + ".parquet");
         String filePath = metadataFile.getAbsolutePath();
         double startInit = System.currentTimeMillis();

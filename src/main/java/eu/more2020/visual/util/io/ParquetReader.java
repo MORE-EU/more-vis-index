@@ -1,6 +1,5 @@
 package eu.more2020.visual.util.io;
 
-import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.TimeRange;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -16,14 +15,11 @@ import org.apache.parquet.io.RecordReader;
 import org.apache.parquet.schema.MessageType;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.text.SimpleDateFormat;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ParquetReader {
 
@@ -65,22 +61,24 @@ public class ParquetReader {
         long probabilisticTime =  parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
 
         if (time < probabilisticTime) {
-            while((probabilisticTime > time)) {
+            while((probabilisticTime >= time)) {
                 probabilisticRowGroupID --;
                 rowGroup = this.reader.readRowGroup(probabilisticRowGroupID);
                 rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
                 row = (SimpleGroup) rowGroupReader.read();
                 probabilisticTime = parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
             }
+            System.out.println(parseTimestampToString(time));
         }
         else if(time > probabilisticTime) {
-            while((probabilisticTime < time)) {
+            while((probabilisticTime <= time)) {
                 probabilisticRowGroupID ++;
                 rowGroup = this.reader.readRowGroup(probabilisticRowGroupID);
                 rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
                 row = (SimpleGroup) rowGroupReader.read();
                 probabilisticTime = parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
             }
+            System.out.println(parseTimestampToString(time));
         }
         return Math.max(probabilisticRowGroupID - 1, 0);
     }
@@ -149,11 +147,13 @@ public class ParquetReader {
         return rows;
     }
 
-    public LocalDateTime parseStringToDate(String s) {return LocalDateTime.parse(s, formatter);}
-
     public long parseStringToTimestamp(String s) {
         ZonedDateTime zonedDateTime = LocalDateTime.parse(s, formatter).atZone(ZoneId.systemDefault());
         return zonedDateTime.toInstant().toEpochMilli();
+    }
+
+    public String parseTimestampToString(long t) {
+        return formatter.format(Instant.ofEpochMilli(t).atZone(ZoneId.systemDefault()).toLocalDateTime());
     }
 
     public long findPosition(long time) { return Duration.of(this.startTime - time, ChronoUnit.MILLIS).dividedBy(this.frequency); }
