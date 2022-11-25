@@ -159,16 +159,16 @@ public class CsvTTITest {
         calculateM4(timeRange, csvDataset, viewPort);
 
 
-        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        startTest = System.currentTimeMillis();
-        timeRange = new TimeRange(startTime, endTime);
-        rows = csvTTI.testRandomAccessRange(timeRange, csvDataset.getMeasures());
-        System.out.println("1 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println();
-        calculateM4(timeRange, csvDataset, viewPort);
+//        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+//        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+//        startTest = System.currentTimeMillis();
+//        timeRange = new TimeRange(startTime, endTime);
+//        rows = csvTTI.testRandomAccessRange(timeRange, csvDataset.getMeasures());
+//        System.out.println("1 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
+//        System.out.println(getRow(rows.get(0)));
+//        System.out.println(getRow(rows.get(rows.size() - 1)));
+//        System.out.println();
+//        calculateM4(timeRange, csvDataset, viewPort);
 
 //        ReversedLinesFileReader reversedLinesFileReader = new ReversedLinesFileReader(new File(csv), 65536, Charset.defaultCharset());
 //
@@ -176,15 +176,15 @@ public class CsvTTITest {
 //        reversedLinesFileReader.readLines(1296000);
 //        System.out.println("Similar reader test : " + (System.currentTimeMillis() - startTest) / 1000);
 
-        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        startTest = System.currentTimeMillis();
-        List<Integer> newMeasures = Arrays.stream(new int[]{1, 2, 3, 4, 5, 6, 7}).boxed().collect(Collectors.toList());
-        rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), newMeasures);
-        System.out.println("1 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println();
+//        startTime = LocalDateTime.parse("2018-03-01 01:15:01", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+//        endTime = LocalDateTime.parse("2018-04-01 00:30:59", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
+//        startTest = System.currentTimeMillis();
+//        List<Integer> newMeasures = Arrays.stream(new int[]{1, 2, 3, 4, 5, 6, 7}).boxed().collect(Collectors.toList());
+//        rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), newMeasures);
+//        System.out.println("1 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
+//        System.out.println(getRow(rows.get(0)));
+//        System.out.println(getRow(rows.get(rows.size() - 1)));
+//        System.out.println();
 //
 //        startTime = LocalDateTime.parse("2018-03-01 00:00:00", csvTTI.getFormatter());
 //        endTime = LocalDateTime.parse("2019-03-01 00:00:00", csvTTI.getFormatter());

@@ -29,7 +29,8 @@ public class RandomAccessReader extends RandomAccessFile {
     // `current` as current position in file
     // `bufferOffset` is the offset of the beginning of the buffer
     // `markedPointer` folds the offset of the last file mark
-    protected long bufferOffset, current = 0, markedPointer;
+    // `lastRowReadOffset` as position of last row read
+    protected long bufferOffset, current = 0, lastRowReadOffset = 0, markedPointer;
     // `validBufferBytes` is the number of bytes in the buffer that are actually valid;
     //  this will be LESS than buffer capacity if buffer is not full!
     protected int validBufferBytes;
@@ -144,7 +145,7 @@ public class RandomAccessReader extends RandomAccessFile {
         if (newPosition > (bufferOffset + validBufferBytes) || newPosition < (bufferOffset - validBufferBytes))
             reBuffer();
         // TODO: DON'T KNOW IF THIS IS Efficient, we perhaps need another way to get to a new line after randomly seeking
-        readLine();
+       readLine();
     }
 
     @Override
@@ -234,14 +235,23 @@ public class RandomAccessReader extends RandomAccessFile {
                     break;
             }
         }
+        this.lastRowReadOffset = this.current + 1;
         if ((c == -1) && (input.length() == 0)) {
             return null;
         }
         return input.reverse().toString();
     }
+
     public final String readNewLine() throws IOException {
-        if(this.direction == DIRECTION.FORWARD) return this.readLine();
+        if(this.direction == DIRECTION.FORWARD) {
+            this.lastRowReadOffset = this.getFilePointer() - 1;
+            return this.readLine();
+        }
         return this.readLineReverse();
+    }
+
+    public long getLastRowReadOffset() {
+        return lastRowReadOffset;
     }
 
     @Override
