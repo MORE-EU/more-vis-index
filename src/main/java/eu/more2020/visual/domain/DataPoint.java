@@ -1,44 +1,21 @@
 package eu.more2020.visual.domain;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 
-public class DataPoint {
+/**
+ * Represents a single multi-measure data point with a number of values and a timestamp.
+ */
+public interface DataPoint {
 
-    private LocalDateTime timestamp;
+    /**
+     * Returns the timestamp(epoch time in milliseconds) of this data point.
+     */
+    public long getTimestamp();
 
-    private double[] values;
+    /**
+     * Returns an array of double values, corresponding to a set of measures.
+     * The mapping of each value to a measure is handled elsewhere (e.g. in the {@link DataPoints}
+     * that include this data point).
+     */
+    public double[] getValues();
 
-    public DataPoint(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public DataPoint(LocalDateTime timestamp, double[] values) {
-        this.timestamp = timestamp;
-        this.values = values;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public double[] getValues() {
-        return values;
-    }
-
-    public void setValue(double[] values) {
-        this.values = values;
-    }
-
-    @Override
-    public String toString() {
-        return "DataPoint{" +
-            "timestamp=" + timestamp +
-            ", values=" + Arrays.toString(values) +
-            '}';
-    }
 }

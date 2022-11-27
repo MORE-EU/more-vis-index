@@ -1,9 +1,8 @@
 package eu.more2020.visual.domain;
 
+import eu.more2020.visual.util.DateTimeUtil;
+
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -49,7 +48,7 @@ public class TimeRange implements Serializable {
     }
 
     public TimeRange span(TimeRange other) {
-      return new TimeRange(0, 0);
+        return new TimeRange(0, 0);
     }
 
     public float getSize() {
@@ -67,7 +66,7 @@ public class TimeRange implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         TimeRange range = (TimeRange) o;
         return Objects.equals(from, range.from) &&
-            Objects.equals(to, range.to);
+                Objects.equals(to, range.to);
     }
 
     @Override
@@ -78,8 +77,8 @@ public class TimeRange implements Serializable {
     @Override
     public String toString() {
         return "TimeRange{" +
-            "from=" + from +
-            ", to=" + to +
-            '}';
+                "from=" + DateTimeUtil.format(from) +
+                ", to=" + DateTimeUtil.format(to) +
+                '}';
     }
 }

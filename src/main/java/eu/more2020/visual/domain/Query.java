@@ -1,5 +1,6 @@
 package eu.more2020.visual.domain;
 
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 
@@ -7,20 +8,26 @@ public class Query {
 
     private TimeRange range;
 
-    private HashMap<Integer, Double[]> filter;
+    private HashMap<Integer, Double[]> filters;
 
     private List<Integer> measures;
 
-    private String frequency;
+    private int aggInterval;
+
+    private ChronoUnit unit;
+
+    private Aggregator aggregator;
 
     public Query() {
     }
 
-    public Query(TimeRange range, List<Integer> measures, String frequency, HashMap<Integer, Double[]> filter) {
+    public Query(TimeRange range, List<Integer> measures, Aggregator aggregator, int aggInterval, ChronoUnit unit, HashMap<Integer, Double[]> filters) {
         this.range = range;
         this.measures = measures;
-        this.frequency = frequency;
-        this.filter = filter;
+        this.aggInterval = aggInterval;
+        this.unit = unit;
+        this.filters = filters;
+        this.aggregator = aggregator;
     }
 
     public TimeRange getRange() {
@@ -31,21 +38,15 @@ public class Query {
         this.range = range;
     }
 
-    public String getFrequency() {
-        return frequency;
+
+    public HashMap<Integer, Double[]> getFilters() {
+        return this.filters;
     }
 
-    public HashMap<Integer, Double[]> getFilter() {
-        return this.filter;
+    public void setFilters(HashMap<Integer, Double[]> filters) {
+        this.filters = filters;
     }
 
-    public void setFilter(HashMap<Integer, Double[]> filter) {
-        this.filter = filter;
-    }
-
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
-    }
 
     public List<Integer> getMeasures() {
         return measures;
@@ -55,14 +56,39 @@ public class Query {
         this.measures = measures;
     }
 
+    public int getAggInterval() {
+        return aggInterval;
+    }
+
+    public void setAggInterval(int aggInterval) {
+        this.aggInterval = aggInterval;
+    }
+
+    public ChronoUnit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(ChronoUnit unit) {
+        this.unit = unit;
+    }
+
+    public Aggregator getAggregator() {
+        return aggregator;
+    }
+
+    public void setAggregator(Aggregator aggregator) {
+        this.aggregator = aggregator;
+    }
 
     @Override
     public String toString() {
         return "Query{" +
-            "range=" + range +
-            ", measures=" + measures +
-            ", frequency=" + frequency + 
-            ", filter=" + (filter != null ? filter.toString() : "null") +
-            '}';
+                "range=" + range +
+                ", filter=" + filters +
+                ", measures=" + measures +
+                ", aggInterval=" + aggInterval +
+                ", unit=" + unit +
+                ", aggregator=" + aggregator +
+                '}';
     }
 }

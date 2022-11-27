@@ -3,13 +3,16 @@ package TTITest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.more2020.visual.datasource.CsvDataSource;
+import eu.more2020.visual.datasource.DataSource;
+import eu.more2020.visual.datasource.DataSourceFactory;
+import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
-import eu.more2020.visual.domain.Farm;
-import eu.more2020.visual.domain.TimeRange;
-import eu.more2020.visual.domain.ViewPort;
-import eu.more2020.visual.index.csv.CsvTTI;
+import eu.more2020.visual.domain.csv.CsvDataPoint;
+import eu.more2020.visual.index.TTI;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,22 +21,19 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class CsvTTITest {
 
-
-    //    public String csv = "/opt/more-workspace/BEBEZE/bbz1.csv";
     public String farmName;
     public String id;
 
-    public CsvTTI csvTTI;
+    public TTI tti;
 
     public String workspacePath = "/opt/more-workspace";
 
@@ -44,6 +44,7 @@ public class CsvTTITest {
         ObjectMapper mapper = new ObjectMapper();
         Farm farm = new Farm();
         File metadataFile = new File(workspacePath + "/" + farmName, farmName + ".meta.json");
+
         if (metadataFile.exists()) {
             FileReader reader = new FileReader(metadataFile);
             JsonNode jsonNode = mapper.readTree(reader);
@@ -52,11 +53,11 @@ public class CsvTTITest {
             JsonNode data = jsonNode.get("data");
             for (JsonNode d : data) {
                 String datasetId = d.get("id").asText();
-                if(datasetId.equals(id)) {
+                if (datasetId.equals(id)) {
                     String name = d.get("name").asText();
                     String type = d.get("type").asText();
-                    String path = workspacePath + "/" + farmName +  "/" + d.get("path").asText();
-                    switch (type){
+                    String path = workspacePath + "/" + farmName + "/" + d.get("path").asText();
+                    switch (type) {
                         case "CSV":
                             Integer csvTimeCol = d.get("timeCol").asInt();
                             List<Integer> csvMeasures = new ArrayList<>();
@@ -98,25 +99,26 @@ public class CsvTTITest {
         return null;
     }
 
-    private String getRow(String[] row){
+    private String getRow(String[] row) {
         StringBuilder r = new StringBuilder();
-        for (String rr : row){
+        for (String rr : row) {
             r.append(rr).append(",");
         }
         return r.toString();
     }
 
-    private void calculateM4(TimeRange timeRange, AbstractDataset dataset, ViewPort viewPort){
-        Duration samplingFreq = dataset.getSamplingFreq();
+    private void calculateM4(TimeRange timeRange, AbstractDataset dataset, ViewPort viewPort) {
+        Duration samplingFreq = dataset.getSamplingInterval();
         int noOfGroups = Math.floorDiv(viewPort.getWidth(), 4);
-        long pointsInRange = Duration.of(timeRange.getFrom() - timeRange.getTo(), ChronoUnit.MILLIS).dividedBy(samplingFreq);
+        long pointsInRange = Duration.of(timeRange.getFrom() - timeRange.getTo(), ChronoUnit.MILLIS)
+                .dividedBy(samplingFreq);
         int groupSize = (int) pointsInRange / noOfGroups;
 
         System.out.println(samplingFreq.multipliedBy(groupSize));
     }
 
-    @Test
-    public void test_wind() throws  IOException {
+/*    @Test
+    public void test_wind() throws IOException {
         farmName = "BEBEZE";
         id = "bbz1";
         CsvDataset csvDataset = (CsvDataset) getDataset();
@@ -146,8 +148,10 @@ public class CsvTTITest {
 //        System.out.println("Random 3rd Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
 //        System.out.println();
 
-        long startTime = LocalDateTime.parse("2018-03-01 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long endTime = LocalDateTime.parse("2018-03-08 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long startTime = LocalDateTime.parse("2018-03-01 00:00:00", csvTTI.getFormatter())
+                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2018-03-08 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault())
+                .toInstant().toEpochMilli();
         ArrayList<String[]> rows;
         startTest = System.currentTimeMillis();
         TimeRange timeRange = new TimeRange(startTime, endTime);
@@ -195,9 +199,36 @@ public class CsvTTITest {
 //        System.out.println(getRow(rows.get(rows.size() - 1)));
 //        System.out.println();
 
+    }*/
+
+    @Test
+    public void test_wind() throws IOException {
+        farmName = "bbz";
+        id = "bbz3";
+        CsvDataset csvDataset = (CsvDataset) getDataset();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
+        long startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
+                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2018-01-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+                .toInstant().toEpochMilli();
+        TimeRange timeRange = new TimeRange(startTime, endTime);
+
+        DataSource dataSource = DataSourceFactory.getDataSource(csvDataset);
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+        // DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
+        for (DataPoint dataPoint : dataPoints){
+            System.out.println(dataPoint);
+        }
+
+/*
+        TTI tti = new TTI(csvDataset);
+        tti.initialize(null);
+*/
+
     }
 
-    public void test_solar() throws IOException {
+    /*public void test_solar() throws IOException {
         farmName = "solar";
         id = "eugene";
         File metadataFile = new File(workspacePath + "/" + farmName, id + ".csv");
@@ -252,6 +283,6 @@ public class CsvTTITest {
         System.out.println(getRow(rows.get(rows.size() - 1)));
         System.out.println();
     }
-
+*/
 
 }

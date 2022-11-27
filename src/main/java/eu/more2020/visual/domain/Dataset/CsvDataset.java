@@ -1,22 +1,22 @@
 package eu.more2020.visual.domain.Dataset;
 
-import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import eu.more2020.visual.domain.DataFileInfo;
 import eu.more2020.visual.domain.TimeRange;
+import eu.more2020.visual.util.DateTimeUtil;
 import eu.more2020.visual.util.io.CsvReader.CsvRandomAccessReader;
-import eu.more2020.visual.util.io.CsvReader.DIRECTION;
-import org.apache.commons.io.input.ReversedLinesFileReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -24,28 +24,40 @@ import java.util.stream.Collectors;
  */
 public class CsvDataset extends AbstractDataset {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CsvRandomAccessReader.class);
+
     public String delimiter;
     private Boolean hasHeader;
+
+    private long meanByteSize;
+
 
     public CsvDataset(String path, String id, String name, Integer timeCol,
                       List<Integer> measures, boolean hasHeader, String timeFormat, String delimiter) throws IOException {
         super(path, id, name, timeCol, measures, timeFormat);
         this.hasHeader = hasHeader;
-        this.delimiter =  delimiter;
+        this.delimiter = delimiter;
         this.fillCsvDatasetInfo();
+        LOG.info("Initialized dataset: {}", this);
     }
 
     private void fillCsvDataFileInfo(DataFileInfo dataFileInfo) throws IOException {
-        CsvRandomAccessReader csvRandomAccessReader = new CsvRandomAccessReader(dataFileInfo.getFilePath(),
-            new DateTimeFormatterBuilder().appendPattern(this.getTimeFormat())
-            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-            .toFormatter(), getTimeCol(), getDelimiter(), getHasHeader(), getMeasures());
-        this.setHeader(getHasHeader() ? csvRandomAccessReader.parseHeader() : new String[0]);
-        long from = csvRandomAccessReader.parseStringToTimestamp(csvRandomAccessReader.parseNext()[this.getTimeCol()]);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getTimeFormat());
+
+        CsvRandomAccessReader csvRandomAccessReader = new CsvRandomAccessReader(dataFileInfo.getFilePath(), formatter,
+                getTimeCol(), getDelimiter(), getHasHeader(), getMeasures());
+
+        if (hasHeader) {
+            setHeader(csvRandomAccessReader.getParsedHeader());
+        }
+        // todo: we don't need to update these with every sub-file
+        setSamplingInterval(csvRandomAccessReader.getSamplingInterval());
+        meanByteSize = csvRandomAccessReader.getMeanByteSize();
+
+        long from = DateTimeUtil.parseDateTimeString(csvRandomAccessReader.parseNext()[this.getTimeCol()], formatter, ZoneId.of("UTC"));
         csvRandomAccessReader.goToEnd();
-        long to = csvRandomAccessReader.parseStringToTimestamp(csvRandomAccessReader.parseNext()[this.getTimeCol()]);
+        long to = DateTimeUtil.parseDateTimeString(csvRandomAccessReader.parseNext()[this.getTimeCol()], formatter, ZoneId.of("UTC"));
+
         dataFileInfo.setTimeRange(new TimeRange(from, to));
     }
 
@@ -55,19 +67,24 @@ public class CsvDataset extends AbstractDataset {
             DataFileInfo dataFileInfo = new DataFileInfo(file.getAbsolutePath());
             fillCsvDataFileInfo(dataFileInfo);
             getFileInfoList().add(dataFileInfo);
-
         } else {
-            List<DataFileInfo> fileInfoList = Arrays.stream(Objects.requireNonNull(file.listFiles(f -> !f.isDirectory() && f.getName().endsWith(".csv")))).map(f -> {
+            List<DataFileInfo> fileInfoList = Arrays.stream(Objects.requireNonNull(file.listFiles(f -> !f.isDirectory() && f.getName()
+                    .endsWith(".csv")))).map(f -> {
                 DataFileInfo dataFileInfo = new DataFileInfo(f.getAbsolutePath());
                 try {
                     fillCsvDataFileInfo(dataFileInfo);
                 } catch (IOException e) {
-                    new RuntimeException(e);
+                    new UncheckedIOException(e);
                 }
                 return dataFileInfo;
             }).sorted(Comparator.comparing(i -> i.getTimeRange().getFrom())).collect(Collectors.toList());
             // sort csv files by their time ranges ascending
             this.setFileInfoList(fileInfoList);
+        }
+        // set time range for complete dataset from all files
+        if (fileInfoList != null && !fileInfoList.isEmpty()) {
+            this.setTimeRange(new TimeRange(fileInfoList.get(0).getTimeRange()
+                    .getFrom(), fileInfoList.get(fileInfoList.size() - 1).getTimeRange().getTo()));
         }
     }
 
@@ -85,6 +102,10 @@ public class CsvDataset extends AbstractDataset {
 
     public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
+    }
+
+    public long getMeanByteSize() {
+        return meanByteSize;
     }
 
     public CsvParserSettings createCsvParserSettings() {

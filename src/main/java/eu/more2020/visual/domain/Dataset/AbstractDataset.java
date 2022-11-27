@@ -3,22 +3,16 @@ package eu.more2020.visual.domain.Dataset;
 import eu.more2020.visual.domain.DataFileInfo;
 import eu.more2020.visual.domain.TimeRange;
 import java.time.Duration;
-import org.apache.arrow.flatbuf.Int;
-import org.apache.parquet.filter2.predicate.Operators;
 
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractDataset implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
-    private Duration samplingFreq;
+    private Duration samplingInterval;
     @NotNull
     private String path;
     @NotNull
@@ -33,7 +27,6 @@ public abstract class AbstractDataset implements Serializable {
     private String type;
     List<DataFileInfo> fileInfoList = new ArrayList<>();
     private List<Integer> measures;
-    private Map<Integer, DoubleSummaryStatistics> measureStats;
 
     public AbstractDataset(String path, String id, String name, String timeFormat) {
         this.path = path;
@@ -131,16 +124,13 @@ public abstract class AbstractDataset implements Serializable {
         this.measures = measures;
     }
 
-    public Map<Integer, DoubleSummaryStatistics> getMeasureStats() {
-        return measureStats;
+
+    public Duration getSamplingInterval() {
+        return samplingInterval;
     }
 
-    public Duration getSamplingFreq() {
-        return samplingFreq;
-    }
-
-    public void setSamplingFreq(Duration samplingFreq) {
-        this.samplingFreq = samplingFreq;
+    public void setSamplingInterval(Duration samplingInterval) {
+        this.samplingInterval = samplingInterval;
     }
 
     public List<DataFileInfo> getFileInfoList() {
@@ -167,4 +157,22 @@ public abstract class AbstractDataset implements Serializable {
         return 31;
     }
 
+    @Override
+    public String toString() {
+        return "AbstractDataset{" +
+                "samplingInterval=" + samplingInterval +
+                ", path='" + path + '\'' +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", resType=" + resType +
+                ", header=" + Arrays.toString(header) +
+                ", timeCol=" + timeCol +
+                ", timeFormat='" + timeFormat + '\'' +
+                ", farmName='" + farmName + '\'' +
+                ", timeRange=" + timeRange +
+                ", type='" + type + '\'' +
+                ", fileInfoList=" + fileInfoList +
+                ", measures=" + measures +
+                '}';
+    }
 }

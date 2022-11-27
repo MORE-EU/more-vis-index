@@ -2,10 +2,7 @@ package eu.more2020.visual.index.parquet;
 
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.TimeRange;
-import eu.more2020.visual.index.csv.CsvTTI;
 import eu.more2020.visual.util.io.ParquetReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -43,7 +40,7 @@ public class ParquetTTI {
             measureStats.put(measureIndex, new DoubleSummaryStatistics());
         }
         this.parquetReader = new ParquetReader(filePath, dataset.getTimeCol(), measures, formatter);
-        this.dataset.setSamplingFreq(this.parquetReader.sample());
+        this.dataset.setSamplingInterval(this.parquetReader.sample());
         this.isInitialized = true;
     }
 

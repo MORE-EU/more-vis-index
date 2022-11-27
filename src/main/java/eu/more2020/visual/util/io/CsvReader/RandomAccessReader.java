@@ -145,7 +145,7 @@ public class RandomAccessReader extends RandomAccessFile {
         if (newPosition > (bufferOffset + validBufferBytes) || newPosition < (bufferOffset - validBufferBytes))
             reBuffer();
         // TODO: DON'T KNOW IF THIS IS Efficient, we perhaps need another way to get to a new line after randomly seeking
-       readLine();
+       // readLine();
     }
 
     @Override

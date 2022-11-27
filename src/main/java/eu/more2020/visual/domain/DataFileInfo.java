@@ -25,4 +25,12 @@ public class DataFileInfo {
     public void setTimeRange(TimeRange timeRange) {
         this.timeRange = timeRange;
     }
+
+    @Override
+    public String toString() {
+        return "DataFileInfo{" +
+                "filePath='" + filePath + '\'' +
+                ", timeRange=" + timeRange +
+                '}';
+    }
 }
