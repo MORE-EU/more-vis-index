@@ -139,8 +139,7 @@ public class CsvRandomAccessReader extends RandomAccessReader {
     }
 
     private long findProbabilisticOffset(long position) throws IOException {
-        // todo why do we need to compare with the second part?
-        return Math.min(startOffset + meanByteSize * position, (this.channel.size() - 100 * meanByteSize));
+        return Math.min(startOffset + meanByteSize * position, this.channel.size());
     }
 
     private long findOffset(long time) throws IOException {

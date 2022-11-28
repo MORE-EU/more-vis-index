@@ -1,12 +1,11 @@
 package eu.more2020.visual.util;
 
+import eu.more2020.visual.domain.TimeRange;
+import eu.more2020.visual.domain.ViewPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -158,5 +157,16 @@ public class DateTimeUtil {
         ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime, interval, unit, zoneId);
         return (int) (unit.between(startDateTime, endDateTime) / interval) + 1;
     }
+
+
+    public static void M4(TimeRange timeRange, Duration samplingInterval, ViewPort viewPort) {
+//        int noOfGroups = Math.floorDiv(viewPort.getWidth(), 4);
+        int noOfGroups = viewPort.getWidth();
+        long pointsInRange = Duration.of(timeRange.getFrom() - timeRange.getTo(), ChronoUnit.MILLIS)
+                .dividedBy(samplingInterval);
+        int groupSize = (int) pointsInRange / noOfGroups;
+        System.out.println(samplingInterval.multipliedBy(groupSize));
+    }
+
 
 }

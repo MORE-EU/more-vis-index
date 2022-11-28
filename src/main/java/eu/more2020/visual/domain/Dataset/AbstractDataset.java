@@ -2,10 +2,13 @@ package eu.more2020.visual.domain.Dataset;
 
 import eu.more2020.visual.domain.DataFileInfo;
 import eu.more2020.visual.domain.TimeRange;
+import eu.more2020.visual.domain.ViewPort;
+
 import java.time.Duration;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public abstract class AbstractDataset implements Serializable {

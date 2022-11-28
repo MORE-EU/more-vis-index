@@ -23,10 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class CsvTTITest {
 
@@ -105,16 +102,6 @@ public class CsvTTITest {
             r.append(rr).append(",");
         }
         return r.toString();
-    }
-
-    private void calculateM4(TimeRange timeRange, AbstractDataset dataset, ViewPort viewPort) {
-        Duration samplingFreq = dataset.getSamplingInterval();
-        int noOfGroups = Math.floorDiv(viewPort.getWidth(), 4);
-        long pointsInRange = Duration.of(timeRange.getFrom() - timeRange.getTo(), ChronoUnit.MILLIS)
-                .dividedBy(samplingFreq);
-        int groupSize = (int) pointsInRange / noOfGroups;
-
-        System.out.println(samplingFreq.multipliedBy(groupSize));
     }
 
 /*    @Test
@@ -206,7 +193,7 @@ public class CsvTTITest {
         farmName = "bbz";
         id = "bbz3";
         CsvDataset csvDataset = (CsvDataset) getDataset();
-
+        ViewPort viewPort = new ViewPort(800, 400);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
         long startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
@@ -221,68 +208,35 @@ public class CsvTTITest {
             System.out.println(dataPoint);
         }
 
+        DateTimeUtil.M4(timeRange, csvDataset.getSamplingInterval(), viewPort);
 /*
         TTI tti = new TTI(csvDataset);
         tti.initialize(null);
 */
 
     }
-
-    /*public void test_solar() throws IOException {
+    @Test
+    public void test_solar() throws IOException {
         farmName = "solar";
         id = "eugene";
         File metadataFile = new File(workspacePath + "/" + farmName, id + ".csv");
         String csv = metadataFile.getAbsolutePath();
         CsvDataset csvDataset = (CsvDataset) getDataset();
-        this.csvTTI = new CsvTTI(csv, Objects.requireNonNull((CsvDataset) getDataset()));
-        double startInit = System.currentTimeMillis();
-        csvTTI.initialize();
 
-        System.out.println("Initialization Time: " + (System.currentTimeMillis() - startInit) / 1000);
-        System.out.println();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
+        long startTime = LocalDateTime.parse("2013-01-01 16:00:00", formatter)
+                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2013-02-08 00:00:00", formatter).atZone(ZoneId.of("UTC"))
+                .toInstant().toEpochMilli();
+        TimeRange timeRange = new TimeRange(startTime, endTime);
 
-        double startTest = System.currentTimeMillis();
-        LocalDateTime testTime = LocalDateTime.parse("2013-05-01 08:55:23", csvTTI.getFormatter());
-//        System.out.println(csvTTI.testRandomAccess(testTime, csvDataset.getMeasures()));
-//        System.out.println("Random 1st Search Time: " + (System.currentTimeMillis() - startTest) / 1000);
-//        System.out.println();
-//
-//        startTest = System.currentTimeMillis();
-//        testTime = LocalDateTime.parse("2013-02-08 00:00:00", csvTTI.getFormatter());
-//        System.out.println(csvTTI.testRandomAccess(testTime, csvDataset.getMeasures()));
-//        System.out.println("Random 1st Search Time: " + (System.currentTimeMillis() - startTest) / 1000);
-//        System.out.println();
-
-        long startTime = LocalDateTime.parse("2013-01-01 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        long endTime = LocalDateTime.parse("2013-02-08 00:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        ArrayList<String[]> rows;
-        startTest = System.currentTimeMillis();
-        rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), csvDataset.getMeasures());
-        System.out.println("1 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println();
-
-        startTime = LocalDateTime.parse("2013-01-01 16:00:00", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        endTime = LocalDateTime.parse("2013-05-01 08:55:23", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        startTest = System.currentTimeMillis();
-        rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), csvDataset.getMeasures());
-        System.out.println("4 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println();
-
-        startTime = LocalDateTime.parse("2013-05-01 12:09:03", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        endTime = LocalDateTime.parse("2013-05-02 09:41:23", csvTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();;
-        startTest = System.currentTimeMillis();
-        List<Integer> newMeasures = csvDataset.getMeasures();
-        newMeasures.add(4);
-        rows = csvTTI.testRandomAccessRange(new TimeRange(startTime, endTime), newMeasures);
-        System.out.println("1 Month Range Search Time (No of rows) " + rows.size() + ": " + (System.currentTimeMillis() - startTest) / 1000);
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println();
+        DataSource dataSource = DataSourceFactory.getDataSource(csvDataset);
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+        // DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
+        for (DataPoint dataPoint : dataPoints){
+            System.out.println(dataPoint);
+        }
     }
-*/
+
 
 }

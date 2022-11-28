@@ -53,7 +53,7 @@ public class ParquetReader {
         return (int) Math.floorDiv(index, partitionSize);
     }
 
-    private int getRowGroupID(long time) throws IOException {
+    private int findRowGroupID(long time) throws IOException {
         int probabilisticRowGroupID = findProbabilisticRowGroupID(time);
         PageReadStore rowGroup = this.reader.readRowGroup(probabilisticRowGroupID);
         RecordReader rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
@@ -83,10 +83,10 @@ public class ParquetReader {
         return Math.max(probabilisticRowGroupID - 1, 0);
     }
 
-    private List<PageReadStore> getRowGroups(long start, long end) throws IOException {
+    private List<PageReadStore> findRowGroups(long start, long end) throws IOException {
         List<PageReadStore> rowGroups = new ArrayList<>();
-        int startRowGroupID = getRowGroupID(start);
-        int endRowGroupID = getRowGroupID(end);
+        int startRowGroupID = findRowGroupID(start);
+        int endRowGroupID = findRowGroupID(end);
         long i = startRowGroupID;
         while(i <= endRowGroupID){
             rowGroups.add(this.reader.readRowGroup((int) i));
@@ -120,29 +120,36 @@ public class ParquetReader {
 
     public ArrayList<String[]> getData(TimeRange range, List<Integer> measures) throws IOException {
         if(!measures.equals(this.measures)) this.measures = measures;
-        long fromPosition = findPosition(range.getFrom());
-        long toPosition = findPosition(range.getTo());
-        long steps = toPosition - fromPosition - 1;
+
+        long fromTimestamp = range.getFrom();
+        long toTimestamp = range.getTo();
         ArrayList<String[]> rows = new ArrayList<>();
-        List<PageReadStore> rowGroups = getRowGroups(range.getFrom(), range.getTo());
+        List<PageReadStore> rowGroups = findRowGroups(range.getFrom(), range.getTo());
         PageReadStore firstRowGroup = rowGroups.get(0);
         RecordReader<Group> firstRowGroupReader = columnIO.getRecordReader(firstRowGroup, new GroupRecordConverter(this.schema));
         int i = 0;
-        while(i++ < fromPosition % partitionSize - 1) firstRowGroupReader.read();
-
         while(i++ < firstRowGroup.getRowCount()){
             final SimpleGroup simpleGroup = (SimpleGroup) firstRowGroupReader.read();
-            rows.add(getRow(simpleGroup));
+            String[] row = getRow(simpleGroup);
+            if(parseStringToTimestamp(row[0]) >= fromTimestamp)
+                rows.add(getRow(simpleGroup));
         }
-        for (PageReadStore rowGroup : rowGroups.subList(1, rowGroups.size())){
+        for (PageReadStore rowGroup : rowGroups.subList(1, rowGroups.size() - 1)){
             RecordReader<Group> rowGroupReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(this.schema));
             i = 0;
             while(i++ < rowGroup.getRowCount()){
                 final SimpleGroup simpleGroup = (SimpleGroup) rowGroupReader.read();
                 rows.add(getRow(simpleGroup));
-                if(rows.size() > steps) break;
             }
-            if(rows.size() > steps) break;
+        }
+        PageReadStore lastRowGroup = rowGroups.get(rowGroups.size() - 1);
+        RecordReader<Group> lastRowGroupReader = columnIO.getRecordReader(lastRowGroup, new GroupRecordConverter(this.schema));
+        i = 0;
+        while(i++ < firstRowGroup.getRowCount()){
+            final SimpleGroup simpleGroup = (SimpleGroup) lastRowGroupReader.read();
+            String[] row = getRow(simpleGroup);
+            if(parseStringToTimestamp(row[0]) <= toTimestamp)
+                rows.add(getRow(simpleGroup));
         }
         return rows;
     }
