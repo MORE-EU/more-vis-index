@@ -158,14 +158,50 @@ public class DateTimeUtil {
         return (int) (unit.between(startDateTime, endDateTime) / interval) + 1;
     }
 
-
-    public static void M4(TimeRange timeRange, Duration samplingInterval, ViewPort viewPort) {
-//        int noOfGroups = Math.floorDiv(viewPort.getWidth(), 4);
+    /**
+     * Returns the modified M4 sampling interval in a specific range.
+     * This interval is modified as to be able to divide exactly longer durations,
+     * based on the gregorian calendar.
+     * For this, we first calculate the optimal M4 sampling interval and then see how it divides the next
+     * calendar based frequency (e.g seconds -> minute, minute -> hour etc.) To get the closest exact division,
+     * we floor the remainder (if it is decimal) and add 1 to it. Then, we divide the remaining number with how many
+     * times the current frequency fits onto the next, to get the calendar based sampling interval that is closest to the optimal M4 one.
+     *
+     * @param timeRange The time range to find the M4 sampling interval for (in timestamps)
+     * @param viewPort  A viewport object that contains information about the chart that the user is visualizing
+     * @return A Duration
+     */
+    public static Duration M4(TimeRange timeRange, ViewPort viewPort) {
         int noOfGroups = viewPort.getWidth();
-        long pointsInRange = Duration.of(timeRange.getFrom() - timeRange.getTo(), ChronoUnit.MILLIS)
-                .dividedBy(samplingInterval);
-        int groupSize = (int) pointsInRange / noOfGroups;
-        System.out.println(samplingInterval.multipliedBy(groupSize));
+        long millisInRange = Duration.of(timeRange.getTo() - timeRange.getFrom(), ChronoUnit.MILLIS).toMillis() / noOfGroups;
+        Duration M4samplingInterval = Duration.of(millisInRange, ChronoUnit.MILLIS);
+
+        // Get each part that makes up a calendar date. The first non-zero is its "granularity".
+        int days = (int) M4samplingInterval.toDaysPart();
+        int hours = M4samplingInterval.toHoursPart();
+        int minutes = M4samplingInterval.toMinutesPart();
+        int seconds = M4samplingInterval.toSecondsPart();
+        int millis = M4samplingInterval.toMillisPart();
+        long t = 0L;
+        if(days != 0){
+            t = Duration.ofDays(30).toMillis();
+        }
+        else if(hours != 0){
+            t = Duration.ofHours(24).toMillis();;
+        }
+        else if(minutes != 0){
+            t = Duration.ofMinutes(60).toMillis();;
+        }
+        else if(seconds != 0){
+            t = Duration.ofSeconds(60).toMillis();;
+        }
+        else if(millis != 0){
+            t = Duration.ofSeconds(1000).toMillis();;
+        }
+        double divisor = t * 1.0 / M4samplingInterval.toMillis();
+        double flooredDivisor = Math.floor(divisor);
+        divisor = flooredDivisor == divisor ? divisor : flooredDivisor + 1;
+        return Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
     }
 
 

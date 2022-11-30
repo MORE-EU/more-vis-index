@@ -190,25 +190,53 @@ public class CsvTTITest {
 
     @Test
     public void test_wind() throws IOException {
-        farmName = "bbz";
-        id = "bbz3";
+        farmName = "BEBEZE";
+        id = "bbz1";
         CsvDataset csvDataset = (CsvDataset) getDataset();
         ViewPort viewPort = new ViewPort(800, 400);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
-        long startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
+        long startTime = LocalDateTime.parse("2018-01-03 00:05:00", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        long endTime = LocalDateTime.parse("2018-01-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+        long endTime = LocalDateTime.parse("2018-01-03 04:31:40", formatter).atZone(ZoneId.of("UTC"))
                 .toInstant().toEpochMilli();
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
         DataSource dataSource = DataSourceFactory.getDataSource(csvDataset);
         DataPoints dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
-        // DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
+//         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
         for (DataPoint dataPoint : dataPoints){
-            System.out.println(dataPoint);
+//            System.out.println(dataPoint);
         }
 
-        DateTimeUtil.M4(timeRange, csvDataset.getSamplingInterval(), viewPort);
+        System.out.println(DateTimeUtil.M4(timeRange, viewPort));
+
+        startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
+                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        endTime = LocalDateTime.parse("2018-04-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+                .toInstant().toEpochMilli();
+        timeRange = new TimeRange(startTime, endTime);
+
+        dataSource = DataSourceFactory.getDataSource(csvDataset);
+        dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+//        for (DataPoint dataPoint : dataPoints){
+//            System.out.println(dataPoint);
+//        }
+        System.out.println(DateTimeUtil.M4(timeRange, viewPort));
+
+
+        startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
+                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        endTime = LocalDateTime.parse("2019-02-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+                .toInstant().toEpochMilli();
+        timeRange = new TimeRange(startTime, endTime);
+
+        dataSource = DataSourceFactory.getDataSource(csvDataset);
+        dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+//        for (DataPoint dataPoint : dataPoints){
+//            System.out.println(dataPoint);
+//        }
+        System.out.println(DateTimeUtil.M4(timeRange, viewPort));
+
 /*
         TTI tti = new TTI(csvDataset);
         tti.initialize(null);
