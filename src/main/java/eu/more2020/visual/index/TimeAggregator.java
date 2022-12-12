@@ -3,13 +3,13 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.AggregatedDataPoint;
 import eu.more2020.visual.domain.DataPoint;
 import eu.more2020.visual.domain.DataPoints;
+import eu.more2020.visual.domain.Stats;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.DoubleSummaryStatistics;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -41,7 +41,7 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
 
     protected final ChronoUnit unit;
 
-    private final DoubleSummaryStatistics[] stats;
+    private final Stats stats;
 
     /**
      * The start date time value of the current interval.
@@ -56,8 +56,6 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
 
     protected DataPoint nextDataPoint = null;
 
-    private int count = 0;
-
 
     /**
      * Constructs a {@link TimeAggregator}
@@ -71,7 +69,7 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
         sourceDataPointsIterator = sourceDataPoints.iterator();
         this.aggInterval = aggInterval;
         this.unit = unit;
-        stats = new DoubleSummaryStatistics[sourceDataPoints.getMeasures().size()];
+        stats = new Stats(sourceDataPoints.getMeasures());
     }
 
 
@@ -91,25 +89,14 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     public AggregatedDataPoint next() {
         if (sourceDataPointsIterator.hasNext()) {
             moveToNextInterval();
+            stats.clear();
             if (nextDataPoint.getTimestamp() >= currentInterval.toInstant()
                     .toEpochMilli() && nextDataPoint.getTimestamp() < nextInterval.toInstant().toEpochMilli()) {
 
-                for (int i = 0; i < sourceDataPoints.getMeasures().size(); i++) {
-                    stats[i] = new DoubleSummaryStatistics();
-                    stats[i].accept(nextDataPoint.getValues()[i]);
-                }
-                count = 1;
+                stats.accept(nextDataPoint);
                 while (sourceDataPointsIterator.hasNext() && (nextDataPoint = sourceDataPointsIterator.next()).getTimestamp() < nextInterval.toInstant()
                         .toEpochMilli()) {
-                    count++;
-                    for (int i = 0; i < sourceDataPoints.getMeasures().size(); i++) {
-                        stats[i].accept(nextDataPoint.getValues()[i]);
-                    }
-                }
-            } else {
-                count = 0;
-                for (int i = 0; i < sourceDataPoints.getMeasures().size(); i++) {
-                    stats[i] = null;
+                    stats.accept(nextDataPoint);
                 }
             }
             return this;
@@ -141,23 +128,23 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
 
     @Override
     public double[] getValues() {
-        return Arrays.stream(stats).map(DoubleSummaryStatistics::getAverage).mapToDouble(Double::doubleValue).toArray();
+        return stats.getAverageValues();
     }
 
 
     @Override
     public int getCount() {
-        return count;
+        return stats.getCount();
     }
 
     @Override
-    public DoubleSummaryStatistics[] getStats() {
+    public Stats getStats() {
         return stats;
     }
 
 
     @Override
     public String toString() {
-        return "{timestamp=" + DateTimeUtil.format(getTimestamp()) + ", count=" + getCount() + ", stats=" + Arrays.toString(getStats()) + '}';
+        return "{timestamp=" + DateTimeUtil.format(getTimestamp()) + ", count=" + getCount() + ", stats=" + getStats() + '}';
     }
 }

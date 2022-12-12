@@ -1,8 +1,6 @@
 package eu.more2020.visual.domain;
 
 
-import java.util.DoubleSummaryStatistics;
-
 /**
  * Represents a data point that aggregates a series of raw, non-aggregated data points, along with their aggregated measure values
  */
@@ -18,6 +16,6 @@ public interface AggregatedDataPoint extends DataPoint {
      * corresponding to the aggregate measure metadata of the raw data points
      * represented by this aggregated data point.
      */
-    public DoubleSummaryStatistics[] getStats();
+    public Stats getStats();
 
 }

@@ -16,10 +16,11 @@ public interface DataSource {
      * have a timestamp greater than or equal to the startTimestamp,
      * and less than or equal to the endTimestamp.
      *
-     * @param timeRange The time range to fetch
+     * @param from The start time of range to fetch
+     * @param to The end time of range to fetch
      * @param measures       The measure values to include in every data point
      */
-    public DataPoints getDataPoints(TimeRange timeRange, List<Integer> measures);
+    public DataPoints getDataPoints(long from, long to, List<Integer> measures);
 
     /**
      * Returns a {@link DataPoints} instance to access all the data points in the time series.

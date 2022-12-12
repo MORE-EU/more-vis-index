@@ -19,13 +19,13 @@ public class ParquetDataSource implements DataSource {
     }
 
     @Override
-    public DataPoints getDataPoints(TimeRange timeRange, List<Integer> measures) {
-        return new ParquetDataSource.ParquetDataPoints(timeRange, measures);
+    public DataPoints getDataPoints(long from, long to, List<Integer> measures) {
+        return new ParquetDataSource.ParquetDataPoints(from, to, measures);
     }
 
     @Override
     public DataPoints getAllDataPoints(List<Integer> measures) {
-        return new ParquetDataSource.ParquetDataPoints(parquetDataset.getTimeRange(), measures);
+        return new ParquetDataSource.ParquetDataPoints(parquetDataset.getTimeRange().getFrom(), parquetDataset.getTimeRange().getTo(), measures);
     }
 
     /**
@@ -35,18 +35,22 @@ public class ParquetDataSource implements DataSource {
     final class ParquetDataPoints implements DataPoints {
 
         private final List<Integer> measures;
-        private final TimeRange timeRange;
+
+        private final long from;
+
+        private final long to;
 
 
-        public ParquetDataPoints(TimeRange timeRange, List<Integer> measures) {
-            this.timeRange = timeRange;
+        public ParquetDataPoints(long from, long to, List<Integer> measures) {
+            this.from = from;
+            this.to = to;
             this.measures = measures;
         }
 
         public Iterator<DataPoint> iterator() {
             ParquetDataPointsIterator[] iterators = parquetDataset.getFileInfoList().stream()
-                    .filter(dataFileInfo -> timeRange == null || dataFileInfo.getTimeRange().intersects(timeRange))
-                    .map(dataFileInfo -> new ParquetDataPointsIterator(parquetDataset, dataFileInfo.getFilePath(), timeRange, measures))
+                    .filter(dataFileInfo -> dataFileInfo.getTimeRange().overlaps(this))
+                    .map(dataFileInfo -> new ParquetDataPointsIterator(parquetDataset, dataFileInfo.getFilePath(), from, to, measures))
                     .toArray(ParquetDataPointsIterator[]::new);
             return Iterators.concat(iterators);
         }
@@ -57,16 +61,22 @@ public class ParquetDataSource implements DataSource {
         }
 
         @Override
-        public TimeRange getTimeRange() {
-            return timeRange;
-        }
-
-        @Override
         public String toString() {
             return "ParquetDataPoints{" +
                     "measures=" + measures +
-                    ", timeRange=" + timeRange +
+                    ", from=" + from +
+                    ", to=" + to +
                     '}';
+        }
+
+        @Override
+        public long getFrom() {
+            return from;
+        }
+
+        @Override
+        public long getTo() {
+            return to;
         }
     }
 }

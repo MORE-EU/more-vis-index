@@ -1,50 +1,40 @@
 package eu.more2020.visual.domain;
 
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 
-public class Query {
+public class Query implements TimeInterval {
 
-    private TimeRange range;
+    private final long from;
 
-    private HashMap<Integer, Double[]> filters;
+    private final long to;
 
-    private List<Integer> measures;
+    private final HashMap<Integer, Double[]> filters;
 
-    private int aggInterval;
+    private final List<Integer> measures;
 
-    private ChronoUnit unit;
+    private final ViewPort viewPort;
 
-    private Aggregator aggregator;
-
-    public Query() {
-    }
-
-    public Query(TimeRange range, List<Integer> measures, Aggregator aggregator, int aggInterval, ChronoUnit unit, HashMap<Integer, Double[]> filters) {
-        this.range = range;
+    public Query(long from, long to, List<Integer> measures, HashMap<Integer, Double[]> filters, ViewPort viewPort) {
+        this.from = from;
+        this.to = to;
         this.measures = measures;
-        this.aggInterval = aggInterval;
-        this.unit = unit;
         this.filters = filters;
-        this.aggregator = aggregator;
+        this.viewPort = viewPort;
     }
 
-    public TimeRange getRange() {
-        return range;
+    @Override
+    public long getFrom() {
+        return from;
     }
 
-    public void setRange(TimeRange range) {
-        this.range = range;
+    @Override
+    public long getTo() {
+        return to;
     }
-
 
     public HashMap<Integer, Double[]> getFilters() {
         return this.filters;
-    }
-
-    public void setFilters(HashMap<Integer, Double[]> filters) {
-        this.filters = filters;
     }
 
 
@@ -52,43 +42,19 @@ public class Query {
         return measures;
     }
 
-    public void setMeasures(List<Integer> measures) {
-        this.measures = measures;
-    }
 
-    public int getAggInterval() {
-        return aggInterval;
-    }
-
-    public void setAggInterval(int aggInterval) {
-        this.aggInterval = aggInterval;
-    }
-
-    public ChronoUnit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(ChronoUnit unit) {
-        this.unit = unit;
-    }
-
-    public Aggregator getAggregator() {
-        return aggregator;
-    }
-
-    public void setAggregator(Aggregator aggregator) {
-        this.aggregator = aggregator;
+    public ViewPort getViewPort() {
+        return viewPort;
     }
 
     @Override
     public String toString() {
         return "Query{" +
-                "range=" + range +
-                ", filter=" + filters +
+                "from=" + from +
+                ", to=" + to +
+                ", filters=" + filters +
                 ", measures=" + measures +
-                ", aggInterval=" + aggInterval +
-                ", unit=" + unit +
-                ", aggregator=" + aggregator +
+                ", viewPort=" + viewPort +
                 '}';
     }
 }

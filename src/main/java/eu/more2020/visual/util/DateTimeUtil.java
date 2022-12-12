@@ -1,6 +1,5 @@
 package eu.more2020.visual.util;
 
-import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,34 +153,41 @@ public class DateTimeUtil {
     public static int numberOfIntervals(final long startTime, final long endTime, int interval,
                                         ChronoUnit unit, ZoneId zoneId) {
         ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, interval, unit, zoneId);
-        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime, interval, unit, zoneId);
+        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime - 1, interval, unit, zoneId);
         return (int) (unit.between(startDateTime, endDateTime) / interval) + 1;
     }
 
     /**
-     * Returns the modified M4 sampling interval in a specific range.
-     * This interval is modified as to be able to divide exactly longer durations,
-     * based on the gregorian calendar.
-     * For this, we first calculate the optimal M4 sampling interval and then see how it divides the next
-     * calendar based frequency (e.g seconds -> minute, minute -> hour etc.) To get the closest exact division,
-     * we floor the remainder (if it is decimal) and add 1 to it. Then, we divide the remaining number with how many
-     * times the current frequency fits onto the next, to get the calendar based sampling interval that is closest to the optimal M4 one.
-     *
-     * @param timeRange The time range to find the M4 sampling interval for (in timestamps)
+     * Returns the optimal M4 sampling interval in a specific range.
+     * @param from The start timestamp to find the M4 sampling interval for (in timestamps)
+     * @param to The end timestamp to find the M4 sampling interval for (in timestamps)
      * @param viewPort  A viewport object that contains information about the chart that the user is visualizing
      * @return A Duration
      */
-    public static Duration M4(TimeRange timeRange, ViewPort viewPort) {
+    public static Duration optimalM4(long from, long to, ViewPort viewPort) {
         int noOfGroups = viewPort.getWidth();
-        long millisInRange = Duration.of(timeRange.getTo() - timeRange.getFrom(), ChronoUnit.MILLIS).toMillis() / noOfGroups;
-        Duration M4samplingInterval = Duration.of(millisInRange, ChronoUnit.MILLIS);
+        long millisInRange = Duration.of(to - from, ChronoUnit.MILLIS).toMillis() / noOfGroups;
+        return Duration.of(millisInRange, ChronoUnit.MILLIS);
+    }
 
+    /**
+     * Returns a sampling interval less than or equal to the given interval, so that it can divide exactly longer durations,
+     * based on the gregorian calendar.
+     * For this, we check how the given interval divides the next
+     * calendar based frequency (e.g seconds -> minute, minute -> hour etc.) To get the closest exact division,
+     * we floor the remainder (if it is decimal) and add 1 to it. Then, we divide the remaining number with how many
+     * times the current frequency fits onto the next, to get the calendar based sampling interval that is closest to the given one.
+     *
+     * @param samplingInterval The sampling interval
+     * @return A Duration
+     */
+    public static Duration maxCalendarInterval(Duration samplingInterval) {
         // Get each part that makes up a calendar date. The first non-zero is its "granularity".
-        int days = (int) M4samplingInterval.toDaysPart();
-        int hours = M4samplingInterval.toHoursPart();
-        int minutes = M4samplingInterval.toMinutesPart();
-        int seconds = M4samplingInterval.toSecondsPart();
-        int millis = M4samplingInterval.toMillisPart();
+        int days = (int) samplingInterval.toDaysPart();
+        int hours = samplingInterval.toHoursPart();
+        int minutes = samplingInterval.toMinutesPart();
+        int seconds = samplingInterval.toSecondsPart();
+        int millis = samplingInterval.toMillisPart();
         long t = 0L;
         if(days != 0){
             t = Duration.ofDays(30).toMillis();
@@ -198,11 +204,9 @@ public class DateTimeUtil {
         else if(millis != 0){
             t = Duration.ofSeconds(1000).toMillis();;
         }
-        double divisor = t * 1.0 / M4samplingInterval.toMillis();
+        double divisor = t * 1.0 / samplingInterval.toMillis();
         double flooredDivisor = Math.floor(divisor);
         divisor = flooredDivisor == divisor ? divisor : flooredDivisor + 1;
         return Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
     }
-
-
 }

@@ -1,7 +1,6 @@
 package eu.more2020.visual.datasource;
 
 import eu.more2020.visual.domain.Dataset.CsvDataset;
-import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.csv.CsvDataPoint;
 import eu.more2020.visual.util.DateTimeUtil;
 import eu.more2020.visual.util.io.CsvReader.CsvRandomAccessReader;
@@ -21,7 +20,10 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
     private final CsvDataset dataset;
 
     private final String filePath;
-    private final TimeRange timeRange;
+
+    private final long from;
+
+    private final long to;
     private final List<Integer> measures;
 
     private CsvRandomAccessReader reader;
@@ -29,10 +31,11 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
     private CsvDataPoint next;
 
 
-    public CsvDataPointsIterator(CsvDataset dataset, String filePath, TimeRange timeRange, List<Integer> measures) {
+    public CsvDataPointsIterator(CsvDataset dataset, String filePath, long from, long to, List<Integer> measures) {
         this.dataset = dataset;
         this.filePath = filePath;
-        this.timeRange = timeRange;
+        this.from = from;
+        this.to = to;
         this.measures = measures;
     }
 
@@ -57,16 +60,16 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
     @Override
     public boolean hasNext() {
         if (started) {
-            return next != null && next.getTimestamp() <= timeRange.getTo();
+            return next != null && next.getTimestamp() < to;
         } else {
             try {
                 started = true;
                 reader = new CsvRandomAccessReader(filePath, DateTimeFormatter.ofPattern(dataset.getTimeFormat()), dataset.getTimeCol(), dataset.getDelimiter(),
-                        dataset.getHasHeader(), measures, Charset.defaultCharset(), dataset.getSamplingInterval(), dataset.getMeanByteSize()) ;
-                reader.seekTimestamp(timeRange.getFrom());
+                        dataset.getHasHeader(), measures, Charset.defaultCharset(), dataset.getSamplingInterval(), dataset.getMeanByteSize());
+                reader.seekTimestamp(from);
                 reader.setDirection(DIRECTION.FORWARD);
                 next = nextResult();
-                return next != null && next.getTimestamp() <= timeRange.getTo();
+                return next != null && next.getTimestamp() <= to;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

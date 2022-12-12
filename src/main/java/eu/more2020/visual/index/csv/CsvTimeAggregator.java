@@ -30,6 +30,6 @@ public class CsvTimeAggregator extends TimeAggregator implements CsvAggregatedDa
 
     @Override
     public String toString() {
-        return "{timestamp=" + DateTimeUtil.format(getTimestamp()) + ", offset=" + getFileOffset() + ", count=" + getCount() + ", stats=" + Arrays.toString(getStats()) + '}';
+        return "{timestamp=" + DateTimeUtil.format(getTimestamp()) + ", offset=" + getFileOffset() + ", count=" + getCount() + ", stats=" + getStats() + '}';
     }
 }

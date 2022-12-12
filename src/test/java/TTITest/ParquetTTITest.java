@@ -124,9 +124,9 @@ public class ParquetTTITest {
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
         DataSource dataSource = DataSourceFactory.getDataSource(parquetDataset);
-        DataPoints dataPoints = dataSource.getDataPoints(timeRange, parquetDataset.getMeasures());
+        DataPoints dataPoints = dataSource.getDataPoints(startTime, endTime, parquetDataset.getMeasures());
 //         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
-        System.out.println(dataPoints.getTimeRange());
+        System.out.println(timeRange);
         List<DataPoint> dataPoints1 = new ArrayList<>();
         for (DataPoint dataPoint : dataPoints){
             dataPoints1.add(dataPoint);
@@ -144,9 +144,8 @@ public class ParquetTTITest {
         startTest = System.currentTimeMillis();
 //
          dataSource = DataSourceFactory.getDataSource(parquetDataset);
-         dataPoints = dataSource.getDataPoints(timeRange, parquetDataset.getMeasures());
+         dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), parquetDataset.getMeasures());
 //         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
-        System.out.println(dataPoints.getTimeRange());
         dataPoints1 = new ArrayList<>();
         for (DataPoint dataPoint : dataPoints){
             dataPoints1.add(dataPoint);
@@ -176,7 +175,7 @@ public class ParquetTTITest {
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
         DataSource dataSource = DataSourceFactory.getDataSource(parquetDataset);
-        DataPoints dataPoints = dataSource.getDataPoints(timeRange, parquetDataset.getMeasures());
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), parquetDataset.getMeasures());
 
 
     }

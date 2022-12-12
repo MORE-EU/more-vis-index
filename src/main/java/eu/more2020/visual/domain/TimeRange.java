@@ -6,57 +6,24 @@ import java.io.Serializable;
 import java.util.Objects;
 
 
-public class TimeRange implements Serializable {
+public class TimeRange implements Serializable, TimeInterval {
 
-    private long from;
-    private long to;
+    private final long from;
+    private final long to;
 
-    public TimeRange() {
-    }
-
-    public TimeRange(long from, long to) {
+    public TimeRange(final long from, final long to) {
         this.from = from;
         this.to = to;
     }
 
+    @Override
     public long getFrom() {
         return from;
     }
 
-    public void setFrom(long from) {
-        this.from = from;
-    }
-
+    @Override
     public long getTo() {
         return to;
-    }
-
-    public void setTo(long to) {
-        this.to = to;
-    }
-
-    public boolean contains(long x) {
-        return (from > x && to < x) || from == x || to == x;
-    }
-
-    public boolean intersects(TimeRange other) {
-        return (this.from < (other.to) && this.to > (other.from));
-    }
-
-    public boolean encloses(TimeRange other) {
-        return (this.from < (other.from) && this.to > (other.to));
-    }
-
-    public TimeRange span(TimeRange other) {
-        return new TimeRange(0, 0);
-    }
-
-    public float getSize() {
-        return to - from;
-    }
-
-    public double distanceFrom(TimeRange other) {
-        return 0.0;
     }
 
 

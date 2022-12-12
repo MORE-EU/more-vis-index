@@ -74,15 +74,14 @@ public class CsvTTITest {
                                 csvDataset.setMeasures(csvMeasures);
                             }
                             return csvDataset;
-                        case "parquet":
+/*                        case "parquet":
                             String parquetTimeCol = d.get("timeCol").asText();
                             List<String> parquetMeasures = new ArrayList<>();
                             for (JsonNode measure : d.get("measures")) {
                                 parquetMeasures.add(measure.asText());
                             }
                             ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, timeFormat);
-                            parquetDataset.convertMeasures(parquetTimeCol, parquetMeasures);
-                            return parquetDataset;
+                            return parquetDataset;*/
                         case "modelar":
                             break;
                         default:
@@ -202,13 +201,13 @@ public class CsvTTITest {
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
         DataSource dataSource = DataSourceFactory.getDataSource(csvDataset);
-        DataPoints dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
 //         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
         for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
         }
 
-        System.out.println(DateTimeUtil.M4(timeRange, viewPort));
+        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
 
         startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
@@ -217,11 +216,11 @@ public class CsvTTITest {
         timeRange = new TimeRange(startTime, endTime);
 
         dataSource = DataSourceFactory.getDataSource(csvDataset);
-        dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+        dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
 //        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
 //        }
-        System.out.println(DateTimeUtil.M4(timeRange, viewPort));
+        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
 
 
         startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
@@ -231,11 +230,11 @@ public class CsvTTITest {
         timeRange = new TimeRange(startTime, endTime);
 
         dataSource = DataSourceFactory.getDataSource(csvDataset);
-        dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+        dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
 //        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
 //        }
-        System.out.println(DateTimeUtil.M4(timeRange, viewPort));
+        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
 
 /*
         TTI tti = new TTI(csvDataset);
@@ -259,7 +258,7 @@ public class CsvTTITest {
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
         DataSource dataSource = DataSourceFactory.getDataSource(csvDataset);
-        DataPoints dataPoints = dataSource.getDataPoints(timeRange, csvDataset.getMeasures());
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
         // DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
         for (DataPoint dataPoint : dataPoints){
             System.out.println(dataPoint);

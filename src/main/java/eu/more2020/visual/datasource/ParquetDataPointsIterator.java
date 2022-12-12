@@ -20,17 +20,19 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
     private final ParquetDataset dataset;
 
     private final String filePath;
-    private final TimeRange timeRange;
+    private final long from;
+    private final long to;
     private final List<Integer> measures;
 
     private ParquetReader reader;
     private boolean started = false;
     private ParquetDataPoint next;
 
-    public ParquetDataPointsIterator(ParquetDataset dataset, String filePath, TimeRange timeRange, List<Integer> measures) {
+    public ParquetDataPointsIterator(ParquetDataset dataset, String filePath, long from, long to, List<Integer> measures) {
         this.dataset = dataset;
         this.filePath = filePath;
-        this.timeRange = timeRange;
+        this.from = from;
+        this.to = to;
         this.measures = measures;
     }
 
@@ -56,7 +58,7 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
     public boolean hasNext() {
         if (started) {
             try {
-                return reader.hasNext() && next.getTimestamp() <= timeRange.getTo();
+                return reader.hasNext() && next.getTimestamp() <= to;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -65,9 +67,9 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
                 started = true;
                 reader = new ParquetReader(filePath, DateTimeFormatter.ofPattern(dataset.getTimeFormat()), dataset.getTimeCol(),
                         measures, dataset.getSamplingInterval()) ;
-                reader.seekTimestamp(timeRange.getFrom());
+                reader.seekTimestamp(from);
                 next = nextResult();
-                return reader.hasNext() && next.getTimestamp() <= timeRange.getTo();
+                return reader.hasNext() && next.getTimestamp() <= to;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

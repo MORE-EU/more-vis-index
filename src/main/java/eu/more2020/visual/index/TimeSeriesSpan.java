@@ -3,12 +3,10 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -19,23 +17,23 @@ import java.util.stream.IntStream;
  * i.e. the sum, min and max aggregate values, as well as the corresponding
  * non-missing value counts.
  */
-public class TimeSeriesSpan implements DataPoints {
+public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     /**
      * The aggregate values for every window interval and for every measure.
      * For each measure we store the corresponding aggregate values in an array, with 3 doubles needed for each group by window.
      * Specifically, we store the "sum", "min" and "max" values.
      */
-    private final Map<Integer, double[]> aggsByMeasure;
+    private final Map<Integer, long[]> aggsByMeasure;
+
     /**
      * The number of raw time series points behind every data point included in this time series span.
      * When the time series span corresponds to raw, non aggregated data, this number is 1.
-     * The reason we store these counts for every measure is that there may be missing values
-     * for some or even all measures.
      */
-    private final Map<Integer, int[]> countsByMeasure;
+    private final int[] counts;
+
     // The start time value of the span
-    private long startTimestamp;
+    private long from;
     // The size of this span, corresponding to the number of aggregated window intervals represented by it
     private int size;
     /**
@@ -50,7 +48,7 @@ public class TimeSeriesSpan implements DataPoints {
 
     public TimeSeriesSpan() {
         aggsByMeasure = new HashMap<>();
-        countsByMeasure = new HashMap<>();
+        counts = new int[size];
     }
 
 
@@ -63,13 +61,11 @@ public class TimeSeriesSpan implements DataPoints {
     public void build(DataPoints dataPoints, int interval, ChronoUnit unit, ZoneId zoneId) {
         this.unit = unit;
         this.interval = interval;
-        size = DateTimeUtil.numberOfIntervals(dataPoints.getTimeRange().getFrom(), dataPoints.getTimeRange()
-                .getTo(), interval, unit, zoneId);
+        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), interval, unit, zoneId);
         List<Integer> measures = dataPoints.getMeasures();
 
         for (Integer measure : measures) {
-            aggsByMeasure.put(measure, new double[size * 3]);
-            countsByMeasure.put(measure, new int[size]);
+            aggsByMeasure.put(measure, new long[size * 3]);
         }
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, interval, unit);
 
@@ -80,7 +76,7 @@ public class TimeSeriesSpan implements DataPoints {
             aggregatedDataPoint = timeAggregator.next();
 
             if (i == 0) {
-                startTimestamp = aggregatedDataPoint.getTimestamp();
+                from = aggregatedDataPoint.getTimestamp();
             }
             addAggregatedDataPoint(i, dataPoints.getMeasures(), aggregatedDataPoint);
             i++;
@@ -88,14 +84,16 @@ public class TimeSeriesSpan implements DataPoints {
     }
 
     protected void addAggregatedDataPoint(int i, List<Integer> measures, AggregatedDataPoint aggregatedDataPoint) {
+        Stats stats = aggregatedDataPoint.getStats();
+        counts[i] = stats.getCount();
         for (int j = 0; j < measures.size(); j++) {
             int m = measures.get(j);
-            DoubleSummaryStatistics measureStatistics = aggregatedDataPoint.getStats()[j];
-            countsByMeasure.get(m)[i] = (int) measureStatistics.getCount();
-            double[] data = aggsByMeasure.get(m);
-            data[3 * i] = measureStatistics.getSum();
-            data[3 * i + 1] = measureStatistics.getMin();
-            data[3 * i + 2] = measureStatistics.getMax();
+            long[] data = aggsByMeasure.get(m);
+            data[3 * i] = Double.doubleToRawLongBits(stats.getSums()[j]);
+            data[3 * i + 1] = Double.doubleToRawLongBits(stats.getMinValues()[j]);
+            data[3 * i + 2] = stats.getMinTimestamps()[j];
+            data[3 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValues()[j]);
+            data[3 * i + 4] = stats.getMaxTimestamps()[j];
         }
     }
 
@@ -106,7 +104,7 @@ public class TimeSeriesSpan implements DataPoints {
      * @return A positive index.
      */
     private int getIndex(final long timestamp) {
-        int index = DateTimeUtil.numberOfIntervals(startTimestamp, timestamp, interval, unit, ZoneId.of("UTC")) - 1;
+        int index = DateTimeUtil.numberOfIntervals(from, timestamp, interval, unit, ZoneId.of("UTC")) - 1;
         if (index >= size) {
             return size - 1;
         } else if (index < 0) {
@@ -120,20 +118,23 @@ public class TimeSeriesSpan implements DataPoints {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public TimeRange getTimeRange() {
-        return null;
-    }
-
 
     public int getSize() {
         return size;
     }
 
+    public int getInterval() {
+        return interval;
+    }
+
+    public ChronoUnit getUnit() {
+        return unit;
+    }
+
     public Iterator<DataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp, Aggregator aggregator) {
         Iterator<Integer> internalIt = IntStream.range(getIndex(queryStartTimestamp), queryEndTimestamp >= 0 ? getIndex(queryEndTimestamp) + 1 : size)
                 .iterator();
-        ZonedDateTime startInterval = DateTimeUtil.getIntervalStart(startTimestamp, interval, unit, ZoneId.of("UTC"));
+        ZonedDateTime startInterval = DateTimeUtil.getIntervalStart(from, interval, unit, ZoneId.of("UTC"));
         return new Iterator<>() {
             @Override
             public boolean hasNext() {
@@ -151,16 +152,16 @@ public class TimeSeriesSpan implements DataPoints {
                     int measure = measures.get(i);
                     switch (aggregator) {
                         case SUM:
-                            values[i] = aggsByMeasure.get(measure)[index * 3];
+                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3]);
                             break;
                         case MIN:
-                            values[i] = aggsByMeasure.get(measure)[index * 3 + 1];
+                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3 + 1]);
                             break;
                         case MAX:
-                            values[i] = aggsByMeasure.get(measure)[index * 3 + 2];
+                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3 + 3]);
                             break;
                         case AVG:
-                            values[i] = aggsByMeasure.get(measure)[index * 3] / countsByMeasure.get(measure)[index];
+                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3]) / counts[index];
                             break;
                     }
                 }
@@ -173,8 +174,18 @@ public class TimeSeriesSpan implements DataPoints {
 
     @Override
     public Iterator iterator() {
-        return iterator(startTimestamp, -1, Aggregator.AVG);
+        return iterator(from, -1, Aggregator.AVG);
     }
 
+
+    @Override
+    public long getFrom() {
+        return from;
+    }
+
+    @Override
+    public long getTo() {
+        return from + size * interval;
+    }
 
 }

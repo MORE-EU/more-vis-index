@@ -19,13 +19,13 @@ public class CsvDataSource implements DataSource {
     }
 
     @Override
-    public CsvDataPoints getDataPoints(TimeRange timeRange, List<Integer> measures) {
-        return new CsvDataPoints(timeRange, measures);
+    public CsvDataPoints getDataPoints(long from, long to, List<Integer> measures) {
+        return new CsvDataPoints(from, to, measures);
     }
 
     @Override
     public CsvDataPoints getAllDataPoints(List<Integer> measures) {
-        return new CsvDataPoints(csvDataset.getTimeRange(), measures);
+        return new CsvDataPoints(csvDataset.getTimeRange().getFrom(), csvDataset.getTimeRange().getTo(), measures);
     }
 
     /**
@@ -35,18 +35,22 @@ public class CsvDataSource implements DataSource {
     final class CsvDataPoints implements DataPoints {
 
         private final List<Integer> measures;
-        private final TimeRange timeRange;
+
+        private final long from;
+
+        private final long to;
 
 
-        public CsvDataPoints(TimeRange timeRange, List<Integer> measures) {
-            this.timeRange = timeRange;
+        public CsvDataPoints(long from, long to, List<Integer> measures) {
+            this.from = from;
+            this.to = to;
             this.measures = measures;
         }
 
         public Iterator<DataPoint> iterator() {
             CsvDataPointsIterator[] iterators = csvDataset.getFileInfoList().stream()
-                    .filter(dataFileInfo -> timeRange == null || dataFileInfo.getTimeRange().intersects(timeRange))
-                    .map(dataFileInfo -> new CsvDataPointsIterator(csvDataset, dataFileInfo.getFilePath(), timeRange, measures))
+                    .filter(dataFileInfo -> dataFileInfo.getTimeRange().overlaps(this))
+                    .map(dataFileInfo -> new CsvDataPointsIterator(csvDataset, dataFileInfo.getFilePath(), from, to, measures))
                     .toArray(CsvDataPointsIterator[]::new);
             return Iterators.concat(iterators);
         }
@@ -57,17 +61,16 @@ public class CsvDataSource implements DataSource {
         }
 
         @Override
-        public TimeRange getTimeRange() {
-            return timeRange;
+        public long getFrom() {
+            return from;
         }
 
         @Override
-        public String toString() {
-            return "CsvDataPoints{" +
-                    "measures=" + measures +
-                    ", timeRange=" + timeRange +
-                    '}';
+        public long getTo() {
+            return to;
         }
+
+
     }
 
 }
