@@ -9,6 +9,9 @@
             </Pattern>
         </layout>
     </appender>
+    <logger name="org.apache.parquet" level="ERROR"/>
+    <logger name="org.apache.hadoop" level="ERROR"/>
+    <logger name="eu.more2020.visual.util.io.ParquetReader" level="INFO"/>
     <logger name="eu.more2020.visual.util.io.CsvReader.CsvRandomAccessReader" level="INFO"/>
     <root>
         <level>INFO</level>

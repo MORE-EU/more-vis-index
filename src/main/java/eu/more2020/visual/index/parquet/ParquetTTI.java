@@ -39,18 +39,11 @@ public class ParquetTTI {
         for (Integer measureIndex : dataset.getMeasures()) {
             measureStats.put(measureIndex, new DoubleSummaryStatistics());
         }
-        this.parquetReader = new ParquetReader(filePath, dataset.getTimeCol(), measures, formatter);
-        this.dataset.setSamplingInterval(this.parquetReader.sample());
         this.isInitialized = true;
     }
 
     public DateTimeFormatter getFormatter(){
         return this.formatter;
-    }
-
-
-    public ArrayList<String[]> testRandomAccessRange (TimeRange range, List<Integer> measures) throws IOException {
-        return this.parquetReader.getData(range, measures);
     }
 
 }

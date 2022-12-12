@@ -2,6 +2,10 @@ package TTITest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.more2020.visual.datasource.DataSource;
+import eu.more2020.visual.datasource.DataSourceFactory;
+import eu.more2020.visual.domain.DataPoint;
+import eu.more2020.visual.domain.DataPoints;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
@@ -17,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,8 +82,7 @@ public class ParquetTTITest {
                             for (JsonNode measure : d.get("measures")) {
                                 parquetMeasures.add(measure.asText());
                             }
-                            ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, timeFormat);
-                            parquetDataset.convertMeasures(parquetTimeCol, parquetMeasures);
+                            ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, parquetTimeCol, parquetMeasures, timeFormat);
                             return parquetDataset;
                         case "modelar":
                             break;
@@ -107,27 +111,51 @@ public class ParquetTTITest {
         id = "bbz2";
         File metadataFile = new File(workspacePath + "/" + farmName, id + ".parquet");
         String filePath = metadataFile.getAbsolutePath();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
+
         double startInit = System.currentTimeMillis();
         ParquetDataset parquetDataset = (ParquetDataset) getDataset();
-        ParquetTTI parquetTTI = new ParquetTTI(filePath, Objects.requireNonNull(parquetDataset));
-        parquetTTI.initialize();
         System.out.println("Initialization Time: " + (System.currentTimeMillis() - startInit) / 1000);
 
-        long startTime = LocalDateTime.parse("2018-04-01 00:04:41", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long endTime = LocalDateTime.parse("2018-04-08 00:00:59", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long startTime = LocalDateTime.parse("2018-04-01 00:04:41", formatter).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2018-04-08 00:00:59", formatter).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         ArrayList<String[]> rows;
         double startTest = System.currentTimeMillis();
-        rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println("1 Week Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
+        TimeRange timeRange = new TimeRange(startTime, endTime);
 
-        startTime = LocalDateTime.parse("2018-03-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        endTime = LocalDateTime.parse("2018-04-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        DataSource dataSource = DataSourceFactory.getDataSource(parquetDataset);
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange, parquetDataset.getMeasures());
+//         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
+        System.out.println(dataPoints.getTimeRange());
+        List<DataPoint> dataPoints1 = new ArrayList<>();
+        for (DataPoint dataPoint : dataPoints){
+            dataPoints1.add(dataPoint);
+        }
+        System.out.println(timeRange);
+        System.out.println(dataPoints1.size());
+        System.out.println(dataPoints1.get(0));
+        System.out.println(dataPoints1.get(dataPoints1.size() - 1));
+
+        System.out.println("1 Week Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
+//
+        startTime = LocalDateTime.parse("2018-03-01 00:00:00", formatter).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        endTime = LocalDateTime.parse("2018-04-01 00:00:00", formatter).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        timeRange = new TimeRange(startTime, endTime);
         startTest = System.currentTimeMillis();
-        rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
+//
+         dataSource = DataSourceFactory.getDataSource(parquetDataset);
+         dataPoints = dataSource.getDataPoints(timeRange, parquetDataset.getMeasures());
+//         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
+        System.out.println(dataPoints.getTimeRange());
+        dataPoints1 = new ArrayList<>();
+        for (DataPoint dataPoint : dataPoints){
+            dataPoints1.add(dataPoint);
+        }
+        System.out.println(timeRange);
+        System.out.println(dataPoints1.size());
+        System.out.println(dataPoints1.get(0));
+        System.out.println(dataPoints1.get(dataPoints1.size() - 1));
+
         System.out.println("1 Month Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
 
     }
@@ -137,31 +165,19 @@ public class ParquetTTITest {
     public void test_solar() throws IOException {
         farmName = "solar";
         id = "basil";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
 
         File metadataFile = new File(workspacePath + "/" + farmName, id + ".parquet");
         String filePath = metadataFile.getAbsolutePath();
-        double startInit = System.currentTimeMillis();
         ParquetDataset parquetDataset = (ParquetDataset) getDataset();
-        ParquetTTI parquetTTI = new ParquetTTI(filePath, Objects.requireNonNull(parquetDataset));
-        parquetTTI.initialize();
-        System.out.println("Initialization Time: " + (System.currentTimeMillis() - startInit) / 1000);
-
-        long startTime = LocalDateTime.parse("2013-01-01 00:04:41", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long endTime = LocalDateTime.parse("2013-01-08 00:00:59", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        ArrayList<String[]> rows;
+        long startTime = LocalDateTime.parse("2013-01-01 00:04:41", formatter).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = LocalDateTime.parse("2013-01-08 00:00:59", formatter).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         double startTest = System.currentTimeMillis();
-        rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println("1 Week Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
+        TimeRange timeRange = new TimeRange(startTime, endTime);
 
-        startTime = LocalDateTime.parse("2013-03-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        endTime = LocalDateTime.parse("2013-04-01 00:00:00", parquetTTI.getFormatter()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        startTest = System.currentTimeMillis();
-        rows = parquetTTI.testRandomAccessRange(new TimeRange(startTime, endTime), parquetDataset.getMeasures());
-        System.out.println(getRow(rows.get(0)));
-        System.out.println(getRow(rows.get(rows.size() - 1)));
-        System.out.println("1 Month Range Search Time : " + (System.currentTimeMillis() - startTest) / 1000);
+        DataSource dataSource = DataSourceFactory.getDataSource(parquetDataset);
+        DataPoints dataPoints = dataSource.getDataPoints(timeRange, parquetDataset.getMeasures());
+
 
     }
 }
