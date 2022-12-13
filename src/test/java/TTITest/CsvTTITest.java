@@ -206,15 +206,17 @@ public class CsvTTITest {
 //        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
 //        }
-
+        Duration optimalInterval = DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort);
         Duration maxCalendarInterval = DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort));
+        Duration accurateCalendarInterval = DateTimeUtil.accurateCalendarInterval(timeRange.getFrom(), timeRange.getTo(), viewPort, DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort), 0.9f);
+
 
 //        DateTimeUtil.aggregateCalendarInterval(maxCalendarInterval);
 
 //
         startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        endTime = LocalDateTime.parse("2018-02-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+        endTime = LocalDateTime.parse("2018-11-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
                 .toInstant().toEpochMilli();
         timeRange = new TimeRange(startTime, endTime);
 
@@ -224,9 +226,14 @@ public class CsvTTITest {
 //            System.out.println(dataPoint);
 //        }
 
-        maxCalendarInterval = DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort));
+        optimalInterval = DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort);
+        maxCalendarInterval = DateTimeUtil.maxCalendarInterval(optimalInterval);
+        accurateCalendarInterval = DateTimeUtil.accurateCalendarInterval(timeRange.getFrom(), timeRange.getTo(), viewPort, maxCalendarInterval, 0.9f);
 
-        System.out.println(DateTimeUtil.aggregateCalendarInterval(maxCalendarInterval));
+        System.out.println(optimalInterval);
+        System.out.println(maxCalendarInterval);
+        System.out.println(accurateCalendarInterval);
+        System.out.println(DateTimeUtil.aggregateCalendarInterval(accurateCalendarInterval));
 //
 //
 //        startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)

@@ -212,6 +212,19 @@ public class DateTimeUtil {
         return Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
     }
 
+    public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, Duration samplingInterval, float accuracy) {
+        Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
+        long divisor = 0;
+        float percent = 1;
+        Duration G4samplingInterval = null;
+        while(percent > (1.0 - accuracy)){
+            G4samplingInterval = samplingInterval.dividedBy((long) Math.pow(2, divisor ++));
+            int g4Width = (int) timeRangeDuration.dividedBy(G4samplingInterval);
+            percent = (float) viewPort.getWidth() / g4Width;
+        }
+        return G4samplingInterval;
+    }
+
     public static AggregateInterval aggregateCalendarInterval(Duration interval){
 
         long aggregateInterval = interval.toMillis();
