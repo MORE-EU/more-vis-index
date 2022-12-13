@@ -3,6 +3,9 @@ package eu.more2020.visual.domain;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 
@@ -25,7 +28,6 @@ public class TimeRange implements Serializable, TimeInterval {
     public long getTo() {
         return to;
     }
-
 
     @Override
     public boolean equals(Object o) {

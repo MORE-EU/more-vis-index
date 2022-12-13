@@ -196,22 +196,25 @@ public class CsvTTITest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
         long startTime = LocalDateTime.parse("2018-01-03 00:05:00", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        long endTime = LocalDateTime.parse("2018-01-03 04:31:40", formatter).atZone(ZoneId.of("UTC"))
+        long endTime = LocalDateTime.parse("2018-02-03 05:31:40", formatter).atZone(ZoneId.of("UTC"))
                 .toInstant().toEpochMilli();
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
         DataSource dataSource = DataSourceFactory.getDataSource(csvDataset);
         DataPoints dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
 //         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
-        for (DataPoint dataPoint : dataPoints){
+//        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
-        }
+//        }
 
-        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
+        Duration maxCalendarInterval = DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort));
 
+//        DateTimeUtil.aggregateCalendarInterval(maxCalendarInterval);
+
+//
         startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        endTime = LocalDateTime.parse("2018-04-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+        endTime = LocalDateTime.parse("2018-02-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
                 .toInstant().toEpochMilli();
         timeRange = new TimeRange(startTime, endTime);
 
@@ -220,21 +223,24 @@ public class CsvTTITest {
 //        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
 //        }
-        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
 
+        maxCalendarInterval = DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort));
 
-        startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
-                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        endTime = LocalDateTime.parse("2019-02-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
-                .toInstant().toEpochMilli();
-        timeRange = new TimeRange(startTime, endTime);
-
-        dataSource = DataSourceFactory.getDataSource(csvDataset);
-        dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
-//        for (DataPoint dataPoint : dataPoints){
-//            System.out.println(dataPoint);
-//        }
-        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
+        System.out.println(DateTimeUtil.aggregateCalendarInterval(maxCalendarInterval));
+//
+//
+//        startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)
+//                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+//        endTime = LocalDateTime.parse("2019-02-03 05:33:18", formatter).atZone(ZoneId.of("UTC"))
+//                .toInstant().toEpochMilli();
+//        timeRange = new TimeRange(startTime, endTime);
+//
+//        dataSource = DataSourceFactory.getDataSource(csvDataset);
+//        dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), csvDataset.getMeasures());
+////        for (DataPoint dataPoint : dataPoints){
+////            System.out.println(dataPoint);
+////        }
+//        System.out.println(DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort)));
 
 /*
         TTI tti = new TTI(csvDataset);
