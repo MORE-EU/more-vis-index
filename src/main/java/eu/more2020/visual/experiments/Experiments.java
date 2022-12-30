@@ -3,17 +3,25 @@ package eu.more2020.visual.experiments;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
+import eu.more2020.visual.domain.Dataset.AbstractDataset;
+import eu.more2020.visual.domain.Dataset.CsvDataset;
+import eu.more2020.visual.domain.Farm;
 import eu.more2020.visual.domain.Query;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
+import eu.more2020.visual.index.TTI;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.ehcache.sizeof.SizeOf;
 
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -25,8 +33,11 @@ public class Experiments {
 
     private static final Logger LOG = LogManager.getLogger(Experiments.class);
 
-    @Parameter(names = "-csv", description = "The csv file")
-    public String csv;
+    @Parameter(names = "-path", description = "The path of the input file(s)")
+    public String path;
+
+    @Parameter(names = "-id", description = "The id of the file")
+    public Integer id;
 
     @Parameter(names = "-zoomFactor", description = "Zoom factor for zoom in operation. The inverse applies to zoom out operation.")
     public Float zoomFactor = 0f;
@@ -68,9 +79,12 @@ public class Experiments {
     @Parameter(names = "--help", help = true, description = "Displays help")
     private boolean help;
 
+    public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
+    public String delimiter = ",";
 
     public Experiments() {
     }
+
 
     public static void main(String... args) throws IOException, ClassNotFoundException {
         Experiments experiments = new Experiments();
@@ -108,23 +122,24 @@ public class Experiments {
     }
 
     private void timeInitialization() throws IOException, ClassNotFoundException {
-//        Preconditions.checkNotNull(csv, "You must define the csv file.");
-//        Preconditions.checkNotNull(outFile, "No out file specified.");
-//
-//        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-//        boolean addHeader = new File(outFile).length() == 0;
-//
-//
-//        CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
-//
-//
-//        long memorySize = 0;
-//        SizeOf sizeOf = SizeOf.newInstance();
-//        int leafTiles = 0;
-//
-//        Stopwatch stopwatch = Stopwatch.createUnstarted();
-//        stopwatch.start();
-//
+        Preconditions.checkNotNull(path, "You must define the input path.");
+        Preconditions.checkNotNull(outFile, "No out file specified.");
+
+        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
+        boolean addHeader = new File(outFile).length() == 0;
+
+
+        CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
+
+
+        long memorySize = 0;
+        SizeOf sizeOf = SizeOf.newInstance();
+
+        Stopwatch stopwatch = Stopwatch.createUnstarted();
+        stopwatch.start();
+        AbstractDataset dataset = createDataset(path, id);
+        TTI tti = new TTI(dataset);
+        
 //        try {
 //            memorySize = sizeOf.deepSizeOf(veti);
 //        } catch (Exception e) {
@@ -132,7 +147,7 @@ public class Experiments {
 //        if (addHeader) {
 //            csvWriter.writeHeaders("csv", "initMode", "initCatBudget (Gb)", "initCatBudget (nodes)", "Tree Node Count", "q0", "categoricalColumns", "Time (sec)", "Total Util", "Leaf tiles", "Memory (Gb)");
 //        }
-//
+
 //        csvWriter.addValue(csv);
 //        csvWriter.addValue(initMode);
 //        csvWriter.addValue(catBudget);
@@ -215,6 +230,63 @@ public class Experiments {
 //
 //        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor);
 //        return sequenceGenerator.generateQuerySequence(q0, seqCount, schema);
+        return null;
+    }
+
+    private AbstractDataset createDataset(String path, Integer id) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Farm farm = new Farm();
+        File metadataFile = new File(path + ".meta.json");
+
+        if (metadataFile.exists()) {
+            FileReader reader = new FileReader(metadataFile);
+            JsonNode jsonNode = mapper.readTree(reader);
+            farm.setName(jsonNode.get("name").toString());
+            farm.setType(jsonNode.get("type").asInt());
+            JsonNode data = jsonNode.get("data");
+            for (JsonNode d : data) {
+                String datasetId = d.get("id").asText();
+                if (datasetId.equals(id)) {
+                    String name = d.get("name").asText();
+                    String type = d.get("type").asText();
+                    switch (type) {
+                        case "CSV":
+                            Integer csvTimeCol = d.get("timeCol").asInt();
+                            List<Integer> csvMeasures = new ArrayList<>();
+                            List<String> csvStringMeasures = new ArrayList<>();
+                            boolean hasHeader = d.get("hasHeader").asBoolean();
+                            for (JsonNode measure : d.get("measures")) {
+                                if (measure.canConvertToInt())
+                                    csvMeasures.add(measure.asInt());
+                                else
+                                    csvStringMeasures.add(measure.asText());
+                            }
+                            CsvDataset csvDataset = new CsvDataset(path, datasetId, name, csvTimeCol, csvMeasures, hasHeader, timeFormat, delimiter);
+                            if (csvStringMeasures.size() > 0) {
+                                for (String csvStringMeasure : csvStringMeasures) {
+                                    csvMeasures.add(Arrays.asList(csvDataset.getHeader()).indexOf(csvStringMeasure));
+                                }
+                                csvDataset.setMeasures(csvMeasures);
+                            }
+                            return csvDataset;
+/*                        case "parquet":
+                            String parquetTimeCol = d.get("timeCol").asText();
+                            List<String> parquetMeasures = new ArrayList<>();
+                            for (JsonNode measure : d.get("measures")) {
+                                parquetMeasures.add(measure.asText());
+                            }
+                            ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, timeFormat);
+                            return parquetDataset;*/
+                        case "modelar":
+                            break;
+                        default:
+                            break;
+
+
+                    }
+                }
+            }
+        }
         return null;
     }
 
