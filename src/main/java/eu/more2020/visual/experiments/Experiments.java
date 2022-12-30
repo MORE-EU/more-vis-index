@@ -128,9 +128,7 @@ public class Experiments {
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         boolean addHeader = new File(outFile).length() == 0;
 
-
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
-
 
         long memorySize = 0;
         SizeOf sizeOf = SizeOf.newInstance();
@@ -139,11 +137,12 @@ public class Experiments {
         stopwatch.start();
         AbstractDataset dataset = createDataset(path, id);
         TTI tti = new TTI(dataset);
-        
-//        try {
-//            memorySize = sizeOf.deepSizeOf(veti);
-//        } catch (Exception e) {
-//        }
+
+        try {
+            memorySize = sizeOf.deepSizeOf(tti);
+        } catch (Exception e) {
+        }
+
 //        if (addHeader) {
 //            csvWriter.writeHeaders("csv", "initMode", "initCatBudget (Gb)", "initCatBudget (nodes)", "Tree Node Count", "q0", "categoricalColumns", "Time (sec)", "Total Util", "Leaf tiles", "Memory (Gb)");
 //        }
