@@ -206,9 +206,9 @@ public class CsvTTITest {
 //        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
 //        }
-        Duration optimalInterval = DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort);
-        Duration maxCalendarInterval = DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort));
-        Duration accurateCalendarInterval = DateTimeUtil.accurateCalendarInterval(timeRange.getFrom(), timeRange.getTo(), viewPort, DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort), 0.9f);
+//        Duration optimalInterval = DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort);
+//        Duration maxCalendarInterval = DateTimeUtil.maxCalendarInterval(DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort));
+//        Duration accurateCalendarInterval = DateTimeUtil.accurateCalendarInterval(timeRange.getFrom(), timeRange.getTo(), viewPort, DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort), 0.9f);
 
 
 //        DateTimeUtil.aggregateCalendarInterval(maxCalendarInterval);
@@ -225,15 +225,15 @@ public class CsvTTITest {
 //        for (DataPoint dataPoint : dataPoints){
 //            System.out.println(dataPoint);
 //        }
-
-        optimalInterval = DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort);
-        maxCalendarInterval = DateTimeUtil.maxCalendarInterval(optimalInterval);
-        accurateCalendarInterval = DateTimeUtil.accurateCalendarInterval(timeRange.getFrom(), timeRange.getTo(), viewPort, maxCalendarInterval, 0.9f);
-
-        System.out.println(optimalInterval);
-        System.out.println(maxCalendarInterval);
-        System.out.println(accurateCalendarInterval);
-        System.out.println(DateTimeUtil.aggregateCalendarInterval(accurateCalendarInterval));
+//
+//        optimalInterval = DateTimeUtil.optimalM4(timeRange.getFrom(), timeRange.getTo(), viewPort);
+//        maxCalendarInterval = DateTimeUtil.maxCalendarInterval(optimalInterval);
+//        accurateCalendarInterval = DateTimeUtil.accurateCalendarInterval(timeRange.getFrom(), timeRange.getTo(), viewPort, maxCalendarInterval, 0.9f);
+//
+//        System.out.println(optimalInterval);
+//        System.out.println(maxCalendarInterval);
+//        System.out.println(accurateCalendarInterval);
+//        System.out.println(DateTimeUtil.aggregateCalendarInterval(accurateCalendarInterval));
 //
 //
 //        startTime = LocalDateTime.parse("2018-01-03 00:05:50", formatter)

@@ -13,6 +13,9 @@ import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Farm;
 import eu.more2020.visual.domain.Query;
+import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.experiments.util.FilterConverter;
+import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
 import eu.more2020.visual.index.TTI;
 import org.apache.log4j.LogManager;
@@ -37,7 +40,7 @@ public class Experiments {
     public String path;
 
     @Parameter(names = "-id", description = "The id of the file")
-    public Integer id;
+    public String id;
 
     @Parameter(names = "-zoomFactor", description = "Zoom factor for zoom in operation. The inverse applies to zoom out operation.")
     public Float zoomFactor = 0f;
@@ -50,6 +53,9 @@ public class Experiments {
 
     @Parameter(names = "-endTime", variableArity = true, description = "End Time Epoch")
     Long endTime = 0L;
+
+    @Parameter(names = "-filters", converter = FilterConverter.class, description = "Q0 Filters")
+    private HashMap<Integer, Double[]> filters = new HashMap<>();
 
 
     @Parameter(names = "-c", required = true)
@@ -163,31 +169,30 @@ public class Experiments {
     }
 
     private void timeQueries() throws IOException, ClassNotFoundException {
-//        Preconditions.checkNotNull(csv, "You must define the csv file.");
-//        Preconditions.checkNotNull(outFile, "No out file specified.");
-//
-//        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-//        boolean addHeader = new File(outFile).length() == 0;
-//        CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
-//        if (addHeader) {
-//            csvWriter.writeHeaders("csv", "categoricalCols", "initMode", "initCatBudget (Gb)",
-//                    "initCatBudget (nodes)", "binCount", "i", "query", "indexUtil", "Tree Node Count", "Leaf tiles", "Overlapped tiles",
-//                    "Fully Contained Tiles", "Expanded nodes", "I/Os", "Time (sec)", "Query Result");
-//        }
-//
-//
-//        Stopwatch stopwatch;
-//
-//        int categoricalNodeBudget = getCategoricalNodeBudget(catBudget);
-//        Schema schema = getSchemaWithSampling();
-//
-//        LOG.debug(schema.getCategoricalColumns());
-//
-//        Veti veti = new Veti(schema, categoricalNodeBudget, initMode, binCount, model);
-//
-//        Query q0 = new Query(rect, categoricalFilters, Arrays.asList(groupBy), measureCol, dedup);
-//        List<Query> sequence = generateQuerySequence(q0, schema);
-//
+        Preconditions.checkNotNull(path, "You must define the input path.");
+        Preconditions.checkNotNull(outFile, "No out file specified.");
+
+        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
+        boolean addHeader = new File(outFile).length() == 0;
+
+        CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
+
+        long memorySize = 0;
+        SizeOf sizeOf = SizeOf.newInstance();
+
+        Stopwatch stopwatch = Stopwatch.createUnstarted();
+        stopwatch.start();
+        AbstractDataset dataset = createDataset(path, id);
+        TTI tti = new TTI(dataset);
+
+        try {
+            memorySize = sizeOf.deepSizeOf(tti);
+        } catch (Exception e) {
+        }
+
+        Query q0 = new Query(startTime, endTime, columns, filters, new ViewPort(800, 300));
+        List<Query> sequence = generateQuerySequence(q0);
+
 //        for (int i = 0; i < sequence.size(); i++) {
 //            Query query = sequence.get(i);
 //            LOG.debug("Executing query " + i);
@@ -221,18 +226,17 @@ public class Experiments {
 
 
     private List<Query> generateQuerySequence(Query q0) {
-//        Preconditions.checkNotNull(seqCount, "No sequence count specified.");
-//        Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
-//        Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
-//        Preconditions.checkNotNull(minFilters, "Min filters must be specified.");
-//        Preconditions.checkNotNull(maxFilters, "Max filters must be specified.");
-//
-//        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor);
-//        return sequenceGenerator.generateQuerySequence(q0, seqCount, schema);
-        return null;
+        Preconditions.checkNotNull(seqCount, "No sequence count specified.");
+        Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
+        Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
+        Preconditions.checkNotNull(minFilters, "Min filters must be specified.");
+        Preconditions.checkNotNull(maxFilters, "Max filters must be specified.");
+
+        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor);
+        return sequenceGenerator.generateQuerySequence(q0, seqCount);
     }
 
-    private AbstractDataset createDataset(String path, Integer id) throws IOException {
+    private AbstractDataset createDataset(String path, String id) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Farm farm = new Farm();
         File metadataFile = new File(path + ".meta.json");

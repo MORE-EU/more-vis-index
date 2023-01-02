@@ -45,17 +45,16 @@ public class TTI {
         DataPoints dataPoints = dataSource.getDataPoints(query.getFrom(), query.getTo(), measures);
 
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.accurateCalendarInterval(query.getFrom(),
-                query.getTo(), query.getViewPort(), dataset.getSamplingInterval(), accuracy));
+                query.getTo(), query.getViewPort(), accuracy));
 
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
-        Duration aggInterval = DateTimeUtil.maxCalendarInterval(optimalM4Interval);
         timeSeriesSpan.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
         intervalTree.insert(timeSeriesSpan);
     }
 
     public QueryResults executeQuery(Query query) {
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
-        Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), dataset.getSamplingInterval(), accuracy);
+        Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
 
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
