@@ -183,7 +183,7 @@ public class DateTimeUtil {
      * @param samplingInterval The sampling interval
      * @return A Duration
      */
-    public static Duration maxCalendarInterval(Duration samplingInterval) {
+    private static Duration maxCalendarInterval(Duration samplingInterval) {
         // Get each part that makes up a calendar date. The first non-zero is its "granularity".
         int days = (int) samplingInterval.toDaysPart();
         int hours = samplingInterval.toHoursPart();
@@ -212,13 +212,15 @@ public class DateTimeUtil {
         return Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
     }
 
-    public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, Duration samplingInterval, float accuracy) {
+    public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
+        Duration optimalM4Interval = optimalM4(from, to, viewPort);
+        Duration calendarBasedInterval = maxCalendarInterval(optimalM4Interval);
         Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
         long divisor = 0;
         float percent = 1;
         Duration G4samplingInterval = null;
         while(percent > (1.0 - accuracy)){
-            G4samplingInterval = samplingInterval.dividedBy((long) Math.pow(2, divisor ++));
+            G4samplingInterval = calendarBasedInterval.dividedBy((long) Math.pow(2, divisor ++));
             int g4Width = (int) timeRangeDuration.dividedBy(G4samplingInterval);
             percent = (float) viewPort.getWidth() / g4Width;
         }
