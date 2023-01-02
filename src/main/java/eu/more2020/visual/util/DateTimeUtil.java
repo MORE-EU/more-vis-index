@@ -63,19 +63,17 @@ public class DateTimeUtil {
      * month, etc.
      *
      * @param timestamp The timestamp to find an interval for, in milliseconds from epoch
-     * @param interval  The interval, which together with the unit, fully define the interval
-     * @param unit      The unit of the interval
+     * @param aggregateInterval  The aggregate interval
      * @param zoneId    The zone id.
      * @return A ZonedDateTime instance set to the start of the interval this timestamp belongs
      * @throws IllegalArgumentException if the timestamp is negative or the interval is less than one
      */
-    public static ZonedDateTime getIntervalStart(long timestamp, int interval,
-                                                 ChronoUnit unit, ZoneId zoneId) {
+    public static ZonedDateTime getIntervalStart(long timestamp, AggregateInterval aggregateInterval, ZoneId zoneId) {
         if (timestamp < 0) {
             throw new IllegalArgumentException("Timestamp cannot be less than zero");
         }
-        if (interval < 1) {
-            throw new IllegalArgumentException("Interval interval must be greater than zero");
+        if (aggregateInterval.getInterval() < 1) {
+            throw new IllegalArgumentException("AggregateInterval interval must be greater than zero");
         }
 
         if (zoneId == null) {
@@ -85,8 +83,10 @@ public class DateTimeUtil {
 
         ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
 
+        long interval = aggregateInterval.getInterval();
+        ChronoUnit unit = aggregateInterval.getChronoUnit();
 
-        switch (unit) {
+        switch (aggregateInterval.getChronoUnit()) {
             case MILLIS:
                 if (1000 % interval == 0) {
                     dateTime = dateTime.withNano(0);
@@ -152,11 +152,10 @@ public class DateTimeUtil {
     }
 
 
-    public static int numberOfIntervals(final long startTime, final long endTime, int interval,
-                                        ChronoUnit unit, ZoneId zoneId) {
-        ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, interval, unit, zoneId);
-        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime - 1, interval, unit, zoneId);
-        return (int) (unit.between(startDateTime, endDateTime) / interval) + 1;
+    public static int numberOfIntervals(final long startTime, final long endTime, AggregateInterval aggregateInterval, ZoneId zoneId) {
+        ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, aggregateInterval, zoneId);
+        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime - 1, aggregateInterval, zoneId);
+        return (int) (aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / aggregateInterval.getInterval()) + 1;
     }
 
     /**
