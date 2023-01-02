@@ -1,9 +1,6 @@
 package eu.more2020.visual.index;
 
-import eu.more2020.visual.domain.AggregatedDataPoint;
-import eu.more2020.visual.domain.DataPoint;
-import eu.more2020.visual.domain.DataPoints;
-import eu.more2020.visual.domain.Stats;
+import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.ZoneId;
@@ -37,9 +34,8 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
 
     protected final Iterator<DataPoint> sourceDataPointsIterator;
 
-    protected final int aggInterval;
+    protected final AggregateInterval aggInterval;
 
-    protected final ChronoUnit unit;
 
     private final Stats stats;
 
@@ -62,13 +58,11 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
      *
      * @param sourceDataPoints The source data points.
      * @param aggInterval      The aggregation interval.
-     * @param unit             The unit to use for the aggregation interval.
      */
-    public TimeAggregator(final DataPoints sourceDataPoints, final int aggInterval, final ChronoUnit unit) {
+    public TimeAggregator(final DataPoints sourceDataPoints, final AggregateInterval aggInterval) {
         this.sourceDataPoints = sourceDataPoints;
         sourceDataPointsIterator = sourceDataPoints.iterator();
         this.aggInterval = aggInterval;
-        this.unit = unit;
         stats = new Stats(sourceDataPoints.getMeasures());
     }
 
@@ -111,11 +105,11 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
         // if not initialized, initialize first interval, based on first datapoint in the source data points
         if (currentInterval == null) {
             nextDataPoint = sourceDataPointsIterator.next();
-            currentInterval = DateTimeUtil.getIntervalStart(nextDataPoint.getTimestamp(), aggInterval, unit, ZoneId.of("UTC"));
-            nextInterval = currentInterval.plus(aggInterval, unit);
+            currentInterval = DateTimeUtil.getIntervalStart(nextDataPoint.getTimestamp(), aggInterval, ZoneId.of("UTC"));
+            nextInterval = currentInterval.plus(aggInterval.getInterval(), aggInterval.getChronoUnit());
         } else {
-            currentInterval = currentInterval.plus(aggInterval, unit);
-            nextInterval = nextInterval.plus(aggInterval, unit);
+            currentInterval = currentInterval.plus(aggInterval.getInterval(), aggInterval.getChronoUnit());
+            nextInterval = nextInterval.plus(aggInterval.getInterval(), aggInterval.getChronoUnit());
         }
     }
 

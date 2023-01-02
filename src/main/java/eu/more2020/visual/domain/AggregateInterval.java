@@ -1,5 +1,6 @@
 package eu.more2020.visual.domain;
 
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 public class AggregateInterval {
@@ -17,6 +18,10 @@ public class AggregateInterval {
 
     public ChronoUnit getChronoUnit() {
         return chronoUnit;
+    }
+
+    public Duration toDuration(){
+        return Duration.of(interval, chronoUnit);
     }
 
     @Override

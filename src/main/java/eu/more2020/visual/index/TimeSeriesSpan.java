@@ -3,10 +3,13 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -36,15 +39,13 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     private long from;
     // The size of this span, corresponding to the number of aggregated window intervals represented by it
     private int size;
+
+    private ZoneId zoneId;
+
     /**
      * The fixed window that raw data points are grouped by in this span.
-     * It requires the {@link #unit} to fully define the group-by window.
      */
-    private int interval;
-    /**
-     * the unit of the interval argument
-     */
-    private ChronoUnit unit;
+    private AggregateInterval aggregateInterval;
 
     public TimeSeriesSpan() {
         aggsByMeasure = new HashMap<>();
@@ -54,20 +55,19 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     /**
      * @param dataPoints
-     * @param interval
-     * @param unit
+     * @param aggregateInterval
      * @param zoneId
      */
-    public void build(DataPoints dataPoints, int interval, ChronoUnit unit, ZoneId zoneId) {
-        this.unit = unit;
-        this.interval = interval;
-        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), interval, unit, zoneId);
+    public void build(DataPoints dataPoints, AggregateInterval aggregateInterval, ZoneId zoneId) {
+        this.aggregateInterval = aggregateInterval;
+        this.zoneId = zoneId;
+        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, zoneId);
         List<Integer> measures = dataPoints.getMeasures();
 
         for (Integer measure : measures) {
             aggsByMeasure.put(measure, new long[size * 3]);
         }
-        TimeAggregator timeAggregator = new TimeAggregator(dataPoints, interval, unit);
+        TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
 
         int i = 0;
         AggregatedDataPoint aggregatedDataPoint;
@@ -104,7 +104,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
      * @return A positive index.
      */
     private int getIndex(final long timestamp) {
-        int index = DateTimeUtil.numberOfIntervals(from, timestamp, interval, unit, ZoneId.of("UTC")) - 1;
+        int index = DateTimeUtil.numberOfIntervals(from, timestamp, aggregateInterval, ZoneId.of("UTC")) - 1;
         if (index >= size) {
             return size - 1;
         } else if (index < 0) {
@@ -123,18 +123,14 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return size;
     }
 
-    public int getInterval() {
-        return interval;
-    }
-
-    public ChronoUnit getUnit() {
-        return unit;
+    public AggregateInterval getAggregateInterval() {
+        return aggregateInterval;
     }
 
     public Iterator<DataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp, Aggregator aggregator) {
         Iterator<Integer> internalIt = IntStream.range(getIndex(queryStartTimestamp), queryEndTimestamp >= 0 ? getIndex(queryEndTimestamp) + 1 : size)
                 .iterator();
-        ZonedDateTime startInterval = DateTimeUtil.getIntervalStart(from, interval, unit, ZoneId.of("UTC"));
+        ZonedDateTime startInterval = DateTimeUtil.getIntervalStart(from, aggregateInterval, ZoneId.of("UTC"));
         return new Iterator<>() {
             @Override
             public boolean hasNext() {
@@ -144,7 +140,8 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
             @Override
             public DataPoint next() {
                 int index = internalIt.next();
-                long timestamp = startInterval.plus(index, unit).toInstant().toEpochMilli();
+                long timestamp = startInterval.plus(index, aggregateInterval.getChronoUnit()).toInstant()
+                        .toEpochMilli();
                 List<Integer> measures = getMeasures();
                 double[] values = new double[measures.size()];
 
@@ -185,7 +182,9 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     @Override
     public long getTo() {
-        return from + size * interval;
+        return aggregateInterval.getChronoUnit()
+                .addTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(from), zoneId), size * aggregateInterval.getInterval())
+                .toInstant().toEpochMilli();
     }
 
 }
