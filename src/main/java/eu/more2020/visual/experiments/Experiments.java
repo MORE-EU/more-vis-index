@@ -197,7 +197,7 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
         Query q0 = new Query(startTime, endTime, measureIDs, filters, new ViewPort(800, 300));
-        tti.initialize(q0);
+        //tti.initialize(q0);
 
         try {
             memorySize = sizeOf.deepSizeOf(tti);
