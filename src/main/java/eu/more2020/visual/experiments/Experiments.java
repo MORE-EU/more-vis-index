@@ -3,15 +3,12 @@ package eu.more2020.visual.experiments;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
-import eu.more2020.visual.domain.Farm;
 import eu.more2020.visual.domain.Query;
 import eu.more2020.visual.domain.ViewPort;
 import eu.more2020.visual.experiments.util.FilterConverter;
@@ -24,23 +21,39 @@ import org.ehcache.sizeof.SizeOf;
 
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
-public class Experiments {
+public class Experiments<T> {
 
     private static final Logger LOG = LogManager.getLogger(Experiments.class);
 
     @Parameter(names = "-path", description = "The path of the input file(s)")
     public String path;
 
-    @Parameter(names = "-id", description = "The id of the file")
-    public String id;
+    @Parameter(names = "-type", description = "The type of the input file(s) (parquet/csv)")
+    public String type;
+
+    @Parameter(names = "-measureIDs", variableArity = true, description = "Measures IDs to be used")
+    public List<Integer> measureIDs;
+
+    @Parameter(names = "-measureNames", variableArity = true, description = "Measures Names to be used (parquet)")
+    public List<String> measureNames;
+
+    @Parameter(names = "-hasHeader", description = "If CSV has header")
+    public Boolean hasHeader = true;
+
+    @Parameter(names = "-timeCol", description = "Datetime Column for CSV files")
+    public Integer timeCol;
+
+    @Parameter(names = "-timeFormat", description = "Datetime Column Format")
+    public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
+
+    @Parameter(names = "-delimeter", description = "CSV Delimeter")
+    public String delimiter = ",";
+
 
     @Parameter(names = "-zoomFactor", description = "Zoom factor for zoom in operation. The inverse applies to zoom out operation.")
     public Float zoomFactor = 0f;
@@ -72,9 +85,9 @@ public class Experiments {
     @Parameter(names = "-objCount", description = "Number of objects")
     private Integer objCount;
     @Parameter(names = "-minShift", description = "Min shift in the query sequence")
-    private Integer minShift;
+    private Float minShift;
     @Parameter(names = "-maxShift", description = "Max shift in the query sequence")
-    private Integer maxShift;
+    private Float maxShift;
     @Parameter(names = "-minFilters", description = "Min filters in the query sequence")
     private Integer minFilters;
     @Parameter(names = "-maxFilters", description = "Max filters in the query sequence")
@@ -85,8 +98,6 @@ public class Experiments {
     @Parameter(names = "--help", help = true, description = "Displays help")
     private boolean help;
 
-    public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
-    public String delimiter = ",";
 
     public Experiments() {
     }
@@ -141,7 +152,7 @@ public class Experiments {
 
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         stopwatch.start();
-        AbstractDataset dataset = createDataset(path, id);
+        AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
 
         try {
@@ -182,16 +193,15 @@ public class Experiments {
 
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         stopwatch.start();
-        AbstractDataset dataset = createDataset(path, id);
+        AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
 
         try {
             memorySize = sizeOf.deepSizeOf(tti);
         } catch (Exception e) {
         }
-
         Query q0 = new Query(startTime, endTime, columns, filters, new ViewPort(800, 300));
-        List<Query> sequence = generateQuerySequence(q0);
+        List<Query> sequence = generateQuerySequence(q0, dataset);
 
 //        for (int i = 0; i < sequence.size(); i++) {
 //            Query query = sequence.get(i);
@@ -225,70 +235,33 @@ public class Experiments {
 
 
 
-    private List<Query> generateQuerySequence(Query q0) {
+    private List<Query> generateQuerySequence(Query q0, AbstractDataset dataset) {
         Preconditions.checkNotNull(seqCount, "No sequence count specified.");
         Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
         Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
         Preconditions.checkNotNull(minFilters, "Min filters must be specified.");
         Preconditions.checkNotNull(maxFilters, "Max filters must be specified.");
 
-        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor);
+        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor, dataset);
         return sequenceGenerator.generateQuerySequence(q0, seqCount);
     }
 
-    private AbstractDataset createDataset(String path, String id) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        Farm farm = new Farm();
-        File metadataFile = new File(path + ".meta.json");
-
-        if (metadataFile.exists()) {
-            FileReader reader = new FileReader(metadataFile);
-            JsonNode jsonNode = mapper.readTree(reader);
-            farm.setName(jsonNode.get("name").toString());
-            farm.setType(jsonNode.get("type").asInt());
-            JsonNode data = jsonNode.get("data");
-            for (JsonNode d : data) {
-                String datasetId = d.get("id").asText();
-                if (datasetId.equals(id)) {
-                    String name = d.get("name").asText();
-                    String type = d.get("type").asText();
-                    switch (type) {
-                        case "CSV":
-                            Integer csvTimeCol = d.get("timeCol").asInt();
-                            List<Integer> csvMeasures = new ArrayList<>();
-                            List<String> csvStringMeasures = new ArrayList<>();
-                            boolean hasHeader = d.get("hasHeader").asBoolean();
-                            for (JsonNode measure : d.get("measures")) {
-                                if (measure.canConvertToInt())
-                                    csvMeasures.add(measure.asInt());
-                                else
-                                    csvStringMeasures.add(measure.asText());
-                            }
-                            CsvDataset csvDataset = new CsvDataset(path, datasetId, name, csvTimeCol, csvMeasures, hasHeader, timeFormat, delimiter);
-                            if (csvStringMeasures.size() > 0) {
-                                for (String csvStringMeasure : csvStringMeasures) {
-                                    csvMeasures.add(Arrays.asList(csvDataset.getHeader()).indexOf(csvStringMeasure));
-                                }
-                                csvDataset.setMeasures(csvMeasures);
-                            }
-                            return csvDataset;
-/*                        case "parquet":
-                            String parquetTimeCol = d.get("timeCol").asText();
-                            List<String> parquetMeasures = new ArrayList<>();
-                            for (JsonNode measure : d.get("measures")) {
-                                parquetMeasures.add(measure.asText());
-                            }
-                            ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, timeFormat);
-                            return parquetDataset;*/
-                        case "modelar":
-                            break;
-                        default:
-                            break;
-
-
-                    }
-                }
-            }
+    private AbstractDataset createDataset() throws IOException {
+        switch (type.toLowerCase(Locale.ROOT)) {
+            case "csv":
+                return new CsvDataset(path, "0", "test", timeCol, measureIDs, hasHeader, timeFormat, delimiter);
+            case "parquet":
+                Preconditions.checkNotNull(measureNames, "Provide names for SELECT measures");
+                return null;
+//                String parquetTimeCol = d.get("timeCol").asText();
+//                List<String> parquetMeasures = new ArrayList<>();
+//                for (JsonNode measure : d.get("measures")) {
+//                    parquetMeasures.add(measure.asText());
+//                }
+//                ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, timeFormat);
+//                return parquetDataset;
+            default:
+                break;
         }
         return null;
     }

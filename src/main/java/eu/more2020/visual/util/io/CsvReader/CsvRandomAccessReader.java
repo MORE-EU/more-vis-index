@@ -230,48 +230,6 @@ public class CsvRandomAccessReader extends RandomAccessReader {
         return zonedDateTime.toInstant().toEpochMilli();
     }
 
-/*    public ArrayList<String[]> getData(TimeRange range, List<Integer> measures) throws IOException {
-        if (!measures.equals(this.measures)) updateMeasures(measures);
-        ArrayList<String[]> rows = new ArrayList<>();
-        long toOffset = findOffset(range.getTo());
-        long fromOffset = findOffset(range.getFrom());
-        this.seek(fromOffset);
-        this.setDirection(DIRECTION.FORWARD);
-        String line;
-        while (this.getFilePointer() <= toOffset) {
-            line = this.readNewLine();
-            if (!line.isEmpty()) rows.add(parseLine(line));
-        }
-        return rows;
-    }*/
-
-    /*public String[] getData(long time, List<Integer> measures) throws IOException {
-        if (!measures.equals(this.measures)) updateMeasures(measures);
-        long position = findPosition(time);
-        long probabilisticOffset = findProbabilisticOffset(position);
-
-        this.setDirection(DIRECTION.FORWARD);
-        this.seek(probabilisticOffset);
-
-        String line = this.readNewLine();
-        long firstTimeFound = parseStringToTimestamp(parseLine(line)[timeCol]);
-        long timeFound;
-        if (firstTimeFound > time) {
-            this.setDirection(DIRECTION.BACKWARD);
-            do {
-                line = this.readNewLine();
-                timeFound = parseStringToTimestamp(this.parseLine(line)[timeCol]);
-            } while (!(timeFound <= time));
-        } else {
-            this.setDirection(DIRECTION.FORWARD);
-            do {
-                line = this.readNewLine();
-                timeFound = parseStringToTimestamp(this.parseLine(line)[timeCol]);
-            } while (!(timeFound >= (time)));
-        }
-        return parseLine(line);
-    }*/
-
     private CsvParserSettings createCsvParserSettings() {
         CsvParserSettings parserSettings = new CsvParserSettings();
         parserSettings.getFormat().setDelimiter(this.delimiter.charAt(0));

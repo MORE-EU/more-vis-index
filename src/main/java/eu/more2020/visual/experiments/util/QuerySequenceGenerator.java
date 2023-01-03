@@ -2,6 +2,7 @@ package eu.more2020.visual.experiments.util;
 
 import com.google.common.collect.Range;
 
+import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query;
 import eu.more2020.visual.domain.TimeRange;
 import org.apache.commons.math3.util.Pair;
@@ -19,25 +20,28 @@ public class QuerySequenceGenerator {
 
     private static final Logger LOG = LogManager.getLogger(QuerySequenceGenerator.class);
 
-    private int minShift;
-    private int maxShift;
+    private float minShift;
+    private float maxShift;
 
     private int minFilters;
     private int maxFilters;
 
     private float zoomFactor;
 
-    public QuerySequenceGenerator(int minShift, int maxShift, int minFilters, int maxFilters, float zoomFactor) {
+    private AbstractDataset dataset;
+
+    public QuerySequenceGenerator(float minShift, float maxShift, int minFilters, int maxFilters, float zoomFactor, AbstractDataset dataset) {
         this.minShift = minShift;
         this.maxShift = maxShift;
         this.minFilters = minFilters;
         this.maxFilters = maxFilters;
         this.zoomFactor = zoomFactor;
+        this.dataset = dataset;
     }
 
     public List<Query> generateQuerySequence(Query q0, int count) {
         Direction[] directions = Direction.getRandomDirections(count);
-        int[] shifts = new Random(0).ints(count, minShift, maxShift + 1).toArray();
+        double[] shifts = new Random(0).doubles(count, minShift, maxShift + 1).toArray();
         int[] filterCounts = new Random(0).ints(count, minFilters, maxFilters + 1).toArray();
 
 
@@ -52,12 +56,13 @@ public class QuerySequenceGenerator {
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
+
             if (zoomFactor > 1 && opType.equals(ZI)) {
                 timeRange = zoomIn(query);
             } else if (zoomFactor > 1 && opType.equals(ZO)) {
                 timeRange = zoomOut(query);
             } else {
-//                timeRange = pan(query, shifts[i], directions[i]);
+                timeRange = pan(query, shifts[i], directions[i]);
             }
 
             Map<Integer, String> filters = new HashMap<>();
@@ -78,35 +83,26 @@ public class QuerySequenceGenerator {
 
     }
 
-//    private Rectangle pan(Query query, int shift, Direction direction) {
-//        Range<Float> xRange = query.getRect().getXRange();
-//        Range<Float> yRange = query.getRect().getYRange();
-//        shift = Math.abs(shift);
-//
-//        switch (direction) {
-//            case N:
-//            case NE:
-//            case NW:
-//                yRange = adjustRange(yRange, shift);
-//                break;
-//            case S:
-//            case SE:
-//            case SW:
-//                yRange = adjustRange(yRange, -shift);
-//        }
-//        switch (direction) {
-//            case E:
-//            case NE:
-//            case SE:
-//                xRange = adjustRange(xRange, shift);
-//                break;
-//            case W:
-//            case NW:
-//            case SW:
-//                xRange = adjustRange(xRange, -shift);
-//        }
-//        return new Rectangle(xRange, yRange);
-//    }
+    private TimeRange pan(Query query, double shift, Direction direction) {
+        long from = query.getFrom();
+        long to = query.getTo();
+        shift = Math.abs(shift);
+        int timeShift = (int) ((to - from) * shift);
+        switch (direction) {
+            case L:
+                if(dataset.getTimeRange().getFrom() > from - timeShift) break;
+                from = from - from * timeShift;
+                to = to - timeShift;
+                break;
+            case R:
+                if(dataset.getTimeRange().getTo() < to + timeShift) break;
+                to = to + timeShift;
+                from = from + timeShift;
+                break;
+
+        }
+        return new TimeRange(from, to);
+    }
 
 
     private TimeRange zoomOut(Query query) {
@@ -120,17 +116,12 @@ public class QuerySequenceGenerator {
     private TimeRange zoom(Query query, float zoomFactor) {
         long from = query.getFrom();
         long to = query.getTo();
-
         float middle = (from + to) / 2f;
-        long newFrom =  (long) (from - (zoomFactor * (middle - from)));
-        long newTo =  (long) (to + (zoomFactor * (to - middle)));
+        float size = (from - to) * zoomFactor;
+        long newFrom = (long) (middle + (size / 2f));
+        long newTo =  (long) (middle - (size / 2f));
+        if(dataset.getTimeRange().getTo() < newTo) newTo = dataset.getTimeRange().getTo();
+        if(dataset.getTimeRange().getFrom() > newFrom) newFrom = dataset.getTimeRange().getFrom();
         return new TimeRange(newFrom, newTo);
     }
-
-    private Range<Float> adjustRange(Range<Float> range, int shift) {
-        float interval = (range.upperEndpoint() -
-                range.lowerEndpoint()) * shift / 100;
-        return Range.open(range.lowerEndpoint() + interval, range.upperEndpoint() + interval);
-    }
-
 }
