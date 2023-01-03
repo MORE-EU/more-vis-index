@@ -8,9 +8,8 @@ import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Spliterators;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -74,8 +73,19 @@ public class TTI {
                     return span;
                 });
 
-        queryResults.setData(StreamSupport.stream(Spliterators.spliteratorUnknownSize(timeSeriesSpan.iterator(query.getFrom(), query.getTo(), Aggregator.AVG), 0), false)
-                .collect(Collectors.toList()));
+
+        Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
+                .collect(Collectors.toMap(Function.identity(), ArrayList::new));
+
+        timeSeriesSpan.iterator(query.getFrom(), query.getTo()).forEachRemaining(aggregatedDataPoint -> {
+            Stats stats = aggregatedDataPoint.getStats();
+            for (int measure : measures){
+                List<UnivariateDataPoint> measureData = data.get(measure);
+                measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
+                measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
+            }
+        });
+        queryResults.setData(data);
         return queryResults;
     }
 

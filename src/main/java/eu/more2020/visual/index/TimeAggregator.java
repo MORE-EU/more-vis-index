@@ -5,8 +5,6 @@ import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -37,7 +35,7 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     protected final AggregateInterval aggInterval;
 
 
-    private final Stats stats;
+    private final StatsAggregator statsAggregator;
 
     /**
      * The start date time value of the current interval.
@@ -63,7 +61,7 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
         this.sourceDataPoints = sourceDataPoints;
         sourceDataPointsIterator = sourceDataPoints.iterator();
         this.aggInterval = aggInterval;
-        stats = new Stats(sourceDataPoints.getMeasures());
+        statsAggregator = new StatsAggregator(sourceDataPoints.getMeasures());
     }
 
 
@@ -83,14 +81,14 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     public AggregatedDataPoint next() {
         if (sourceDataPointsIterator.hasNext()) {
             moveToNextInterval();
-            stats.clear();
+            statsAggregator.clear();
             if (nextDataPoint.getTimestamp() >= currentInterval.toInstant()
                     .toEpochMilli() && nextDataPoint.getTimestamp() < nextInterval.toInstant().toEpochMilli()) {
 
-                stats.accept(nextDataPoint);
+                statsAggregator.accept(nextDataPoint);
                 while (sourceDataPointsIterator.hasNext() && (nextDataPoint = sourceDataPointsIterator.next()).getTimestamp() < nextInterval.toInstant()
                         .toEpochMilli()) {
-                    stats.accept(nextDataPoint);
+                    statsAggregator.accept(nextDataPoint);
                 }
             }
             return this;
@@ -122,18 +120,18 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
 
     @Override
     public double[] getValues() {
-        return stats.getAverageValues();
+        return statsAggregator.getAverageValues();
     }
 
 
     @Override
     public int getCount() {
-        return stats.getCount();
+        return statsAggregator.getCount();
     }
 
     @Override
     public Stats getStats() {
-        return stats;
+        return statsAggregator;
     }
 
 

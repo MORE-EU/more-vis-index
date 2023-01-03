@@ -7,9 +7,6 @@ import eu.more2020.visual.domain.csv.CsvDataPoint;
 import eu.more2020.visual.index.TimeAggregator;
 import eu.more2020.visual.util.DateTimeUtil;
 
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-
 public class CsvTimeAggregator extends TimeAggregator implements CsvAggregatedDataPoint {
 
     private long fileOffset = -1;

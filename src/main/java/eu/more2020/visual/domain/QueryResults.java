@@ -11,7 +11,7 @@ public class QueryResults implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private List<DataPoint> data = new ArrayList<>();
+    private Map<Integer, List<UnivariateDataPoint>> data;
 
     private Map<Integer, DoubleSummaryStatistics> measureStats;
 
@@ -27,11 +27,11 @@ public class QueryResults implements Serializable {
         this.timeRange = timeRange;
     }
 
-    public List<DataPoint> getData() {
+    public Map<Integer, List<UnivariateDataPoint>> getData() {
         return data;
     }
 
-    public void setData(List<DataPoint> data) {
+    public void setData(Map<Integer, List<UnivariateDataPoint>> data) {
         this.data = data;
     }
 

@@ -65,7 +65,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         List<Integer> measures = dataPoints.getMeasures();
 
         for (Integer measure : measures) {
-            aggsByMeasure.put(measure, new long[size * 3]);
+            aggsByMeasure.put(measure, new long[size * 5]);
         }
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
 
@@ -89,11 +89,11 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         for (int j = 0; j < measures.size(); j++) {
             int m = measures.get(j);
             long[] data = aggsByMeasure.get(m);
-            data[3 * i] = Double.doubleToRawLongBits(stats.getSums()[j]);
-            data[3 * i + 1] = Double.doubleToRawLongBits(stats.getMinValues()[j]);
-            data[3 * i + 2] = stats.getMinTimestamps()[j];
-            data[3 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValues()[j]);
-            data[3 * i + 4] = stats.getMaxTimestamps()[j];
+            data[3 * i] = Double.doubleToRawLongBits(stats.getSum(j));
+            data[3 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(j));
+            data[3 * i + 2] = stats.getMinTimestamp(j);
+            data[3 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValue(j));
+            data[3 * i + 4] = stats.getMaxTimestamp(j);
         }
     }
 
@@ -127,51 +127,13 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return aggregateInterval;
     }
 
-    public Iterator<DataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp, Aggregator aggregator) {
-        Iterator<Integer> internalIt = IntStream.range(getIndex(queryStartTimestamp), queryEndTimestamp >= 0 ? getIndex(queryEndTimestamp) + 1 : size)
-                .iterator();
-        ZonedDateTime startInterval = DateTimeUtil.getIntervalStart(from, aggregateInterval, ZoneId.of("UTC"));
-        return new Iterator<>() {
-            @Override
-            public boolean hasNext() {
-                return internalIt.hasNext();
-            }
-
-            @Override
-            public DataPoint next() {
-                int index = internalIt.next();
-                long timestamp = startInterval.plus(index, aggregateInterval.getChronoUnit()).toInstant()
-                        .toEpochMilli();
-                List<Integer> measures = getMeasures();
-                double[] values = new double[measures.size()];
-
-                for (int i = 0; i < measures.size(); i++) {
-                    int measure = measures.get(i);
-                    switch (aggregator) {
-                        case SUM:
-                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3]);
-                            break;
-                        case MIN:
-                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3 + 1]);
-                            break;
-                        case MAX:
-                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3 + 3]);
-                            break;
-                        case AVG:
-                            values[i] = Double.longBitsToDouble(aggsByMeasure.get(measure)[index * 3]) / counts[index];
-                            break;
-                    }
-                }
-                return new ImmutableDataPoint(timestamp, values);
-            }
-
-
-        };
+    public Iterator<AggregatedDataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp) {
+        return new TimeSeriesSpanIterator(queryStartTimestamp, queryEndTimestamp);
     }
 
     @Override
     public Iterator iterator() {
-        return iterator(from, -1, Aggregator.AVG);
+        return iterator(from, -1);
     }
 
 
@@ -185,6 +147,90 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return aggregateInterval.getChronoUnit()
                 .addTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(from), zoneId), size * aggregateInterval.getInterval())
                 .toInstant().toEpochMilli();
+    }
+
+    private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
+
+        private Iterator<Integer> internalIt;
+        private ZonedDateTime startInterval;
+
+        private long timestamp;
+
+        private int currentIndex = -1;
+
+        public TimeSeriesSpanIterator(long queryStartTimestamp, long queryEndTimestamp) {
+            internalIt = IntStream.range(getIndex(queryStartTimestamp), queryEndTimestamp >= 0 ? getIndex(queryEndTimestamp) + 1 : size)
+                    .iterator();
+            startInterval = DateTimeUtil.getIntervalStart(from, aggregateInterval, ZoneId.of("UTC"));
+        }
+
+        @Override
+        public boolean hasNext() {
+            return internalIt.hasNext();
+        }
+
+        @Override
+        public AggregatedDataPoint next() {
+            currentIndex = internalIt.next();
+            timestamp = startInterval.plus(currentIndex, aggregateInterval.getChronoUnit()).toInstant()
+                    .toEpochMilli();
+            return this;
+        }
+
+        @Override
+        public int getCount() {
+            return counts[currentIndex];
+        }
+
+        @Override
+        public Stats getStats() {
+            return new Stats() {
+                @Override
+                public int getCount() {
+                    return counts[currentIndex];
+                }
+
+                @Override
+                public double getSum(int measure) {
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3]);
+                }
+
+                @Override
+                public double getMinValue(int measure) {
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3 + 1]);
+                }
+
+                @Override
+                public double getMaxValue(int measure) {
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3 + 3]);
+                }
+
+                @Override
+                public double getAverageValue(int measure) {
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3]) / counts[currentIndex];
+                }
+
+                @Override
+                public long getMinTimestamp(int measure) {
+                    return aggsByMeasure.get(measure)[currentIndex * 3 + 2];
+                }
+
+                @Override
+                public long getMaxTimestamp(int measure) {
+                    return aggsByMeasure.get(measure)[currentIndex * 3 + 4];
+                }
+            };
+        }
+
+        @Override
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        @Override
+        public double[] getValues() {
+            throw new UnsupportedOperationException();
+        }
     }
 
 }

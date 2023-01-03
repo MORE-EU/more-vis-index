@@ -12,8 +12,7 @@ public interface AggregatedDataPoint extends DataPoint {
     public int getCount();
 
     /**
-     * @return An array of {@link DoubleSummaryStatistics} instances,
-     * corresponding to the aggregate measure metadata of the raw data points
+     * @return The aggregate measure metadata of the raw data points
      * represented by this aggregated data point.
      */
     public Stats getStats();
