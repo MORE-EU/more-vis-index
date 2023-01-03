@@ -68,15 +68,7 @@ public class QuerySequenceGenerator {
             Map<Integer, String> filters = new HashMap<>();
             int filterCount = filterCounts[i];
 
-//            while (filterCount > 0) {
-//                CategoricalColumn column = colDistribution.sample();
-//                if (!filters.containsKey(column.getIndex())) {
-//                    String filterValue = column.getValue((short) randomFilterValueGen.nextInt(column.getCardinality()));
-//                    filters.put(column.getIndex(), filterValue);
-//                    filterCount--;
-//                }
-//            }
-            query = new Query(timeRange.getFrom(), timeRange.getTo(), null, null, null);
+            query = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), q0.getFilters(), q0.getViewPort());
             queries.add(query);
         }
         return queries;

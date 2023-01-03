@@ -10,6 +10,7 @@ import com.univocity.parsers.csv.CsvWriterSettings;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Query;
+import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.ViewPort;
 import eu.more2020.visual.experiments.util.FilterConverter;
 import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
@@ -58,8 +59,6 @@ public class Experiments<T> {
     @Parameter(names = "-zoomFactor", description = "Zoom factor for zoom in operation. The inverse applies to zoom out operation.")
     public Float zoomFactor = 0f;
 
-    @Parameter(names = "-columns", variableArity = true, description = "Select columns")
-    List<Integer> columns = new ArrayList<>();
 
     @Parameter(names = "-startTime", variableArity = true, description = "Start Time Epoch")
     Long startTime = 0L;
@@ -154,6 +153,8 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
+        Query q0 = new Query(startTime, endTime, measureIDs, filters, new ViewPort(800, 300));
+        tti.initialize(q0);
 
         try {
             memorySize = sizeOf.deepSizeOf(tti);
@@ -195,22 +196,22 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
+        Query q0 = new Query(startTime, endTime, measureIDs, filters, new ViewPort(800, 300));
+        tti.initialize(q0);
 
         try {
             memorySize = sizeOf.deepSizeOf(tti);
         } catch (Exception e) {
         }
-        Query q0 = new Query(startTime, endTime, columns, filters, new ViewPort(800, 300));
         List<Query> sequence = generateQuerySequence(q0, dataset);
+        for (int i = 0; i < sequence.size(); i++) {
+            Query query = sequence.get(i);
+            LOG.debug("Executing query " + i);
 
-//        for (int i = 0; i < sequence.size(); i++) {
-//            Query query = sequence.get(i);
-//            LOG.debug("Executing query " + i);
-//
-//            stopwatch = Stopwatch.createStarted();
-//            QueryResults queryResults = veti.executeQuery(query);
-//            stopwatch.stop();
-//
+            stopwatch = Stopwatch.createStarted();
+            QueryResults queryResults = tti.executeQuery(query);
+            stopwatch.stop();
+
 //            csvWriter.addValue(csv);
 //            csvWriter.addValue(schema.getCategoricalColumns());
 //            csvWriter.addValue(initMode);
@@ -229,8 +230,8 @@ public class Experiments<T> {
 //            csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
 //            csvWriter.addValue(queryResults.getStats().getGroupStats().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().xStats(), (oldValue, newValue) -> oldValue)));
 //            csvWriter.writeValuesToRow();
-//        }
-//        csvWriter.close();
+        }
+        csvWriter.close();
     }
 
 
