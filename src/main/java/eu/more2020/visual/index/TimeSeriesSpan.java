@@ -33,7 +33,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
      * The number of raw time series points behind every data point included in this time series span.
      * When the time series span corresponds to raw, non aggregated data, this number is 1.
      */
-    private final int[] counts;
+    private int[] counts;
 
     // The start time value of the span
     private long from;
@@ -49,7 +49,6 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     public TimeSeriesSpan() {
         aggsByMeasure = new HashMap<>();
-        counts = new int[size];
     }
 
 
@@ -63,6 +62,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         this.zoneId = zoneId;
         size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, zoneId);
         List<Integer> measures = dataPoints.getMeasures();
+        counts = new int[size];
 
         for (Integer measure : measures) {
             aggsByMeasure.put(measure, new long[size * 5]);
