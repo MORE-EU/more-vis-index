@@ -17,20 +17,21 @@ import eu.more2020.visual.experiments.util.FilterConverter;
 import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
 import eu.more2020.visual.index.TTI;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.ehcache.sizeof.SizeOf;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 
 public class Experiments<T> {
-
-    private static final Logger LOG = LogManager.getLogger(Experiments.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Experiments.class);
 
     @Parameter(names = "-path", description = "The path of the input file(s)")
     public String path;
@@ -209,6 +210,8 @@ public class Experiments<T> {
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
             stopwatch.stop();
+            LOG.info(queryResults.toString());
+
 
 //            csvWriter.addValue(csv);
 //            csvWriter.addValue(schema.getCategoricalColumns());
@@ -231,7 +234,6 @@ public class Experiments<T> {
         }
         csvWriter.close();
     }
-
 
 
     private List<Query> generateQuerySequence(Query q0, AbstractDataset dataset) {

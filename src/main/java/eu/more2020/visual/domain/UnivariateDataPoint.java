@@ -30,4 +30,10 @@ public class UnivariateDataPoint {
         return value;
     }
 
+    @Override
+    public String toString() {
+        return "{" + timestamp +
+                ", " + value +
+                '}';
+    }
 }
