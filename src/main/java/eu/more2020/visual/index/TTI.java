@@ -79,10 +79,12 @@ public class TTI {
 
         timeSeriesSpan.iterator(query.getFrom(), query.getTo()).forEachRemaining(aggregatedDataPoint -> {
             Stats stats = aggregatedDataPoint.getStats();
-            for (int measure : measures){
-                List<UnivariateDataPoint> measureData = data.get(measure);
-                measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
-                measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
+            if (stats.getCount() != 0) {
+                for (int measure : measures) {
+                    List<UnivariateDataPoint> measureData = data.get(measure);
+                    measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
+                    measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
+                }
             }
         });
         queryResults.setData(data);
