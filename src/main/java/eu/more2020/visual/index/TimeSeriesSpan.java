@@ -16,16 +16,14 @@ import java.util.stream.IntStream;
 /**
  * A {@link DataPoints} implementation that aggregates a series of consecutive
  * raw data points based on the specified aggregation interval.
- * For each aggregation interval included and for each measure we store 3 doubles,
- * i.e. the sum, min and max aggregate values, as well as the corresponding
+ * For each aggregation interval included and for each measure we store 5 doubles,
+ * i.e. the sum, min and max aggregate values, 2 longs corresponding to the timestamp of the min and max value, as well as the corresponding
  * non-missing value counts.
  */
 public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     /**
      * The aggregate values for every window interval and for every measure.
-     * For each measure we store the corresponding aggregate values in an array, with 3 doubles needed for each group by window.
-     * Specifically, we store the "sum", "min" and "max" values.
      */
     private final Map<Integer, long[]> aggsByMeasure;
 
@@ -92,11 +90,11 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         for (int j = 0; j < measures.size(); j++) {
             int m = measures.get(j);
             long[] data = aggsByMeasure.get(m);
-            data[3 * i] = Double.doubleToRawLongBits(stats.getSum(m));
-            data[3 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(m));
-            data[3 * i + 2] = stats.getMinTimestamp(m);
-            data[3 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValue(m));
-            data[3 * i + 4] = stats.getMaxTimestamp(m);
+            data[5 * i] = Double.doubleToRawLongBits(stats.getSum(m));
+            data[5 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(m));
+            data[5 * i + 2] = stats.getMinTimestamp(m);
+            data[5 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValue(m));
+            data[5 * i + 4] = stats.getMaxTimestamp(m);
         }
     }
 
@@ -195,32 +193,32 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
                 @Override
                 public double getSum(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3]);
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5]);
                 }
 
                 @Override
                 public double getMinValue(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3 + 1]);
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5 + 1]);
                 }
 
                 @Override
                 public double getMaxValue(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3 + 3]);
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5 + 3]);
                 }
 
                 @Override
                 public double getAverageValue(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 3]) / counts[currentIndex];
+                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5]) / counts[currentIndex];
                 }
 
                 @Override
                 public long getMinTimestamp(int measure) {
-                    return aggsByMeasure.get(measure)[currentIndex * 3 + 2];
+                    return aggsByMeasure.get(measure)[currentIndex * 5 + 2];
                 }
 
                 @Override
                 public long getMaxTimestamp(int measure) {
-                    return aggsByMeasure.get(measure)[currentIndex * 3 + 4];
+                    return aggsByMeasure.get(measure)[currentIndex * 5 + 4];
                 }
             };
         }

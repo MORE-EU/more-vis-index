@@ -1,6 +1,8 @@
 package eu.more2020.visual.domain;
 
 
+import eu.more2020.visual.util.DateTimeUtil;
+
 /**
  * Represents a single univariate data point with a single value and a timestamp.
  */
@@ -32,7 +34,7 @@ public class UnivariateDataPoint {
 
     @Override
     public String toString() {
-        return "{" + timestamp +
+        return "{" + DateTimeUtil.format(timestamp) +
                 ", " + value +
                 '}';
     }
