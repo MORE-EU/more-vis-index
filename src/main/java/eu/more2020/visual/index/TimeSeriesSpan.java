@@ -86,14 +86,17 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     protected void addAggregatedDataPoint(int i, List<Integer> measures, AggregatedDataPoint aggregatedDataPoint) {
         Stats stats = aggregatedDataPoint.getStats();
         counts[i] = stats.getCount();
+        if (stats.getCount() == 0){
+            return;
+        }
         for (int j = 0; j < measures.size(); j++) {
             int m = measures.get(j);
             long[] data = aggsByMeasure.get(m);
-            data[3 * i] = Double.doubleToRawLongBits(stats.getSum(j));
-            data[3 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(j));
-            data[3 * i + 2] = stats.getMinTimestamp(j);
-            data[3 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValue(j));
-            data[3 * i + 4] = stats.getMaxTimestamp(j);
+            data[3 * i] = Double.doubleToRawLongBits(stats.getSum(m));
+            data[3 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(m));
+            data[3 * i + 2] = stats.getMinTimestamp(m);
+            data[3 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValue(m));
+            data[3 * i + 4] = stats.getMaxTimestamp(m);
         }
     }
 
