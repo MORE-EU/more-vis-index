@@ -9,6 +9,7 @@ import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
+import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Query;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.ViewPort;
@@ -37,17 +38,14 @@ public class Experiments<T> {
     @Parameter(names = "-type", description = "The type of the input file(s) (parquet/csv)")
     public String type;
 
-    @Parameter(names = "-measureIDs", variableArity = true, description = "Measures IDs to be used")
-    public List<Integer> measureIDs;
-
-    @Parameter(names = "-measureNames", variableArity = true, description = "Measures Names to be used (parquet)")
-    public List<String> measureNames;
-
-    @Parameter(names = "-hasHeader", description = "If CSV has header")
-    public Boolean hasHeader = true;
+    @Parameter(names = "-measures", variableArity = true, description = "Measures IDs to be used")
+    public List<Integer> measures;
 
     @Parameter(names = "-timeCol", description = "Datetime Column for CSV files")
     public Integer timeCol;
+
+    @Parameter(names = "-hasHeader", description = "If CSV has header")
+    public Boolean hasHeader = true;
 
     @Parameter(names = "-timeFormat", description = "Datetime Column Format")
     public String timeFormat = "yyyy-MM-dd[ HH:mm:ss]";
@@ -153,7 +151,7 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        Query q0 = new Query(startTime, endTime, measureIDs, filters, new ViewPort(800, 300));
+        Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
         try {
@@ -196,8 +194,8 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        Query q0 = new Query(startTime, endTime, measureIDs, filters, new ViewPort(800, 300));
-        //tti.initialize(q0);
+        Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
+        tti.initialize(q0);
 
         try {
             memorySize = sizeOf.deepSizeOf(tti);
@@ -250,17 +248,9 @@ public class Experiments<T> {
     private AbstractDataset createDataset() throws IOException {
         switch (type.toLowerCase(Locale.ROOT)) {
             case "csv":
-                return new CsvDataset(path, "0", "test", timeCol, measureIDs, hasHeader, timeFormat, delimiter);
+                return new CsvDataset(path, "0", "test", timeCol, measures, hasHeader, timeFormat, delimiter);
             case "parquet":
-                Preconditions.checkNotNull(measureNames, "Provide names for SELECT measures");
-                return null;
-//                String parquetTimeCol = d.get("timeCol").asText();
-//                List<String> parquetMeasures = new ArrayList<>();
-//                for (JsonNode measure : d.get("measures")) {
-//                    parquetMeasures.add(measure.asText());
-//                }
-//                ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, timeFormat);
-//                return parquetDataset;
+                return new ParquetDataset(path, "0", "test", timeCol, measures, timeFormat);
             default:
                 break;
         }

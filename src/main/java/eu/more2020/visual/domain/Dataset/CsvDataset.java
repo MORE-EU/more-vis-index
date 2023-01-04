@@ -31,6 +31,14 @@ public class CsvDataset extends AbstractDataset {
 
     private long meanByteSize;
 
+    public CsvDataset(String path, String id, String name, String timeColName,
+                      List<String> measureNames, boolean hasHeader, String timeFormat, String delimiter) throws IOException {
+        super(path, id, name, timeColName, measureNames, timeFormat);
+        this.hasHeader = hasHeader;
+        this.delimiter = delimiter;
+        this.fillCsvDatasetInfo();
+        LOG.info("Initialized dataset: {}", this);
+    }
 
     public CsvDataset(String path, String id, String name, Integer timeCol,
                       List<Integer> measures, boolean hasHeader, String timeFormat, String delimiter) throws IOException {

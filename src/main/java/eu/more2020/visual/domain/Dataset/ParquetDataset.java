@@ -15,21 +15,28 @@ import java.util.stream.Collectors;
 public class ParquetDataset extends AbstractDataset{
     private static final Logger LOG = LoggerFactory.getLogger(ParquetReader.class);
 
-    private List<String> measureNames;
-    private String timeColName;
+
+    public ParquetDataset(String path, String id, String name,
+                          Integer timeCol, List<Integer> measures, String timeFormat) throws IOException {
+        super(path, id, name, timeCol, measures, timeFormat);
+        this.fillParquetDatasetInfo();
+        LOG.info("Initialized dataset: {}", this);
+    }
 
     public ParquetDataset(String path, String id, String name,
                           String timeColName, List<String> measureNames, String timeFormat) throws IOException {
-       super(path, id, name, timeFormat);
-       this.measureNames = measureNames;
-       this.timeColName = timeColName;
+       super(path, id, name, timeFormat, measureNames, timeColName);
        this.fillParquetDatasetInfo();
        LOG.info("Initialized dataset: {}", this);
     }
 
     public void fillParquetDataFileInfo(DataFileInfo dataFileInfo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getTimeFormat());
-        ParquetReader parquetReader = new ParquetReader(dataFileInfo.getFilePath(), formatter, timeColName, measureNames);
+        ParquetReader parquetReader = null;
+        if(getTimeCol() != null && getMeasures() != null)
+            parquetReader = new ParquetReader(dataFileInfo.getFilePath(), formatter, getTimeCol(), getMeasures());
+        else
+            parquetReader = new ParquetReader(dataFileInfo.getFilePath(), formatter, getTimeColName(), getMeasureNames());
         setSamplingInterval(parquetReader.getSamplingInterval());
         setHeader(parquetReader.getParsedHeader());
         setMeasures(parquetReader.getMeasures());

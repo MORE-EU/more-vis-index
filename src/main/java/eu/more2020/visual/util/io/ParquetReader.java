@@ -54,6 +54,11 @@ public class ParquetReader {
     }
 
     public ParquetReader(String filePath,  DateTimeFormatter formatter,
+                         Integer timeCol, List<Integer> measures) throws IOException {
+        this(filePath, formatter, timeCol, measures, null);
+    }
+
+    public ParquetReader(String filePath,  DateTimeFormatter formatter,
                          Integer timeCol, List<Integer> measures, Duration samplingInterval) throws IOException {
         this.filePath = filePath;
         this.formatter = formatter;
