@@ -120,7 +120,7 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
 
     @Override
     public double[] getValues() {
-        return statsAggregator.getAverageValues();
+        throw new UnsupportedOperationException();
     }
 
 
