@@ -37,6 +37,14 @@ public class Query implements TimeInterval {
         return to;
     }
 
+
+    public String getFromDate() {
+        return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    }
+
+    public String getToDate() {
+        return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    }
     public HashMap<Integer, Double[]> getFilters() {
         return this.filters;
     }

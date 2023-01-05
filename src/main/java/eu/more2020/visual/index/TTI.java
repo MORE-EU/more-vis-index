@@ -59,7 +59,6 @@ public class TTI {
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
-        System.out.println(intervalTree);
         TimeSeriesSpan timeSeriesSpan = StreamSupport.stream(Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
                 .filter(span -> span.getAggregateInterval().toDuration()
                         .compareTo(optimalM4Interval) <= 0 && span.encloses(query))

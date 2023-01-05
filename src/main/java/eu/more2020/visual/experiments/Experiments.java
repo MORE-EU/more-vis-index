@@ -13,6 +13,7 @@ import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Query;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.experiments.util.EpochConverter;
 import eu.more2020.visual.experiments.util.FilterConverter;
 import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 
 public class Experiments<T> {
@@ -59,10 +61,10 @@ public class Experiments<T> {
     public Float zoomFactor = 0f;
 
 
-    @Parameter(names = "-startTime", variableArity = true, description = "Start Time Epoch")
+    @Parameter(names = "-startTime", converter = EpochConverter.class,  variableArity = true, description = "Start Time Epoch")
     Long startTime = 0L;
 
-    @Parameter(names = "-endTime", variableArity = true, description = "End Time Epoch")
+    @Parameter(names = "-endTime", converter = EpochConverter.class,  variableArity = true, description = "End Time Epoch")
     Long endTime = 0L;
 
     @Parameter(names = "-filters", converter = FilterConverter.class, description = "Q0 Filters")
@@ -160,21 +162,19 @@ public class Experiments<T> {
         } catch (Exception e) {
         }
 
-//        if (addHeader) {
-//            csvWriter.writeHeaders("csv", "initMode", "initCatBudget (Gb)", "initCatBudget (nodes)", "Tree Node Count", "q0", "categoricalColumns", "Time (sec)", "Total Util", "Leaf tiles", "Memory (Gb)");
-//        }
+        if (addHeader) {
+            csvWriter.writeHeaders("path", "mode", "query #", "timeRange", "results size", "IO Count",  "Time (sec)",  "Memory (Gb)");
+        }
 
-//        csvWriter.addValue(csv);
-//        csvWriter.addValue(initMode);
-//        csvWriter.addValue(catBudget);
-//        csvWriter.addValue(categoricalNodeBudget);
-//        csvWriter.addValue(TreeNode.getInstanceCount());
-//        csvWriter.addValue(q0);
-//        csvWriter.addValue(schema.getCategoricalColumns());
-//        csvWriter.addValue(stopwatch.elapsed(TimeUnit.SECONDS));
-//        csvWriter.addValue(veti.getTotalUtil());
-//        csvWriter.addValue(leafTiles);
-//        csvWriter.addValue((double) memorySize / 1000000000d);
+            csvWriter.addValue(path);
+            csvWriter.addValue(initMode);
+            csvWriter.addValue(0);
+//            csvWriter.addValue(queryResults.getTimeRange());
+//            csvWriter.addValue(queryResults.getData().size());
+//            csvWriter.addValue(queryResults.getIoCount());
+            csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
+            csvWriter.addValue(memorySize);
+            csvWriter.writeValuesToRow();
 //        csvWriter.writeValuesToRow();
 //        csvWriter.close();
     }
@@ -198,11 +198,13 @@ public class Experiments<T> {
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
-        try {
-            memorySize = sizeOf.deepSizeOf(tti);
-        } catch (Exception e) {
-        }
+
         List<Query> sequence = generateQuerySequence(q0, dataset);
+
+        if (addHeader) {
+            csvWriter.writeHeaders("path", "mode", "query #", "timeRange", "results size", "IO Count",  "Time (sec)",  "Memory (Gb)");
+        }
+
         for (int i = 0; i < sequence.size(); i++) {
             Query query = sequence.get(i);
             LOG.debug("Executing query " + i);
@@ -210,27 +212,21 @@ public class Experiments<T> {
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
             stopwatch.stop();
-            LOG.info(queryResults.toString());
+//            LOG.info(queryResults.toString());
 
-
-//            csvWriter.addValue(csv);
-//            csvWriter.addValue(schema.getCategoricalColumns());
-//            csvWriter.addValue(initMode);
-//            csvWriter.addValue(catBudget);
-//            csvWriter.addValue(categoricalNodeBudget);
-//            csvWriter.addValue(binCount);
-//            csvWriter.addValue(i);
-//            csvWriter.addValue(queryResults.getQuery());
-//            csvWriter.addValue(veti.getTotalUtil());
-//            csvWriter.addValue(TreeNode.getInstanceCount());
-//            csvWriter.addValue(veti.getLeafTileCount());
-//            csvWriter.addValue(queryResults.getTileCount());
-//            csvWriter.addValue(queryResults.getFullyContainedTileCount());
-//            csvWriter.addValue(queryResults.getExpandedNodeCount());
-//            csvWriter.addValue(queryResults.getIoCount());
-//            csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
-//            csvWriter.addValue(queryResults.getStats().getGroupStats().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().xStats(), (oldValue, newValue) -> oldValue)));
-//            csvWriter.writeValuesToRow();
+            try {
+                memorySize = sizeOf.deepSizeOf(tti);
+            } catch (Exception e) {
+            }
+            csvWriter.addValue(path);
+            csvWriter.addValue(initMode);
+            csvWriter.addValue(i);
+            csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
+            csvWriter.addValue(queryResults.getData().get(measures.get(0)).size());
+            csvWriter.addValue(queryResults.getIoCount());
+            csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
+            csvWriter.addValue(memorySize);
+            csvWriter.writeValuesToRow();
         }
         csvWriter.close();
     }
