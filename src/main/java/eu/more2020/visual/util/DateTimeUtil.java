@@ -210,20 +210,27 @@ public class DateTimeUtil {
         divisor = flooredDivisor == divisor ? divisor : flooredDivisor + 1;
         return Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
     }
+//
+//    public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
+//        Duration optimalM4Interval = optimalM4(from, to, viewPort);
+//        Duration calendarBasedInterval = maxCalendarInterval(optimalM4Interval);
+//        Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
+//        long divisor = 0;
+//        float percent = 1;
+//        Duration G4samplingInterval = null;
+//        while(percent > (1.0 - accuracy)){
+//            G4samplingInterval = calendarBasedInterval.dividedBy((long) Math.pow(2, divisor ++));
+//            int g4Width = (int) timeRangeDuration.dividedBy(G4samplingInterval);
+//            percent = (float) viewPort.getWidth() / g4Width;
+//        }
+//        return G4samplingInterval;
+//    }
 
     public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
-        Duration optimalM4Interval = optimalM4(from, to, viewPort);
-        Duration calendarBasedInterval = maxCalendarInterval(optimalM4Interval);
         Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
-        long divisor = 0;
-        float percent = 1;
-        Duration G4samplingInterval = null;
-        while(percent > (1.0 - accuracy)){
-            G4samplingInterval = calendarBasedInterval.dividedBy((long) Math.pow(2, divisor ++));
-            int g4Width = (int) timeRangeDuration.dividedBy(G4samplingInterval);
-            percent = (float) viewPort.getWidth() / g4Width;
-        }
-        return G4samplingInterval;
+        int partiallyOverlapped = viewPort.getWidth();
+        Duration accurateDuration = Duration.ofMillis((long) (timeRangeDuration.toMillis() * (1 - accuracy) / (partiallyOverlapped + 1)));
+        return maxCalendarInterval(accurateDuration);
     }
 
     public static AggregateInterval aggregateCalendarInterval(Duration interval){
