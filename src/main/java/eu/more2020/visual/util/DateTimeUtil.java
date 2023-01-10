@@ -21,6 +21,9 @@ public class DateTimeUtil {
         return LocalDateTime.parse(s, formatter).atZone(zoneId).toInstant().toEpochMilli();
     }
 
+    public static long parseDateTimeString(String s) {
+        return LocalDateTime.parse(s, DEFAULT_FORMATTER).atZone(UTC).toInstant().toEpochMilli();
+    }
     public static String format(final long timeStamp) {
         return formatTimeStamp(DEFAULT_FORMATTER, timeStamp);
     }
