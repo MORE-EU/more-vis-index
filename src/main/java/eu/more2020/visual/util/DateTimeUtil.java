@@ -197,37 +197,30 @@ public class DateTimeUtil {
             t = Duration.ofDays(30).toMillis();
         }
         else if(hours != 0){
-            t = Duration.ofHours(24).toMillis();;
+            t = Duration.ofHours(24).toMillis();
         }
         else if(minutes != 0){
-            t = Duration.ofMinutes(60).toMillis();;
+            t = Duration.ofMinutes(60).toMillis();
         }
         else if(seconds != 0){
-            t = Duration.ofSeconds(60).toMillis();;
+            t = Duration.ofSeconds(60).toMillis();
         }
         else if(millis != 0){
-            t = Duration.ofSeconds(1000).toMillis();;
+            t = Duration.ofSeconds(1000).toMillis();
         }
         double divisor = t * 1.0 / samplingInterval.toMillis();
         double flooredDivisor = Math.floor(divisor);
         divisor = flooredDivisor == divisor ? divisor : flooredDivisor + 1;
-        return Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
+        Duration calendarInterval = Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
+        double newMillis = calendarInterval.toMillis() / 1000F;
+        if(newMillis >= 1) {
+            if (newMillis != (int) newMillis)
+                return maxCalendarInterval(Duration.of((long) (Math.floor(calendarInterval.toMillis() / 1000F) * 1000), ChronoUnit.MILLIS));
+        }
+        else return Duration.of(500, ChronoUnit.MILLIS);
+        return calendarInterval;
     }
-//
-//    public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
-//        Duration optimalM4Interval = optimalM4(from, to, viewPort);
-//        Duration calendarBasedInterval = maxCalendarInterval(optimalM4Interval);
-//        Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
-//        long divisor = 0;
-//        float percent = 1;
-//        Duration G4samplingInterval = null;
-//        while(percent > (1.0 - accuracy)){
-//            G4samplingInterval = calendarBasedInterval.dividedBy((long) Math.pow(2, divisor ++));
-//            int g4Width = (int) timeRangeDuration.dividedBy(G4samplingInterval);
-//            percent = (float) viewPort.getWidth() / g4Width;
-//        }
-//        return G4samplingInterval;
-//    }
+
 
     public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
         Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
@@ -257,52 +250,5 @@ public class DateTimeUtil {
             }
         }
         return new AggregateInterval(aggregateInterval, aggregateChronoUnit);
-    }
-
-    public static void M4_percent(TimeRange timeRange, ViewPort viewPort) {
-        int noOfGroups = viewPort.getWidth();
-        long millisInRange = Duration.of(timeRange.getTo() - timeRange.getFrom(), ChronoUnit.MILLIS).toMillis() / noOfGroups;
-        Duration M4samplingInterval = Duration.of(millisInRange, ChronoUnit.MILLIS);
-
-        // Get each part that makes up a calendar date. The first non-zero is its "granularity".
-        int days = (int) M4samplingInterval.toDaysPart();
-        int hours = M4samplingInterval.toHoursPart();
-        int minutes = M4samplingInterval.toMinutesPart();
-        int seconds = M4samplingInterval.toSecondsPart();
-        int millis = M4samplingInterval.toMillisPart();
-        long t = 0L;
-        if(days != 0){
-            t = Duration.ofDays(30).toMillis();
-        }
-        else if(hours != 0){
-            t = Duration.ofHours(24).toMillis();;
-        }
-        else if(minutes != 0){
-            t = Duration.ofMinutes(60).toMillis();;
-        }
-        else if(seconds != 0){
-            t = Duration.ofSeconds(60).toMillis();;
-        }
-        else if(millis != 0){
-            t = Duration.ofSeconds(1000).toMillis();;
-        }
-        double divisor = t * 1.0 / M4samplingInterval.toMillis();
-        double flooredDivisor = Math.floor(divisor);
-        divisor = flooredDivisor == divisor ? divisor : flooredDivisor + 1;
-        Duration timeRangeDuration  = Duration.of(timeRange.getTo() - timeRange.getFrom(), ChronoUnit.MILLIS);
-        System.out.println("M4: " + M4samplingInterval);
-        System.out.println(viewPort.getWidth());
-        float percent = 1;
-        int i = 1;
-        Duration G4samplingInterval = null;
-        while(percent > 0.1){
-            G4samplingInterval = Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor * (2L * i ++ ));
-            System.out.println("G4: " + G4samplingInterval);
-            int g4Width = (int) timeRangeDuration.dividedBy(G4samplingInterval);
-            percent = (float) viewPort.getWidth() / g4Width;
-            System.out.println(percent);
-        }
-
-        System.out.println(G4samplingInterval);
     }
 }
