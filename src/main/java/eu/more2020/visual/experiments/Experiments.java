@@ -12,12 +12,15 @@ import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Query;
 import eu.more2020.visual.domain.QueryResults;
+import eu.more2020.visual.domain.SQLQuery;
 import eu.more2020.visual.domain.ViewPort;
 import eu.more2020.visual.experiments.util.EpochConverter;
 import eu.more2020.visual.experiments.util.FilterConverter;
 import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
 import eu.more2020.visual.index.TTI;
+import eu.more2020.visual.util.SQLQueryExecutor;
+import org.apache.parquet.Log;
 import org.ehcache.sizeof.SizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +28,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class Experiments<T> {
@@ -92,18 +97,24 @@ public class Experiments<T> {
     private Integer minFilters;
     @Parameter(names = "-maxFilters", description = "Max filters in the query sequence")
     private Integer maxFilters;
+    @Parameter(names = "-postgresCfg", description = "PostgreSQL config file path")
+    private String postgresCfg;
     @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
+
     @Parameter(names = "--help", help = true, description = "Displays help")
+
+
     private boolean help;
 
+    private final Properties postgresProperties = new Properties();
 
     public Experiments() {
     }
 
 
-    public static void main(String... args) throws IOException, ClassNotFoundException {
+    public static void main(String... args) throws IOException, ClassNotFoundException, SQLException {
         Experiments experiments = new Experiments();
         JCommander jCommander = new JCommander(experiments, args);
         if (experiments.help) {
@@ -113,7 +124,7 @@ public class Experiments<T> {
         }
     }
 
-    private void run() throws IOException, ClassNotFoundException {
+    private void run() throws IOException, ClassNotFoundException, SQLException {
         SyntheticDatasetGenerator generator;
         switch (command) {
             case "timeInitialization":
@@ -138,6 +149,23 @@ public class Experiments<T> {
         }
     }
 
+    private Connection initializePostgres() {
+        Connection c = null;
+        try {
+            InputStream inputStream
+                    = getClass().getClassLoader().getResourceAsStream(postgresCfg);
+            postgresProperties.load(inputStream);
+            c = DriverManager
+                    .getConnection(postgresProperties.getProperty("host") ,
+                            postgresProperties.getProperty("user"), postgresProperties.getProperty("password"));
+            LOG.info("Initialized PostgreSQL connection");
+        } catch (Exception e) {
+            LOG.error(e.getClass().getName()+": "+e.getMessage());
+            System.exit(0);
+        }
+        return c;
+    }
+
     private void timeInitialization() throws IOException, ClassNotFoundException {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFile, "No out file specified.");
@@ -154,6 +182,8 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
+        Connection postgresConnection = initializePostgres();
+
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
@@ -179,7 +209,7 @@ public class Experiments<T> {
 //        csvWriter.close();
     }
 
-    private void timeQueries() throws IOException, ClassNotFoundException {
+    private void timeQueries() throws IOException, SQLException {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFile, "No out file specified.");
 
@@ -195,6 +225,10 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
+        Connection postgresConnection = initializePostgres();
+        String schema = postgresProperties.getProperty("schema");
+        String table = postgresProperties.getProperty("table");
+        SQLQueryExecutor sqlQueryExecutor = new SQLQueryExecutor(postgresConnection, table, schema);
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
@@ -212,6 +246,13 @@ public class Experiments<T> {
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
             stopwatch.stop();
+
+            List<String> measures = query.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+            String timeColumn = dataset.getHeader()[dataset.getTimeCol()];
+
+            SQLQuery sqlQuery = new SQLQuery(query.getFrom(), query.getTo(),
+                    query.getMeasures(), timeColumn, query.getFilters(), query.getViewPort());
+            sqlQueryExecutor.executeM4Query(sqlQuery);
 //            LOG.info(queryResults.toString());
 
             try {
@@ -222,7 +263,7 @@ public class Experiments<T> {
             csvWriter.addValue(initMode);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
-            csvWriter.addValue(queryResults.getData().get(measures.get(0)).size());
+            csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
             csvWriter.addValue(memorySize);

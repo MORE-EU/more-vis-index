@@ -206,7 +206,7 @@ public class DateTimeUtil {
             t = Duration.ofSeconds(60).toMillis();
         }
         else if(millis != 0){
-            t = Duration.ofSeconds(1000).toMillis();
+            t = 1000;
         }
         double divisor = t * 1.0 / samplingInterval.toMillis();
         double flooredDivisor = Math.floor(divisor);

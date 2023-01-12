@@ -196,7 +196,7 @@ public class CsvTTITest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
         long startTime = LocalDateTime.parse("2018-01-03 00:05:00", formatter)
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        long endTime = LocalDateTime.parse("2018-01-08 20:31:40", formatter).atZone(ZoneId.of("UTC"))
+        long endTime = LocalDateTime.parse("2018-01-03 01:31:40", formatter).atZone(ZoneId.of("UTC"))
                 .toInstant().toEpochMilli();
         TimeRange timeRange = new TimeRange(startTime, endTime);
 
