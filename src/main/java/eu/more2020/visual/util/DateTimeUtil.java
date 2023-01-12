@@ -158,7 +158,7 @@ public class DateTimeUtil {
     public static int numberOfIntervals(final long startTime, final long endTime, AggregateInterval aggregateInterval, ZoneId zoneId) {
         ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, aggregateInterval, zoneId);
         ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime - 1, aggregateInterval, zoneId);
-        return (int) (aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / aggregateInterval.getInterval()) + 1;
+        return (int) Math.ceil(aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / (double) aggregateInterval.getInterval()) + 1;
     }
 
     /**
