@@ -4,6 +4,7 @@ import eu.more2020.visual.datasource.DataSource;
 import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
+import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.Duration;

@@ -1,17 +1,18 @@
 package eu.more2020.visual.experiments.util;
 
-import com.google.common.collect.Range;
-
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
-import eu.more2020.visual.domain.Query;
+import eu.more2020.visual.domain.Query.AbstractQuery;
+import eu.more2020.visual.domain.Query.InfluxQLQuery;
+import eu.more2020.visual.domain.Query.Query;
+import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.domain.TimeRange;
-import org.apache.commons.math3.util.Pair;
+import org.apache.commons.math3.analysis.function.Abs;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
-import java.sql.Time;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.more2020.visual.experiments.util.UserOpType.*;
 
@@ -39,7 +40,7 @@ public class QuerySequenceGenerator {
         this.dataset = dataset;
     }
 
-    public List<Query> generateQuerySequence(Query q0, int count) {
+    public List<AbstractQuery> generateQuerySequence(Query q0, int count) {
         Direction[] directions = Direction.getRandomDirections(count);
         double[] shifts = new Random(0).doubles(count, minShift, maxShift + 1).toArray();
         int[] filterCounts = new Random(0).ints(count, minFilters, maxFilters + 1).toArray();
@@ -50,8 +51,13 @@ public class QuerySequenceGenerator {
 
 
         Random randomFilterValueGen = new Random(0);
-        List<Query> queries = new ArrayList<>();
+        List<AbstractQuery> queries = new ArrayList<>();
+        List<String> measures = q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+        String timeColumn = dataset.getHeader()[dataset.getTimeCol()];
+
         queries.add(q0);
+        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort()));
+        queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort()));
         Query query = q0;
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
@@ -68,8 +74,15 @@ public class QuerySequenceGenerator {
             HashMap<Integer, Double[]> filters = new HashMap<>();
             int filterCount = filterCounts[i];
 
-            query = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort());
-            queries.add(query);
+
+            Query ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort());
+            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort());
+            InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort());
+
+            queries.add(ttiQuery);
+            queries.add(sqlQuery);
+            queries.add(influxQLQuery);
+
         }
         return queries;
 

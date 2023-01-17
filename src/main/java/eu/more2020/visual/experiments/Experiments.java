@@ -5,22 +5,22 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
+import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
-import eu.more2020.visual.domain.Query;
-import eu.more2020.visual.domain.QueryResults;
-import eu.more2020.visual.domain.SQLQuery;
-import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.domain.Query.*;
 import eu.more2020.visual.experiments.util.EpochConverter;
 import eu.more2020.visual.experiments.util.FilterConverter;
 import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
 import eu.more2020.visual.index.TTI;
+import eu.more2020.visual.util.InfluxDBQueryExecutor;
 import eu.more2020.visual.util.SQLQueryExecutor;
-import org.apache.parquet.Log;
 import org.ehcache.sizeof.SizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +99,12 @@ public class Experiments<T> {
     private Integer maxFilters;
     @Parameter(names = "-postgresCfg", description = "PostgreSQL config file path")
     private String postgresCfg;
+    @Parameter(names = "-influxDBCfg", description = "InfluxDB config file path")
+    private String influxDBCfg;
+    @Parameter(names = "-postgresTable", description = "PostgreSQL table to query")
+    private String postgresTable;
+    @Parameter(names = "-influxDBTable", description = "InfluxDB table to query")
+    private String influxDBTable;
     @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
@@ -109,6 +115,8 @@ public class Experiments<T> {
     private boolean help;
 
     private final Properties postgresProperties = new Properties();
+
+    private final Properties influxDbProperties = new Properties();
 
     public Experiments() {
     }
@@ -149,7 +157,31 @@ public class Experiments<T> {
         }
     }
 
-    private Connection initializePostgres() {
+    public InfluxDBQueryExecutor initializeInfluxDB() {
+        InfluxDBClient influxDBClient = null;
+        String bucket = null;
+        String token = null;
+        String org = null;
+        String url = null;
+        try {
+            InputStream inputStream
+                    = getClass().getClassLoader().getResourceAsStream(influxDBCfg);
+            influxDbProperties.load(inputStream);
+            token = influxDbProperties.getProperty("token");
+            bucket = influxDbProperties.getProperty("bucket");
+            org = influxDbProperties.getProperty("org");
+            url = influxDbProperties.getProperty("url");
+            influxDBClient = InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
+            LOG.info("Initialized InfluxDB connection");
+        } catch
+        (Exception e) {
+            LOG.error(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return new InfluxDBQueryExecutor(influxDBClient, bucket, influxDBTable);
+    }
+
+    private SQLQueryExecutor initializePostgres() {
         Connection c = null;
         try {
             InputStream inputStream
@@ -163,7 +195,8 @@ public class Experiments<T> {
             LOG.error(e.getClass().getName()+": "+e.getMessage());
             System.exit(0);
         }
-        return c;
+        String schema = postgresProperties.getProperty("schema");
+        return new SQLQueryExecutor(c, postgresTable, schema);
     }
 
     private void timeInitialization() throws IOException, ClassNotFoundException {
@@ -182,7 +215,6 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        Connection postgresConnection = initializePostgres();
 
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
@@ -225,47 +257,49 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        Connection postgresConnection = initializePostgres();
-        String schema = postgresProperties.getProperty("schema");
-        String table = postgresProperties.getProperty("table");
-        SQLQueryExecutor sqlQueryExecutor = new SQLQueryExecutor(postgresConnection, table, schema);
+        SQLQueryExecutor sqlQueryExecutor = initializePostgres();
+        InfluxDBQueryExecutor influxDBQueryExecutor = initializeInfluxDB();
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
 
-        List<Query> sequence = generateQuerySequence(q0, dataset);
+        List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         if (addHeader) {
-            csvWriter.writeHeaders("path", "mode", "query #", "timeRange", "results size", "IO Count",  "Time (sec)",  "Memory (Gb)");
+            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "IO Count",  "TTI Time (sec)", "M4 Time (sec)",   "Memory (Gb)");
         }
 
-        for (int i = 0; i < sequence.size(); i++) {
-            Query query = sequence.get(i);
+        for (int i = 0; i < sequence.size(); i+=3) {
+            Query query = (Query) sequence.get(i);
+            SQLQuery sqlQuery = (SQLQuery) sequence.get(i + 1);
+            InfluxQLQuery influxQLQuery = (InfluxQLQuery) sequence.get(i + 2);
             LOG.debug("Executing query " + i);
 
             stopwatch = Stopwatch.createStarted();
-            QueryResults queryResults = tti.executeQuery(query);
+            QueryResults queryResults = tti.executeQuery((Query) query);
             stopwatch.stop();
 
-            List<String> measures = query.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            String timeColumn = dataset.getHeader()[dataset.getTimeCol()];
+            double ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            stopwatch.start();
 
-            SQLQuery sqlQuery = new SQLQuery(query.getFrom(), query.getTo(),
-                    query.getMeasures(), timeColumn, query.getFilters(), query.getViewPort());
-            sqlQueryExecutor.executeM4Query(sqlQuery);
+            sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
+            influxDBQueryExecutor.executeM4Query(query);
+            stopwatch.stop();
 //            LOG.info(queryResults.toString());
+            double m4Time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
             try {
                 memorySize = sizeOf.deepSizeOf(tti);
             } catch (Exception e) {
             }
-            csvWriter.addValue(path);
-            csvWriter.addValue(initMode);
+            csvWriter.addValue(postgresTable);
+            csvWriter.addValue(command);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(queryResults.getIoCount());
-            csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
+            csvWriter.addValue(ttiTime);
+            csvWriter.addValue(m4Time);
             csvWriter.addValue(memorySize);
             csvWriter.writeValuesToRow();
         }
@@ -273,7 +307,7 @@ public class Experiments<T> {
     }
 
 
-    private List<Query> generateQuerySequence(Query q0, AbstractDataset dataset) {
+    private List<AbstractQuery> generateQuerySequence(Query q0, AbstractDataset dataset) {
         Preconditions.checkNotNull(seqCount, "No sequence count specified.");
         Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
         Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
