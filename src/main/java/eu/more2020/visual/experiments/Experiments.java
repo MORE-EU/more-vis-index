@@ -266,7 +266,7 @@ public class Experiments<T> {
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         if (addHeader) {
-            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "IO Count",  "TTI Time (sec)", "M4 Time (sec)",   "Memory (Gb)");
+            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "IO Count",  "TTI Time (sec)", "M4 Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
         }
 
         for (int i = 0; i < sequence.size(); i+=3) {
@@ -276,17 +276,18 @@ public class Experiments<T> {
             LOG.debug("Executing query " + i);
 
             stopwatch = Stopwatch.createStarted();
-            QueryResults queryResults = tti.executeQuery((Query) query);
-            stopwatch.stop();
-
+            QueryResults queryResults = tti.executeQuery(query);
             double ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-            stopwatch.start();
 
+            stopwatch.reset();
+            stopwatch.start();
             sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
-            influxDBQueryExecutor.executeM4Query(query);
-            stopwatch.stop();
-//            LOG.info(queryResults.toString());
             double m4Time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+
+            stopwatch.reset();
+            stopwatch.start();
+            influxDBQueryExecutor.execute(influxQLQuery, QueryMethod.M4);
+            double influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
             try {
                 memorySize = sizeOf.deepSizeOf(tti);
@@ -300,6 +301,7 @@ public class Experiments<T> {
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(ttiTime);
             csvWriter.addValue(m4Time);
+            csvWriter.addValue(influxDBTime);
             csvWriter.addValue(memorySize);
             csvWriter.writeValuesToRow();
         }

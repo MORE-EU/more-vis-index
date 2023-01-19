@@ -1,18 +1,18 @@
 package eu.more2020.visual.util;
 
+import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.AbstractQuery;
+import eu.more2020.visual.domain.Query.InfluxQLQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.experiments.util.NamedPreparedStatement;
-import org.apache.commons.math3.analysis.function.Abs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
-public class SQLQueryExecutor {
+public class SQLQueryExecutor implements  QueryExecutor{
 
     private static final Logger LOG = LoggerFactory.getLogger(SQLQueryExecutor.class);
 
@@ -27,14 +27,20 @@ public class SQLQueryExecutor {
         this.schema = schema;
     }
 
-    public void execute(SQLQuery q, QueryMethod method) throws SQLException {
+    @Override
+    public void execute(AbstractQuery q, QueryMethod method) throws SQLException {
         switch (method){
             case M4:
                 executeM4Query(q);
         }
     }
 
-    private void executeM4Query(SQLQuery q) throws SQLException {
+    @Override
+    public void executeM4Query(AbstractQuery q) throws SQLException {
+        executeM4InfluxQuery((SQLQuery) q);
+    }
+
+    private void executeM4InfluxQuery(SQLQuery q) throws SQLException {
         String sql = q.m4QuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setString("timeCol", q.getTimeColumn());

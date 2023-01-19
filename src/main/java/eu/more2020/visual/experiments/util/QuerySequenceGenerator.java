@@ -57,7 +57,7 @@ public class QuerySequenceGenerator {
 
         queries.add(q0);
         queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort()));
-        queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort()));
+        queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), measures, timeColumn, q0.getFilters(), q0.getViewPort()));
         Query query = q0;
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
@@ -77,8 +77,7 @@ public class QuerySequenceGenerator {
 
             Query ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort());
             SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort());
-            InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort());
-
+            InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), measures, timeColumn, filters, q0.getViewPort());
             queries.add(ttiQuery);
             queries.add(sqlQuery);
             queries.add(influxQLQuery);

@@ -47,11 +47,11 @@ public abstract class AbstractQuery<T, K> implements TimeInterval {
     }
 
     public String getFromDate() {
-        return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public String getToDate() {
-        return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public String querySkeletons(QueryMethod method) {
