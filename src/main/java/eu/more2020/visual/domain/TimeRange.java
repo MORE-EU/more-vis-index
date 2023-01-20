@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -19,6 +22,20 @@ public class TimeRange implements Serializable, TimeInterval {
         this.to = to;
     }
 
+    public TimeRange getOverlap(TimeRange other){
+        long overlapFrom = Math.max(from, other.from);
+        long overlapTo = Math.min(to, other.to);
+        return new TimeRange(overlapFrom, overlapTo);
+    }
+
+    public List<TimeRange> diff(TimeInterval other) {
+        List<TimeRange> diffs = new ArrayList<>();
+        if(getFrom() > other.getFrom()) diffs.add(new TimeRange(other.getFrom(), getFrom()));
+        if(getTo() < other.getTo()) diffs.add(new TimeRange(getTo(), other.getTo()));
+        return diffs;
+    }
+
+
     @Override
     public long getFrom() {
         return from;
@@ -27,6 +44,16 @@ public class TimeRange implements Serializable, TimeInterval {
     @Override
     public long getTo() {
         return to;
+    }
+
+    @Override
+    public String getFromDate() {
+        return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public String getToDate() {
+        return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Override
@@ -46,8 +73,9 @@ public class TimeRange implements Serializable, TimeInterval {
     @Override
     public String toString() {
         return "TimeRange{" +
-                "from=" + DateTimeUtil.format(from) +
-                ", to=" + DateTimeUtil.format(to) +
+                "from=" + getFromDate() +
+                ", to=" + getToDate() +
+                ", " + from  + " " + to +
                 '}';
     }
 }

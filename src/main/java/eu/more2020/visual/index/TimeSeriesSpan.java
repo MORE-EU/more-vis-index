@@ -6,10 +6,8 @@ import eu.more2020.visual.util.DateTimeUtil;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -132,6 +130,11 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return new TimeSeriesSpanIterator(queryStartTimestamp, queryEndTimestamp);
     }
 
+    public TimeRange getTimeRange(){
+        return  new TimeRange(getFrom(), getTo());
+    }
+
+
     @Override
     public Iterator iterator() {
         return iterator(from, -1);
@@ -148,6 +151,20 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return aggregateInterval.getChronoUnit()
                 .addTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(from), zoneId), size * aggregateInterval.getInterval())
                 .toInstant().toEpochMilli();
+    }
+    @Override
+    public String getFromDate() {
+        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public String getToDate() {
+        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public String toString() {
+        return getFromDate() + " - " + getToDate() + " " + aggregateInterval;
     }
 
     private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {

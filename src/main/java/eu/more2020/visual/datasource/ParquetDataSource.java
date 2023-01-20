@@ -7,6 +7,9 @@ import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.parquet.ParquetDataPoint;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -77,6 +80,16 @@ public class ParquetDataSource implements DataSource {
         @Override
         public long getTo() {
             return to;
+        }
+
+        @Override
+        public String getFromDate() {
+            return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        @Override
+        public String getToDate() {
+            return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }

@@ -14,6 +14,7 @@
     <logger name="eu.more2020.visual.util.io.ParquetReader" level="INFO"/>
     <logger name="eu.more2020.visual.util.io.CsvReader.CsvRandomAccessReader" level="INFO"/>
     <logger name="eu.more2020.visual.experiments.Experiments" level="INFO"/>
+    <logger name="eu.more2020.visual.experiments.util.QuerySequenceGenerator" level="INFO"/>
     <root>
         <level>INFO</level>
         <appender-ref ref="CONSOLE"/>

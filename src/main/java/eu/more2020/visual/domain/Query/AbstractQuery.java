@@ -46,10 +46,12 @@ public abstract class AbstractQuery<T, K> implements TimeInterval {
         return to;
     }
 
+    @Override
     public String getFromDate() {
         return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
+    @Override
     public String getToDate() {
         return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }

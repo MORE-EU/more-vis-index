@@ -6,12 +6,12 @@ import eu.more2020.visual.domain.Query.InfluxQLQuery;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.domain.TimeRange;
-import org.apache.commons.math3.analysis.function.Abs;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static eu.more2020.visual.experiments.util.UserOpType.*;
@@ -42,9 +42,8 @@ public class QuerySequenceGenerator {
 
     public List<AbstractQuery> generateQuerySequence(Query q0, int count) {
         Direction[] directions = Direction.getRandomDirections(count);
-        double[] shifts = new Random(0).doubles(count, minShift, maxShift + 1).toArray();
+        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
         int[] filterCounts = new Random(0).ints(count, minFilters, maxFilters + 1).toArray();
-
 
         Random opRand = new Random(0);
         List<UserOpType> ops = Arrays.asList(new UserOpType[]{P, P, ZI, ZO});
@@ -58,26 +57,28 @@ public class QuerySequenceGenerator {
         queries.add(q0);
         queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort()));
         queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), measures, timeColumn, q0.getFilters(), q0.getViewPort()));
-        Query query = q0;
+        Query ttiQuery = q0;
+        System.out.println(new TimeRange(q0.getFrom(), q0.getTo()));
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
 
             if (zoomFactor > 1 && opType.equals(ZI)) {
-                timeRange = zoomIn(query);
+                timeRange = zoomIn(ttiQuery);
             } else if (zoomFactor > 1 && opType.equals(ZO)) {
-                timeRange = zoomOut(query);
+                timeRange = zoomOut(ttiQuery);
             } else {
-                timeRange = pan(query, shifts[i], directions[i]);
+                timeRange = pan(ttiQuery, shifts[i], directions[i]);
             }
 
             HashMap<Integer, Double[]> filters = new HashMap<>();
             int filterCount = filterCounts[i];
+//            System.out.println("Range: " + timeRange + " OP: " + opType + " shift: " + shifts[i] + " direction: " + directions[i]);
 
-
-            Query ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort());
+            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort());
             SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort());
             InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), measures, timeColumn, filters, q0.getViewPort());
+
             queries.add(ttiQuery);
             queries.add(sqlQuery);
             queries.add(influxQLQuery);
@@ -90,19 +91,21 @@ public class QuerySequenceGenerator {
     private TimeRange pan(Query query, double shift, Direction direction) {
         long from = query.getFrom();
         long to = query.getTo();
-        shift = Math.abs(shift);
-        int timeShift = (int) ((to - from) * shift);
+        long timeShift = (long) ((to - from) * shift);
+
         switch (direction) {
             case L:
-                if(dataset.getTimeRange().getFrom() > from - timeShift) break;
+                if(dataset.getTimeRange().getFrom() > (from - timeShift)) break;
                 from = from - timeShift;
                 to = to - timeShift;
                 break;
             case R:
-                if(dataset.getTimeRange().getTo() < to + timeShift) break;
+                if(dataset.getTimeRange().getTo() < (to + timeShift)) break;
                 to = to + timeShift;
                 from = from + timeShift;
                 break;
+            default:
+                return new TimeRange(from, to);
 
         }
         return new TimeRange(from, to);

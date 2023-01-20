@@ -1,21 +1,27 @@
-package eu.more2020.visual.util;
+package eu.more2020.visual.experiments.util.QueryExecutor;
 
 import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.QueryApi;
-import com.influxdb.query.FluxRecord;
+import com.influxdb.client.WriteApi;
+import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.query.FluxTable;
 
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import eu.more2020.visual.domain.Query.AbstractQuery;
 import eu.more2020.visual.domain.Query.InfluxQLQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
+import eu.more2020.visual.experiments.util.InfluxDB.InitQueries.BEBEZE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class InfluxDBQueryExecutor implements QueryExecutor {
 
@@ -45,6 +51,26 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         executeM4InfluxQuery((InfluxQLQuery) q);
     }
 
+
+    @Override
+    public void initialize() throws FileNotFoundException {
+        WriteApi writeApi = influxDBClient.makeWriteApi();
+        FileReader reader;
+        String path;
+        if(table.equals("BEBEZE")) {
+            path = "/opt/more-workspace/BEBEZE/bbz1.csv";
+            reader = new FileReader(path);
+            CsvToBean<BEBEZE> csvToBean = new CsvToBeanBuilder(reader)
+                    .withType(BEBEZE.class)
+                    .build();
+            for (BEBEZE data : csvToBean) {
+                writeApi.writeMeasurement(WritePrecision.S, data);
+            }
+        }
+
+
+        influxDBClient.close();
+    }
 
     private void executeM4InfluxQuery(InfluxQLQuery q) {
         String flux = String.format(q.m4QuerySkeleton(),

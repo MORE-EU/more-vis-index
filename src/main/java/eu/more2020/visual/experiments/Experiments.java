@@ -16,11 +16,13 @@ import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Query.*;
 import eu.more2020.visual.experiments.util.EpochConverter;
 import eu.more2020.visual.experiments.util.FilterConverter;
+import eu.more2020.visual.experiments.util.InfluxDB.InfluxDB;
 import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
 import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
 import eu.more2020.visual.index.TTI;
-import eu.more2020.visual.util.InfluxDBQueryExecutor;
-import eu.more2020.visual.util.SQLQueryExecutor;
+import eu.more2020.visual.experiments.util.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.experiments.util.PostgreSQL.PostgreSQL;
+import eu.more2020.visual.experiments.util.QueryExecutor.SQLQueryExecutor;
 import org.ehcache.sizeof.SizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 public class Experiments<T> {
@@ -114,7 +113,6 @@ public class Experiments<T> {
 
     private boolean help;
 
-    private final Properties postgresProperties = new Properties();
 
     private final Properties influxDbProperties = new Properties();
 
@@ -157,49 +155,7 @@ public class Experiments<T> {
         }
     }
 
-    public InfluxDBQueryExecutor initializeInfluxDB() {
-        InfluxDBClient influxDBClient = null;
-        String bucket = null;
-        String token = null;
-        String org = null;
-        String url = null;
-        try {
-            InputStream inputStream
-                    = getClass().getClassLoader().getResourceAsStream(influxDBCfg);
-            influxDbProperties.load(inputStream);
-            token = influxDbProperties.getProperty("token");
-            bucket = influxDbProperties.getProperty("bucket");
-            org = influxDbProperties.getProperty("org");
-            url = influxDbProperties.getProperty("url");
-            influxDBClient = InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
-            LOG.info("Initialized InfluxDB connection");
-        } catch
-        (Exception e) {
-            LOG.error(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
-        }
-        return new InfluxDBQueryExecutor(influxDBClient, bucket, influxDBTable);
-    }
-
-    private SQLQueryExecutor initializePostgres() {
-        Connection c = null;
-        try {
-            InputStream inputStream
-                    = getClass().getClassLoader().getResourceAsStream(postgresCfg);
-            postgresProperties.load(inputStream);
-            c = DriverManager
-                    .getConnection(postgresProperties.getProperty("host") ,
-                            postgresProperties.getProperty("user"), postgresProperties.getProperty("password"));
-            LOG.info("Initialized PostgreSQL connection");
-        } catch (Exception e) {
-            LOG.error(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
-        }
-        String schema = postgresProperties.getProperty("schema");
-        return new SQLQueryExecutor(c, postgresTable, schema);
-    }
-
-    private void timeInitialization() throws IOException, ClassNotFoundException {
+    private void timeInitialization() throws IOException, ClassNotFoundException, SQLException {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFile, "No out file specified.");
 
@@ -215,6 +171,13 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
+        PostgreSQL postgreSQL = new PostgreSQL(postgresCfg);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(postgresTable);
+        sqlQueryExecutor.initialize();
+
+        InfluxDB influxDB = new InfluxDB(influxDBCfg);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(influxDBTable);
+        influxDBQueryExecutor.initialize();
 
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
@@ -257,8 +220,10 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        SQLQueryExecutor sqlQueryExecutor = initializePostgres();
-        InfluxDBQueryExecutor influxDBQueryExecutor = initializeInfluxDB();
+        PostgreSQL postgreSQL = new PostgreSQL(postgresCfg);
+        InfluxDB influxDB = new InfluxDB(influxDBCfg);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(postgresTable);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(influxDBTable);
         Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
@@ -279,9 +244,9 @@ public class Experiments<T> {
             QueryResults queryResults = tti.executeQuery(query);
             double ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
-            stopwatch.reset();
-            stopwatch.start();
-            sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
+//            stopwatch.reset();
+//            stopwatch.start();
+//            sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
             double m4Time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
             stopwatch.reset();

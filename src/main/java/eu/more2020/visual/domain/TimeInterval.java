@@ -1,5 +1,11 @@
 package eu.more2020.visual.domain;
 
+import eu.more2020.visual.index.TimeSeriesSpan;
+
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Closed-open, [), interval on the integer number line.
  */
@@ -17,6 +23,10 @@ public interface TimeInterval extends Comparable<TimeInterval> {
      */
     long getTo();
 
+
+    String getFromDate();
+
+    String getToDate();
     /**
      * Returns the length of this.
      */
@@ -48,6 +58,10 @@ public interface TimeInterval extends Comparable<TimeInterval> {
 
     default boolean encloses(TimeInterval other) {
         return (getFrom() <= (other.getFrom()) && this.getTo() >= (other.getTo()));
+    }
+
+    default double percentage(TimeInterval other) {
+        return 1.0 - ((float) (Math.max(other.getTo() - getTo(), 0) + Math.max(getFrom() - other.getFrom(), 0))) / (other.getTo() - other.getFrom());
     }
 
 

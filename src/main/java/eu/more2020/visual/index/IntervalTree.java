@@ -2,6 +2,9 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.TimeInterval;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -373,6 +376,16 @@ public class IntervalTree<T extends TimeInterval> implements Iterable<T> {
             return interval.getTo();
         }
 
+
+        @Override
+        public String getFromDate() {
+            return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        @Override
+        public String getToDate() {
+            return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
         ///////////////////////////////////
         // Node -- General query methods //
         ///////////////////////////////////

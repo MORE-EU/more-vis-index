@@ -1,16 +1,19 @@
-package eu.more2020.visual.util;
+package eu.more2020.visual.experiments.util.QueryExecutor;
 
-import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.domain.Query.InfluxQLQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.experiments.util.NamedPreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 public class SQLQueryExecutor implements  QueryExecutor{
 
@@ -20,6 +23,7 @@ public class SQLQueryExecutor implements  QueryExecutor{
     Connection connection;
     String table;
     String schema;
+    private final String initFolder = "postgres-init-queries";
 
     public SQLQueryExecutor(Connection connection, String table, String schema) {
         this.connection = connection;
@@ -38,6 +42,20 @@ public class SQLQueryExecutor implements  QueryExecutor{
     @Override
     public void executeM4Query(AbstractQuery q) throws SQLException {
         executeM4InfluxQuery((SQLQuery) q);
+    }
+
+    @Override
+    public void initialize() throws SQLException {
+        InputStream inputStream
+                = getClass().getClassLoader().getResourceAsStream(initFolder + "/" + table + ".sql");
+        String[] statements = new BufferedReader(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.joining("\n")).split(";");
+        for (String statement : statements){
+            LOG.info("Executing: " + statement);
+            connection.prepareStatement(statement).executeUpdate();
+        }
     }
 
     private void executeM4InfluxQuery(SQLQuery q) throws SQLException {
