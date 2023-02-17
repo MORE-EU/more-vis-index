@@ -46,7 +46,7 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
             for (int i = 1; i < measures.size(); i++) {
                 values[i] = Double.parseDouble(row[i]);
             }
-            return new ParquetDataPoint(DateTimeUtil.parseDateTimeString(row[dataset.getTimeCol()], DateTimeFormatter.ofPattern(dataset.getTimeFormat()),
+            return new ParquetDataPoint(DateTimeUtil.parseDateTimeString(row[0], DateTimeFormatter.ofPattern(dataset.getTimeFormat()),
                     ZoneId.of("UTC")), values, 0, 0);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -58,7 +58,7 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
     public boolean hasNext() {
         if (started) {
             try {
-                return reader.hasNext() && next.getTimestamp() <= to;
+                return reader.hasNext() && next.getTimestamp() < to;
             } catch (IOException e) {
                 e.printStackTrace();
             }

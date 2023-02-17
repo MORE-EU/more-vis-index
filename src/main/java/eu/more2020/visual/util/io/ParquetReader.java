@@ -1,7 +1,8 @@
 package eu.more2020.visual.util.io;
 
+import eu.more2020.visual.domain.DataPoint;
 import eu.more2020.visual.domain.TimeRange;
-import eu.more2020.visual.domain.parquet.ParquetDataPoint;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.column.ColumnDescriptor;
@@ -84,7 +85,6 @@ public class ParquetReader {
         this.timeCol = Arrays.stream(this.parsedHeader).collect(Collectors.toList()).indexOf(timeCol);
         this.measures = measures.stream().map(m -> Arrays.stream(this.parsedHeader).collect(Collectors.toList()).indexOf(m)).collect(Collectors.toList());
         computeFileStats(samplingInterval);
-
         LOG.info("Created reader for file {} with {} partition size.", filePath, this.partitionSize);
     }
 
@@ -106,53 +106,64 @@ public class ParquetReader {
         this.endTime =  parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
     }
 
+
     public long findPosition(long time) { return Duration.of(startTime - time, ChronoUnit.MILLIS).dividedBy(samplingInterval);}
+
+    private void readRowGroup(int rowGroupId) throws IOException {
+        PageReadStore rowGroup = reader.readRowGroup(rowGroupId);
+        recordReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
+        currentRowGroupOffset = 0;
+        currentRowGroupId = rowGroupId;
+    }
+
+    private void readRowGroup(int rowGroupId, long rowGroupOffset) throws IOException {
+        PageReadStore rowGroup = reader.readRowGroup(rowGroupId);
+        recordReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
+        currentRowGroupOffset = rowGroupOffset;
+        currentRowGroupId = rowGroupId;
+        long id = 0;
+        while(id ++ < currentRowGroupOffset) recordReader.read();
+    }
 
     private int findProbabilisticRowGroupID(long time) {
         long index = findPosition(time);
         return (int) Math.floorDiv(index, partitionSize);
     }
 
-    private void seekRowGroup(long time) throws IOException {
-        int probabilisticRowGroupID = findProbabilisticRowGroupID(time);
-        PageReadStore rowGroup = reader.readRowGroup(probabilisticRowGroupID);
-        recordReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
-        SimpleGroup row = (SimpleGroup) recordReader.read();
-        long probabilisticTime =  parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
-        currentRowGroupId = probabilisticRowGroupID;
-        if (time < probabilisticTime) {
-            while((probabilisticTime >= time)) {
-                currentRowGroupId --;
-                rowGroup = reader.readRowGroup(currentRowGroupId);
-                recordReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
-                row = (SimpleGroup) recordReader.read();
-                probabilisticTime = parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
-            }
+    private void seekPosition(long timestamp) throws IOException {
+        readRowGroup(findProbabilisticRowGroupID(timestamp));
+        if(hasNext()) {
+            long foundTimestamp = parseStringToTimestamp(parseNext()[0]);
+            if (foundTimestamp <= timestamp) seekPositionForward(timestamp);
+            else seekPositionBackward(timestamp);
         }
-        else if(time > probabilisticTime) {
-            while((probabilisticTime <= time)) {
-                currentRowGroupId ++;
-                rowGroup = reader.readRowGroup(currentRowGroupId);
-                recordReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
-                row = (SimpleGroup) recordReader.read();
-                probabilisticTime = parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
-            }
-        }
-        rowGroup = reader.readRowGroup(currentRowGroupId);
-        System.out.println(time);
-        System.out.println(probabilisticTime);
-        currentRowGroupOffset = 0;
-        currentPartitionSize = rowGroup.getRowCount();
-        recordReader = columnIO.getRecordReader(rowGroup, new GroupRecordConverter(schema));
     }
 
+    private void seekPositionForward(long timestamp) throws IOException {
+        long time = 0;
+        while(hasNext() && time < timestamp){
+            time = parseStringToTimestamp(parseNext()[0]);
+        }
+        if(currentRowGroupOffset == 0 ) {
+            currentRowGroupId --;
+            currentRowGroupOffset = partitionSize - 1;
+        }
+        else currentRowGroupOffset --;
+    }
+
+    private void seekPositionBackward(long timestamp) throws IOException {
+        long time = timestamp + 1;
+        while(time >= timestamp){
+            readRowGroup(--currentRowGroupId);
+            time = parseStringToTimestamp(parseNext()[0]);
+        }
+        seekPositionForward(timestamp);
+    }
+
+
     public void seekTimestamp(long timestamp) throws IOException {
-        seekRowGroup(timestamp);
-//        while(true){
-//            SimpleGroup row = (SimpleGroup) recordReader.read();
-//            long time = parseStringToTimestamp(row.getBinary(timeCol, 0).toStringUsingUTF8());
-//            if(time >= timestamp) break;
-//        }
+        seekPosition(timestamp);
+        readRowGroup(currentRowGroupId, currentRowGroupOffset);
     }
 
     public String[] parseNext() throws IOException {
@@ -183,12 +194,12 @@ public class ParquetReader {
     }
 
     public long parseStringToTimestamp(String s) {
-        ZonedDateTime zonedDateTime = LocalDateTime.parse(s, formatter).atZone(ZoneId.systemDefault());
+        ZonedDateTime zonedDateTime = LocalDateTime.parse(s, formatter).atZone(ZoneId.of("UTC"));
         return zonedDateTime.toInstant().toEpochMilli();
     }
 
     public String parseTimestampToString(long t) {
-        return formatter.format(Instant.ofEpochMilli(t).atZone(ZoneId.systemDefault()).toLocalDateTime());
+        return formatter.format(Instant.ofEpochMilli(t).atZone(ZoneId.of("UTC")).toLocalDateTime());
     }
 
     public String[] getParsedHeader() {

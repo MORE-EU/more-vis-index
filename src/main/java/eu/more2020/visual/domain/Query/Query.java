@@ -21,8 +21,8 @@ public class Query extends AbstractQuery<Integer, Integer> {
                 "Query{" +
                 "from=" + from +
                 ", to=" + to +
-                ", fromDate=" + Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) +
-                ", toDate=" + Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) +
+                ", fromDate=" + Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) +
+                ", toDate=" + Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) +
                 ", filters=" + filters +
                 ", measures=" + measures +
                 ", viewPort=" + viewPort +

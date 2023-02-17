@@ -11,30 +11,43 @@ import java.util.Arrays;
 public class ParquetDataPoint extends ImmutableDataPoint {
 
     // The row group id of the datapoint in the file
-    private final long rowGroupId;
-    private final long rowGroupOffset;
+    private final ParquetFileOffset parquetFileOffset;
 
     public ParquetDataPoint(long timestamp, double[] values, long rowGroupId, long rowGroupOffset) {
         super(timestamp, values);
-        this.rowGroupId = rowGroupId;
-        this.rowGroupOffset = rowGroupOffset;
+        this.parquetFileOffset = new ParquetFileOffset(rowGroupId, rowGroupOffset);
     }
 
-    public long getRowGroupId() {
-        return rowGroupId;
-    }
-
-    public long getRowGroupOffset() {
-        return rowGroupOffset;
+    public ParquetFileOffset getParquetFileOffset() {
+        return parquetFileOffset;
     }
 
     @Override
     public String toString() {
         return "ParquetDataPoint{" +
                 "timestamp=" + DateTimeUtil.format(getTimestamp())  +
-                ", rowGroupId=" + rowGroupId +
-                ", rowGroupOffset=" + rowGroupOffset +
+                ", rowGroupId=" + parquetFileOffset.getRowGroupId() +
+                ", rowGroupOffset=" + parquetFileOffset.getRowGroupOffset() +
                 ", values=" + Arrays.toString(getValues()) +
                 '}';
+    }
+
+    public static class ParquetFileOffset {
+
+        protected final long rowGroupId;
+        protected final long rowGroupOffset;
+
+        public ParquetFileOffset(long rowGroupId, long rowGroupOffset) {
+            this.rowGroupId = rowGroupId;
+            this.rowGroupOffset = rowGroupOffset;
+        }
+
+        public long getRowGroupId() {
+            return rowGroupId;
+        }
+
+        public long getRowGroupOffset() {
+            return rowGroupOffset;
+        }
     }
 }

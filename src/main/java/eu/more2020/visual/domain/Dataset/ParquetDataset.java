@@ -25,7 +25,7 @@ public class ParquetDataset extends AbstractDataset{
 
     public ParquetDataset(String path, String id, String name,
                           String timeColName, List<String> measureNames, String timeFormat) throws IOException {
-       super(path, id, name, timeFormat, measureNames, timeColName);
+       super(path, id, name, timeColName, measureNames, timeFormat);
        this.fillParquetDatasetInfo();
        LOG.info("Initialized dataset: {}", this);
     }

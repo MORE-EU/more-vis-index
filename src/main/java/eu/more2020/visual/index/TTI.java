@@ -56,6 +56,11 @@ public class TTI {
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         timeSeriesSpan.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
         intervalTree.insert(timeSeriesSpan);
+        Iterator<TimeSeriesSpan> overlaps = intervalTree.overlappers(query);
+        while (overlaps.hasNext()){
+            System.out.println(overlaps.next());
+        }
+
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -67,7 +72,6 @@ public class TTI {
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
-//        System.out.println(query.getFromDate() + " - " + query.getToDate() + " " + optimalM4Interval);
 
         RangeSet<Long> rangeSet = TreeRangeSet.create();
         final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(query.getFrom(), query.getTo()))};
@@ -88,11 +92,7 @@ public class TTI {
                     }
                     return false;
                 }).collect(Collectors.toList());
-
-//        overlappingIntervals.forEach(o -> System.out.println("O: " + o.getTimeRange() + " " + o.getAggregateInterval()));
-//        currentDifference[0].asRanges().stream().forEach(r ->
-//                            System.out.println("D: " + DateTimeUtil.format(r.lowerEndpoint(), ZoneId.of("Europe/Athens")) + " - " + DateTimeUtil.format(r.upperEndpoint(), ZoneId.of("Europe/Athens"))));
-
+        System.out.println(overlappingIntervals);
         // Calculate and add missing intervals
         overlappingIntervals.addAll(currentDifference[0].asRanges().stream()
                 .map(diff -> {

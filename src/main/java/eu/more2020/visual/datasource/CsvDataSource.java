@@ -6,6 +6,7 @@ import eu.more2020.visual.domain.DataPoints;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.csv.CsvDataPoint;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -50,6 +51,7 @@ public class CsvDataSource implements DataSource {
             this.measures = measures;
         }
 
+        @NotNull
         public Iterator<DataPoint> iterator() {
             CsvDataPointsIterator[] iterators = csvDataset.getFileInfoList().stream()
                     .filter(dataFileInfo -> dataFileInfo.getTimeRange().overlaps(this))
@@ -75,12 +77,12 @@ public class CsvDataSource implements DataSource {
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
 

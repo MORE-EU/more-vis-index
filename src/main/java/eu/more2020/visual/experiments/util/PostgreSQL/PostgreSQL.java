@@ -36,8 +36,8 @@ public class PostgreSQL {
             System.exit(0);
         }
     }
-    public SQLQueryExecutor createQueryExecutor(String table) {
-         return new SQLQueryExecutor(connection, table, properties.getProperty("schema"));
+    public SQLQueryExecutor createQueryExecutor(String path, String table) {
+         return new SQLQueryExecutor(connection, path, table, properties.getProperty("schema"));
     }
 
 }

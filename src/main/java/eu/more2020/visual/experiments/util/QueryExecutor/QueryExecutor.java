@@ -11,5 +11,6 @@ public interface QueryExecutor {
 
     void execute(AbstractQuery q, QueryMethod method) throws SQLException;
     void executeM4Query(AbstractQuery q) throws SQLException;
+    void drop() throws SQLException, FileNotFoundException;
     void initialize() throws SQLException, FileNotFoundException;
 }

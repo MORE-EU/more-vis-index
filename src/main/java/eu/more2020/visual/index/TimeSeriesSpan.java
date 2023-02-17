@@ -2,6 +2,7 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.apache.parquet.Log;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -64,13 +65,11 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
             aggsByMeasure.put(measure, new long[size * 5]);
         }
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
-
         int i = 0;
         AggregatedDataPoint aggregatedDataPoint;
+
         while (timeAggregator.hasNext()) {
-
             aggregatedDataPoint = timeAggregator.next();
-
             if (i == 0) {
                 from = aggregatedDataPoint.getTimestamp();
             }
@@ -154,12 +153,12 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     }
     @Override
     public String getFromDate() {
-        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return Instant.ofEpochMilli(getFrom()).atZone(zoneId).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Override
     public String getToDate() {
-        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return Instant.ofEpochMilli(getTo()).atZone(zoneId).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Override

@@ -23,11 +23,14 @@ public class SQLQueryExecutor implements  QueryExecutor{
     Connection connection;
     String table;
     String schema;
+    String path;
+    private final String dropFolder = "postgres-drop-queries";
     private final String initFolder = "postgres-init-queries";
 
-    public SQLQueryExecutor(Connection connection, String table, String schema) {
+    public SQLQueryExecutor(Connection connection, String path, String table, String schema) {
         this.connection = connection;
         this.table = table;
+        this.path = path;
         this.schema = schema;
     }
 
@@ -54,7 +57,21 @@ public class SQLQueryExecutor implements  QueryExecutor{
                 .collect(Collectors.joining("\n")).split(";");
         for (String statement : statements){
             LOG.info("Executing: " + statement);
-            connection.prepareStatement(statement).executeUpdate();
+            connection.prepareStatement(statement.replace("%path", path)).executeUpdate();
+        }
+    }
+
+    @Override
+    public void drop() throws SQLException {
+        InputStream inputStream
+                = getClass().getClassLoader().getResourceAsStream(dropFolder + "/" + table + ".sql");
+        String[] statements = new BufferedReader(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.joining("\n")).split(";");
+        for (String statement : statements){
+            LOG.info("Executing: " + statement);
+            connection.prepareStatement(statement.replace("'%path'", path)).executeUpdate();
         }
     }
 

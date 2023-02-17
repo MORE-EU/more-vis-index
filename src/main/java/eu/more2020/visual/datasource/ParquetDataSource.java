@@ -4,8 +4,8 @@ import com.google.common.collect.Iterators;
 import eu.more2020.visual.domain.DataPoint;
 import eu.more2020.visual.domain.DataPoints;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
-import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.parquet.ParquetDataPoint;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -33,7 +33,7 @@ public class ParquetDataSource implements DataSource {
 
     /**
      * Represents a series of {@link ParquetDataPoint} instances.
-     * The iterator returned from this class accesses the CSV files as the data points are requested.
+     * The iterator returned from this class accesses the Parquet files as the data points are requested.
      */
     final class ParquetDataPoints implements DataPoints {
 
@@ -50,6 +50,7 @@ public class ParquetDataSource implements DataSource {
             this.measures = measures;
         }
 
+        @NotNull
         public Iterator<DataPoint> iterator() {
             ParquetDataPointsIterator[] iterators = parquetDataset.getFileInfoList().stream()
                     .filter(dataFileInfo -> dataFileInfo.getTimeRange().overlaps(this))
@@ -84,12 +85,12 @@ public class ParquetDataSource implements DataSource {
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(from).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(to).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }

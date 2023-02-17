@@ -2,12 +2,15 @@ package eu.more2020.visual.experiments.util.InfluxDB;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.InfluxDBClientOptions;
 import eu.more2020.visual.experiments.util.QueryExecutor.InfluxDBQueryExecutor;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class InfluxDB {
 
@@ -18,7 +21,7 @@ public class InfluxDB {
     private String token;
     private String org;
     private String url;
-    private Properties properties;
+    private Properties properties  = new Properties();;
 
     public InfluxDB(String influxDBCfg) {
         config = influxDBCfg;
@@ -26,6 +29,10 @@ public class InfluxDB {
     }
 
     private void connect() {
+        OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(10, TimeUnit.MINUTES)
+                .writeTimeout(30, TimeUnit.MINUTES)
+                .connectTimeout(1, TimeUnit.MINUTES);
         try {
             InputStream inputStream
                     = getClass().getClassLoader().getResourceAsStream(config);
@@ -34,7 +41,15 @@ public class InfluxDB {
             bucket = properties.getProperty("bucket");
             org = properties.getProperty("org");
             url = properties.getProperty("url");
-            client = InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
+            InfluxDBClientOptions options = InfluxDBClientOptions
+                    .builder()
+                    .url(url)
+                    .bucket(bucket)
+                    .org(org)
+                    .authenticateToken(token.toCharArray())
+                    .okHttpClient(okHttpClient)
+                    .build();
+            client = InfluxDBClientFactory.create(options);
             LOG.info("Initialized InfluxDB connection");
         } catch
         (Exception e) {
@@ -43,8 +58,8 @@ public class InfluxDB {
         }
     }
 
-    public InfluxDBQueryExecutor createQueryExecutor(String table) {
-        return new InfluxDBQueryExecutor(client, bucket, table);
+    public InfluxDBQueryExecutor createQueryExecutor(String path, String table) {
+        return new InfluxDBQueryExecutor(client, bucket, path, table, org);
     }
 
 }

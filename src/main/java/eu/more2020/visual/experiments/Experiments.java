@@ -48,8 +48,14 @@ public class Experiments<T> {
     @Parameter(names = "-measures", variableArity = true, description = "Measures IDs to be used")
     public List<Integer> measures;
 
+    @Parameter(names = "-measureNames", variableArity = true, description = "Measures Names to be used")
+    public List<String> measureNames;
+
     @Parameter(names = "-timeCol", description = "Datetime Column for CSV files")
     public Integer timeCol;
+
+    @Parameter(names = "-timeColName", description = "Datetime Column for Parquet files")
+    public String timeColName;
 
     @Parameter(names = "-hasHeader", description = "If CSV has header")
     public Boolean hasHeader = true;
@@ -96,14 +102,12 @@ public class Experiments<T> {
     private Integer minFilters;
     @Parameter(names = "-maxFilters", description = "Max filters in the query sequence")
     private Integer maxFilters;
-    @Parameter(names = "-postgresCfg", description = "PostgreSQL config file path")
-    private String postgresCfg;
+    @Parameter(names = "-postgreSQLCfg", description = "PostgreSQL config file path")
+    private String postgreSQLCfg;
     @Parameter(names = "-influxDBCfg", description = "InfluxDB config file path")
     private String influxDBCfg;
-    @Parameter(names = "-postgresTable", description = "PostgreSQL table to query")
-    private String postgresTable;
-    @Parameter(names = "-influxDBTable", description = "InfluxDB table to query")
-    private String influxDBTable;
+    @Parameter(names = "-table", description = "PostgreSQL/InfluxDB table name to query")
+    private String table;
     @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
@@ -158,7 +162,7 @@ public class Experiments<T> {
     private void timeInitialization() throws IOException, ClassNotFoundException, SQLException {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFile, "No out file specified.");
-
+        double ttiTime = 0, postgreSQLTime = 0, influxDBTime = 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         boolean addHeader = new File(outFile).length() == 0;
 
@@ -168,40 +172,47 @@ public class Experiments<T> {
         SizeOf sizeOf = SizeOf.newInstance();
 
         Stopwatch stopwatch = Stopwatch.createUnstarted();
-        stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        PostgreSQL postgreSQL = new PostgreSQL(postgresCfg);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(postgresTable);
-        sqlQueryExecutor.initialize();
-
-        InfluxDB influxDB = new InfluxDB(influxDBCfg);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(influxDBTable);
-        influxDBQueryExecutor.initialize();
-
-        Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
+        Query q0 = new Query(startTime, endTime, dataset.getMeasures(), filters, new ViewPort(800, 300));
+        stopwatch.start();
         tti.initialize(q0);
+        ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
+//        stopwatch.reset();
+//        PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
+//        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
+//        sqlQueryExecutor.drop();
+//        stopwatch.start();
+//        sqlQueryExecutor.initialize();
+//        postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//
+//        stopwatch.reset();
+//        InfluxDB influxDB = new InfluxDB(influxDBCfg);
+//        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
+//        influxDBQueryExecutor.drop();
+//        stopwatch.start();
+//        influxDBQueryExecutor.initialize();
+//        influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+
+        stopwatch.reset();
         try {
             memorySize = sizeOf.deepSizeOf(tti);
         } catch (Exception e) {
         }
 
         if (addHeader) {
-            csvWriter.writeHeaders("path", "mode", "query #", "timeRange", "results size", "IO Count",  "Time (sec)",  "Memory (Gb)");
+            csvWriter.writeHeaders("dataset", "mode", "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
         }
 
-            csvWriter.addValue(path);
-            csvWriter.addValue(initMode);
-            csvWriter.addValue(0);
-//            csvWriter.addValue(queryResults.getTimeRange());
-//            csvWriter.addValue(queryResults.getData().size());
-//            csvWriter.addValue(queryResults.getIoCount());
-            csvWriter.addValue(stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9));
-            csvWriter.addValue(memorySize);
-            csvWriter.writeValuesToRow();
-//        csvWriter.writeValuesToRow();
-//        csvWriter.close();
+        csvWriter.addValue(table);
+        csvWriter.addValue(command);
+        csvWriter.addValue(ttiTime);
+        csvWriter.addValue(postgreSQLTime);
+        csvWriter.addValue(influxDBTime);
+        csvWriter.addValue(memorySize);
+        csvWriter.writeValuesToRow();
+        csvWriter.close();
     }
 
     private void timeQueries() throws IOException, SQLException {
@@ -220,21 +231,22 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        PostgreSQL postgreSQL = new PostgreSQL(postgresCfg);
+        PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
         InfluxDB influxDB = new InfluxDB(influxDBCfg);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(postgresTable);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(influxDBTable);
-        Query q0 = new Query(startTime, endTime, measures, filters, new ViewPort(800, 300));
+        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
+        Query q0 = new Query(startTime, endTime, dataset.getMeasures(), filters, new ViewPort(800, 300));
         tti.initialize(q0);
 
 
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         if (addHeader) {
-            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "IO Count",  "TTI Time (sec)", "M4 Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
+            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "IO Count",  "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
         }
 
         for (int i = 0; i < sequence.size(); i+=3) {
+            double ttiTime = 0, postgreSQLTime = 0, influxDBTime = 0;
             Query query = (Query) sequence.get(i);
             SQLQuery sqlQuery = (SQLQuery) sequence.get(i + 1);
             InfluxQLQuery influxQLQuery = (InfluxQLQuery) sequence.get(i + 2);
@@ -242,30 +254,30 @@ public class Experiments<T> {
 
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
-            double ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
 //            stopwatch.reset();
 //            stopwatch.start();
 //            sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
-            double m4Time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-
-            stopwatch.reset();
-            stopwatch.start();
-            influxDBQueryExecutor.execute(influxQLQuery, QueryMethod.M4);
-            double influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//            postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//
+//            stopwatch.reset();
+//            stopwatch.start();
+//            influxDBQueryExecutor.execute(influxQLQuery, QueryMethod.M4);
+//            influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
             try {
                 memorySize = sizeOf.deepSizeOf(tti);
             } catch (Exception e) {
             }
-            csvWriter.addValue(postgresTable);
+            csvWriter.addValue(table);
             csvWriter.addValue(command);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(ttiTime);
-            csvWriter.addValue(m4Time);
+            csvWriter.addValue(postgreSQLTime);
             csvWriter.addValue(influxDBTime);
             csvWriter.addValue(memorySize);
             csvWriter.writeValuesToRow();
@@ -290,7 +302,7 @@ public class Experiments<T> {
             case "csv":
                 return new CsvDataset(path, "0", "test", timeCol, measures, hasHeader, timeFormat, delimiter);
             case "parquet":
-                return new ParquetDataset(path, "0", "test", timeCol, measures, timeFormat);
+                return new ParquetDataset(path, "0", "test", timeColName, measureNames, timeFormat);
             default:
                 break;
         }

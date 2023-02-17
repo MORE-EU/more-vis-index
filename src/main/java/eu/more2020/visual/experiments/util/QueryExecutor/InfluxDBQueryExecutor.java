@@ -1,10 +1,9 @@
 package eu.more2020.visual.experiments.util.QueryExecutor;
 
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
-import com.influxdb.client.QueryApi;
-import com.influxdb.client.WriteApi;
+import com.influxdb.client.*;
+import com.influxdb.client.domain.Query;
 import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 
 import com.opencsv.bean.CsvToBean;
@@ -19,9 +18,11 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.sql.SQLException;
-import java.util.Iterator;
+
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Objects;
 
 public class InfluxDBQueryExecutor implements QueryExecutor {
 
@@ -30,12 +31,17 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     InfluxDBClient influxDBClient;
     String table;
+    String path;
     String bucket;
+    String org;
 
-    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, String bucket, String table) {
+
+    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, String bucket, String path, String table, String org) {
         this.influxDBClient = influxDBClient;
+        this.path = path;
         this.table = table;
         this.bucket = bucket;
+        this.org = org;
     }
 
     @Override
@@ -56,9 +62,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     public void initialize() throws FileNotFoundException {
         WriteApi writeApi = influxDBClient.makeWriteApi();
         FileReader reader;
-        String path;
-        if(table.equals("BEBEZE")) {
-            path = "/opt/more-workspace/BEBEZE/bbz1.csv";
+        if(table.equals("bebeze")) {
             reader = new FileReader(path);
             CsvToBean<BEBEZE> csvToBean = new CsvToBeanBuilder(reader)
                     .withType(BEBEZE.class)
@@ -67,9 +71,17 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 writeApi.writeMeasurement(WritePrecision.S, data);
             }
         }
-
-
         influxDBClient.close();
+    }
+
+    @Override
+    public void drop() {
+        OffsetDateTime start = OffsetDateTime.of(LocalDateTime.of(1970, 1, 1,
+                0, 0, 0), ZoneOffset.UTC);
+        OffsetDateTime stop = OffsetDateTime.now();
+        String predicate = "_measurement=" + table;
+        DeleteApi deleteApi = influxDBClient.getDeleteApi();
+        deleteApi.delete(start, stop, predicate, bucket, org);
     }
 
     private void executeM4InfluxQuery(InfluxQLQuery q) {
@@ -82,12 +94,12 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         QueryApi queryApi = influxDBClient.getQueryApi();
         LOG.info("Executing Query: \n" + flux);
         List<FluxTable> tables = queryApi.query(flux);
-//        for (FluxTable fluxTable : tables) {
-//            List<FluxRecord> records = fluxTable.getRecords();
-//            for (FluxRecord fluxRecord : records) {
-//                System.out.println(fluxRecord.getValues());
-//            }
-//        }
+        for (FluxTable fluxTable : tables) {
+            List<FluxRecord> records = fluxTable.getRecords();
+            for (FluxRecord fluxRecord : records) {
+                System.out.println(fluxRecord.getValues());
+            }
+        }
     }
 
 
