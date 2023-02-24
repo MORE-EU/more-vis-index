@@ -10,14 +10,16 @@ import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.jetty.server.RequestLog;
 
 import java.sql.Time;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class TTI {
@@ -28,7 +30,7 @@ public class TTI {
 
     private final float accuracy = 0.9f;
 
-
+    private boolean initialized = false;
     // The interval tree containing all the time series spans already cached
     private IntervalTree<TimeSeriesSpan> intervalTree;
 
@@ -56,16 +58,14 @@ public class TTI {
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         timeSeriesSpan.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
         intervalTree.insert(timeSeriesSpan);
-        Iterator<TimeSeriesSpan> overlaps = intervalTree.overlappers(query);
-        while (overlaps.hasNext()){
-            System.out.println(overlaps.next());
-        }
-
+        initialized = true;
     }
 
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
+        if(!initialized) initialize(query);
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
+        AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
 
@@ -91,8 +91,8 @@ public class TTI {
                         return true;
                     }
                     return false;
-                }).collect(Collectors.toList());
-        System.out.println(overlappingIntervals);
+                })
+                .collect(Collectors.toList());
         // Calculate and add missing intervals
         overlappingIntervals.addAll(currentDifference[0].asRanges().stream()
                 .map(diff -> {
@@ -103,21 +103,23 @@ public class TTI {
                     return span;
                 }).collect(Collectors.toList()));
 
+        MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
+        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, accurateAggInterval);
+
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
-        for (TimeSeriesSpan timeSeriesSpan : overlappingIntervals)
-            timeSeriesSpan.iterator(timeSeriesSpan.getFrom(), timeSeriesSpan.getTo()).forEachRemaining(aggregatedDataPoint -> {
-                Stats stats = aggregatedDataPoint.getStats();
-                if (stats.getCount() != 0) {
-                    for (int measure : measures) {
-                        List<UnivariateDataPoint> measureData = data.get(measure);
-                        measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
-                        measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
-                    }
+        while(pixelAggregator.hasNext()){
+            AggregatedDataPoint next = pixelAggregator.next();
+            Stats stats = next.getStats();
+            if (stats.getCount() != 0) {
+                for (int measure : measures) {
+                    List<UnivariateDataPoint> measureData = data.get(measure);
+                    measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
+                    measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
                 }
-            });
-
+            }
+        }
         queryResults.setData(data);
         return queryResults;
     }

@@ -1,4 +1,8 @@
 .idea/*
 target/*
+testoutput/*
 more-vis-index.iml
 out.csv
+influxDBResults.csv
+sqlResults.csv
+ttiResults.csv

@@ -71,6 +71,26 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats {
         }
     }
 
+    public void accept(AggregatedDataPoint dataPoint) {
+        Stats stats = dataPoint.getStats();
+        if (stats.getCount() != 0) {
+            count += stats.getCount();
+            int i = 0;
+            for (int m : measures) {
+                sums[i] += stats.getSum(m);
+                minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
+                if (minValues[i] == stats.getMinValue(m)) {
+                    minTimestamps[i] = stats.getMinTimestamp(m);
+                }
+                maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
+                if (maxValues[i] == stats.getMaxValue(m)) {
+                    maxTimestamps[i] = stats.getMaxTimestamp(m);
+                }
+                i++;
+            }
+        }
+    }
+
     /**
      * Combines the state of another {@code StatsAggregator} instance into this
      * one.
@@ -86,7 +106,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats {
             if (minValues[i] == other.minValues[i]) {
                 minTimestamps[i] = other.minTimestamps[i];
             }
-            maxValues[i] = Math.min(maxValues[i], other.maxValues[i]);
+            maxValues[i] = Math.max(maxValues[i], other.maxValues[i]);
             if (maxValues[i] == other.maxValues[i]) {
                 maxTimestamps[i] = other.maxTimestamps[i];
             }

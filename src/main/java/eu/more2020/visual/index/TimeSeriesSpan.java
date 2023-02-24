@@ -139,7 +139,6 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return iterator(from, -1);
     }
 
-
     @Override
     public long getFrom() {
         return from;

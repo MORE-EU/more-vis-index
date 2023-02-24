@@ -84,7 +84,6 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
             statsAggregator.clear();
             if (nextDataPoint.getTimestamp() >= currentInterval.toInstant()
                     .toEpochMilli() && nextDataPoint.getTimestamp() < nextInterval.toInstant().toEpochMilli()) {
-
                 statsAggregator.accept(nextDataPoint);
                 while (sourceDataPointsIterator.hasNext() && (nextDataPoint = sourceDataPointsIterator.next()).getTimestamp() < nextInterval.toInstant()
                         .toEpochMilli()) {

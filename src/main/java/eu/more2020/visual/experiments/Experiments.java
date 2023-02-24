@@ -14,11 +14,8 @@ import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Query.*;
-import eu.more2020.visual.experiments.util.EpochConverter;
-import eu.more2020.visual.experiments.util.FilterConverter;
+import eu.more2020.visual.experiments.util.*;
 import eu.more2020.visual.experiments.util.InfluxDB.InfluxDB;
-import eu.more2020.visual.experiments.util.QuerySequenceGenerator;
-import eu.more2020.visual.experiments.util.SyntheticDatasetGenerator;
 import eu.more2020.visual.index.TTI;
 import eu.more2020.visual.experiments.util.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.experiments.util.PostgreSQL.PostgreSQL;
@@ -34,6 +31,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class Experiments<T> {
@@ -147,6 +145,9 @@ public class Experiments<T> {
                 generator = new SyntheticDatasetGenerator(100000000, 10, 10, outFile);
                 generator.generate();
                 break;
+            case "plot":
+                plotQuery();
+                break;
             case "synth50":
                 List<Integer> catCols = new ArrayList<>();
                 for (int i = 10; i < 30; i++) {
@@ -179,21 +180,21 @@ public class Experiments<T> {
         tti.initialize(q0);
         ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
-//        stopwatch.reset();
-//        PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
-//        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
-//        sqlQueryExecutor.drop();
-//        stopwatch.start();
-//        sqlQueryExecutor.initialize();
-//        postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-//
-//        stopwatch.reset();
-//        InfluxDB influxDB = new InfluxDB(influxDBCfg);
-//        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
-//        influxDBQueryExecutor.drop();
-//        stopwatch.start();
-//        influxDBQueryExecutor.initialize();
-//        influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+        stopwatch.reset();
+        PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
+        sqlQueryExecutor.drop();
+        stopwatch.start();
+        sqlQueryExecutor.initialize();
+        postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+
+        stopwatch.reset();
+        InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
+        influxDBQueryExecutor.drop();
+        stopwatch.start();
+        influxDBQueryExecutor.initialize();
+        influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
         stopwatch.reset();
         try {
@@ -215,6 +216,40 @@ public class Experiments<T> {
         csvWriter.close();
     }
 
+    private void plotQuery() throws IOException, SQLException {
+        Preconditions.checkNotNull(path, "You must define the input path.");
+        Preconditions.checkNotNull(outFile, "No out file specified.");
+
+        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
+        String ttiResultsPath = "ttiResults.csv";
+        String sqlResultsPath = "sqlResults.csv";
+        String influxDBResultsPath = "influxDBResults.csv";
+
+        AbstractDataset dataset = createDataset();
+        Query ttiQuery = new Query(startTime, endTime, dataset.getMeasures(), filters, new ViewPort(800, 300));
+        List<String> measureNames = ttiQuery.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+        String timeColName = dataset.getHeader()[dataset.getTimeCol()];
+
+        TTI tti = new TTI(dataset);
+        PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
+        InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
+        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, dataset.getMeasures(),  timeColName, filters, new ViewPort(800, 300));
+        InfluxQLQuery influxQLQuery = new InfluxQLQuery(startTime, endTime, measureNames, timeColName, filters, new ViewPort(800, 300));
+
+        QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
+        ttiQueryResults.toCsv(ttiResultsPath);
+        TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot();
+        timeSeriesPlot.build(ttiResultsPath);
+//        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
+//        sqlQueryResults.toCsv(sqlResultsPath);
+//        timeSeriesPlot.build(sqlResultsPath);
+//        QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxQLQuery);
+//        influxDBQueryResults.toCsv(influxDBResultsPath);
+//        timeSeriesPlot.build(influxDBResultsPath);
+    }
+
     private void timeQueries() throws IOException, SQLException {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFile, "No out file specified.");
@@ -232,7 +267,7 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
         PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
-        InfluxDB influxDB = new InfluxDB(influxDBCfg);
+        InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
         Query q0 = new Query(startTime, endTime, dataset.getMeasures(), filters, new ViewPort(800, 300));
@@ -254,6 +289,7 @@ public class Experiments<T> {
 
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
+
             ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
 //            stopwatch.reset();
