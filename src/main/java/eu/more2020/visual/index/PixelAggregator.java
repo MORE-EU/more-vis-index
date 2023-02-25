@@ -52,9 +52,9 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         ZonedDateTime nextSubPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
         statsAggregator.clear();
         while(nextSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).isBefore(nextPixel) && hasNext()){
-            subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
             nextAggregateDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
             statsAggregator.accept(nextAggregateDatapoint);
+            subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
             nextSubPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
         }
         return this;
