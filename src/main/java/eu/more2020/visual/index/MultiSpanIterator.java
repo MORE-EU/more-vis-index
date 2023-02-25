@@ -7,27 +7,38 @@ import java.util.NoSuchElementException;
 
 public class MultiSpanIterator<T> implements Iterator<T> {
 
-    private final Iterator<Iterator<T>> chain;
+    private final Iterator<Iterator<T>> iteratorChain;
+    private final Iterator<Iterable<T>> iterableChain;
+
+    private final List<Iterable<T>> iterables;
     private Iterator<T> currentIterator;
+    private Iterable<T> currentIterable;
+
     private Iterator<T> lastIterator;
+
 
 
     public MultiSpanIterator(Iterator<Iterable<T>> iterator)  {
         List<Iterator<T>> iteratorList = new ArrayList<>();
+        List<Iterable<T>> iterablesList = new ArrayList<>();
         for (Iterator<Iterable<T>> it = iterator; it.hasNext(); ) {
             Iterable iterable = it.next();
             Iterator<T> iterator1 = iterable.iterator();
+            iterablesList.add(iterable);
             iteratorList.add(iterator1);
         }
-        this.chain = iteratorList.iterator();
+        this.iterables = iterablesList;
+        this.iteratorChain = iteratorList.iterator();
+        this.iterableChain = iterablesList.iterator();
     }
 
 
     @Override
     public boolean hasNext() {
         while (currentIterator == null || !currentIterator.hasNext()) {
-            if (!chain.hasNext()) return false;
-            currentIterator = chain.next();
+            if (!iteratorChain.hasNext()) return false;
+            currentIterator = iteratorChain.next();
+            currentIterable = iterableChain.next();
         }
         return true;
     }
@@ -49,5 +60,13 @@ public class MultiSpanIterator<T> implements Iterator<T> {
             throw new IllegalStateException();
         }
         this.lastIterator.remove();
+    }
+
+    public Iterator<T> getCurrentIterator() {
+        return currentIterator;
+    }
+
+    public Iterable<T> getCurrentIterable() {
+        return currentIterable;
     }
 }

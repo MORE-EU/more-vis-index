@@ -21,6 +21,7 @@ public class TimeSeriesPlot {
 
         ScatterTrace trace = ScatterTrace.builder(timeSeries.column("timestamp"), timeSeries.column("1"))
                 .mode(ScatterTrace.Mode.LINE)
+                .fill(ScatterTrace.Fill.NONE)
                 .build();
 
         Plot.show(new Figure(layout, trace));

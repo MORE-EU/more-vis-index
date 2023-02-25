@@ -1,9 +1,6 @@
 package eu.more2020.visual.index;
 
-import eu.more2020.visual.domain.AggregateInterval;
-import eu.more2020.visual.domain.DataPoint;
-import eu.more2020.visual.domain.DataPoints;
-import eu.more2020.visual.domain.TimeInterval;
+import eu.more2020.visual.domain.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -16,6 +13,7 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
 
     protected DataPoints dataPoints;
     private ZoneId zoneId;
+    private long from;
 
     public RawTimeSeriesSpan() {}
 
@@ -52,6 +50,8 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
     @NotNull
     @Override
     public Iterator<DataPoint> iterator() {
-        return null;
+        return dataPoints.iterator();
     }
+
+
 }

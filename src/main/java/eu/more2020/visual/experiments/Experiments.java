@@ -16,6 +16,7 @@ import eu.more2020.visual.domain.Dataset.ParquetDataset;
 import eu.more2020.visual.domain.Query.*;
 import eu.more2020.visual.experiments.util.*;
 import eu.more2020.visual.experiments.util.InfluxDB.InfluxDB;
+import eu.more2020.visual.index.RawTTI;
 import eu.more2020.visual.index.TTI;
 import eu.more2020.visual.experiments.util.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.experiments.util.PostgreSQL.PostgreSQL;
@@ -221,6 +222,7 @@ public class Experiments<T> {
         Preconditions.checkNotNull(outFile, "No out file specified.");
 
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
+        String rawTTiResultsPath = "rawResults.csv";
         String ttiResultsPath = "ttiResults.csv";
         String sqlResultsPath = "sqlResults.csv";
         String influxDBResultsPath = "influxDBResults.csv";
@@ -231,6 +233,8 @@ public class Experiments<T> {
         String timeColName = dataset.getHeader()[dataset.getTimeCol()];
 
         TTI tti = new TTI(dataset);
+        RawTTI rawTTI = new RawTTI(dataset);
+
         PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
         InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
@@ -238,13 +242,17 @@ public class Experiments<T> {
         SQLQuery sqlQuery = new SQLQuery(startTime, endTime, dataset.getMeasures(),  timeColName, filters, new ViewPort(800, 300));
         InfluxQLQuery influxQLQuery = new InfluxQLQuery(startTime, endTime, measureNames, timeColName, filters, new ViewPort(800, 300));
 
+        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
+        rawTtiQueryResults.toCsv(rawTTiResultsPath);
+        TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot();
+        timeSeriesPlot.build(rawTTiResultsPath);
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
         ttiQueryResults.toCsv(ttiResultsPath);
-        TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot();
+        timeSeriesPlot = new TimeSeriesPlot();
         timeSeriesPlot.build(ttiResultsPath);
-//        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
-//        sqlQueryResults.toCsv(sqlResultsPath);
-//        timeSeriesPlot.build(sqlResultsPath);
+        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
+        sqlQueryResults.toCsv(sqlResultsPath);
+        timeSeriesPlot.build(sqlResultsPath);
 //        QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxQLQuery);
 //        influxDBQueryResults.toCsv(influxDBResultsPath);
 //        timeSeriesPlot.build(influxDBResultsPath);

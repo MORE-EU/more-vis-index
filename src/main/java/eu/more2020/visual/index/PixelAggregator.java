@@ -14,6 +14,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
     protected final MultiSpanIterator multiSpanIterator;
     protected final AggregateInterval m4Interval;
     private final StatsAggregator statsAggregator;
+
     private final List<Integer> measures;
 
     /**
@@ -33,10 +34,9 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
 
 
     public PixelAggregator(MultiSpanIterator multiSpanIterator, List<Integer> measures,
-                           AggregateInterval m4Interval, AggregateInterval subInterval) {
+                           AggregateInterval m4Interval) {
         this.multiSpanIterator = multiSpanIterator;
         this.m4Interval = m4Interval;
-        this.subInterval = subInterval;
         this.measures = measures;
         statsAggregator = new StatsAggregator(measures);
     }
@@ -68,6 +68,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
             currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
             nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
         }
+        this.subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
     }
 
     @Override
