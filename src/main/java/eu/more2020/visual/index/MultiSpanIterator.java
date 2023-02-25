@@ -10,7 +10,6 @@ public class MultiSpanIterator<T> implements Iterator<T> {
     private final Iterator<Iterator<T>> iteratorChain;
     private final Iterator<Iterable<T>> iterableChain;
 
-    private final List<Iterable<T>> iterables;
     private Iterator<T> currentIterator;
     private Iterable<T> currentIterable;
 
@@ -27,7 +26,6 @@ public class MultiSpanIterator<T> implements Iterator<T> {
             iterablesList.add(iterable);
             iteratorList.add(iterator1);
         }
-        this.iterables = iterablesList;
         this.iteratorChain = iteratorList.iterator();
         this.iterableChain = iterablesList.iterator();
     }
