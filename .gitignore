@@ -3,7 +3,13 @@ target/*
 testoutput/*
 more-vis-index.iml
 out.csv
-influxDBResults.csv
-sqlResults.csv
-ttiResults.csv
-rawResults.csv
+influxDBResults/*
+sqlResults/*
+ttiResults/*
+rawResults/*
+src/main/java/eu/more2020/visual/.DS_Store
+src/main/java/eu/more2020/.DS_Store
+src/main/java/eu/.DS_Store
+src/main/java/.DS_Store
+src/main/.DS_Store
+src/.DS_Store

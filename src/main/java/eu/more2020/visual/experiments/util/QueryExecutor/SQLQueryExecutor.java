@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,7 +99,7 @@ public class SQLQueryExecutor implements  QueryExecutor{
         preparedStatement.setString("timeCol", q.getTimeColumn());
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getViewPort().getWidth());
+        preparedStatement.setInt("width", 800);
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "")
@@ -110,7 +111,7 @@ public class SQLQueryExecutor implements  QueryExecutor{
             Timestamp timestamp = resultSet.getTimestamp(2);
             Double val = resultSet.getDouble(3);
             data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
-                    new UnivariateDataPoint(timestamp.toInstant().toEpochMilli(), val));
+                    new UnivariateDataPoint(timestamp.toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli(), val));
         }
         data.forEach((k, v) -> v.sort(compareLists));
         queryResults.setData(data);

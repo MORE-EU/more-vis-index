@@ -61,6 +61,16 @@ public class TTI {
         initialized = true;
     }
 
+    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
+        @Override
+        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
+            if (s1==null && s2==null) return 0;//swapping has no point here
+            if (s1==null) return  1;
+            if (s2==null) return -1;
+            return (int) (s1.getTimestamp() - s2.getTimestamp());
+        }
+    };
+
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
         if(!initialized) initialize(query);
@@ -69,7 +79,6 @@ public class TTI {
         AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
-
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
@@ -121,6 +130,7 @@ public class TTI {
                 }
             }
         }
+        data.forEach((k, v) -> v.sort(compareLists));
         queryResults.setData(data);
         return queryResults;
     }

@@ -222,10 +222,10 @@ public class Experiments<T> {
         Preconditions.checkNotNull(outFile, "No out file specified.");
 
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-        String rawTTiResultsPath = "rawResults.csv";
-        String ttiResultsPath = "ttiResults.csv";
-        String sqlResultsPath = "sqlResults.csv";
-        String influxDBResultsPath = "influxDBResults.csv";
+        String rawTTiResultsPath = "rawResults";
+        String ttiResultsPath = "ttiResults";
+        String sqlResultsPath = "sqlResults";
+        String influxDBResultsPath = "influxDBResults";
 
         AbstractDataset dataset = createDataset();
         Query ttiQuery = new Query(startTime, endTime, dataset.getMeasures(), filters, new ViewPort(800, 300));
@@ -242,17 +242,20 @@ public class Experiments<T> {
         SQLQuery sqlQuery = new SQLQuery(startTime, endTime, dataset.getMeasures(),  timeColName, filters, new ViewPort(800, 300));
         InfluxQLQuery influxQLQuery = new InfluxQLQuery(startTime, endTime, measureNames, timeColName, filters, new ViewPort(800, 300));
 
-        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
-        rawTtiQueryResults.toCsv(rawTTiResultsPath);
         TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot();
+
+        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
+        rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
         timeSeriesPlot.build(rawTTiResultsPath);
+
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
-        ttiQueryResults.toCsv(ttiResultsPath);
-        timeSeriesPlot = new TimeSeriesPlot();
+        ttiQueryResults.toMultipleCsv(ttiResultsPath);
         timeSeriesPlot.build(ttiResultsPath);
-        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
-        sqlQueryResults.toCsv(sqlResultsPath);
-        timeSeriesPlot.build(sqlResultsPath);
+//
+//        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
+//        sqlQueryResults.toMultipleCsv(sqlResultsPath);
+//        timeSeriesPlot.build(sqlResultsPath);
+
 //        QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxQLQuery);
 //        influxDBQueryResults.toCsv(influxDBResultsPath);
 //        timeSeriesPlot.build(influxDBResultsPath);

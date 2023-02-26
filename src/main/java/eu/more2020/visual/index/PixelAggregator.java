@@ -26,8 +26,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
      * The start date time value of the next pixel.
      */
     protected ZonedDateTime nextPixel;
-    protected ZonedDateTime overlappingSubPixel = null;
-
+    protected ZonedDateTime nextSubPixel;
 
     protected AggregatedDataPoint nextAggregateDatapoint = null;
     protected AggregateInterval subInterval;
@@ -49,27 +48,26 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
     @Override
     public AggregatedDataPoint next() {
         moveToNextPixel();
-        ZonedDateTime nextSubPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
         statsAggregator.clear();
-        while(nextSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).isBefore(nextPixel) && hasNext()){
+        while((nextSubPixel = nextSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit())).isBefore(nextPixel) && hasNext()) {
             nextAggregateDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
             statsAggregator.accept(nextAggregateDatapoint);
             subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
-            nextSubPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
         }
         return this;
     }
 
     protected void moveToNextPixel() {
+        subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
         if (currentPixel == null) {
             nextAggregateDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
+            nextSubPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
             currentPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
         } else {
             currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
             nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
         }
-        subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
     }
 
     @Override

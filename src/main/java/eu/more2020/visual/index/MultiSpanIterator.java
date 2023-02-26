@@ -14,7 +14,7 @@ public class MultiSpanIterator<T> implements Iterator<T> {
     private Iterable<T> currentIterable;
 
     private Iterator<T> lastIterator;
-
+    int current = 0;
 
 
     public MultiSpanIterator(Iterator<Iterable<T>> iterator)  {
@@ -43,6 +43,8 @@ public class MultiSpanIterator<T> implements Iterator<T> {
 
     @Override
     public T next() {
+//        current ++;
+//        System.out.println(current);
         if (!this.hasNext()) {
             this.lastIterator = null;         // to disallow remove()
             throw new NoSuchElementException();

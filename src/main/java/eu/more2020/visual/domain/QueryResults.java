@@ -4,6 +4,8 @@ import com.opencsv.CSVWriter;
 import org.apache.hadoop.util.hash.Hash;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -69,7 +71,7 @@ public class QueryResults implements Serializable {
             for (Map.Entry<Integer, List<UnivariateDataPoint>> mapEntry : getData().entrySet()) {
                 header[index] = String.valueOf(mapEntry.getKey());
                 index++;
-                noOfRows = mapEntry.getValue().size();
+                noOfRows = Math.max(noOfRows, mapEntry.getValue().size());
             }
             writer.writeNext(header);
             // add data to csv
@@ -95,7 +97,44 @@ public class QueryResults implements Serializable {
         }
     }
 
-    @Override
+    public void toMultipleCsv(String path) {
+        try {
+            File theDir = new File(path);
+            if (!theDir.exists()) {
+                theDir.mkdirs();
+            }
+            for (Map.Entry<Integer, List<UnivariateDataPoint>> mapEntry : getData().entrySet()) {
+                Integer measure = mapEntry.getKey();
+                List<UnivariateDataPoint> dataPoints = mapEntry.getValue();
+                int noOfRows = dataPoints.size();
+                Path filePath = Paths.get(theDir.getPath(), measure.toString() + ".csv");
+                FileWriter outputFile = new FileWriter(filePath.toString());
+
+                // create CSVWriter object filewriter object as parameter
+                CSVWriter writer = new CSVWriter(outputFile);
+
+                String[] header = {"timestamp", measure.toString()};
+                writer.writeNext(header);
+
+                String[][] rows = new String[noOfRows][2];
+                int row = 0;
+                for (UnivariateDataPoint dataPoint : dataPoints) {
+                    rows[row][0] = String.valueOf(dataPoint.getTimestamp());
+                    rows[row][1] = String.valueOf(dataPoint.getValue());
+                    row++;
+                }
+
+                for (row = 0; row < noOfRows; row++)
+                    writer.writeNext(rows[row], false);
+                writer.close();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+        @Override
     public String toString() {
         return "QueryResults{" +
             "data=" + data +
