@@ -5,7 +5,6 @@ import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 

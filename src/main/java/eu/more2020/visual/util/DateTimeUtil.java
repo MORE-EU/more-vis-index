@@ -16,6 +16,7 @@ public class DateTimeUtil {
     public final static String DEFAULT_FORMAT = "yyyy-MM-dd[ HH:mm:ss]";
     public final static DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_FORMAT);
     private static final Logger LOG = LoggerFactory.getLogger(DateTimeUtil.class);
+    private static final  int[] millisDivisors = {1, 2, 4, 5, 8, 10, 20, 25, 40, 50, 100, 125, 200, 250, 500, 1000};
 
     public static long parseDateTimeString(String s, DateTimeFormatter formatter, ZoneId zoneId) {
         return LocalDateTime.parse(s, formatter).atZone(zoneId).toInstant().toEpochMilli();
@@ -175,7 +176,7 @@ public class DateTimeUtil {
     }
 
     /**
-     * Returns a sampling interval less than or equal to the given interval, so that it can divide exactly longer durations,
+     * Returns a sampling interval less than or equal to the given interval, so that it can exactly divide longer durations,
      * based on the gregorian calendar.
      * For this, we check how the given interval divides the next
      * calendar based frequency (e.g seconds -> minute, minute -> hour etc.) To get the closest exact division,
@@ -185,8 +186,10 @@ public class DateTimeUtil {
      * @param samplingInterval The sampling interval
      * @return A Duration
      */
+
     private static Duration maxCalendarInterval(Duration samplingInterval) {
         // Get each part that makes up a calendar date. The first non-zero is its "granularity".
+
         int days = (int) samplingInterval.toDaysPart();
         int hours = samplingInterval.toHoursPart();
         int minutes = samplingInterval.toMinutesPart();
@@ -213,14 +216,23 @@ public class DateTimeUtil {
         divisor = flooredDivisor == divisor ? divisor : flooredDivisor + 1;
         Duration calendarInterval = Duration.of(t, ChronoUnit.MILLIS).dividedBy((long) divisor);
         double newMillis = calendarInterval.toMillis() / 1000F;
-        if(newMillis >= 1) {
-            if (newMillis != (int) newMillis)
+        if(newMillis >= 1) { // 1 second and above
+            if (newMillis != (int) newMillis) // reached an exact division
                 return maxCalendarInterval(Duration.of((long) (Math.floor(calendarInterval.toMillis() / 1000F) * 1000), ChronoUnit.MILLIS));
         }
-        else return Duration.of(500, ChronoUnit.MILLIS);
+        else { // 1 second and below
+            int m = (int) (newMillis * 1000);
+            return maxMillisInterval(m);
+        }
         return calendarInterval;
     }
 
+
+    public static Duration maxMillisInterval(int millis) {
+        int i = 0;
+        while (millis >= millisDivisors[i++]);
+        return Duration.of(millisDivisors[--i], ChronoUnit.MILLIS);
+    }
 
     public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
         Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
@@ -230,7 +242,6 @@ public class DateTimeUtil {
     }
 
     public static AggregateInterval aggregateCalendarInterval(Duration interval){
-
         long aggregateInterval = interval.toMillis();
         ChronoUnit aggregateChronoUnit = ChronoUnit.MILLIS;
         if(aggregateInterval % 1000 == 0){

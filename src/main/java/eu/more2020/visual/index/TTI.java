@@ -78,9 +78,10 @@ public class TTI {
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
+        accurateInterval = accurateInterval.toMillis() < dataset.getSamplingInterval().toMillis() ? dataset.getSamplingInterval() : accurateInterval;
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
-        List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
+        List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
         QueryResults queryResults = new QueryResults();
 
         RangeSet<Long> rangeSet = TreeRangeSet.create();

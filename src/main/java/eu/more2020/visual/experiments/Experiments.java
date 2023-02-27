@@ -251,10 +251,10 @@ public class Experiments<T> {
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
         ttiQueryResults.toMultipleCsv(ttiResultsPath);
         timeSeriesPlot.build(ttiResultsPath);
-//
-//        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
-//        sqlQueryResults.toMultipleCsv(sqlResultsPath);
-//        timeSeriesPlot.build(sqlResultsPath);
+
+        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
+        sqlQueryResults.toMultipleCsv(sqlResultsPath);
+        timeSeriesPlot.build(sqlResultsPath);
 
 //        QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxQLQuery);
 //        influxDBQueryResults.toCsv(influxDBResultsPath);
