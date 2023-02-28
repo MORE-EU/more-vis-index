@@ -122,6 +122,7 @@ public class TTI {
 
         while(pixelAggregator.hasNext()){
             AggregatedDataPoint next = pixelAggregator.next();
+            System.out.println(next.getTimestamp());
             Stats stats = next.getStats();
             if (stats.getCount() != 0) {
                 for (int measure : measures) {

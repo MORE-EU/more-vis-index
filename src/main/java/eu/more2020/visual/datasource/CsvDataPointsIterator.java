@@ -39,7 +39,6 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
         this.measures = measures;
     }
 
-
     private CsvDataPoint nextResult() {
         try {
             String[] row = reader.parseNext();

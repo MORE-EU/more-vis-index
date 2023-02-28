@@ -2,6 +2,7 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.xbill.DNS.Zone;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,15 +21,19 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
      * The start date time value of the current pixel.
      */
     protected ZonedDateTime currentPixel;
+    protected ZonedDateTime currentSubPixel;
+
 
     /**
      * The start date time value of the next pixel.
      */
     protected ZonedDateTime nextPixel;
-    protected ZonedDateTime nextSubPixel;
 
-    protected AggregatedDataPoint nextAggregateDatapoint = null;
+    protected AggregatedDataPoint aggregatedDatapoint = null;
+
     protected AggregateInterval subInterval;
+
+    protected boolean hasRemainder = false;
 
 
     public PixelAggregator(MultiSpanIterator multiSpanIterator, List<Integer> measures,
@@ -46,23 +51,40 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
 
     @Override
     public AggregatedDataPoint next() {
+        if(hasRemainder) return remainder();
         moveToNextPixel();
-        statsAggregator.clear();
-        while((nextSubPixel = nextSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit())).isBefore(nextPixel) && hasNext()) {
-            nextAggregateDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
-            statsAggregator.accept(nextAggregateDatapoint);
+        // While nextSubPixel is before the nextPixel
+        while((currentSubPixel
+                .plus(2 * subInterval.getInterval(), subInterval.getChronoUnit())
+                .isBefore(nextPixel) ||
+                currentSubPixel
+                .plus(2 * subInterval.getInterval(), subInterval.getChronoUnit())
+                .equals(nextPixel)) && hasNext()) {
+            aggregatedDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
+            currentSubPixel = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit());
+            statsAggregator.accept(aggregatedDatapoint);
             subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
         }
+        hasRemainder = !currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).equals(nextPixel);
         return this;
+    }
+
+    protected AggregatedDataPoint remainder() {
+        hasRemainder = false;
+        aggregatedDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
+        currentSubPixel = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit());
+        return new OverlappingDatapoint(aggregatedDatapoint, currentSubPixel);
     }
 
     protected void moveToNextPixel() {
         subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
+        statsAggregator.clear();
         if (currentPixel == null) {
-            nextAggregateDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
-            nextSubPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
-            currentPixel = DateTimeUtil.getIntervalStart(nextAggregateDatapoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
+            aggregatedDatapoint = (AggregatedDataPoint) multiSpanIterator.next();
+            currentSubPixel = DateTimeUtil.getIntervalStart(aggregatedDatapoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
+            currentPixel = DateTimeUtil.getIntervalStart(aggregatedDatapoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            statsAggregator.accept(aggregatedDatapoint);
         } else {
             currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
             nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
@@ -87,5 +109,37 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
     @Override
     public double[] getValues() {
         throw new UnsupportedOperationException();
+    }
+
+    private static class OverlappingDatapoint implements AggregatedDataPoint {
+
+        private final ZonedDateTime subPixel;
+        private final AggregatedDataPoint aggregatedDataPoint;
+
+        public OverlappingDatapoint(AggregatedDataPoint overlappingDatapoint,
+                                    ZonedDateTime overlappingSubPixel) {
+            aggregatedDataPoint = overlappingDatapoint;
+            subPixel = overlappingSubPixel;
+        }
+
+        @Override
+        public int getCount() {
+            return aggregatedDataPoint.getCount();
+        }
+
+        @Override
+        public Stats getStats() {
+            return aggregatedDataPoint.getStats();
+        }
+
+        @Override
+        public long getTimestamp() {
+            return subPixel.toInstant().toEpochMilli();
+        }
+
+        @Override
+        public double[] getValues() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

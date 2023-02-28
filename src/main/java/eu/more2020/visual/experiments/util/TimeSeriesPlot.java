@@ -3,10 +3,9 @@ package eu.more2020.visual.experiments.util;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.plotly.Plot;
 import tech.tablesaw.plotly.components.Figure;
+import tech.tablesaw.plotly.components.Grid;
 import tech.tablesaw.plotly.components.Layout;
-import tech.tablesaw.plotly.components.Margin;
 import tech.tablesaw.plotly.traces.ScatterTrace;
-import tech.tablesaw.plotly.traces.Trace;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +25,7 @@ public class TimeSeriesPlot {
                 .title(filePath + ": " + colName)
                 .height(600)
                 .width(960)
+                .grid(Grid.builder().rows(1).columns(1).build())
                 .build();
 
         ScatterTrace trace = ScatterTrace.builder(timeSeries.column(0), timeSeries.column(1))
