@@ -13,10 +13,16 @@ import java.time.temporal.ChronoUnit;
 public class DateTimeUtil {
 
     public static final ZoneId UTC = ZoneId.of("UTC");
-    public final static String DEFAULT_FORMAT = "yyyy-MM-dd[ HH:mm:ss]";
+    public final static String DEFAULT_FORMAT = "yyyy-MM-dd[ HH:mm:ss.SSS]";
     public final static DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_FORMAT);
     private static final Logger LOG = LoggerFactory.getLogger(DateTimeUtil.class);
     private static final  int[] millisDivisors = {1, 2, 4, 5, 8, 10, 20, 25, 40, 50, 100, 125, 200, 250, 500, 1000};
+
+
+    public static long parseDateTimeString(String s, String timeFormat) {
+        return LocalDateTime.parse(s, DateTimeFormatter.ofPattern(timeFormat)).atZone(UTC).toInstant().toEpochMilli();
+    }
+
 
     public static long parseDateTimeString(String s, DateTimeFormatter formatter, ZoneId zoneId) {
         return LocalDateTime.parse(s, formatter).atZone(zoneId).toInstant().toEpochMilli();
@@ -157,6 +163,7 @@ public class DateTimeUtil {
 
 
     public static int numberOfIntervals(final long startTime, final long endTime, AggregateInterval aggregateInterval, ZoneId zoneId) {
+        if(endTime == startTime) return 0;
         ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, aggregateInterval, zoneId);
         ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime - 1, aggregateInterval, zoneId);
         return (int) Math.ceil(aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / (double) aggregateInterval.getInterval()) + 1;

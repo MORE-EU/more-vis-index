@@ -1,4 +1,4 @@
-CREATE SCHEMA more;
+CREATE SCHEMA IF NOT EXISTS more;
 
 CREATE TABLE more.bebeze_tmp(
    datetime        TIMESTAMP NOT NULL PRIMARY KEY

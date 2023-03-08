@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class MultiSpanIterator<T> implements Iterator<T> {
+public class MultiSpanIterator<T> implements Iterator<T>, Cloneable {
 
     private final Iterator<Iterator<T>> iteratorChain;
     private final Iterator<Iterable<T>> iterableChain;
@@ -69,4 +69,5 @@ public class MultiSpanIterator<T> implements Iterator<T> {
     public Iterable<T> getCurrentIterable() {
         return currentIterable;
     }
+
 }

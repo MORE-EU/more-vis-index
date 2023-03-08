@@ -13,6 +13,7 @@ import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
 import eu.more2020.visual.experiments.util.InfluxDB.InitQueries.BEBEZE;
+import eu.more2020.visual.experiments.util.InfluxDB.InitQueries.INTEL_LAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +73,15 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                     .withType(BEBEZE.class)
                     .build();
             for (BEBEZE data : csvToBean) {
+                writeApi.writeMeasurement(WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("intel_lab")){
+            reader = new FileReader(path);
+            CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder(reader)
+                    .withType(INTEL_LAB.class)
+                    .build();
+            for (INTEL_LAB data : csvToBean) {
                 writeApi.writeMeasurement(WritePrecision.S, data);
             }
         }

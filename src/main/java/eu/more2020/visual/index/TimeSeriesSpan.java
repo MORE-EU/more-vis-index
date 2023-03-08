@@ -165,6 +165,8 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return getFromDate() + " - " + getToDate() + " " + aggregateInterval;
     }
 
+    public boolean hasData() { return getTo() == getFrom();}
+
     private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
 
         private Iterator<Integer> internalIt;

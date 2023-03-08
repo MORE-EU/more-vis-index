@@ -13,4 +13,8 @@ public class QueryUtils {
         return DateTimeUtil.parseDateTimeString(s);
     }
 
+    public static Long convertToEpoch(String s, String timeFormat) throws ParseException {
+        return DateTimeUtil.parseDateTimeString(s, timeFormat);
+    }
+
 }

@@ -1,5 +1,6 @@
 package eu.more2020.visual.domain;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -15,7 +16,7 @@ import java.util.function.Consumer;
  * safe and efficient parallel execution.
  * @since 1.8
  */
-public class StatsAggregator implements Consumer<DataPoint>, Stats {
+public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable {
 
     private List<Integer> measures;
     private int count = 0;

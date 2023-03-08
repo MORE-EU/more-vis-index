@@ -39,6 +39,7 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
         this.measures = measures;
     }
 
+    // TODO: Handle null values in columns.
     private CsvDataPoint nextResult() {
         try {
             String[] row = reader.parseNext();
@@ -47,7 +48,10 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
             }
             double[] values = new double[measures.size()];
             for (int i = 0; i < measures.size(); i++) {
-                values[i] = Double.parseDouble(row[measures.get(i)]);
+                try {
+                    values[i] = Double.parseDouble(row[measures.get(i)]);
+                }
+                catch (Exception e){ if(hasNext()) return  nextResult();}
             }
             return new CsvDataPoint(DateTimeUtil.parseDateTimeString(row[dataset.getTimeCol()], DateTimeFormatter.ofPattern(dataset.getTimeFormat()),
                     ZoneId.of("UTC")), values, reader.getLastRowReadOffset());

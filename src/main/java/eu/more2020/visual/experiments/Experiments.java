@@ -175,8 +175,12 @@ public class Experiments<T> {
 
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
+        List<String> measureNames = dataset.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+        String timeColName = dataset.getHeader()[dataset.getTimeCol()];
+
         TTI tti = new TTI(dataset);
         Query q0 = new Query(startTime, endTime, dataset.getMeasures(), filters, new ViewPort(800, 300));
+
         stopwatch.start();
         tti.initialize(q0);
         ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
@@ -251,11 +255,11 @@ public class Experiments<T> {
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
         ttiQueryResults.toMultipleCsv(ttiResultsPath);
         timeSeriesPlot.build(ttiResultsPath);
-
-        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
-        sqlQueryResults.toMultipleCsv(sqlResultsPath);
-        timeSeriesPlot.build(sqlResultsPath);
-
+//
+//        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
+//        sqlQueryResults.toMultipleCsv(sqlResultsPath);
+//        timeSeriesPlot.build(sqlResultsPath);
+//
 //        QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxQLQuery);
 //        influxDBQueryResults.toCsv(influxDBResultsPath);
 //        timeSeriesPlot.build(influxDBResultsPath);
@@ -277,6 +281,9 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
+        List<String> measureNames = dataset.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+        String timeColName = dataset.getHeader()[dataset.getTimeCol()];
+
         PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
         InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);

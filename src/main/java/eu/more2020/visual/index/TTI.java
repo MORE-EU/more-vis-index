@@ -10,14 +10,10 @@ import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.util.DateTimeUtil;
-import org.apache.commons.lang3.ArrayUtils;
-import org.eclipse.jetty.server.RequestLog;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -55,7 +51,6 @@ public class TTI {
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.accurateCalendarInterval(query.getFrom(),
                 query.getTo(), query.getViewPort(), accuracy));
 
-        Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         timeSeriesSpan.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
         intervalTree.insert(timeSeriesSpan);
         initialized = true;
@@ -74,7 +69,6 @@ public class TTI {
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
         if(!initialized) initialize(query);
-        System.out.println(query);
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
@@ -104,6 +98,7 @@ public class TTI {
                     return false;
                 })
                 .collect(Collectors.toList());
+
         // Calculate and add missing intervals
         overlappingIntervals.addAll(currentDifference[0].asRanges().stream()
                 .map(diff -> {
@@ -112,17 +107,20 @@ public class TTI {
                     span.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
                     intervalTree.insert(span);
                     return span;
-                }).collect(Collectors.toList()));
+                })
+                .filter(TimeSeriesSpan::hasData)
+                .collect(Collectors.toList()));
 
         MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
-        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval);
+        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
+        //SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
-        while(pixelAggregator.hasNext()){
+
+        while(pixelAggregator.hasNext()) {
             AggregatedDataPoint next = pixelAggregator.next();
-            System.out.println(next.getTimestamp());
             Stats stats = next.getStats();
             if (stats.getCount() != 0) {
                 for (int measure : measures) {

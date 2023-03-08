@@ -62,7 +62,7 @@ public class BEBEZE {
         @Override
         public Instant convert(String s) {
             try {
-                return Instant.ofEpochMilli(QueryUtils.convertToEpoch(s));
+                return Instant.ofEpochMilli(QueryUtils.convertToEpoch(s, "yyyy-MM-dd[ HH:mm:ss]"));
             } catch (ParseException e) {
                 e.printStackTrace();
             }

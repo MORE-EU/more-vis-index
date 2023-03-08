@@ -26,7 +26,7 @@ public class SQLQuery extends AbstractQuery<Integer, String>{
                 "FROM :tableName \n" +
                 "WHERE date_part('epoch', :timeCol ) * 1000 >= :from AND date_part('epoch', :timeCol ) * 1000 <= :to \n" +
                 "AND id IN (" + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") \n" +
-                "GROUP BY k, id ) as QA \n"+
+                "GROUP BY id, k ) as QA \n"+
                 "ON k =  abs(round(:width * ((date_part('epoch', :timeCol ) * 1000)  - :from ) / (:to - :from ))) \n" +
                 "AND QA.id = Q.id \n" +
                 "AND (value = v_min OR value = v_max OR \n" +
