@@ -250,11 +250,11 @@ public class Experiments<T> {
 
         QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
         rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
-        timeSeriesPlot.build(rawTTiResultsPath);
+//        timeSeriesPlot.build(rawTTiResultsPath);
 
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
         ttiQueryResults.toMultipleCsv(ttiResultsPath);
-        timeSeriesPlot.build(ttiResultsPath);
+//        timeSeriesPlot.build(ttiResultsPath);
 //
 //        QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
 //        sqlQueryResults.toMultipleCsv(sqlResultsPath);

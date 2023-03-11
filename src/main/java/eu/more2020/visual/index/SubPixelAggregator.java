@@ -3,7 +3,9 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.apache.commons.lang3.SerializationUtils;
+import org.xbill.DNS.Zone;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
@@ -44,6 +46,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         statsAggregator = new StatsAggregator(measures);
     }
 
+
     @Override
     public boolean hasNext() {
         return multiSpanIterator.hasNext();
@@ -53,7 +56,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     public PixelAggregatedDataPoint next() {
         if(hasRemainder) return remainder();
         moveToNextPixel();
-        // While next sub pixel is before the next pixel
+        // While next sub pixel is to the left of the next pixel
         while((currentSubPixel
                 .plus(2 * subInterval.getInterval(), subInterval.getChronoUnit())
                 .isBefore(nextPixel) ||
@@ -75,7 +78,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         statsAggregator.clear();
         statsAggregator.accept(aggregatedDataPoint);
         currentSubPixel = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit());
-        return new OverlappingDatapoint(this);
+        return new SubPixelDatapoint(this);
     }
 
     private void moveToNextPixel() {
@@ -132,11 +135,11 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     }
 
     public PixelAggregatedDataPoint persist() {
-        return new OverlappingDatapoint(this);
+        return new SubPixelDatapoint(this);
     }
 
     @Override
-    public boolean overlaps() {
+    public boolean isOverlapping() {
         long currentSubPixelEnd = currentSubPixel
                 .plus(subInterval.getInterval(), subInterval.getChronoUnit())
                 .toInstant().toEpochMilli();
@@ -145,7 +148,22 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         return nextPixelStart < currentSubPixelEnd;
     }
 
-    private static class OverlappingDatapoint implements PixelAggregatedDataPoint {
+    @Override
+    public boolean startsBefore(ZonedDateTime zonedDateTime) {
+        return this.currentSubPixel.isBefore(zonedDateTime);
+    }
+
+    @Override
+    public boolean endsBefore(ZonedDateTime zonedDateTime) {
+        return this.currentSubPixel.plus(this.subInterval.getInterval(), this.subInterval.getChronoUnit()).isBefore(zonedDateTime);
+    }
+
+    @Override
+    public boolean endsAfter(ZonedDateTime zonedDateTime) {
+        return this.currentSubPixel.plus(this.subInterval.getInterval(), this.subInterval.getChronoUnit()).isAfter(zonedDateTime);
+    }
+
+    private static class SubPixelDatapoint implements PixelAggregatedDataPoint {
 
         private final ZonedDateTime subPixel;
         private final ZonedDateTime currentPixel;
@@ -155,12 +173,12 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private Stats stats;
 
-        public OverlappingDatapoint(SubPixelAggregator subPixelAggregator){
+        public SubPixelDatapoint(SubPixelAggregator subPixelAggregator){
             this(subPixelAggregator.getStats(), subPixelAggregator.getInterval(), subPixelAggregator.getSubPixel(),
                     subPixelAggregator.getPixel(), subPixelAggregator.getNextPixel());
         }
 
-        private OverlappingDatapoint(Stats stats, AggregateInterval subInterval,
+        private SubPixelDatapoint(Stats stats, AggregateInterval subInterval,
                                   ZonedDateTime subPixel, ZonedDateTime currentPixel, ZonedDateTime nextPixel) {
             this.stats = SerializationUtils.clone((StatsAggregator) stats);
             this.subPixel = subPixel;
@@ -214,12 +232,27 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         }
 
         @Override
-        public boolean overlaps() {
+        public boolean isOverlapping() {
             long currentSubPixelEnd = subPixel
                     .plus(interval.getInterval(), interval.getChronoUnit())
                     .toInstant().toEpochMilli();
             long nextPixelStart = nextPixel.toInstant().toEpochMilli();
             return nextPixelStart < currentSubPixelEnd;
+        }
+
+        @Override
+        public boolean startsBefore(ZonedDateTime zonedDateTime) {
+            return this.subPixel.isBefore(zonedDateTime);
+        }
+
+        @Override
+        public boolean endsBefore(ZonedDateTime zonedDateTime) {
+            return this.subPixel.plus(this.interval.getInterval(), this.interval.getChronoUnit()).isBefore(zonedDateTime);
+        }
+
+        @Override
+        public boolean endsAfter(ZonedDateTime zonedDateTime) {
+            return this.subPixel.plus(this.interval.getInterval(), this.interval.getChronoUnit()).isAfter(zonedDateTime);
         }
     }
 }

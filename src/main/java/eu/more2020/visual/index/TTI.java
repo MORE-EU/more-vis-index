@@ -113,11 +113,10 @@ public class TTI {
 
         MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
         PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
-        //SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
+//        SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
-
 
         while(pixelAggregator.hasNext()) {
             AggregatedDataPoint next = pixelAggregator.next();

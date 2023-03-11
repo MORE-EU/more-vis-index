@@ -5,9 +5,7 @@ import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PixelAggregator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
 
@@ -18,14 +16,14 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
     private final List<Integer> measures;
     private final AggregateInterval m4Interval;
     private final ViewPort viewport;
-    private final List<PixelColumnErrorAggregator> errors = new ArrayList<>();
+    private final Queue<PixelAggregatedDataPoint> processedDataPoints;
+    private final List<PixelColumnErrorAggregator> errors;
 
     private int currentPixelColumn;
-    private PixelColumnErrorAggregator pixelColumnErrorAggregator;
 
     private ZonedDateTime currentPixel;
     private ZonedDateTime nextPixel;
-
+    private boolean finishedIt = false;
 
     public PixelAggregator(MultiSpanIterator multiSpanIterator, List<Integer> measures,
                            AggregateInterval m4Interval, ViewPort viewport) {
@@ -33,8 +31,10 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         this.m4Interval = m4Interval;
         this.viewport = viewport;
         this.statsAggregator = new StatsAggregator(measures);
-        this.pixelColumnErrorAggregator = new PixelColumnErrorAggregator(measures);
+        this.processedDataPoints = new LinkedList<>();
+        this.errors =  new ArrayList<>(viewport.getWidth());
         calculateStats(multiSpanIterator);
+        for(int i = 0; i < viewport.getWidth(); i++) this.errors.add(new PixelColumnErrorAggregator(measures, statsAggregator, viewport.getHeight()));
     }
 
     private void calculateStats(MultiSpanIterator multiSpanIterator) {
@@ -50,25 +50,53 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
 
     @Override
     public boolean hasNext() {
-        return pixelAggregatedDataPointIterator.hasNext();
+        return (!processedDataPoints.isEmpty() || pixelAggregatedDataPointIterator.hasNext());
     }
 
+    public PixelAggregatedDataPoint getNext() {
+        if(!processedDataPoints.isEmpty()) return processedDataPoints.poll();
+        if(pixelAggregatedDataPointIterator.hasNext()) return pixelAggregatedDataPointIterator.next();
+        throw new NoSuchElementException();
+    }
+
+    private void updatePixelColumnStats() {
+        if (currentPixelColumn != 0) // update prev error for intra col
+            errors.get(currentPixelColumn - 1).accept(errors.get(currentPixelColumn));
+        if ((currentPixelColumn != viewport.getWidth() - 1) && pixelAggregatedDataPoint.isOverlapping()) // update next error for inner col when overlapping
+            errors.get(currentPixelColumn + 1).accept(pixelAggregatedDataPoint);
+    }
 
     @Override
     public AggregatedDataPoint next() {
+        // get current pixel data
         moveToNextPixel();
-        return pixelAggregatedDataPoint;
+        while(pixelAggregatedDataPoint.startsBefore(nextPixel) && pixelAggregatedDataPointIterator.hasNext()) {
+            processedDataPoints.add(pixelAggregatedDataPoint);
+            errors.get(currentPixelColumn).accept(pixelAggregatedDataPoint);
+            pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
+        }
+        // add last point if finished
+        if(!pixelAggregatedDataPointIterator.hasNext() && !finishedIt){
+            processedDataPoints.add(pixelAggregatedDataPoint);
+            finishedIt = true;
+        }
+        updatePixelColumnStats();
+        return getNext();
     }
 
     private void moveToNextPixel() {
         if (currentPixel == null) {
+            currentPixelColumn = 0;
             pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
             currentPixel = DateTimeUtil.getIntervalStart(pixelAggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            pixelColumnErrorAggregator.accept(pixelAggregatedDataPoint);
         } else {
-            currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            // move pixel only if sub pixel aggregation is not complete
+            if(!pixelAggregatedDataPoint.startsBefore(nextPixel) && pixelAggregatedDataPointIterator.hasNext()) {
+                currentPixelColumn++;
+                currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+                nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            }
         }
     }
 
