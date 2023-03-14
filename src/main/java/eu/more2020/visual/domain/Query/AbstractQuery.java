@@ -1,5 +1,6 @@
 package eu.more2020.visual.domain.Query;
 
+import eu.more2020.visual.domain.Aggregator;
 import eu.more2020.visual.domain.TimeInterval;
 import eu.more2020.visual.domain.ViewPort;
 import org.apache.hadoop.thirdparty.org.checkerframework.checker.units.qual.K;
@@ -7,31 +8,48 @@ import org.apache.hadoop.thirdparty.org.checkerframework.checker.units.qual.K;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class AbstractQuery<T, K> implements TimeInterval {
+public abstract class AbstractQuery implements TimeInterval {
 
     final long from;
     final long to;
     final HashMap<Integer, Double[]> filters;
     final ViewPort viewPort;
-    K timeColumn;
-    List<T> measures;
+    Integer timeColumn;
+    List<Integer> measures;
 
-    public AbstractQuery(long from, long to, List<T> measures, HashMap<Integer, Double[]> filters, ViewPort viewPort) {
+    //  the OLAP-type group-by resolution as a ChronoUnit (e.g. ChronoUnit.HOURS)
+    ChronoField groupByField;
+
+    Aggregator groupByAggregator;
+
+    public AbstractQuery(long from, long to, List<Integer> measures, HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
         this.from = from;
         this.to = to;
         this.filters = filters;
         this.measures = measures;
         this.viewPort = viewPort;
+        this.groupByField = groupByField;
     }
 
-    public AbstractQuery(long from, long to, List<T> measures, K timeColumn, HashMap<Integer, Double[]> filters, ViewPort viewPort) {
+    public AbstractQuery(long from, long to, List<Integer> measures, Integer timeColumn, HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
         this.from = from;
         this.to = to;
         this.filters = filters;
         this.timeColumn = timeColumn;
+        this.measures = measures;
+        this.viewPort = viewPort;
+        this.groupByField = groupByField;
+    }
+
+    public AbstractQuery(long from, long to, List<Integer> measures, Integer timeColumn, HashMap<Integer, Double[]> filters, ViewPort viewPort) {
+        this.from = from;
+        this.to = to;
+        this.filters = filters;
         this.measures = measures;
         this.viewPort = viewPort;
     }
@@ -75,10 +93,25 @@ public abstract class AbstractQuery<T, K> implements TimeInterval {
         return viewPort;
     }
 
-    public List<T> getMeasures() {
+    public List<Integer> getMeasures() {
         return measures;
     }
 
-    public K getTimeColumn() {return timeColumn;}
+    public Integer getTimeColumn() {return timeColumn;}
 
+    public ChronoField getGroupByField() {
+        return groupByField;
+    }
+
+    public void setGroupByResolution(ChronoField groupByField) {
+        this.groupByField = groupByField;
+    }
+
+    public Aggregator getGroupByAggregator() {
+        return groupByAggregator;
+    }
+
+    public void setGroupByAggregator(Aggregator groupByAggregator) {
+        this.groupByAggregator = groupByAggregator;
+    }
 }

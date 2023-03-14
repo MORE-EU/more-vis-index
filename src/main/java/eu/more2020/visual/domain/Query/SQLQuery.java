@@ -2,16 +2,17 @@ package eu.more2020.visual.domain.Query;
 
 import eu.more2020.visual.domain.ViewPort;
 
+import java.time.temporal.ChronoField;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SQLQuery extends AbstractQuery<Integer, String>{
+public class SQLQuery extends AbstractQuery{
 
 
-    public SQLQuery(long from, long to, List<Integer> measures, String timeColumn,
-                    HashMap<Integer, Double[]> filters, ViewPort viewPort) {
-        super(from, to, measures, timeColumn, filters, viewPort);
+    public SQLQuery(long from, long to, List<Integer> measures, int timeColumn,
+                    HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField chronoField) {
+        super(from, to, measures, timeColumn, filters, viewPort, chronoField);
     }
 
 
@@ -34,14 +35,5 @@ public class SQLQuery extends AbstractQuery<Integer, String>{
                 "AND date_part('epoch', :timeCol ) * 1000 >= :from AND date_part('epoch', :timeCol ) * 1000 <= :to";
     }
 
-    @Override
-    public String getTimeColumn() {
-        return timeColumn;
-    }
-
-    @Override
-    public List<Integer> getMeasures() {
-        return measures;
-    }
 
 }

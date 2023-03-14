@@ -9,6 +9,7 @@ import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
+import eu.more2020.visual.experiments.util.GroupByEvaluator;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.Duration;
@@ -25,7 +26,15 @@ public class TTI {
     private final DataSource dataSource;
 
     private final float accuracy = 0.9f;
-
+    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
+        @Override
+        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
+            if (s1 == null && s2 == null) return 0;//swapping has no point here
+            if (s1 == null) return 1;
+            if (s2 == null) return -1;
+            return (int) (s1.getTimestamp() - s2.getTimestamp());
+        }
+    };
     private boolean initialized = false;
     // The interval tree containing all the time series spans already cached
     private IntervalTree<TimeSeriesSpan> intervalTree;
@@ -41,7 +50,6 @@ public class TTI {
         this.dataSource = DataSourceFactory.getDataSource(dataset);
     }
 
-
     public void initialize(Query query) {
         intervalTree = new IntervalTree<>();
         List<Integer> measures = query == null || query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
@@ -56,23 +64,14 @@ public class TTI {
         initialized = true;
     }
 
-    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
-        @Override
-        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
-            if (s1==null && s2==null) return 0;//swapping has no point here
-            if (s1==null) return  1;
-            if (s2==null) return -1;
-            return (int) (s1.getTimestamp() - s2.getTimestamp());
-        }
-    };
-
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
-        if(!initialized) initialize(query);
+        if (!initialized) initialize(query);
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
-        accurateInterval = accurateInterval.toMillis() < dataset.getSamplingInterval().toMillis() ? dataset.getSamplingInterval() : accurateInterval;
+        accurateInterval = accurateInterval.toMillis() < dataset.getSamplingInterval()
+                .toMillis() ? dataset.getSamplingInterval() : accurateInterval;
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
 
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
@@ -88,7 +87,8 @@ public class TTI {
 //                .sorted(Comparator.comparingDouble(span -> span.getAggregateInterval().toDuration().toMillis()))
                 .sorted(Comparator.comparing(span -> span.percentage(query), Comparator.reverseOrder()))
                 .filter(span -> {
-                    if(currentDifference[0].isEmpty()) return false; // If the difference has been covered, don't check.
+                    if (currentDifference[0].isEmpty())
+                        return false; // If the difference has been covered, don't check.
                     rangeSet.add(Range.closed(span.getFrom(), span.getTo()));
                     ImmutableRangeSet<Long> newDifference = currentDifference[0].difference(rangeSet);
                     if (!currentDifference[0].equals(newDifference)) { // If the current span, added to the difference, keep it.
@@ -111,14 +111,19 @@ public class TTI {
                 .filter(TimeSeriesSpan::hasData)
                 .collect(Collectors.toList()));
 
-        MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
+
+        GroupByEvaluator groupByEvaluator = query.getGroupByField() != null
+                ? new GroupByEvaluator(measures, query.getGroupByField())
+                : null;
+
+        MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
+
         PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
-//        SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
-        while(pixelAggregator.hasNext()) {
+        while (pixelAggregator.hasNext()) {
             AggregatedDataPoint next = pixelAggregator.next();
             Stats stats = next.getStats();
             if (stats.getCount() != 0) {

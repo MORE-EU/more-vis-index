@@ -1,18 +1,21 @@
 package eu.more2020.visual.domain.Query;
 
+import eu.more2020.visual.domain.Aggregator;
 import eu.more2020.visual.domain.ViewPort;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 
-public class Query extends AbstractQuery<Integer, Integer> {
+public class Query extends AbstractQuery {
 
 
-    public Query(long from, long to, List<Integer> measures, HashMap<Integer, Double[]> filters, ViewPort viewPort) {
-       super(from, to, measures, filters, viewPort);
+    public Query(long from, long to, List<Integer> measures, HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
+       super(from, to, measures, filters, viewPort, groupByField);
     }
 
     @Override

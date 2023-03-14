@@ -1,13 +1,18 @@
 package eu.more2020.visual.domain;
 
 import com.opencsv.CSVWriter;
-import org.apache.hadoop.util.hash.Hash;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
+import java.util.List;
+import java.util.Map;
 
 public class QueryResults implements Serializable {
 
@@ -18,6 +23,9 @@ public class QueryResults implements Serializable {
     private Map<Integer, DoubleSummaryStatistics> measureStats;
 
     private List<LocalDateTime> timeRange = new ArrayList<>();
+
+    private Map<Integer, StatsAggregator> groupByResults;
+
 
     private int ioCount = 0;
 
@@ -45,6 +53,14 @@ public class QueryResults implements Serializable {
         this.measureStats = measureStats;
     }
 
+    public Map<Integer, StatsAggregator> getGroupByResults() {
+        return groupByResults;
+    }
+
+    public void setGroupByResults(Map<Integer, StatsAggregator> groupByResults) {
+        this.groupByResults = groupByResults;
+    }
+
     public int getIoCount() {
         return ioCount;
     }
@@ -53,7 +69,7 @@ public class QueryResults implements Serializable {
         this.ioCount = ioCount;
     }
 
-    public void toCsv(String path){
+    public void toCsv(String path) {
         File file = new File(path);
         try {
             // create FileWriter object with file as parameter
@@ -83,16 +99,15 @@ public class QueryResults implements Serializable {
                 for (UnivariateDataPoint dataPoint : dataPoints) {
                     rows[row][0] = String.valueOf(dataPoint.getTimestamp());
                     rows[row][col] = String.valueOf(dataPoint.getValue());
-                    row ++;
+                    row++;
                 }
-                col ++;
+                col++;
             }
-            for (int row = 0; row < noOfRows; row ++)
+            for (int row = 0; row < noOfRows; row++)
                 writer.writeNext(rows[row], false);
             // closing writer connection
             writer.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -128,19 +143,18 @@ public class QueryResults implements Serializable {
                     writer.writeNext(rows[row], false);
                 writer.close();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-        @Override
+    @Override
     public String toString() {
         return "QueryResults{" +
-            "data=" + data +
-            ", measureStats=" + measureStats +
-            ", timeRange=" + timeRange +
-            ", ioCount=" + ioCount +
-            '}';
+                "data=" + data +
+                ", measureStats=" + measureStats +
+                ", timeRange=" + timeRange +
+                ", ioCount=" + ioCount +
+                '}';
     }
 }
