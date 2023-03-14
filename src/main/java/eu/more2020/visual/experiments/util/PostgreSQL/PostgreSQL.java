@@ -33,7 +33,6 @@ public class PostgreSQL {
             LOG.info("Initialized PostgreSQL connection");
         } catch (Exception e) {
             LOG.error(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         }
     }
     public SQLQueryExecutor createQueryExecutor(String path, String table) {

@@ -96,7 +96,7 @@ public class SQLQueryExecutor implements  QueryExecutor{
         HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
         String sql = q.m4QuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setString("timeCol", q.getTimeColumn());
+        preparedStatement.setString("timeCol", q.getTimeColName());
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
         preparedStatement.setInt("width", 800);

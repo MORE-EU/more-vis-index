@@ -13,9 +13,13 @@ import java.util.List;
 
 public class Query extends AbstractQuery {
 
-
-    public Query(long from, long to, List<Integer> measures, HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
-       super(from, to, measures, filters, viewPort, groupByField);
+    public Query(long from, long to, List<Integer> measures,
+                 HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
+        super(from, to, measures, filters, viewPort, groupByField);
+    }
+    public Query(long from, long to, List<Integer> measures, Integer timeCol,
+                 HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
+       super(from, to, measures, timeCol, filters, viewPort, groupByField);
     }
 
     @Override

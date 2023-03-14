@@ -9,12 +9,13 @@ import java.util.stream.Collectors;
 
 public class SQLQuery extends AbstractQuery{
 
+    String timeColName;
 
-    public SQLQuery(long from, long to, List<Integer> measures, int timeColumn,
+    public SQLQuery(long from, long to, List<Integer> measures, String timeColumn,
                     HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField chronoField) {
-        super(from, to, measures, timeColumn, filters, viewPort, chronoField);
+        super(from, to, measures, filters, viewPort, chronoField);
+        this.timeColName = timeColumn;
     }
-
 
     @Override
     public String m4QuerySkeleton() {
@@ -35,5 +36,7 @@ public class SQLQuery extends AbstractQuery{
                 "AND date_part('epoch', :timeCol ) * 1000 >= :from AND date_part('epoch', :timeCol ) * 1000 <= :to";
     }
 
-
+    public String getTimeColName() {
+        return timeColName;
+    }
 }

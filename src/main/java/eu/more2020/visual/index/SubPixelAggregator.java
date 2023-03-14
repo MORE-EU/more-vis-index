@@ -171,7 +171,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private final AggregateInterval interval;
 
-        private Stats stats;
+        private final Stats stats;
 
         public SubPixelDatapoint(SubPixelAggregator subPixelAggregator){
             this(subPixelAggregator.getStats(), subPixelAggregator.getInterval(), subPixelAggregator.getSubPixel(),

@@ -10,6 +10,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -54,9 +55,11 @@ public class QuerySequenceGenerator {
         List<String> measures = q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
         String timeColumn = dataset.getHeader()[dataset.getTimeCol()];
 
+        ChronoField groupByField = ChronoField.DAY_OF_MONTH;
+
         queries.add(q0);
-        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort()));
-        queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), measures, timeColumn, q0.getFilters(), q0.getViewPort()));
+        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort(), groupByField));
+        queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), measures, timeColumn, q0.getFilters(), q0.getViewPort(), groupByField));
         Query ttiQuery = q0;
         System.out.println(new TimeRange(q0.getFrom(), q0.getTo()));
         for (int i = 0; i < count - 1; i++) {
@@ -75,9 +78,10 @@ public class QuerySequenceGenerator {
             int filterCount = filterCounts[i];
 //            System.out.println("Range: " + timeRange + " OP: " + opType + " shift: " + shifts[i] + " direction: " + directions[i]);
 
-            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort());
-            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort());
-            InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), measures, timeColumn, filters, q0.getViewPort());
+            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(),
+                    q0.getTimeColumn(), filters, q0.getViewPort(), groupByField);
+            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort(), groupByField);
+            InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), measures, timeColumn, filters, q0.getViewPort(), groupByField);
 
             queries.add(ttiQuery);
             queries.add(sqlQuery);

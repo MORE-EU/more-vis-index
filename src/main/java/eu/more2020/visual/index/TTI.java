@@ -74,6 +74,8 @@ public class TTI {
                 .toMillis() ? dataset.getSamplingInterval() : accurateInterval;
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
 
+        System.out.println(optimalM4AggInterval);
+        System.out.println(accurateAggInterval);
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
         QueryResults queryResults = new QueryResults();
 
@@ -119,6 +121,7 @@ public class TTI {
         MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
 
         PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
+//        SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));

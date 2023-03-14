@@ -13,10 +13,14 @@ public class InfluxQLQuery extends AbstractQuery {
 
 
     private AggregateInterval aggregateInterval;
+    private List<String> measures;
+    private String timeColumn;
 
-    public InfluxQLQuery(long from, long to, List<Integer> measures, Integer timeColumn,
+    public InfluxQLQuery(long from, long to, List<String> measures, String timeColumn,
                          HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
-        super(from, to, measures, timeColumn, filters, viewPort);
+        super(from, to, viewPort, groupByField);
+        this.measures = measures;
+        this.timeColumn = timeColumn;
         this.aggregateInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.optimalM4(from, to, viewPort));
     }
 
@@ -81,13 +85,6 @@ public class InfluxQLQuery extends AbstractQuery {
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                         "\") |> aggregateWindow(every: " + getAggregateWindow() + ", fn: max, createEmpty: false)" +
                         "|> yield(name: \"max\")");
-//               + ("from(bucket:\"%s\") " +
-//                        "|> range(start:%s, stop:%s) " +
-//                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
-//                        "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-//                        measures.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-//                        "\") |> aggregateWindow(every: 6h, fn: mean, createEmpty: false)" +
-//                        "|> yield(name: \"mean\")");
     }
 
 

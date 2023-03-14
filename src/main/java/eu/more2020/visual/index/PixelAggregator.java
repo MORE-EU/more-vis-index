@@ -17,7 +17,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
     private final AggregateInterval m4Interval;
     private final ViewPort viewport;
     private final Queue<PixelAggregatedDataPoint> processedDataPoints;
-    private final TotalErrorAggregator totalErrorAggregator;
+    private final TotalErrorEvaluator totalErrorEvaluator;
 
     private ZonedDateTime currentPixel;
     private ZonedDateTime nextPixel;
@@ -30,7 +30,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         this.viewport = viewport;
         this.statsAggregator = new StatsAggregator(measures);
         this.processedDataPoints = new LinkedList<>();
-        this.totalErrorAggregator = new TotalErrorAggregator(statsAggregator, measures, viewport, m4Interval);
+        this.totalErrorEvaluator = new TotalErrorEvaluator(statsAggregator, measures, viewport, m4Interval);
         calculateStats(multiSpanIterator);
     }
 
@@ -39,6 +39,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         SubPixelAggregator subPixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, m4Interval, viewport);
         while (subPixelAggregator.hasNext()) {
             PixelAggregatedDataPoint next = subPixelAggregator.next().persist();
+            System.out.println(next.getStats().getMinValue(4));
             aggregatedDataPoints.add(next);
             statsAggregator.accept(next);
         }
@@ -62,7 +63,7 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         moveToNextPixel();
         while(pixelAggregatedDataPoint.startsBefore(nextPixel) && pixelAggregatedDataPointIterator.hasNext()) {
             processedDataPoints.add(pixelAggregatedDataPoint);
-            totalErrorAggregator.accept(pixelAggregatedDataPoint);
+            totalErrorEvaluator.accept(pixelAggregatedDataPoint);
             pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
         }
         // add last point if finished
@@ -70,7 +71,8 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
             processedDataPoints.add(pixelAggregatedDataPoint);
             finishedIt = true;
         }
-        totalErrorAggregator.update();
+        totalErrorEvaluator.update();
+        System.out.println(totalErrorEvaluator.getError(0));
         return getNext();
     }
 
@@ -79,13 +81,13 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
             pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
             currentPixel = DateTimeUtil.getIntervalStart(pixelAggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            totalErrorAggregator.initialize(currentPixel);
+            totalErrorEvaluator.initialize(currentPixel);
         } else {
             // move pixel only if sub pixel aggregation is not complete
             if(!pixelAggregatedDataPoint.startsBefore(nextPixel) && pixelAggregatedDataPointIterator.hasNext()) {
                 currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
                 nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-                totalErrorAggregator.add(nextPixel);
+                totalErrorEvaluator.add(nextPixel);
             }
         }
     }

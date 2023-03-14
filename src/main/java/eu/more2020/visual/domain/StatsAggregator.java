@@ -20,11 +20,11 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
 
     private List<Integer> measures;
     private int count = 0;
-    private double[] sums;
-    private double[] minValues;
-    private long[] minTimestamps;
-    private double[] maxValues;
-    private long[] maxTimestamps;
+    private final double[] sums;
+    private final double[] minValues;
+    private final long[] minTimestamps;
+    private final double[] maxValues;
+    private final long[] maxTimestamps;
 
 
     public StatsAggregator(List<Integer> measures) {

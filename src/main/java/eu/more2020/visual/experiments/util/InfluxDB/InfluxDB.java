@@ -58,7 +58,6 @@ public class InfluxDB {
         } catch
         (Exception e) {
             LOG.error(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
         }
     }
 
