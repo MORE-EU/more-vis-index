@@ -13,7 +13,6 @@ import eu.more2020.visual.experiments.util.GroupByEvaluator;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -59,7 +58,7 @@ public class TTI {
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.accurateCalendarInterval(query.getFrom(),
                 query.getTo(), query.getViewPort(), accuracy));
 
-        timeSeriesSpan.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
+        timeSeriesSpan.build(dataPoints, accurateAggInterval);
         intervalTree.insert(timeSeriesSpan);
         initialized = true;
     }
@@ -106,7 +105,7 @@ public class TTI {
                 .map(diff -> {
                     DataPoints dataPoints = dataSource.getDataPoints(diff.lowerEndpoint(), diff.upperEndpoint(), measures);
                     TimeSeriesSpan span = new TimeSeriesSpan();
-                    span.build(dataPoints, accurateAggInterval, ZoneId.of("UTC"));
+                    span.build(dataPoints, accurateAggInterval);
                     intervalTree.insert(span);
                     return span;
                 })
