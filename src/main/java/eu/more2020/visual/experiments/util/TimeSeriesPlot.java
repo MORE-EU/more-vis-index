@@ -6,19 +6,19 @@ import tech.tablesaw.plotly.components.*;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 
 public class TimeSeriesPlot {
 
-    public TimeSeriesPlot() {}
+    private final String outFolder;
+    public TimeSeriesPlot(String outFolder) {
+        this.outFolder = outFolder;
+    }
 
     public void plot(String filePath) throws IOException {
         Table timeSeries = Table.read().csv(filePath);
         String colName  = timeSeries.column(1).name();
-        String name = filePath.replace(".csv", "").replace("/", "");
+        String name = filePath.replace(".csv", "").replace(outFolder, "");
 
 
         Axis xAxis = Axis.builder().showGrid(false).visible(false).build();
@@ -43,7 +43,7 @@ public class TimeSeriesPlot {
                                 .build())
                 .build();
 
-        String htmlFileName = name + ".html";
+        String htmlFileName = Paths.get(outFolder, name + ".html").toString();
         Plot.show(new Figure(layout, trace), new File(htmlFileName));
     }
 

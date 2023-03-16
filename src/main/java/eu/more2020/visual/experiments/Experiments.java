@@ -21,6 +21,7 @@ import eu.more2020.visual.index.TTI;
 import eu.more2020.visual.experiments.util.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.experiments.util.PostgreSQL.PostgreSQL;
 import eu.more2020.visual.experiments.util.QueryExecutor.SQLQueryExecutor;
+import org.apache.commons.io.FileUtils;
 import org.ehcache.sizeof.SizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.temporal.ChronoField;
 import java.util.*;
@@ -84,8 +86,8 @@ public class Experiments<T> {
     @Parameter(names = "-c", required = true)
     private String command;
 
-    @Parameter(names = "-out", description = "The output file")
-    private String outFile;
+    @Parameter(names = "-out", description = "The output folder")
+    private String outFolder;
 
     @Parameter(names = "-initMode")
     private String initMode;
@@ -136,7 +138,9 @@ public class Experiments<T> {
     }
 
     private void run() throws IOException, ClassNotFoundException, SQLException {
-        SyntheticDatasetGenerator generator;
+        Preconditions.checkNotNull(path, "You must define the input path.");
+        Preconditions.checkNotNull(outFolder,"No out folder specified.");
+        initOutput();
         switch (command) {
             case "timeInitialization":
                 timeInitialization();
@@ -144,32 +148,19 @@ public class Experiments<T> {
             case "timeQueries":
                 timeQueries();
                 break;
-            case "synth10":
-                generator = new SyntheticDatasetGenerator(100000000, 10, 10, outFile);
-                generator.generate();
-                break;
             case "plot":
                 plotQuery();
-                break;
-            case "synth50":
-                List<Integer> catCols = new ArrayList<>();
-                for (int i = 10; i < 30; i++) {
-                    catCols.add(i);
-                }
-                generator = new SyntheticDatasetGenerator(100000000, 50, 10, outFile);
-                generator.generate();
                 break;
             default:
         }
     }
 
     private void timeInitialization() throws IOException, ClassNotFoundException, SQLException {
-        Preconditions.checkNotNull(path, "You must define the input path.");
-        Preconditions.checkNotNull(outFile, "No out file specified.");
+
         double ttiTime = 0, postgreSQLTime = 0, influxDBTime = 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-        boolean addHeader = new File(outFile).length() == 0;
-
+        File outFile = Paths.get(outFolder, "timeInitialization.csv").toFile();
+        boolean addHeader = outFile.length() == 0;
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
 
         long memorySize = 0;
@@ -209,10 +200,8 @@ public class Experiments<T> {
         }
 
         stopwatch.reset();
-        try {
-            memorySize = sizeOf.deepSizeOf(tti);
-        } catch (Exception e) {
-        }
+
+        memorySize = tti.calculateDeepMemorySize();
 
         if (addHeader) {
             csvWriter.writeHeaders("dataset", "mode", "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
@@ -229,14 +218,12 @@ public class Experiments<T> {
     }
 
     private void plotQuery() throws IOException, SQLException {
-        Preconditions.checkNotNull(path, "You must define the input path.");
-        Preconditions.checkNotNull(outFile, "No out file specified.");
-
-        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-        String rawTTiResultsPath = "rawResults";
-        String ttiResultsPath = "ttiResults";
-        String sqlResultsPath = "sqlResults";
-        String influxDBResultsPath = "influxDBResults";
+        String plotFolder = "plotQuery";
+        recreateDir(Paths.get(outFolder, plotFolder).toString());
+        String rawTTiResultsPath = Paths.get(outFolder,"plotQuery", "rawResults").toString();
+        String ttiResultsPath = Paths.get(outFolder, "plotQuery", "ttiResults").toString();
+        String sqlResultsPath = Paths.get(outFolder, "plotQuery", "sqlResults").toString();
+        String influxDBResultsPath = Paths.get(outFolder, "plotQuery", "influxDBResults").toString();
 
         AbstractDataset dataset = createDataset();
         Query ttiQuery = new Query(startTime, endTime, dataset.getMeasures(),
@@ -254,7 +241,7 @@ public class Experiments<T> {
         SQLQuery sqlQuery = new SQLQuery(startTime, endTime, dataset.getMeasures(), timeColName, filters, new ViewPort(800, 300), null);
         InfluxQLQuery influxQLQuery = new InfluxQLQuery(startTime, endTime, measureNames, timeColName, filters, new ViewPort(800, 300), null);
 
-        TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot();
+        TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot(Paths.get(outFolder, plotFolder).toString());
 
         QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
         rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
@@ -278,16 +265,10 @@ public class Experiments<T> {
     }
 
     private void timeQueries() throws IOException, SQLException {
-        Preconditions.checkNotNull(path, "You must define the input path.");
-        Preconditions.checkNotNull(outFile, "No out file specified.");
-
+        File outFile = Paths.get(outFolder, "timeQueries.csv").toFile();
+        boolean addHeader = outFile.length() == 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-        boolean addHeader = new File(outFile).length() == 0;
-
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
-
-        long memorySize = 0;
-        SizeOf sizeOf = SizeOf.newInstance();
 
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         stopwatch.start();
@@ -295,8 +276,8 @@ public class Experiments<T> {
         TTI tti = new TTI(dataset);
         List<String> measureNames = dataset.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
 
-        PostgreSQL postgreSQL = null;
-        InfluxDB influxDB = null;
+        PostgreSQL postgreSQL;
+        InfluxDB influxDB;
         postgreSQL = new PostgreSQL(postgreSQLCfg);
         influxDB = new InfluxDB(measureNames, influxDBCfg);
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
@@ -308,7 +289,7 @@ public class Experiments<T> {
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         if (addHeader) {
-            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "IO Count",  "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
+            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
         }
 
         for (int i = 0; i < sequence.size(); i+=3) {
@@ -320,8 +301,8 @@ public class Experiments<T> {
 
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
-
             ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+
             if(postgreSQLCfg != null) {
                 stopwatch.reset();
                 stopwatch.start();
@@ -335,16 +316,13 @@ public class Experiments<T> {
                 influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             }
 
-            try {
-                memorySize = sizeOf.deepSizeOf(tti);
-            } catch (Exception e) {
-            }
+            long memorySize = tti.calculateDeepMemorySize();
+
             csvWriter.addValue(table);
             csvWriter.addValue(command);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
-            csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(ttiTime);
             csvWriter.addValue(postgreSQLTime);
             csvWriter.addValue(influxDBTime);
@@ -364,6 +342,23 @@ public class Experiments<T> {
 
         QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor, dataset);
         return sequenceGenerator.generateQuerySequence(q0, seqCount);
+    }
+
+    private void recreateDir(String folder) {
+        try {
+            File f = new File(folder);
+            if (f.exists()) {
+                FileUtils.cleanDirectory(f); //clean out directory (this is optional -- but good know)
+                FileUtils.forceDelete(f); //delete directory
+            }
+            FileUtils.forceMkdir(f); //create directory
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initOutput(){
+        recreateDir(outFolder);
     }
 
     private AbstractDataset createDataset() throws IOException {

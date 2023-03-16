@@ -42,7 +42,6 @@ public class TTI {
     // The interval tree containing all the time series spans already cached
     private IntervalTree<TimeSeriesSpan> intervalTree;
 
-
     /**
      * Creates a new TTI for a multi measure-time series
      *
@@ -114,15 +113,14 @@ public class TTI {
                 })
                 .collect(Collectors.toList()));
 
-        System.out.println(overlappingIntervals);
         GroupByEvaluator groupByEvaluator = query.getGroupByField() != null
                 ? new GroupByEvaluator(measures, query.getGroupByField())
                 : null;
         MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
         PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
-
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
+
         while (pixelAggregator.hasNext()) {
             AggregatedDataPoint next = pixelAggregator.next();
             Stats stats = next.getStats();
@@ -141,6 +139,19 @@ public class TTI {
         data.forEach((k, v) -> v.sort(compareLists));
         queryResults.setData(data);
         return queryResults;
+    }
+
+    /**
+     * Calculates the deep memory size of this instance.
+     *
+     * @return The deep memory size in bytes.
+     */
+    public long calculateDeepMemorySize() {
+        long size = 0L;
+        for(TimeSeriesSpan span : intervalTree){
+            size += span.calculateDeepMemorySize();
+        }
+        return size;
     }
 
 }
