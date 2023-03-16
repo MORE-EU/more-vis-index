@@ -2,14 +2,15 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
-import org.apache.parquet.Log;
 
 import javax.xml.crypto.Data;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,10 +23,12 @@ import java.util.stream.IntStream;
  */
 public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
+    int[] measures;
+
     /**
      * The aggregate values for every window interval and for every measure.
      */
-    private final Map<Integer, long[]> aggsByMeasure;
+    private long[][] aggsByMeasure;
 
     /**
      * The number of raw time series points behind every data point included in this time series span.
@@ -38,33 +41,23 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     // The size of this span, corresponding to the number of aggregated window intervals represented by it
     private int size;
 
-    private ZoneId zoneId;
-
     /**
      * The fixed window that raw data points are grouped by in this span.
      */
     private AggregateInterval aggregateInterval;
 
-    public TimeSeriesSpan() {
-        aggsByMeasure = new HashMap<>();
-    }
-
-
     /**
      * @param dataPoints
      * @param aggregateInterval
-     * @param zoneId
      */
-    public void build(DataPoints dataPoints, AggregateInterval aggregateInterval, ZoneId zoneId) {
+    public void build(DataPoints dataPoints, AggregateInterval aggregateInterval) {
         this.aggregateInterval = aggregateInterval;
-        this.zoneId = zoneId;
-        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, zoneId);
-        List<Integer> measures = dataPoints.getMeasures();
-        counts = new int[size];
+        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, null);
 
-        for (Integer measure : measures) {
-            aggsByMeasure.put(measure, new long[size * 5]);
-        }
+        measures = dataPoints.getMeasures().stream().mapToInt(Integer::intValue).toArray();
+        counts = new int[size];
+        aggsByMeasure = new long[measures.length][size * 5];
+
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
         int i = 0;
         AggregatedDataPoint aggregatedDataPoint;
@@ -82,12 +75,12 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     protected void addAggregatedDataPoint(int i, List<Integer> measures, AggregatedDataPoint aggregatedDataPoint) {
         Stats stats = aggregatedDataPoint.getStats();
         counts[i] = stats.getCount();
-        if (stats.getCount() == 0){
+        if (stats.getCount() == 0) {
             return;
         }
         for (int j = 0; j < measures.size(); j++) {
             int m = measures.get(j);
-            long[] data = aggsByMeasure.get(m);
+            long[] data = aggsByMeasure[j];
             data[5 * i] = Double.doubleToRawLongBits(stats.getSum(m));
             data[5 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(m));
             data[5 * i + 2] = stats.getMinTimestamp(m);
@@ -113,8 +106,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     }
 
     public List<Integer> getMeasures() {
-        return aggsByMeasure.keySet().stream().sorted()
-                .collect(Collectors.toList());
+        return Arrays.stream(measures).boxed().collect(Collectors.toList());
     }
 
 
@@ -130,8 +122,8 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return new TimeSeriesSpanIterator(queryStartTimestamp, queryEndTimestamp);
     }
 
-    public TimeRange getTimeRange(){
-        return  new TimeRange(getFrom(), getTo());
+    public TimeRange getTimeRange() {
+        return new TimeRange(getFrom(), getTo());
     }
 
 
@@ -148,17 +140,20 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     @Override
     public long getTo() {
         return aggregateInterval.getChronoUnit()
-                .addTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(from), zoneId), size * aggregateInterval.getInterval())
+                .addTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(from), ZoneId.of("UTC")), size * aggregateInterval.getInterval())
                 .toInstant().toEpochMilli();
     }
+
     @Override
     public String getFromDate() {
-        return Instant.ofEpochMilli(getFrom()).atZone(zoneId).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Override
     public String getToDate() {
-        return Instant.ofEpochMilli(getTo()).atZone(zoneId).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Override
@@ -166,7 +161,52 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         return getFromDate() + " - " + getToDate() + " " + aggregateInterval;
     }
 
-    public boolean hasData() { return getTo() == getFrom();}
+    public boolean hasData() {
+        return getTo() == getFrom();
+    }
+
+    private int getMeasureIndex(int measure) {
+        for (int i = 0; i < measures.length; i++) {
+            if (measures[i] == measure) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    /**
+     * Calculates the deep memory size of this instance.
+     *
+     * @return The deep memory size in bytes.
+     */
+    public long calculateDeepMemorySize() {
+        // Memory overhead for an object in a 64-bit JVM
+        final int OBJECT_OVERHEAD = 16;
+        // Memory overhead for an array in a 64-bit JVM
+        final int ARRAY_OVERHEAD = 24;
+        // Memory usage of int in a 64-bit JVM
+        final int INT_SIZE = 4;
+        // Memory usage of long in a 64-bit JVM
+        final int LONG_SIZE = 8;
+        // Memory usage of a reference in a 64-bit JVM with a heap size less than 32 GB
+        final int REF_SIZE = 4;
+
+        long measuresMemory = REF_SIZE + ARRAY_OVERHEAD + (measures.length * INT_SIZE);
+
+        long aggsByMeasureMemory = REF_SIZE + ARRAY_OVERHEAD +
+                aggsByMeasure.length * (REF_SIZE + ARRAY_OVERHEAD + (measures.length * LONG_SIZE));
+
+        long countsMemory = REF_SIZE + ARRAY_OVERHEAD + (counts.length * INT_SIZE);
+
+        long aggregateIntervalMemory = 2 * REF_SIZE + OBJECT_OVERHEAD + LONG_SIZE;
+
+        long deepMemorySize = REF_SIZE + OBJECT_OVERHEAD + measuresMemory +
+                aggsByMeasureMemory + countsMemory + LONG_SIZE + INT_SIZE + aggregateIntervalMemory;
+
+        return deepMemorySize;
+    }
+
 
     private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
 
@@ -211,32 +251,32 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
                 @Override
                 public double getSum(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5]);
+                    return Double.longBitsToDouble(aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5]);
                 }
 
                 @Override
                 public double getMinValue(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5 + 1]);
+                    return Double.longBitsToDouble(aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5 + 1]);
                 }
 
                 @Override
                 public double getMaxValue(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5 + 3]);
+                    return Double.longBitsToDouble(aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5 + 3]);
                 }
 
                 @Override
                 public double getAverageValue(int measure) {
-                    return Double.longBitsToDouble(aggsByMeasure.get(measure)[currentIndex * 5]) / counts[currentIndex];
+                    return Double.longBitsToDouble(aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5]) / counts[currentIndex];
                 }
 
                 @Override
                 public long getMinTimestamp(int measure) {
-                    return aggsByMeasure.get(measure)[currentIndex * 5 + 2];
+                    return aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5 + 2];
                 }
 
                 @Override
                 public long getMaxTimestamp(int measure) {
-                    return aggsByMeasure.get(measure)[currentIndex * 5 + 4];
+                    return aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5 + 4];
                 }
             };
         }
