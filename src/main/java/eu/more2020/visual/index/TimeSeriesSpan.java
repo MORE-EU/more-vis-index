@@ -4,6 +4,7 @@ import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.apache.parquet.Log;
 
+import javax.xml.crypto.Data;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -67,12 +68,12 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
         int i = 0;
         AggregatedDataPoint aggregatedDataPoint;
-
         while (timeAggregator.hasNext()) {
             aggregatedDataPoint = timeAggregator.next();
             if (i == 0) {
                 from = aggregatedDataPoint.getTimestamp();
             }
+
             addAggregatedDataPoint(i, dataPoints.getMeasures(), aggregatedDataPoint);
             i++;
         }

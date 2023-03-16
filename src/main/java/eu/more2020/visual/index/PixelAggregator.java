@@ -39,9 +39,10 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         SubPixelAggregator subPixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, m4Interval, viewport);
         while (subPixelAggregator.hasNext()) {
             PixelAggregatedDataPoint next = subPixelAggregator.next().persist();
-            System.out.println(next.getStats().getMinValue(4));
-            aggregatedDataPoints.add(next);
-            statsAggregator.accept(next);
+            if(next.getCount() != 0) {
+                aggregatedDataPoints.add(next);
+                statsAggregator.accept(next);
+            }
         }
         pixelAggregatedDataPointIterator = aggregatedDataPoints.iterator();
     }
@@ -72,7 +73,6 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
             finishedIt = true;
         }
         totalErrorEvaluator.update();
-        System.out.println(totalErrorEvaluator.getError(0));
         return getNext();
     }
 
@@ -110,6 +110,10 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
     @Override
     public double[] getValues() {
         throw new UnsupportedOperationException();
+    }
+
+    public double getError(int measure){
+        return totalErrorEvaluator.getError(measure);
     }
 
 

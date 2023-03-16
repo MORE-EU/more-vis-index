@@ -144,8 +144,6 @@ public class RandomAccessReader extends RandomAccessFile {
         current = newPosition;
         if (newPosition > (bufferOffset + validBufferBytes) || newPosition < (bufferOffset - validBufferBytes))
             reBuffer();
-        // TODO: DON'T KNOW IF THIS IS Efficient, we perhaps need another way to get to a new line after randomly seeking
-       // readLine();
     }
 
     @Override
@@ -164,7 +162,7 @@ public class RandomAccessReader extends RandomAccessFile {
         }
         else{
             if (current >= bufferOffset + buffer.length || validBufferBytes == -1) reBuffer();
-            return ((int) buffer[(int) (current++ - bufferOffset)]) & 0xff;
+            return ((int) buffer[(int) Math.max((current++ - bufferOffset), 0)]) & 0xff;
         }
     }
 

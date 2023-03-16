@@ -61,8 +61,12 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
             errorAggregators.get(update).accept(errorAggregators.get(current));
     }
 
-    public double getError(int i){
-        return errorAggregators.get(currentPixelColumn).getError(i);
+    private int getMeasureIndex(int measure) {
+        return measures.indexOf(measure);
+    }
+
+    public double getError(int measure){
+        return errorAggregators.get(currentPixelColumn).getError(getMeasureIndex(measure));
     }
 
     public class PixelColumnErrorAggregator implements Consumer<PixelAggregatedDataPoint>, PixelColumnError, Serializable {
@@ -177,6 +181,7 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
         public int getTrueMaxId(int id) {
             return trueMaxId[id];
         }
+
 
     }
 }

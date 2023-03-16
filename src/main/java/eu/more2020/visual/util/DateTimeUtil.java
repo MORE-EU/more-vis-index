@@ -161,7 +161,7 @@ public class DateTimeUtil {
         return dateTime;
     }
 
-
+    // TODO: Some times this returns 1 less
     public static int numberOfIntervals(final long startTime, final long endTime, AggregateInterval aggregateInterval, ZoneId zoneId) {
         if(endTime == startTime) return 0;
         ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, aggregateInterval, zoneId);
@@ -248,6 +248,7 @@ public class DateTimeUtil {
         return maxCalendarInterval(accurateDuration);
     }
 
+    // TODO: Make 1h max interval to support OLAP
     public static AggregateInterval aggregateCalendarInterval(Duration interval){
         long aggregateInterval = interval.toMillis();
         ChronoUnit aggregateChronoUnit = ChronoUnit.MILLIS;

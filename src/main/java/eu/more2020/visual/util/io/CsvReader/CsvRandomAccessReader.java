@@ -194,8 +194,7 @@ public class CsvRandomAccessReader extends RandomAccessReader {
     public String[] parseNext() throws IOException {
         String line;
         while ((line = readNewLine()) != null && line.isBlank());
-        if (line == null)
-            return null;
+        if (line == null) return null;
         return this.parser.parseLine(line);
     }
 

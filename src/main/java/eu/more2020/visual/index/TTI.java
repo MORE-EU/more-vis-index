@@ -11,6 +11,8 @@ import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.experiments.util.GroupByEvaluator;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.ZoneId;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class TTI {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TTI.class);
 
     private final AbstractDataset dataset;
 
@@ -67,15 +71,13 @@ public class TTI {
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
         if (!initialized) initialize(query);
+        LOG.info("Executing query: " + query.getFromDate() + " - " + query.getToDate());
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
         accurateInterval = accurateInterval.toMillis() < dataset.getSamplingInterval()
                 .toMillis() ? dataset.getSamplingInterval() : accurateInterval;
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
-
-        System.out.println(optimalM4AggInterval);
-        System.out.println(accurateAggInterval);
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
         QueryResults queryResults = new QueryResults();
 
@@ -83,9 +85,10 @@ public class TTI {
         final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(query.getFrom(), query.getTo()))};
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
         // also keep the remaining difference.
+        Duration finalAccurateInterval = accurateInterval;
         List<TimeSeriesSpan> overlappingIntervals = StreamSupport.stream(Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
                 .filter(span -> span.getAggregateInterval().toDuration()
-                        .compareTo(optimalM4Interval) <= 0 && (span.overlaps(query)))
+                        .compareTo(finalAccurateInterval) <= 0 && (span.overlaps(query)))
 //                .sorted(Comparator.comparingDouble(span -> span.getAggregateInterval().toDuration().toMillis()))
                 .sorted(Comparator.comparing(span -> span.percentage(query), Comparator.reverseOrder()))
                 .filter(span -> {
@@ -110,32 +113,31 @@ public class TTI {
                     intervalTree.insert(span);
                     return span;
                 })
-                .filter(TimeSeriesSpan::hasData)
                 .collect(Collectors.toList()));
 
-
+        System.out.println(overlappingIntervals);
         GroupByEvaluator groupByEvaluator = query.getGroupByField() != null
                 ? new GroupByEvaluator(measures, query.getGroupByField())
                 : null;
-
-        MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
-
+        MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
         PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
-//        SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
-
         while (pixelAggregator.hasNext()) {
             AggregatedDataPoint next = pixelAggregator.next();
             Stats stats = next.getStats();
-            if (stats.getCount() != 0) {
+            if(stats.getCount() != 0) {
                 for (int measure : measures) {
                     List<UnivariateDataPoint> measureData = data.get(measure);
                     measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
                     measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
                 }
             }
+        }
+        for (Integer measure : measures) {
+            double error = Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100));
+            LOG.info("Query Max Error (" + measure  +"): " + error + "%");
         }
         data.forEach((k, v) -> v.sort(compareLists));
         queryResults.setData(data);

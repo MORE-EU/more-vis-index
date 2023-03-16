@@ -1,5 +1,7 @@
 package eu.more2020.visual.domain;
 
+import org.apache.hadoop.fs.Stat;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -168,6 +170,12 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
 
     private int getMeasureIndex(int measure) {
         return measures.indexOf(measure);
+    }
+
+    public StatsAggregator clone(){
+        StatsAggregator statsAggregator = new StatsAggregator(measures);
+        statsAggregator.combine(this);
+        return  statsAggregator;
     }
 
 }

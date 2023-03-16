@@ -44,8 +44,6 @@ public class MultiSpanIterator<T> implements Iterator<T>, Cloneable {
 
     @Override
     public T next() {
-//        current ++;
-//        System.out.println(current);
         if (!this.hasNext()) {
             this.lastIterator = null;         // to disallow remove()
             throw new NoSuchElementException();

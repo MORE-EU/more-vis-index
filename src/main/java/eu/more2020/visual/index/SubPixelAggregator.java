@@ -68,7 +68,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
             statsAggregator.accept(aggregatedDataPoint); // add to stats
             subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
         }
-        hasRemainder = !currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).equals(nextPixel); // next sub pixel is next pixel
+        hasRemainder = !currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).equals(nextPixel); // next sub pixel is not next pixel
         return this;
     }
 
@@ -144,7 +144,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
                 .plus(subInterval.getInterval(), subInterval.getChronoUnit())
                 .toInstant().toEpochMilli();
         long nextPixelStart = nextPixel.toInstant().toEpochMilli();
-
         return nextPixelStart < currentSubPixelEnd;
     }
 
@@ -180,7 +179,8 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private SubPixelDatapoint(Stats stats, AggregateInterval subInterval,
                                   ZonedDateTime subPixel, ZonedDateTime currentPixel, ZonedDateTime nextPixel) {
-            this.stats = SerializationUtils.clone((StatsAggregator) stats);
+//            this.stats = SerializationUtils.clone((StatsAggregator) stats);
+            this.stats = ((StatsAggregator) stats).clone();
             this.subPixel = subPixel;
             this.currentPixel = currentPixel;
             this.nextPixel = nextPixel;

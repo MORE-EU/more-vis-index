@@ -111,6 +111,7 @@ public class Experiments<T> {
     @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
+    private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
 
     @Parameter(names = "--help", help = true, description = "Displays help")
 
@@ -181,7 +182,7 @@ public class Experiments<T> {
 
         TTI tti = new TTI(dataset);
         Query q0 = new Query(startTime, endTime, dataset.getMeasures(),
-                filters, new ViewPort(800, 300), ChronoField.DAY_OF_MONTH);
+                filters, new ViewPort(800, 300), groupyBy);
 
         stopwatch.start();
         tti.initialize(q0);
@@ -239,7 +240,7 @@ public class Experiments<T> {
 
         AbstractDataset dataset = createDataset();
         Query ttiQuery = new Query(startTime, endTime, dataset.getMeasures(),
-                filters, new ViewPort(800, 300), ChronoField.DAY_OF_MONTH);
+                filters, new ViewPort(800, 300), groupyBy);
         List<String> measureNames = ttiQuery.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
         String timeColName = dataset.getHeader()[dataset.getTimeCol()];
 
@@ -301,7 +302,7 @@ public class Experiments<T> {
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
         Query q0 = new Query(startTime, endTime, dataset.getMeasures(),
-                filters, new ViewPort(800, 300), ChronoField.DAY_OF_MONTH);
+                filters, new ViewPort(800, 300), groupyBy);
         tti.initialize(q0);
 
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);

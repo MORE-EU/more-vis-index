@@ -62,6 +62,7 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
 
     @Override
     public boolean hasNext() {
+        if((to - from) < dataset.getSamplingInterval().toMillis()) return false;
         if (started) {
             return next != null && next.getTimestamp() < to;
         } else {

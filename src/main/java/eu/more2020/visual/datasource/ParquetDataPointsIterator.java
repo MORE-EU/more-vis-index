@@ -56,6 +56,7 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
 
     @Override
     public boolean hasNext() {
+        if((to - from) < dataset.getSamplingInterval().toMillis()) return false;
         if (started) {
             try {
                 return reader.hasNext() && next.getTimestamp() < to;
