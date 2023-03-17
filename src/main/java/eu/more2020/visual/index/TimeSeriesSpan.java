@@ -3,7 +3,6 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
-import javax.xml.crypto.Data;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -184,7 +183,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         // Memory overhead for an object in a 64-bit JVM
         final int OBJECT_OVERHEAD = 16;
         // Memory overhead for an array in a 64-bit JVM
-        final int ARRAY_OVERHEAD = 24;
+        final int ARRAY_OVERHEAD = 20;
         // Memory usage of int in a 64-bit JVM
         final int INT_SIZE = 4;
         // Memory usage of long in a 64-bit JVM
@@ -192,10 +191,10 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         // Memory usage of a reference in a 64-bit JVM with a heap size less than 32 GB
         final int REF_SIZE = 4;
 
+
         long measuresMemory = REF_SIZE + ARRAY_OVERHEAD + (measures.length * INT_SIZE);
 
-        long aggsByMeasureMemory = REF_SIZE + ARRAY_OVERHEAD +
-                aggsByMeasure.length * (REF_SIZE + ARRAY_OVERHEAD + (measures.length * LONG_SIZE));
+        long aggsByMeasureMemory = REF_SIZE + ARRAY_OVERHEAD + aggsByMeasure.length * (REF_SIZE + ARRAY_OVERHEAD + (size * 5 * LONG_SIZE));
 
         long countsMemory = REF_SIZE + ARRAY_OVERHEAD + (counts.length * INT_SIZE);
 
@@ -204,8 +203,32 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         long deepMemorySize = REF_SIZE + OBJECT_OVERHEAD + measuresMemory +
                 aggsByMeasureMemory + countsMemory + LONG_SIZE + INT_SIZE + aggregateIntervalMemory;
 
+
         return deepMemorySize;
     }
+
+    /**
+     * Creates a new TimeSeriesSpan object with the data points aggregated at a coarser granularity based on the current instance.
+     *
+     * @param newAggregateInterval The new, larger aggregate interval to which the data should be rolled up.
+     * @return A new TimeSeriesSpan object containing the rolled-up data.
+     */
+    public TimeSeriesSpan rollup(AggregateInterval newAggregateInterval) {
+        // Validate that the new aggregate interval is larger than the current one
+        if (newAggregateInterval.toDuration().compareTo(this.aggregateInterval.toDuration()) <= 0) {
+            throw new IllegalArgumentException("The new aggregate interval must be larger than the current one.");
+        }
+
+        // Create a new TimeSeriesSpan object with the new aggregate interval
+        TimeSeriesSpan rolledUpSpan = new TimeSeriesSpan();
+
+        // Build the new TimeSeriesSpan using the current data points and the new aggregate interval
+        rolledUpSpan.build(this, newAggregateInterval);
+
+        return rolledUpSpan;
+    }
+
+
 
 
     private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {

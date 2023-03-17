@@ -59,6 +59,10 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
      */
     @Override
     public void accept(DataPoint dataPoint) {
+        if (dataPoint instanceof AggregatedDataPoint){
+            accept((AggregatedDataPoint) dataPoint);
+            return;
+        }
         ++count;
         for (int i = 0; i < dataPoint.getValues().length; i++) {
             double value = dataPoint.getValues()[i];
