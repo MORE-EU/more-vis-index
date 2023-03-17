@@ -24,8 +24,6 @@ public class RawTTI {
 
     private final DataSource dataSource;
 
-    private final float accuracy = 0.9f;
-
     private boolean initialized = false;
     // The interval tree containing all the time series spans already cached
     private IntervalTree<RawTimeSeriesSpan> intervalTree;
@@ -47,12 +45,7 @@ public class RawTTI {
         List<Integer> measures = query == null || query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
         RawTimeSeriesSpan timeSeriesSpan = new RawTimeSeriesSpan();
         DataPoints dataPoints = dataSource.getDataPoints(query.getFrom(), query.getTo(), measures);
-
-        AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.accurateCalendarInterval(query.getFrom(),
-                query.getTo(), query.getViewPort(), accuracy));
-
-        Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
-        timeSeriesSpan.build(dataPoints, ZoneId.of("UTC"));
+        timeSeriesSpan.build(dataPoints);
         intervalTree.insert(timeSeriesSpan);
         initialized = true;
     }
@@ -61,10 +54,6 @@ public class RawTTI {
     public QueryResults executeQuery(Query query) {
         if(!initialized) initialize(query);
         System.out.println(query);
-        Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
-        AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
-        Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
-        AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
 
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
@@ -94,7 +83,7 @@ public class RawTTI {
                 .map(diff -> {
                     DataPoints dataPoints = dataSource.getDataPoints(diff.lowerEndpoint(), diff.upperEndpoint(), measures);
                     RawTimeSeriesSpan span = new RawTimeSeriesSpan();
-                    span.build(dataPoints, ZoneId.of("UTC"));
+                    span.build(dataPoints);
                     intervalTree.insert(span);
                     return span;
                 }).collect(Collectors.toList()));
