@@ -1,4 +1,4 @@
-package eu.more2020.visual.experiments.util.QueryExecutor;
+package eu.more2020.visual.domain.QueryExecutor;
 
 import com.influxdb.client.*;
 import com.influxdb.client.domain.WritePrecision;
@@ -7,19 +7,18 @@ import com.influxdb.query.FluxTable;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import eu.more2020.visual.domain.InfluxDB.InitQueries.BEBEZE;
 import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.domain.Query.InfluxQLQuery;
+import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
-import eu.more2020.visual.experiments.util.InfluxDB.InitQueries.BEBEZE;
-import eu.more2020.visual.experiments.util.InfluxDB.InitQueries.INTEL_LAB;
+import eu.more2020.visual.domain.InfluxDB.InitQueries.INTEL_LAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.sql.SQLException;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -28,61 +27,72 @@ import java.util.*;
 
 public class InfluxDBQueryExecutor implements QueryExecutor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SQLQueryExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InfluxDBQueryExecutor.class);
 
 
     InfluxDBClient influxDBClient;
     String table;
-    String path;
     String bucket;
     String org;
-    List<String> measures;
 
 
-    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient,
-                                 String bucket, String path, String table, String org, List<String> measures) {
+    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, String org,
+                                 String bucket, String table) {
         this.influxDBClient = influxDBClient;
-        this.path = path;
+        this.org = org;
         this.table = table;
         this.bucket = bucket;
-        this.org = org;
-        this.measures = measures;
     }
 
     @Override
-    public void execute(AbstractQuery q, QueryMethod method) throws SQLException {
+    public QueryResults execute(AbstractQuery q, QueryMethod method) {
         switch (method) {
             case M4:
-                executeM4Query(q);
+                return executeM4Query(q);
+            case M4OLAP:
+                return executeM4OLAPQuery(q);
+            case RAW:
+                return executeRawQuery(q);
+            default:
+                return executeM4Query(q);
         }
     }
 
     @Override
     public QueryResults executeM4Query(AbstractQuery q) {
-        return executeM4InfluxQuery((InfluxQLQuery) q);
+        return executeM4InfluxQuery((InfluxDBQuery) q);
     }
 
+    @Override
+    public QueryResults executeM4OLAPQuery(AbstractQuery q) {
+        return executeM4OLAPQuery((InfluxDBQuery) q);
+    }
 
     @Override
-    public void initialize() throws FileNotFoundException {
+    public QueryResults executeRawQuery(AbstractQuery q) {
+        return executeRawInfluxQuery((InfluxDBQuery) q);
+    }
+
+    @Override
+    public void initialize(String path) throws FileNotFoundException {
         WriteApi writeApi = influxDBClient.makeWriteApi();
         FileReader reader;
         if(table.equals("bebeze")) {
             reader = new FileReader(path);
-            CsvToBean<BEBEZE> csvToBean = new CsvToBeanBuilder(reader)
+            CsvToBean<BEBEZE> csvToBean = new CsvToBeanBuilder<BEBEZE>(reader)
                     .withType(BEBEZE.class)
                     .build();
             for (BEBEZE data : csvToBean) {
-                writeApi.writeMeasurement(WritePrecision.S, data);
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
         else if(table.equals("intel_lab")){
             reader = new FileReader(path);
-            CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder(reader)
+            CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
                     .withType(INTEL_LAB.class)
                     .build();
             for (INTEL_LAB data : csvToBean) {
-                writeApi.writeMeasurement(WritePrecision.S, data);
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
         influxDBClient.close();
@@ -108,7 +118,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         }
     };
 
-    private QueryResults executeM4InfluxQuery(InfluxQLQuery q) {
+    private QueryResults executeM4InfluxQuery(InfluxDBQuery q) {
         QueryResults queryResults = new QueryResults();
         HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
         String flux = String.format(q.m4QuerySkeleton(),
@@ -123,7 +133,31 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         for (FluxTable fluxTable : tables) {
             List<FluxRecord> records = fluxTable.getRecords();
             for (FluxRecord fluxRecord : records) {
-                Integer fieldId = this.measures.indexOf(fluxRecord.getField());
+                Integer fieldId = q.getMeasureNames().indexOf(fluxRecord.getField());
+                data.computeIfAbsent(fieldId, k -> new ArrayList<>()).add(
+                        new UnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
+                                Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));
+            }
+        }
+        data.forEach((k, v) -> v.sort(compareLists));
+        queryResults.setData(data);
+        return queryResults;
+    }
+
+    private QueryResults executeM4OLAPQuery(InfluxDBQuery q) {
+        return null;
+    }
+
+    private QueryResults executeRawInfluxQuery(InfluxDBQuery q) {
+        QueryResults queryResults = new QueryResults();
+        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+        String flux = String.format(q.rawQuerySkeleton(),
+                bucket, q.getFromDate(), q.getToDate(), table);
+        List<FluxTable> tables = execute(flux);
+        for (FluxTable fluxTable : tables) {
+            List<FluxRecord> records = fluxTable.getRecords();
+            for (FluxRecord fluxRecord : records) {
+                Integer fieldId = q.getMeasureNames().indexOf(fluxRecord.getField());
                 data.computeIfAbsent(fieldId, k -> new ArrayList<>()).add(
                         new UnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
                                 Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));
@@ -135,5 +169,10 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
 
+    public List<FluxTable> execute(String query) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        LOG.info("Executing Query: \n" + query);
+        return queryApi.query(query);
+    }
 
 }

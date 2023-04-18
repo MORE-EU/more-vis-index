@@ -1,6 +1,8 @@
 package eu.more2020.visual.datasource;
 
 import com.google.common.collect.Iterators;
+import eu.more2020.visual.domain.AggregateInterval;
+import eu.more2020.visual.domain.AggregatedDataPoints;
 import eu.more2020.visual.domain.DataPoint;
 import eu.more2020.visual.domain.DataPoints;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
@@ -31,6 +33,10 @@ public class ParquetDataSource implements DataSource {
         return new ParquetDataSource.ParquetDataPoints(parquetDataset.getTimeRange().getFrom(), parquetDataset.getTimeRange().getTo(), measures);
     }
 
+    @Override
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
+        return null;
+    }
     /**
      * Represents a series of {@link ParquetDataPoint} instances.
      * The iterator returned from this class accesses the Parquet files as the data points are requested.

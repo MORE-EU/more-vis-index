@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -31,18 +28,11 @@ public class CsvDataset extends AbstractDataset {
 
     private long meanByteSize;
 
-    public CsvDataset(String path, String id, String name, String timeColName,
-                      List<String> measureNames, boolean hasHeader, String timeFormat, String delimiter) throws IOException {
-        super(path, id, name, timeColName, measureNames, timeFormat);
-        this.hasHeader = hasHeader;
-        this.delimiter = delimiter;
-        this.fillCsvDatasetInfo();
-        LOG.info("Initialized dataset: {}", this);
-    }
+    private int timeColIndex;
 
-    public CsvDataset(String path, String id, String name, Integer timeCol,
-                      List<Integer> measures, boolean hasHeader, String timeFormat, String delimiter) throws IOException {
-        super(path, id, name, timeCol, measures, timeFormat);
+    public CsvDataset(String path, String id, String name, String timeCol,
+                      boolean hasHeader, String timeFormat, String delimiter) throws IOException {
+        super(path, id, name, timeCol,  timeFormat);
         this.hasHeader = hasHeader;
         this.delimiter = delimiter;
         this.fillCsvDatasetInfo();
@@ -53,20 +43,22 @@ public class CsvDataset extends AbstractDataset {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getTimeFormat());
 
         CsvRandomAccessReader csvRandomAccessReader = new CsvRandomAccessReader(dataFileInfo.getFilePath(), formatter,
-                getTimeCol(), getDelimiter(), getHasHeader(), getMeasures());
+                getTimeCol(), getDelimiter(), getHasHeader());
 
         if (hasHeader) {
             setHeader(csvRandomAccessReader.getParsedHeader());
         }
+        this.timeColIndex = Arrays.stream(getHeader()).collect(Collectors.toList()).indexOf(getTimeCol());
+
         // todo: we don't need to update these with every sub-file
         setSamplingInterval(csvRandomAccessReader.getSamplingInterval());
         meanByteSize = csvRandomAccessReader.getMeanByteSize();
-
-        long from = DateTimeUtil.parseDateTimeString(csvRandomAccessReader.parseNext()[this.getTimeCol()], formatter, ZoneId.of("UTC"));
+        long from = DateTimeUtil.parseDateTimeString(csvRandomAccessReader.parseNext()[getTimeColIndex()], formatter, ZoneId.of("UTC"));
         csvRandomAccessReader.goToEnd();
-        long to = DateTimeUtil.parseDateTimeString(csvRandomAccessReader.parseNext()[this.getTimeCol()], formatter, ZoneId.of("UTC"));
+        long to = DateTimeUtil.parseDateTimeString(csvRandomAccessReader.parseNext()[getTimeColIndex()], formatter, ZoneId.of("UTC"));
 
         dataFileInfo.setTimeRange(new TimeRange(from, to));
+
     }
 
     private void fillCsvDatasetInfo() throws IOException {
@@ -100,21 +92,14 @@ public class CsvDataset extends AbstractDataset {
         return hasHeader;
     }
 
-    public void setHasHeader(Boolean hasHeader) {
-        this.hasHeader = hasHeader;
-    }
-
     public String getDelimiter() {
         return delimiter;
-    }
-
-    public void setDelimiter(String delimiter) {
-        this.delimiter = delimiter;
     }
 
     public long getMeanByteSize() {
         return meanByteSize;
     }
+
 
     public CsvParserSettings createCsvParserSettings() {
         CsvParserSettings parserSettings = new CsvParserSettings();
@@ -126,5 +111,25 @@ public class CsvDataset extends AbstractDataset {
         return parserSettings;
     }
 
+    @Override
+    public List<Integer> getMeasures(){
+        int[] measures = new int[getHeader().length - 1];
 
+        int i = 0;
+        int j = i;
+        while(i < getHeader().length - 1){
+            if(j != getTimeColIndex()){
+                measures[i] = j;
+                i++;
+            }
+            j++;
+        }
+        return Arrays.stream(measures)
+                .boxed()
+                .collect(Collectors.toList());
+    }
+
+    public int getTimeColIndex() {
+        return timeColIndex;
+    }
 }

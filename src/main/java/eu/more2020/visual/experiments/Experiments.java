@@ -5,31 +5,25 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 import eu.more2020.visual.domain.*;
-import eu.more2020.visual.domain.Dataset.AbstractDataset;
-import eu.more2020.visual.domain.Dataset.CsvDataset;
-import eu.more2020.visual.domain.Dataset.ParquetDataset;
+import eu.more2020.visual.domain.Dataset.*;
+import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.domain.Query.*;
 import eu.more2020.visual.experiments.util.*;
-import eu.more2020.visual.experiments.util.InfluxDB.InfluxDB;
 import eu.more2020.visual.index.RawTTI;
 import eu.more2020.visual.index.TTI;
-import eu.more2020.visual.experiments.util.QueryExecutor.InfluxDBQueryExecutor;
-import eu.more2020.visual.experiments.util.PostgreSQL.PostgreSQL;
-import eu.more2020.visual.experiments.util.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.domain.PostgreSQL.PostgreSQLConnection;
+import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
 import org.apache.commons.io.FileUtils;
-import org.ehcache.sizeof.SizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.temporal.ChronoField;
@@ -54,10 +48,7 @@ public class Experiments<T> {
     public List<String> measureNames;
 
     @Parameter(names = "-timeCol", description = "Datetime Column for CSV files")
-    public Integer timeCol;
-
-    @Parameter(names = "-timeColName", description = "Datetime Column for Parquet files")
-    public String timeColName;
+    public String timeCol;
 
     @Parameter(names = "-hasHeader", description = "If CSV has header")
     public Boolean hasHeader = true;
@@ -108,11 +99,14 @@ public class Experiments<T> {
     private String postgreSQLCfg;
     @Parameter(names = "-influxDBCfg", description = "InfluxDB config file path")
     private String influxDBCfg;
+    @Parameter(names = "-schema", description = "PostgreSQL/InfluxDB schema name where data lay")
+    private String schema;
     @Parameter(names = "-table", description = "PostgreSQL/InfluxDB table name to query")
     private String table;
     @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
+    @Parameter(names = "--groupBy", converter = OLAPConverter.class,  description = "Measure index memory after every query in the sequence")
     private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
 
     @Parameter(names = "--help", help = true, description = "Displays help")
@@ -164,44 +158,44 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
 
         long memorySize = 0;
-        SizeOf sizeOf = SizeOf.newInstance();
-
+//        SizeOf sizeOf = SizeOf.newInstance();
+//
         Stopwatch stopwatch = Stopwatch.createUnstarted();
-        AbstractDataset dataset = createDataset();
-        List<String> measureNames = dataset.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-        String timeColName = dataset.getHeader()[dataset.getTimeCol()];
-
-        TTI tti = new TTI(dataset);
-        Query q0 = new Query(startTime, endTime, dataset.getMeasures(),
-                filters, new ViewPort(800, 300), groupyBy);
-
-        stopwatch.start();
-        tti.initialize(q0);
+//        AbstractDataset dataset = createDataset();
+//        List<String> measureNames = dataset.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+//        String timeColName = dataset.getHeader()[dataset.getTimeCol()];
+//
+//        TTI tti = new TTI(dataset);
+//        Query q0 = new Query(startTime, endTime, dataset.getMeasures(),
+//                filters, new ViewPort(800, 300), groupyBy);
+//
+//        stopwatch.start();
+//        tti.initialize(q0);
         ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
         if(postgreSQLCfg != null) {
             stopwatch.reset();
-            PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
-            SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
+            PostgreSQLConnection postgreSQL = new PostgreSQLConnection(postgreSQLCfg);
+            SQLQueryExecutor sqlQueryExecutor = postgreSQL.getSqlQueryExecutor(schema, table);
             sqlQueryExecutor.drop();
             stopwatch.start();
-            sqlQueryExecutor.initialize();
+            sqlQueryExecutor.initialize(path);
             postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
         }
 
         if(influxDBCfg != null) {
             stopwatch.reset();
-            InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
-            InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
+            InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
+            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
             influxDBQueryExecutor.drop();
             stopwatch.start();
-            influxDBQueryExecutor.initialize();
+            influxDBQueryExecutor.initialize(path);
             influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
         }
 
         stopwatch.reset();
 
-        memorySize = tti.calculateDeepMemorySize();
+//        memorySize = tti.calculateDeepMemorySize();
 
         if (addHeader) {
             csvWriter.writeHeaders("dataset", "mode", "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
@@ -226,20 +220,20 @@ public class Experiments<T> {
         String influxDBResultsPath = Paths.get(outFolder, "plotQuery", "influxDBResults").toString();
 
         AbstractDataset dataset = createDataset();
-        Query ttiQuery = new Query(startTime, endTime, dataset.getMeasures(),
+        Query ttiQuery = new Query(startTime, endTime, measures,
                 filters, new ViewPort(800, 300), groupyBy);
         List<String> measureNames = ttiQuery.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-        String timeColName = dataset.getHeader()[dataset.getTimeCol()];
 
         TTI tti = new TTI(dataset);
         RawTTI rawTTI = new RawTTI(dataset);
 
-        PostgreSQL postgreSQL = new PostgreSQL(postgreSQLCfg);
-        InfluxDB influxDB = new InfluxDB(measureNames, influxDBCfg);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
-        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, dataset.getMeasures(), timeColName, filters, new ViewPort(800, 300), null);
-        InfluxQLQuery influxQLQuery = new InfluxQLQuery(startTime, endTime, measureNames, timeColName, filters, new ViewPort(800, 300), null);
+        PostgreSQLConnection postgreSQL = new PostgreSQLConnection(postgreSQLCfg);
+        InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
+
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQL.getSqlQueryExecutor(schema, table);
+        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, measures, filters, new ViewPort(800, 300), null);
+        InfluxDBQuery influxDBQuery = new InfluxDBQuery(startTime, endTime, measureNames, filters, new ViewPort(800, 300), null);
 
         TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot(Paths.get(outFolder, plotFolder).toString());
 
@@ -258,7 +252,7 @@ public class Experiments<T> {
         }
 
         if(influxDBCfg != null) {
-            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxQLQuery);
+            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxDBQuery);
             influxDBQueryResults.toCsv(influxDBResultsPath);
             timeSeriesPlot.build(influxDBResultsPath);
         }
@@ -274,59 +268,72 @@ public class Experiments<T> {
         stopwatch.start();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        List<String> measureNames = dataset.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+        RawTTI rawTTI = new RawTTI(dataset);
+        System.out.println(dataset);
+        QueryMethod queryMethod = type.equals("csv") || type.equals("parquet") ? QueryMethod.RAW : QueryMethod.M4;
+        PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(postgreSQLCfg);
+        InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
 
-        PostgreSQL postgreSQL;
-        InfluxDB influxDB;
-        postgreSQL = new PostgreSQL(postgreSQLCfg);
-        influxDB = new InfluxDB(measureNames, influxDBCfg);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQL.createQueryExecutor(path, table);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDB.createQueryExecutor(path, table);
-        Query q0 = new Query(startTime, endTime, dataset.getMeasures(),
+        Query q0 = new Query(startTime, endTime, queryMethod, measures,
                 filters, new ViewPort(800, 300), groupyBy);
-        tti.initialize(q0);
-
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         if (addHeader) {
-            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "results size", "TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "Memory (Gb)");
+            csvWriter.writeHeaders("dataset", "mode", "query #", "timeRange", "TTI results size", "RAW TTI results size",
+                    "PostgreSQL results size", "InfluxDB results size", "TTI IO Count", "RAW TTI IO Count",
+                    "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "Raw TTI Memory (b)");
         }
 
-        for (int i = 0; i < sequence.size(); i+=3) {
-            double ttiTime = 0, postgreSQLTime = 0, influxDBTime = 0;
+        for (int i = 0; i < sequence.size(); i += 3) {
+            double ttiTime = 0, rawTtiTIme = 0, postgreSQLTime = 0, influxDBTime = 0;
             Query query = (Query) sequence.get(i);
             SQLQuery sqlQuery = (SQLQuery) sequence.get(i + 1);
-            InfluxQLQuery influxQLQuery = (InfluxQLQuery) sequence.get(i + 2);
+            InfluxDBQuery influxDBQuery = (InfluxDBQuery) sequence.get(i + 2);
             LOG.debug("Executing query " + i);
 
             stopwatch = Stopwatch.createStarted();
             QueryResults queryResults = tti.executeQuery(query);
             ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
+            stopwatch = Stopwatch.createStarted();
+            QueryResults rawQueryResults = rawTTI.executeQuery(query);
+            rawTtiTIme = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+
+            int sqlQueryResultsSize = 0, influxDBQueryResultsSize = 0;
             if(postgreSQLCfg != null) {
                 stopwatch.reset();
                 stopwatch.start();
-                sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
+                sqlQueryResultsSize = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4).getData().get(this.measures.get(0)).size();
                 postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             }
             if(influxDBCfg != null) {
                 stopwatch.reset();
                 stopwatch.start();
-                influxDBQueryExecutor.execute(influxQLQuery, QueryMethod.M4);
+                influxDBQueryResultsSize = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4).getData().get(0).size();
                 influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             }
 
             long memorySize = tti.calculateDeepMemorySize();
+            long rawMemorySize = rawTTI.calculateDeepMemorySize();
 
             csvWriter.addValue(table);
             csvWriter.addValue(command);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
+            csvWriter.addValue(rawQueryResults.getData().get(this.measures.get(0)).size());
+            csvWriter.addValue(sqlQueryResultsSize);
+            csvWriter.addValue(influxDBQueryResultsSize);
+            csvWriter.addValue(queryResults.getIoCount());
+            csvWriter.addValue(rawQueryResults.getIoCount());
             csvWriter.addValue(ttiTime);
+            csvWriter.addValue(rawTtiTIme);
             csvWriter.addValue(postgreSQLTime);
             csvWriter.addValue(influxDBTime);
             csvWriter.addValue(memorySize);
+            csvWriter.addValue(rawMemorySize);
             csvWriter.writeValuesToRow();
         }
         csvWriter.close();
@@ -361,12 +368,16 @@ public class Experiments<T> {
         recreateDir(outFolder);
     }
 
-    private AbstractDataset createDataset() throws IOException {
+    private AbstractDataset createDataset() throws IOException, SQLException {
         switch (type.toLowerCase(Locale.ROOT)) {
             case "csv":
-                return new CsvDataset(path, "0", "test", timeCol, measures, hasHeader, timeFormat, delimiter);
+                return new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
             case "parquet":
-                return new ParquetDataset(path, "0", "test", timeColName, measureNames, timeFormat);
+                return new ParquetDataset(path, "0", "test", timeCol, timeFormat);
+            case "postgres":
+                return new PostgreSQLDataset(postgreSQLCfg, schema, table, timeFormat);
+            case "influx":
+                return new InfluxDBDataset(influxDBCfg, schema, table, timeFormat);
             default:
                 break;
         }

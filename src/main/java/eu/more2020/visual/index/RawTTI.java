@@ -11,6 +11,7 @@ import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.util.DateTimeUtil;
 
+import javax.management.openmbean.SimpleType;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
@@ -58,6 +59,7 @@ public class RawTTI {
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
+        final int[] ioCount = {0};
 
         RangeSet<Long> rangeSet = TreeRangeSet.create();
         final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(query.getFrom(), query.getTo()))};
@@ -84,6 +86,8 @@ public class RawTTI {
                     DataPoints dataPoints = dataSource.getDataPoints(diff.lowerEndpoint(), diff.upperEndpoint(), measures);
                     RawTimeSeriesSpan span = new RawTimeSeriesSpan();
                     span.build(dataPoints);
+                    ioCount[0] += span.getCount();
+                    System.out.println(span);
                     intervalTree.insert(span);
                     return span;
                 }).collect(Collectors.toList()));
@@ -104,8 +108,21 @@ public class RawTTI {
                 i++;
             }
         }
+        queryResults.setIoCount(ioCount[0]);
         queryResults.setData(data);
         return queryResults;
     }
 
+    /**
+     * Calculates the deep memory size of this instance.
+     *
+     * @return The deep memory size in bytes.
+     */
+    public long calculateDeepMemorySize() {
+        long size = 0L;
+        for(RawTimeSeriesSpan span : intervalTree){
+            size += span.calculateDeepMemorySize();
+        }
+        return size;
+    }
 }

@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS more;
 
 CREATE TABLE more.bebeze_tmp(
-   datetime        TIMESTAMP NOT NULL PRIMARY KEY
+   timestamp        TIMESTAMP NOT NULL PRIMARY KEY
   ,wind_speed      FLOAT NOT NULL
   ,pitch_angle      FLOAT NOT NULL
   ,roto_speed     FLOAT NOT NULL
@@ -13,51 +13,56 @@ CREATE TABLE more.bebeze_tmp(
   ,nacelle_direction FLOAT NOT NULL
   ,wind_direction FLOAT NOT NULL
 );
+COPY more.bebeze_tmp(timestamp, wind_speed, pitch_angle,
+                 roto_speed, active_power, cos_nacelle_dir, sin_nacelle_dir,
+                 cos_wind_dir, sin_wind_dir, nacelle_direction, wind_direction)
+    FROM '%path'
+    DELIMITER ','
+    CSV HEADER;
 
-COPY more.bebeze_tmp(datetime, wind_speed, pitch_angle,
-roto_speed, active_power, cos_nacelle_dir, sin_nacelle_dir,
-cos_wind_dir, sin_wind_dir, nacelle_direction, wind_direction)
-FROM '%path'
-DELIMITER ','
-CSV HEADER;
 
 CREATE TABLE more.bebeze(
-   datetime        TIMESTAMP NOT NULL
+   epoch   BIGINT NOT NULL
+  ,timestamp  TIMESTAMP NOT NULL
   ,value      FLOAT
-  ,id         INT NOT NULL
+  ,id         BIGINT NOT NULL
+  ,col        VARCHAR NOT NULL
 );
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, wind_speed, 1 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, wind_speed, 0, 'wind_speed' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, pitch_angle, 2 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, pitch_angle, 1, 'pitch_angle' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, roto_speed, 3 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, roto_speed, 2, 'roto_speed' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, active_power, 4 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, active_power, 3,  'active_power' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, cos_nacelle_dir, 5 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, cos_nacelle_dir, 4, 'cos_nacelle_dir' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, sin_nacelle_dir, 6 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, sin_nacelle_dir, 5, 'sin_nacelle_dir' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, cos_wind_dir, 7 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, cos_wind_dir, 6, 'cos_wind_dir' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, sin_wind_dir, 8 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, sin_wind_dir, 7, 'sin_wind_dir' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, nacelle_direction, 9 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, nacelle_direction, 8, 'nacelle_direction' FROM more.bebeze_tmp;
 
-INSERT INTO more.bebeze(datetime, value, id)
-SELECT datetime, wind_direction, 9 FROM more.bebeze_tmp;
+INSERT INTO more.bebeze(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, timestamp, wind_direction, 9, 'wind_direction' FROM more.bebeze_tmp;
 
-CREATE INDEX bebeze_index ON more.bebeze(id, datetime);
+
+DROP TABLE more.bebeze_tmp;
+
+CREATE INDEX bebeze_index ON more.bebeze(epoch, id);
 
 
 

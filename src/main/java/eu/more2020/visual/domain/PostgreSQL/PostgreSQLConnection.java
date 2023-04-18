@@ -1,6 +1,6 @@
-package eu.more2020.visual.experiments.util.PostgreSQL;
+package eu.more2020.visual.domain.PostgreSQL;
 
-import eu.more2020.visual.experiments.util.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,14 +9,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-public class PostgreSQL {
-    private static final Logger LOG = LoggerFactory.getLogger(PostgreSQL.class);
+public class PostgreSQLConnection {
+    private static final Logger LOG = LoggerFactory.getLogger(PostgreSQLConnection.class);
 
     String config;
     Connection connection;
     private final Properties properties = new Properties();
 
-    public PostgreSQL(String config) {
+    public PostgreSQLConnection(String config) {
         this.config = config;
         this.connect();
     }
@@ -35,8 +35,16 @@ public class PostgreSQL {
             LOG.error(e.getClass().getName()+": "+e.getMessage());
         }
     }
-    public SQLQueryExecutor createQueryExecutor(String path, String table) {
-         return new SQLQueryExecutor(connection, path, table, properties.getProperty("schema"));
+
+    private SQLQueryExecutor createQueryExecutor(String schema, String table) {
+         return new SQLQueryExecutor(connection, schema, table);
     }
 
+    public SQLQueryExecutor getSqlQueryExecutor(String schema, String table) {
+        return this.createQueryExecutor(schema, table);
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
 }

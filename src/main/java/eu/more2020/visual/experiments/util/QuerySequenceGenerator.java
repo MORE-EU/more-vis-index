@@ -2,7 +2,7 @@ package eu.more2020.visual.experiments.util;
 
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.domain.Query.InfluxQLQuery;
+import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.domain.TimeRange;
@@ -10,7 +10,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -49,15 +48,14 @@ public class QuerySequenceGenerator {
         Random opRand = new Random(0);
         List<UserOpType> ops = Arrays.asList(new UserOpType[]{P, P, ZI, ZO});
 
-
-        Random randomFilterValueGen = new Random(0);
         List<AbstractQuery> queries = new ArrayList<>();
-        List<String> measures = q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-        String timeColumn = dataset.getHeader()[dataset.getTimeCol()];
+
+        List<String> measures = q0.getMeasures().size() > dataset.getHeader().length ?
+                q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList()) : null;
 
         queries.add(q0);
-        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), timeColumn, q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
-        queries.add(new InfluxQLQuery(q0.getFrom(), q0.getTo(), measures, timeColumn, q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
+        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
+        queries.add(new InfluxDBQuery(q0.getFrom(), q0.getTo(), measures, q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
         Query ttiQuery = q0;
         System.out.println(new TimeRange(q0.getFrom(), q0.getTo()));
         for (int i = 0; i < count - 1; i++) {
@@ -76,14 +74,14 @@ public class QuerySequenceGenerator {
             int filterCount = filterCounts[i];
 //            System.out.println("Range: " + timeRange + " OP: " + opType + " shift: " + shifts[i] + " direction: " + directions[i]);
 
-            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(),
-                    q0.getTimeColumn(), filters, q0.getViewPort(), q0.getGroupByField());
-            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), timeColumn, filters, q0.getViewPort(), q0.getGroupByField());
-            InfluxQLQuery influxQLQuery = new InfluxQLQuery(timeRange.getFrom(), timeRange.getTo(), measures, timeColumn, filters, q0.getViewPort(), q0.getGroupByField());
+            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getQueryMethod(), q0.getMeasures(),
+                     filters, q0.getViewPort(), q0.getGroupByField());
+            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort(), q0.getGroupByField());
+            InfluxDBQuery influxDBQuery = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), measures, filters, q0.getViewPort(), q0.getGroupByField());
 
             queries.add(ttiQuery);
             queries.add(sqlQuery);
-            queries.add(influxQLQuery);
+            queries.add(influxDBQuery);
 
         }
         return queries;

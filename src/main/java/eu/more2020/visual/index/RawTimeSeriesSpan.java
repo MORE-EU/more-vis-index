@@ -19,6 +19,7 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
 
     int[] measures;
 
+    int count = 0;
     /**
      * The raw datapoint values. The values of a datapoint for each measure are stored consecutively in the array.
      */
@@ -42,6 +43,7 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
             for (double value : dataPoint.getValues()) {
                 valuesList.add(value);
             }
+            count ++;
         }
         values = valuesList.stream().mapToDouble(Double::doubleValue).toArray();
         timestamps = timestampsList.stream().mapToLong(Long::longValue).toArray();
@@ -120,6 +122,9 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
         return -1;
     }
 
+    public int getCount() {
+        return count;
+    }
 
     /**
      * Calculates the deep memory size of this instance.

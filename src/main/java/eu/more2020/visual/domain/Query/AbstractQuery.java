@@ -16,6 +16,7 @@ public abstract class AbstractQuery implements TimeInterval {
     final long from;
     final long to;
     final ViewPort viewPort;
+    final QueryMethod queryMethod;
     Integer timeColumn;
     List<Integer> measures;
     HashMap<Integer, Double[]> filters;
@@ -25,31 +26,31 @@ public abstract class AbstractQuery implements TimeInterval {
 
     Aggregator groupByAggregator;
 
-    public AbstractQuery(long from, long to, List<Integer> measures,
+    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures,
                          HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
         this.from = from;
         this.to = to;
+        this.queryMethod = queryMethod;
         this.filters = filters;
         this.measures = measures;
         this.viewPort = viewPort;
         this.groupByField = groupByField;
     }
 
-    public AbstractQuery(long from, long to, List<Integer> measures, Integer timeColumn,
-                         HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
+    public AbstractQuery(long from, long to, ViewPort viewPort, QueryMethod queryMethod, ChronoField groupByField) {
         this.from = from;
         this.to = to;
-        this.filters = filters;
-        this.timeColumn = timeColumn;
-        this.measures = measures;
         this.viewPort = viewPort;
+        this.queryMethod = queryMethod;
         this.groupByField = groupByField;
     }
-    public AbstractQuery(long from, long to, ViewPort viewPort, ChronoField groupByField) {
+
+    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures){
         this.from = from;
         this.to = to;
-        this.viewPort = viewPort;
-        this.groupByField = groupByField;
+        this.queryMethod = queryMethod;
+        this.measures = measures;
+        this.viewPort = new ViewPort(0, 0);
     }
 
     @Override
@@ -72,16 +73,6 @@ public abstract class AbstractQuery implements TimeInterval {
         return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    public String querySkeletons(QueryMethod method) {
-        switch (method){
-            case M4:
-                return m4QuerySkeleton();
-            default:
-                return "";
-        }
-    }
-
-    public String m4QuerySkeleton() { return ""; }
 
     public HashMap<Integer, Double[]> getFilters() {
         return this.filters;
@@ -112,4 +103,14 @@ public abstract class AbstractQuery implements TimeInterval {
     public void setGroupByAggregator(Aggregator groupByAggregator) {
         this.groupByAggregator = groupByAggregator;
     }
+
+    public abstract String m4QuerySkeleton();
+
+    public abstract String m4WithOLAPQuerySkeleton();
+
+    public QueryMethod getQueryMethod() {
+        return queryMethod;
+    }
+
+    public abstract String rawQuerySkeleton();
 }

@@ -36,7 +36,8 @@ public class ParquetReader {
     private final MessageType schema;
     private final DateTimeFormatter formatter;
     private final MessageColumnIO columnIO;
-    private final Integer timeCol;
+    private final String timeCol;
+    private final Integer timeColIndex;
 
     private long startTime;
     private long endTime;
@@ -49,18 +50,11 @@ public class ParquetReader {
     private int currentRowGroupId;
     private RecordReader<Group> recordReader;
 
-    public ParquetReader(String filePath,  DateTimeFormatter formatter,
-                         String timeCol, List<String> measures) throws IOException {
-        this(filePath, formatter, timeCol, measures, null);
+    public ParquetReader(String filePath,  DateTimeFormatter formatter, String timeCol) throws IOException {
+        this(filePath, formatter, timeCol, null);
     }
 
-    public ParquetReader(String filePath,  DateTimeFormatter formatter,
-                         Integer timeCol, List<Integer> measures) throws IOException {
-        this(filePath, formatter, timeCol, measures, null);
-    }
-
-    public ParquetReader(String filePath,  DateTimeFormatter formatter,
-                         Integer timeCol, List<Integer> measures, Duration samplingInterval) throws IOException {
+    public ParquetReader(String filePath,  DateTimeFormatter formatter, String timeCol, Duration samplingInterval) throws IOException {
         this.filePath = filePath;
         this.formatter = formatter;
         this.reader = ParquetFileReader.open(HadoopInputFile.fromPath(new Path(this.filePath), new Configuration()));
@@ -68,26 +62,12 @@ public class ParquetReader {
         this.columnIO = new ColumnIOFactory().getColumnIO(this.schema);
         this.parsedHeader = this.schema.getColumns().stream().map(ColumnDescriptor::toString).toArray(String[]::new);
         this.timeCol = timeCol;
-        this.measures = measures;
+        this.timeColIndex = Arrays.stream(this.parsedHeader).collect(Collectors.toList()).indexOf(timeCol);
+
         computeFileStats(samplingInterval);
 
         LOG.info("Created reader for file {} with {} partition size.", filePath, this.partitionSize);
     }
-
-    public ParquetReader(String filePath,  DateTimeFormatter formatter,
-                         String timeCol, List<String> measures, Duration samplingInterval) throws IOException {
-        this.filePath = filePath;
-        this.formatter = formatter;
-        this.reader = ParquetFileReader.open(HadoopInputFile.fromPath(new Path(this.filePath), new Configuration()));
-        this.schema = reader.getFooter().getFileMetaData().getSchema();
-        this.columnIO = new ColumnIOFactory().getColumnIO(this.schema);
-        this.parsedHeader = this.schema.getFields().stream().map(Type::getName).toArray(String[]::new);
-        this.timeCol = Arrays.stream(this.parsedHeader).collect(Collectors.toList()).indexOf(timeCol);
-        this.measures = measures.stream().map(m -> Arrays.stream(this.parsedHeader).collect(Collectors.toList()).indexOf(m)).collect(Collectors.toList());
-        computeFileStats(samplingInterval);
-        LOG.info("Created reader for file {} with {} partition size.", filePath, this.partitionSize);
-    }
-
     private void computeFileStats(Duration samplingInterval) throws IOException {
         PageReadStore firstRowGroup = reader.readRowGroup(0);
         this.partitionSize = firstRowGroup.getRowCount();
@@ -214,8 +194,12 @@ public class ParquetReader {
         return new TimeRange(this.startTime, this.endTime);
     }
 
-    public Integer getTimeCol() {
+    public String getTimeCol() {
         return timeCol;
+    }
+
+    public Integer getTimeColIndex() {
+        return timeColIndex;
     }
 
     public List<Integer> getMeasures() {

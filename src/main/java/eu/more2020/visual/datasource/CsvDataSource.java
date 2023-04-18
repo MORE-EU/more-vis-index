@@ -1,10 +1,8 @@
 package eu.more2020.visual.datasource;
 
 import com.google.common.collect.Iterators;
-import eu.more2020.visual.domain.DataPoint;
-import eu.more2020.visual.domain.DataPoints;
+import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.CsvDataset;
-import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.csv.CsvDataPoint;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +28,11 @@ public class CsvDataSource implements DataSource {
     @Override
     public CsvDataPoints getAllDataPoints(List<Integer> measures) {
         return new CsvDataPoints(csvDataset.getTimeRange().getFrom(), csvDataset.getTimeRange().getTo(), measures);
+    }
+
+    @Override
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
+        return null;
     }
 
     /**

@@ -11,9 +11,11 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
 
@@ -53,7 +55,7 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
                 }
                 catch (Exception e){ if(hasNext()) return  nextResult();}
             }
-            return new CsvDataPoint(DateTimeUtil.parseDateTimeString(row[dataset.getTimeCol()], DateTimeFormatter.ofPattern(dataset.getTimeFormat()),
+            return new CsvDataPoint(DateTimeUtil.parseDateTimeString(row[dataset.getTimeColIndex()], DateTimeFormatter.ofPattern(dataset.getTimeFormat()),
                     ZoneId.of("UTC")), values, reader.getLastRowReadOffset());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -68,8 +70,9 @@ public class CsvDataPointsIterator implements Iterator<CsvDataPoint> {
         } else {
             try {
                 started = true;
-                reader = new CsvRandomAccessReader(filePath, DateTimeFormatter.ofPattern(dataset.getTimeFormat()), dataset.getTimeCol(), dataset.getDelimiter(),
-                        dataset.getHasHeader(), measures, Charset.defaultCharset(), dataset.getSamplingInterval(), dataset.getMeanByteSize());
+                reader = new CsvRandomAccessReader(filePath, DateTimeFormatter.ofPattern(dataset.getTimeFormat()), dataset.getTimeCol(),
+                        dataset.getMeasures(), dataset.getDelimiter(),
+                        dataset.getHasHeader(), Charset.defaultCharset(), dataset.getSamplingInterval(), dataset.getMeanByteSize());
                 reader.seekTimestamp(from);
                 reader.setDirection(DIRECTION.FORWARD);
                 next = nextResult();

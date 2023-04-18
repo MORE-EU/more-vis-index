@@ -66,8 +66,7 @@ public class ParquetDataPointsIterator implements Iterator<ParquetDataPoint> {
         } else {
             try {
                 started = true;
-                reader = new ParquetReader(filePath, DateTimeFormatter.ofPattern(dataset.getTimeFormat()), dataset.getTimeCol(),
-                        measures, dataset.getSamplingInterval()) ;
+                reader = new ParquetReader(filePath, DateTimeFormatter.ofPattern(dataset.getTimeFormat()), dataset.getTimeCol(), dataset.getSamplingInterval()) ;
                 reader.seekTimestamp(from);
                 next = nextResult();
                 return reader.hasNext() && next.getTimestamp() <= to;

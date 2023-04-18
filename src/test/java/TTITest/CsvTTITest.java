@@ -66,12 +66,11 @@ public class CsvTTITest {
                                 else
                                     csvStringMeasures.add(measure.asText());
                             }
-                            CsvDataset csvDataset = new CsvDataset(path, datasetId, name, csvTimeCol, csvMeasures, hasHeader, timeFormat, delimiter);
+                            CsvDataset csvDataset = new CsvDataset(path, datasetId, name, "datetime", hasHeader, timeFormat, delimiter);
                             if (csvStringMeasures.size() > 0) {
                                 for (String csvStringMeasure : csvStringMeasures) {
                                     csvMeasures.add(Arrays.asList(csvDataset.getHeader()).indexOf(csvStringMeasure));
                                 }
-                                csvDataset.setMeasures(csvMeasures);
                             }
                             return csvDataset;
 /*                        case "parquet":

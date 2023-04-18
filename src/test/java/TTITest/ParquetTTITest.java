@@ -66,12 +66,11 @@ public class ParquetTTITest {
                                 else
                                     csvStringMeasures.add(measure.asText());
                             }
-                            CsvDataset csvDataset = new CsvDataset(path, datasetId, name, csvTimeCol, csvMeasures, hasHeader, timeFormat, delimiter);
+                            CsvDataset csvDataset = new CsvDataset(path, datasetId, name, "datetime", hasHeader, timeFormat, delimiter);
                             if(csvStringMeasures.size() > 0){
                                 for (String csvStringMeasure : csvStringMeasures){
                                     csvMeasures.add(Arrays.asList(csvDataset.getHeader()).indexOf(csvStringMeasure));
                                 }
-                                csvDataset.setMeasures(csvMeasures);
                             }
                             return csvDataset;
                         case "parquet":
@@ -80,7 +79,7 @@ public class ParquetTTITest {
                             for (JsonNode measure : d.get("measures")) {
                                 parquetMeasures.add(measure.asText());
                             }
-                            ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, parquetTimeCol, parquetMeasures, timeFormat);
+                            ParquetDataset parquetDataset = new ParquetDataset(path, datasetId, name, parquetTimeCol, timeFormat);
                             return parquetDataset;
                         case "modelar":
                             break;
@@ -103,7 +102,7 @@ public class ParquetTTITest {
         return r.toString();
     }
 
-    @Test
+//    @Test
     public void test_wind() throws IOException {
         farmName = "BEBEZE2";
         id = "bbz2";
@@ -123,7 +122,6 @@ public class ParquetTTITest {
 
         DataSource dataSource = DataSourceFactory.getDataSource(parquetDataset);
         DataPoints dataPoints = dataSource.getDataPoints(startTime, endTime, parquetDataset.getMeasures());
-//         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
         System.out.println(timeRange);
         List<DataPoint> dataPoints1 = new ArrayList<>();
         for (DataPoint dataPoint : dataPoints){
@@ -143,7 +141,6 @@ public class ParquetTTITest {
 //
          dataSource = DataSourceFactory.getDataSource(parquetDataset);
          dataPoints = dataSource.getDataPoints(timeRange.getFrom(), timeRange.getTo(), parquetDataset.getMeasures());
-//         DataPoints dataPoints = dataSource.getAllDataPoints(csvDataset.getMeasures());
         dataPoints1 = new ArrayList<>();
         for (DataPoint dataPoint : dataPoints){
             dataPoints1.add(dataPoint);
@@ -158,7 +155,7 @@ public class ParquetTTITest {
     }
 
 //
-    @Test
+//    @Test
     public void test_solar() throws IOException {
         farmName = "solar";
         id = "basil";

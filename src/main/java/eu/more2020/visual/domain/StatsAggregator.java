@@ -78,6 +78,20 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         }
     }
 
+    public void accept(UnivariateDataPoint dataPoint, int i) {
+        ++count;
+        double value = dataPoint.getValue();
+        sums[i] += value;
+        minValues[i] = Math.min(minValues[i], value);
+        if (minValues[i] == value) {
+            minTimestamps[i] = dataPoint.getTimestamp();
+        }
+        maxValues[i] = Math.max(maxValues[i], value);
+        if (maxValues[i] == value) {
+            maxTimestamps[i] = dataPoint.getTimestamp();
+        }
+    }
+
     public void accept(AggregatedDataPoint dataPoint) {
         Stats stats = dataPoint.getStats();
         if (stats.getCount() != 0) {

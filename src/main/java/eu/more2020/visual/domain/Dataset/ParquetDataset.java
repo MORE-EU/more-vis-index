@@ -12,36 +12,44 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ParquetDataset extends AbstractDataset{
+public class ParquetDataset extends AbstractDataset {
+
     private static final Logger LOG = LoggerFactory.getLogger(ParquetReader.class);
+    private Integer timeColIndex;
 
 
     public ParquetDataset(String path, String id, String name,
-                          Integer timeCol, List<Integer> measures, String timeFormat) throws IOException {
-        super(path, id, name, timeCol, measures, timeFormat);
+                          String timeCol, String timeFormat) throws IOException {
+        super(path, id, name, timeCol, timeFormat);
         this.fillParquetDatasetInfo();
         LOG.info("Initialized dataset: {}", this);
     }
 
-    public ParquetDataset(String path, String id, String name,
-                          String timeColName, List<String> measureNames, String timeFormat) throws IOException {
-       super(path, id, name, timeColName, measureNames, timeFormat);
-       this.fillParquetDatasetInfo();
-       LOG.info("Initialized dataset: {}", this);
-    }
 
     public void fillParquetDataFileInfo(DataFileInfo dataFileInfo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getTimeFormat());
-        ParquetReader parquetReader = null;
-        if(getTimeCol() != null && getMeasures() != null)
-            parquetReader = new ParquetReader(dataFileInfo.getFilePath(), formatter, getTimeCol(), getMeasures());
-        else
-            parquetReader = new ParquetReader(dataFileInfo.getFilePath(), formatter, getTimeColName(), getMeasureNames());
+        ParquetReader parquetReader = new ParquetReader(dataFileInfo.getFilePath(), formatter, getTimeCol());
         setSamplingInterval(parquetReader.getSamplingInterval());
+        setTimeColIndex(parquetReader.getTimeColIndex());
         setHeader(parquetReader.getParsedHeader());
-        setMeasures(parquetReader.getMeasures());
-        setTimeCol(parquetReader.getTimeCol());
         dataFileInfo.setTimeRange(parquetReader.getTimeRange());
+    }
+
+    @Override
+    public List<Integer> getMeasures(){
+        int[] measures = new int[getHeader().length - 1];
+        int i = 0;
+        int j = i;
+        while(i < getHeader().length - 1){
+            if(i != getTimeColIndex()){
+                measures[i] = j;
+                i ++;
+            }
+            j++;
+        }
+        return Arrays.stream(measures)
+                .boxed()
+                .collect(Collectors.toList());
     }
 
     public void fillParquetDatasetInfo() throws IOException {
@@ -68,5 +76,13 @@ public class ParquetDataset extends AbstractDataset{
             this.setTimeRange(new TimeRange(fileInfoList.get(0).getTimeRange()
                     .getFrom(), fileInfoList.get(fileInfoList.size() - 1).getTimeRange().getTo()));
         }
+    }
+
+    public Integer getTimeColIndex() {
+        return timeColIndex;
+    }
+
+    public void setTimeColIndex(Integer timeColIndex) {
+        this.timeColIndex = timeColIndex;
     }
 }

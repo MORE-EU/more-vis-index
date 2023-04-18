@@ -162,7 +162,7 @@ public class RandomAccessReader extends RandomAccessFile {
         }
         else{
             if (current >= bufferOffset + buffer.length || validBufferBytes == -1) reBuffer();
-            return ((int) buffer[(int) Math.max((current++ - bufferOffset), 0)]) & 0xff;
+            return ((int) buffer[(int) ((current++ - bufferOffset))]) & 0xff;
         }
     }
 

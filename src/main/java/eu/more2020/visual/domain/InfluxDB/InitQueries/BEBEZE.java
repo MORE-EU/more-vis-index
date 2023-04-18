@@ -1,4 +1,4 @@
-package eu.more2020.visual.experiments.util.InfluxDB.InitQueries;
+package eu.more2020.visual.domain.InfluxDB.InitQueries;
 
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;

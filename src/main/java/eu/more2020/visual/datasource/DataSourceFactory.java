@@ -1,8 +1,6 @@
 package eu.more2020.visual.datasource;
 
-import eu.more2020.visual.domain.Dataset.AbstractDataset;
-import eu.more2020.visual.domain.Dataset.CsvDataset;
-import eu.more2020.visual.domain.Dataset.ParquetDataset;
+import eu.more2020.visual.domain.Dataset.*;
 
 public class DataSourceFactory {
 
@@ -12,7 +10,10 @@ public class DataSourceFactory {
         }
         else if(dataset instanceof ParquetDataset){
             return new ParquetDataSource((ParquetDataset) dataset);
-        }else
-            return null;
+        }else if(dataset instanceof PostgreSQLDataset)
+            return new PostgreSQLDatasource((PostgreSQLDataset) dataset);
+        else if(dataset instanceof InfluxDBDataset)
+            return new InfluxDBDatasource((InfluxDBDataset) dataset);
+        throw new IllegalArgumentException("Unsupported Datasource");
     }
 }

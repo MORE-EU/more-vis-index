@@ -24,15 +24,14 @@ public abstract class AbstractDataset implements Serializable {
     private String name;
     private Integer resType; // 0: panel, 1: turbine
     private String[] header;
-    private Integer timeCol;
+    private String timeCol;
     private String timeFormat;
     private String farmName;
     private TimeRange timeRange;
     private String type;
     List<DataFileInfo> fileInfoList = new ArrayList<>();
-    private List<Integer> measures;
-    private List<String> measureNames;
-    private String timeColName;
+
+    public AbstractDataset(){}
 
     public AbstractDataset(String path, String id, String name, String timeFormat) {
         this.path = path;
@@ -41,23 +40,14 @@ public abstract class AbstractDataset implements Serializable {
         this.timeFormat = timeFormat;
     }
 
-    public AbstractDataset(String path, String id, String name,Integer timeCol, List<Integer> measures,  String timeFormat) {
+    public AbstractDataset(String path, String id, String name, String timeCol, String timeFormat) {
         this.path = path;
         this.id = id;
         this.name = name;
         this.timeCol = timeCol;
-        this.measures = measures;
         this.timeFormat = timeFormat;
     }
 
-    public AbstractDataset(String path, String id, String name, String timeColName, List<String> measureNames,  String timeFormat) {
-        this.path = path;
-        this.id = id;
-        this.name = name;
-        this.timeColName = timeColName;
-        this.measureNames = measureNames;
-        this.timeFormat = timeFormat;
-    }
 
     public String getId() {
         return id;
@@ -123,22 +113,14 @@ public abstract class AbstractDataset implements Serializable {
 
     public void setType(String type) { this.type = type; }
 
-    public List<Integer> getMeasures() {
-        return measures;
-    }
 
-    public Integer getTimeCol() {
+    public String getTimeCol() {
         return timeCol;
     }
 
-    public void setTimeCol(Integer timeCol) {
+    public void setTimeCol(String timeCol) {
         this.timeCol = timeCol;
     }
-
-    public void setMeasures(List<Integer> measures){
-        this.measures = measures;
-    }
-
 
     public Duration getSamplingInterval() {
         return samplingInterval;
@@ -156,13 +138,7 @@ public abstract class AbstractDataset implements Serializable {
         this.fileInfoList = fileInfoList;
     }
 
-    public List<String> getMeasureNames() {
-        return measureNames;
-    }
-
-    public String getTimeColName() {
-        return timeColName;
-    }
+    public List<Integer> getMeasures(){return null;}
 
     @Override
     public boolean equals(Object o) {
@@ -195,7 +171,6 @@ public abstract class AbstractDataset implements Serializable {
                 ", timeRange=" + timeRange +
                 ", type='" + type + '\'' +
                 ", fileInfoList=" + fileInfoList +
-                ", measures=" + measures +
                 '}';
     }
 }

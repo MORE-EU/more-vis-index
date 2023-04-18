@@ -16,7 +16,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CsvRandomAccessReader extends RandomAccessReader {
     private static final Logger LOG = LoggerFactory.getLogger(CsvRandomAccessReader.class);
@@ -24,7 +26,8 @@ public class CsvRandomAccessReader extends RandomAccessReader {
     private final String filePath;
     private final CsvParserSettings csvParserSettings;
     private final DateTimeFormatter formatter;
-    private final Integer timeCol;
+    private final String timeCol;
+    private final Integer timeColIndex;
     private final String delimiter;
 
     private final ZoneId zoneId = ZoneId.of("UTC");
@@ -46,31 +49,33 @@ public class CsvRandomAccessReader extends RandomAccessReader {
 
     public CsvRandomAccessReader(String filePath,
                                  DateTimeFormatter formatter,
-                                 Integer timeCol, String delimiter, Boolean hasHeader,
-                                 List<Integer> measures) throws IOException {
-        this(filePath, formatter, timeCol, delimiter, hasHeader, measures, Charset.defaultCharset());
+                                 String timeCol, List<Integer> measures, String delimiter, Boolean hasHeader) throws IOException {
+        this(filePath, formatter, timeCol, measures, delimiter, hasHeader, Charset.defaultCharset());
     }
 
     public CsvRandomAccessReader(String filePath,
                                  DateTimeFormatter formatter,
-                                 Integer timeCol, String delimiter, Boolean hasHeader,
-                                 List<Integer> measures,
+                                 String timeCol, List<Integer> measures, String delimiter, Boolean hasHeader,
                                  Charset charset) throws IOException {
-        this(filePath, formatter, timeCol, delimiter, hasHeader, measures, Charset.defaultCharset(), null, -1);
+        this(filePath, formatter, timeCol, measures, delimiter, hasHeader, Charset.defaultCharset(), null, -1);
+    }
+
+    public CsvRandomAccessReader(String filePath, DateTimeFormatter formatter,
+                                 String timeCol, String delimiter, Boolean hasHeader) throws IOException {
+        this(filePath, formatter, timeCol, null, delimiter, hasHeader, Charset.defaultCharset(), null, -1);
+
     }
 
 
     public CsvRandomAccessReader(String filePath,
                                  DateTimeFormatter formatter,
-                                 Integer timeCol, String delimiter, Boolean hasHeader,
-                                 List<Integer> measures,
+                                 String timeCol, List<Integer> measures, String delimiter, Boolean hasHeader,
                                  Charset charset, Duration samplingInterval, long meanByteSize) throws IOException {
         super(new File(filePath), charset);
         this.filePath = filePath;
         this.formatter = formatter;
         this.timeCol = timeCol;
         this.delimiter = delimiter;
-        this.measures = measures;
         this.csvParserSettings = this.createCsvParserSettings();
         this.parser = new CsvParser(csvParserSettings);
 
@@ -78,12 +83,12 @@ public class CsvRandomAccessReader extends RandomAccessReader {
             // we first parse header, before selecting specific columns for the parser to process
             parsedHeader = parseLine(this.readNewLine());
         }
-
+        this.timeColIndex = Arrays.stream(parsedHeader).collect(Collectors.toList()).indexOf(timeCol);
         updateMeasures(measures);
 
         // set start offset to offset of first data point
         startOffset = current;
-        startTime = parseStringToTimestamp(parser.parseLine(this.readNewLine())[timeCol]);
+        startTime = parseStringToTimestamp(parser.parseLine(this.readNewLine())[timeColIndex]);
 
         if (meanByteSize <= 0 || samplingInterval == null) {
             computeFileStats();
@@ -103,14 +108,14 @@ public class CsvRandomAccessReader extends RandomAccessReader {
 
 
     private void computeFileStats() throws IOException {
-        long secondTime = parseStringToTimestamp(parser.parseLine(this.readNewLine())[timeCol]);
+        long secondTime = parseStringToTimestamp(parser.parseLine(this.readNewLine())[timeColIndex]);
         samplingInterval = Duration.of(secondTime - startTime, ChronoUnit.MILLIS);
         LOG.info("Sampling interval for file {}: {}.", filePath, samplingInterval);
 
         goToEnd();
 
         String lastLine = this.readNewLine();
-        this.endTime = parseStringToTimestamp(parser.parseLine(lastLine)[timeCol]);
+        this.endTime = parseStringToTimestamp(parser.parseLine(lastLine)[timeColIndex]);
         LOG.info("End time for file {}: {}", filePath, endTime);
 
         long estimatedSamples = Duration.of(endTime - startTime, ChronoUnit.MILLIS).dividedBy(samplingInterval);
@@ -118,20 +123,6 @@ public class CsvRandomAccessReader extends RandomAccessReader {
         meanByteSize = (this.length() - startOffset) / estimatedSamples;
         LOG.info("Mean row byte size in file {}: {}", filePath, meanByteSize);
 
-
-/*        int sample_count = 1000000;
-        long diff_sum = 0;
-        long curr_offset = this.getFilePointer() - 1;
-        int i = 0;
-        while (i < sample_count && !this.isEOF()) {
-            this.readNewLine();
-            long offset = this.getFilePointer() - 1;
-            diff_sum += offset - curr_offset;
-            curr_offset = offset;
-            i += 1;
-        }
-
-        this.meanByteSize = diff_sum / sample_count;*/
     }
 
     private long findPosition(long time) {
@@ -156,7 +147,7 @@ public class CsvRandomAccessReader extends RandomAccessReader {
 
         String line = this.readNewLine();
 
-        long firstTimeFound = parseStringToTimestamp(this.parseLine(line)[timeCol]);
+        long firstTimeFound = parseStringToTimestamp(this.parseLine(line)[timeColIndex]);
 
         long timeFound;
         if (firstTimeFound > time) {
@@ -164,7 +155,7 @@ public class CsvRandomAccessReader extends RandomAccessReader {
             while (true) {
                 line = this.readNewLine();
                 prevOffset = this.getFilePointer();
-                timeFound = parseStringToTimestamp(this.parseLine(line)[timeCol]);
+                timeFound = parseStringToTimestamp(this.parseLine(line)[timeColIndex]);
                 if (timeFound <= time) return prevOffset;
             }
         } else if (firstTimeFound == time) {
@@ -174,7 +165,7 @@ public class CsvRandomAccessReader extends RandomAccessReader {
                 this.setDirection(DIRECTION.FORWARD);
                 prevOffset = this.getFilePointer();
                 line = this.readNewLine();
-                timeFound = parseStringToTimestamp(this.parseLine(line)[timeCol]);
+                timeFound = parseStringToTimestamp(this.parseLine(line)[timeColIndex]);
                 if (timeFound >= time) return prevOffset - 1;
             }
         }
@@ -216,12 +207,14 @@ public class CsvRandomAccessReader extends RandomAccessReader {
     }
 
     private void updateMeasures(List<Integer> measures) {
-        this.measures = measures;
-        List<Integer> tmpList = new ArrayList<>();
-        tmpList.add(this.timeCol);
-        tmpList.addAll(this.measures);
-        this.csvParserSettings.selectIndexes(tmpList.toArray(new Integer[0]));
-        this.parser = new CsvParser(this.csvParserSettings);
+        if (measures != null){
+            this.measures = measures;
+            List<Integer> tmpList = new ArrayList<>();
+            tmpList.add(this.timeColIndex);
+            tmpList.addAll(this.measures);
+            this.csvParserSettings.selectIndexes(tmpList.toArray(new Integer[0]));
+            this.parser = new CsvParser(this.csvParserSettings);
+        }
     }
 
     private long parseStringToTimestamp(String s) {

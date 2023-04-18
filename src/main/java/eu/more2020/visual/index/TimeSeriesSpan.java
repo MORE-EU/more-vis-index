@@ -3,6 +3,7 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
+import javax.xml.crypto.Data;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -58,6 +59,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         aggsByMeasure = new long[measures.length][size * 5];
 
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
+        timeAggregator.getCount();
         int i = 0;
         AggregatedDataPoint aggregatedDataPoint;
         while (timeAggregator.hasNext()) {
@@ -65,7 +67,25 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
             if (i == 0) {
                 from = aggregatedDataPoint.getTimestamp();
             }
+            addAggregatedDataPoint(i, dataPoints.getMeasures(), aggregatedDataPoint);
+            i++;
+        }
+    }
 
+    public void build(AggregatedDataPoints dataPoints, AggregateInterval aggregateInterval) {
+        this.aggregateInterval = aggregateInterval;
+        Iterator<AggregatedDataPoint> it = dataPoints.iterator();
+        int i = 0;
+        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, null);
+
+        measures = dataPoints.getMeasures().stream().mapToInt(Integer::intValue).toArray();
+        counts = new int[size];
+        aggsByMeasure = new long[measures.length][size * 5];
+        while(it.hasNext()){
+           AggregatedDataPoint aggregatedDataPoint = it.next();
+            if (i == 0) {
+                from = aggregatedDataPoint.getTimestamp();
+            }
             addAggregatedDataPoint(i, dataPoints.getMeasures(), aggregatedDataPoint);
             i++;
         }
@@ -111,6 +131,10 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     public int getSize() {
         return size;
+    }
+
+    public int[] getCounts(){
+        return  counts;
     }
 
     public AggregateInterval getAggregateInterval() {
@@ -227,8 +251,6 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
         return rolledUpSpan;
     }
-
-
 
 
     private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
