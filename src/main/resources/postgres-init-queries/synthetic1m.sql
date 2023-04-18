@@ -18,11 +18,9 @@ COPY more.synthetic1m_tmp(timestamp, value_1, value_2, value_3, value_4, value_5
 CREATE TABLE more.synthetic1m(
      epoch   BIGINT NOT NULL
     ,timestamp  TIMESTAMP NOT NULL
-    ,value_1      FLOAT NOT NULL
-    ,value_2      FLOAT NOT NULL
-    ,value_3     FLOAT NOT NULL
-    ,value_4    FLOAT NOT NULL
-    ,value_5 FLOAT NOT NULL
+    ,value      FLOAT
+    ,id         BIGINT NOT NULL
+    ,col        VARCHAR NOT NULL
 );
 
 INSERT INTO more.synthetic1m(epoch, timestamp, value, id, col)
