@@ -40,7 +40,7 @@ SELECT date_part('epoch', timestamp) * 1000, timestamp, value_5, 4, 'value_5' FR
 
 DROP TABLE more.synthetic1m_tmp;
 
-CREATE INDEX bebeze_index ON more.bebeze(epoch, id);
+CREATE INDEX synthetic1m_index ON more.synthetic1m(epoch, id);
 
 
 
