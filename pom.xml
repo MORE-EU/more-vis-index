@@ -157,7 +157,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>eu.more2020.visual.experiments</mainClass>
+                                    <mainClass>eu.more2020.visual.experiments.Experiments</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
