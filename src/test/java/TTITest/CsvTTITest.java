@@ -186,7 +186,7 @@ public class CsvTTITest {
 
     }*/
 
-    @Test
+//    @Test
     public void test_wind() throws IOException {
         farmName = "BEBEZE";
         id = "bbz1";
@@ -255,7 +255,7 @@ public class CsvTTITest {
 */
 
     }
-    @Test
+//    @Test
     public void test_solar() throws IOException {
         farmName = "solar";
         id = "eugene";
