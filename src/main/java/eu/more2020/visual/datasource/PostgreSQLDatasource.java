@@ -61,18 +61,9 @@ public class PostgreSQLDatasource implements DataSource{
 
         @NotNull
         public Iterator<DataPoint> iterator() {
-
             try {
-                String q;
-                String query;
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
-                q = sqlQuery.rawQuerySkeleton();
-                NamedPreparedStatement preparedStatement = new NamedPreparedStatement(postgreSQLConnection.getConnection(), q);
-                preparedStatement.setLong("from", sqlQuery.getFrom());
-                preparedStatement.setLong("to", sqlQuery.getTo());
-                preparedStatement.setString("tableName", sqlQueryExecutor.getSchema() + "." + dataset.getTable());
-                query = preparedStatement.getPreparedStatement().toString().replace("'", "");
-                ResultSet resultSet = sqlQueryExecutor.execute(query);
+                ResultSet resultSet = sqlQueryExecutor.executeRawSqlQuery(sqlQuery);
                 return new PostgreSQLDataPointsIterator(sqlQuery.getMeasures(), resultSet);
             }
             catch(SQLException e) {
@@ -130,17 +121,8 @@ public class PostgreSQLDatasource implements DataSource{
         public Iterator<AggregatedDataPoint> iterator() {
 
             try {
-                String q;
-                String query;
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
-                q = sqlQuery.m4QuerySkeleton();
-                NamedPreparedStatement preparedStatement = new NamedPreparedStatement(postgreSQLConnection.getConnection(), q);
-                preparedStatement.setLong("from", sqlQuery.getFrom());
-                preparedStatement.setLong("to", sqlQuery.getTo());
-                preparedStatement.setLong("width", (sqlQuery.getTo() - sqlQuery.getFrom()) / aggregateInterval.toDuration().toMillis());
-                preparedStatement.setString("tableName", sqlQueryExecutor.getSchema() + "." + dataset.getTable());
-                query = preparedStatement.getPreparedStatement().toString().replace("'", "");
-                ResultSet resultSet = sqlQueryExecutor.execute(query);
+                ResultSet resultSet = sqlQueryExecutor.executeM4SqlQuery(sqlQuery);
                 return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getMeasures(), resultSet);
             }
             catch(SQLException e) {

@@ -14,7 +14,7 @@ public interface QueryExecutor {
     QueryResults executeM4Query(AbstractQuery q) throws SQLException;
     void drop() throws SQLException, FileNotFoundException;
 
-    QueryResults executeM4OLAPQuery(AbstractQuery q);
+    QueryResults executeM4OLAPQuery(AbstractQuery q) throws SQLException;
 
     QueryResults executeRawQuery(AbstractQuery q) throws SQLException;
 

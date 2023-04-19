@@ -8,6 +8,8 @@ import eu.more2020.visual.domain.UnivariateDataPoint;
 import eu.more2020.visual.experiments.util.NamedPreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.transform.Result;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,8 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.ZoneId;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,37 +53,17 @@ public class SQLQueryExecutor implements QueryExecutor {
 
     @Override
     public QueryResults executeM4Query(AbstractQuery q) throws SQLException {
-        return executeM4SqlQuery((SQLQuery) q);
+        return collect(executeM4SqlQuery((SQLQuery) q));
     }
 
     @Override
-    public QueryResults executeM4OLAPQuery(AbstractQuery q) {
-        return null;
+    public QueryResults executeM4OLAPQuery(AbstractQuery q) throws SQLException {
+        return collect(executeM4OLAPSqlQuery((SQLQuery) q));
     }
 
     @Override
     public QueryResults executeRawQuery(AbstractQuery q) throws SQLException {
-        QueryResults queryResults = new QueryResults();
-        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
-        String sql = q.rawQuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setString("tableName", schema + "." + table);
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "")
-                .replace("epoch", "'epoch'");
-        ResultSet resultSet = execute(query);
-        while(resultSet.next()){
-            Integer measure = resultSet.getInt(1);
-            long timestamp = resultSet.getLong(2);
-            Double val = resultSet.getDouble(3);
-            data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
-                    new UnivariateDataPoint(timestamp, val));
-        }
-        data.forEach((k, v) -> v.sort(compareLists));
-        queryResults.setData(data);
-        return queryResults;
+        return collect(executeRawSqlQuery((SQLQuery) q));
     }
 
     @Override
@@ -123,10 +104,29 @@ public class SQLQueryExecutor implements QueryExecutor {
         }
     };
 
+    public ResultSet executeM4OLAPSqlQuery(SQLQuery q) throws SQLException {
+        String sql = q.m4WithOLAPQuerySkeleton();
+        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
+        preparedStatement.setLong("from", q.getFrom());
+        preparedStatement.setLong("to", q.getTo());
+        preparedStatement.setString("tableName", schema + "." + table);
+        String query = preparedStatement.getPreparedStatement().toString()
+                .replace("'", "");
+        return execute(query);
+    }
 
-    private QueryResults executeM4SqlQuery(SQLQuery q) throws SQLException {
-        QueryResults queryResults = new QueryResults();
-        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+    public ResultSet executeRawSqlQuery(SQLQuery q) throws SQLException{
+        String sql = q.rawQuerySkeleton();
+        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
+        preparedStatement.setLong("from", q.getFrom());
+        preparedStatement.setLong("to", q.getTo());
+        preparedStatement.setString("tableName", schema + "." + table);
+        String query = preparedStatement.getPreparedStatement().toString()
+                .replace("'", "");
+        return execute(query);
+    }
+
+    public ResultSet executeM4SqlQuery(SQLQuery q) throws SQLException {
         String sql = q.m4QuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
@@ -135,8 +135,12 @@ public class SQLQueryExecutor implements QueryExecutor {
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
+       return execute(query);
+    }
 
-        ResultSet resultSet = execute(query);
+    private QueryResults collect(ResultSet resultSet) throws SQLException {
+        QueryResults queryResults = new QueryResults();
+        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
         while(resultSet.next()){
             Integer measure = resultSet.getInt(1);
             long epoch = resultSet.getLong(2);

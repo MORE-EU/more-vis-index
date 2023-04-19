@@ -1,12 +1,11 @@
 package eu.more2020.visual.datasource;
 
 import com.influxdb.query.FluxTable;
-import eu.more2020.visual.domain.AggregateInterval;
-import eu.more2020.visual.domain.AggregatedDataPoints;
-import eu.more2020.visual.domain.DataPoint;
-import eu.more2020.visual.domain.DataPoints;
+import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
+import eu.more2020.visual.domain.Query.InfluxDBQuery;
+import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +38,7 @@ public class InfluxDBDatasource implements DataSource {
 
     @Override
     public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
-        return null;
+        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, measures, aggregateInterval);
     }
 
     final class InfluxDBDatapoints implements DataPoints {
@@ -62,7 +61,7 @@ public class InfluxDBDatasource implements DataSource {
             List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
             String flux = "from(bucket:\"" + dataset.getBucket() + "\")\n" +
                     "  |> range(start: " + DateTimeUtil.formatTimeStamp(dataset.getTimeFormat(), from).replace(" ", "T") + "Z"
-                    + " ,stop: " + DateTimeUtil.formatTimeStamp(dataset.getTimeFormat(), to).replace(" ", "T") + "Z"  + ")\n" +
+                    + " ,stop: " + DateTimeUtil.formatTimeStamp(dataset.getTimeFormat(), to).replace(" ", "T") + "Z" + ")\n" +
                     "  |> filter(fn: (r) => r[\"_measurement\"] == \"" + dataset.getMeasurement() + "\")\n" +
                     "  |> filter(fn: (r) => r[\"_field\"] ==\"" +
                     measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
@@ -86,6 +85,7 @@ public class InfluxDBDatasource implements DataSource {
         public long getTo() {
             return to;
         }
+
         @Override
         public String getFromDate() {
             return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -95,6 +95,53 @@ public class InfluxDBDatasource implements DataSource {
         public String getToDate() {
             return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
+
+    }
+
+    final class InfluxDBAggregatedDatapoints implements AggregatedDataPoints {
+
+        private final InfluxDBQuery influxDBQuery;
+        private AggregateInterval aggregateInterval;
+
+        public InfluxDBAggregatedDatapoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
+            this.influxDBQuery = new InfluxDBQuery(from, to, measures);
+            this.aggregateInterval = aggregateInterval;
+        }
+
+        @NotNull
+        @Override
+        public Iterator<AggregatedDataPoint> iterator() {
+
+            return null;
+
+        }
+
+
+        @Override
+        public List<Integer> getMeasures() {
+            return influxDBQuery.getMeasures();
+        }
+
+        @Override
+        public long getFrom() {
+            return influxDBQuery.getFrom();
+        }
+
+        @Override
+        public long getTo() {
+            return influxDBQuery.getTo();
+        }
+
+        @Override
+        public String getFromDate() {
+            return influxDBQuery.getFromDate();
+        }
+
+        @Override
+        public String getToDate() {
+            return influxDBQuery.getToDate();
+        }
+
 
     }
 }

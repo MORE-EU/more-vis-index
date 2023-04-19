@@ -22,11 +22,9 @@ public class InfluxDBQuery extends AbstractQuery {
         this.aggregateInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.optimalM4(from, to, viewPort));
     }
 
-    public InfluxDBQuery(long from, long to, List<String> measures, HashMap<Integer, Double[]> filters,
-                         ViewPort viewPort, ChronoField groupByField, AggregateInterval aggregateInterval) {
-        super(from, to, viewPort, QueryMethod.M4, groupByField);
-        this.measures = measures;
-        this.aggregateInterval = aggregateInterval;
+
+    public InfluxDBQuery(long from, long to, List<Integer> measures) {
+        super(from, to, QueryMethod.M4, measures);
     }
 
     public List<String> getMeasureNames(){
