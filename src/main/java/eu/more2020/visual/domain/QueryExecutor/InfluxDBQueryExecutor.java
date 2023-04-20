@@ -94,6 +94,15 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
+        else if(table.equals("synthetic1m")){
+            reader = new FileReader(path);
+            CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
+                    .withType(INTEL_LAB.class)
+                    .build();
+            for (INTEL_LAB data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
         influxDBClient.close();
     }
 
