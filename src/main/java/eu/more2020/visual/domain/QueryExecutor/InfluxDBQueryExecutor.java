@@ -7,13 +7,12 @@ import com.influxdb.query.FluxTable;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import eu.more2020.visual.domain.InfluxDB.InitQueries.BEBEZE;
+import eu.more2020.visual.domain.InfluxDB.InitQueries.*;
 import eu.more2020.visual.domain.Query.AbstractQuery;
 import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
-import eu.more2020.visual.domain.InfluxDB.InitQueries.INTEL_LAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,10 +95,109 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         }
         else if(table.equals("synthetic1m")){
             reader = new FileReader(path);
-            CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
-                    .withType(INTEL_LAB.class)
+            CsvToBean<SYNTHETIC1M> csvToBean = new CsvToBeanBuilder<SYNTHETIC1M>(reader)
+                    .withType(SYNTHETIC1M.class)
                     .build();
-            for (INTEL_LAB data : csvToBean) {
+            for (SYNTHETIC1M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic2m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC2M> csvToBean = new CsvToBeanBuilder<SYNTHETIC2M>(reader)
+                    .withType(SYNTHETIC2M.class)
+                    .build();
+            for (SYNTHETIC2M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic4m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC4M> csvToBean = new CsvToBeanBuilder<SYNTHETIC4M>(reader)
+                    .withType(SYNTHETIC4M.class)
+                    .build();
+            for (SYNTHETIC4M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic8m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC8M> csvToBean = new CsvToBeanBuilder<SYNTHETIC8M>(reader)
+                    .withType(SYNTHETIC8M.class)
+                    .build();
+            for (SYNTHETIC8M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic16m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC16M> csvToBean = new CsvToBeanBuilder<SYNTHETIC16M>(reader)
+                    .withType(SYNTHETIC16M.class)
+                    .build();
+            for (SYNTHETIC16M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic32m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC32M> csvToBean = new CsvToBeanBuilder<SYNTHETIC32M>(reader)
+                    .withType(SYNTHETIC32M.class)
+                    .build();
+            for (SYNTHETIC32M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic64m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC64M> csvToBean = new CsvToBeanBuilder<SYNTHETIC64M>(reader)
+                    .withType(SYNTHETIC64M.class)
+                    .build();
+            for (SYNTHETIC64M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic128m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC128M> csvToBean = new CsvToBeanBuilder<SYNTHETIC128M>(reader)
+                    .withType(SYNTHETIC128M.class)
+                    .build();
+            for (SYNTHETIC128M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic128m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC128M> csvToBean = new CsvToBeanBuilder<SYNTHETIC128M>(reader)
+                    .withType(SYNTHETIC128M.class)
+                    .build();
+            for (SYNTHETIC128M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic256m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC256M> csvToBean = new CsvToBeanBuilder<SYNTHETIC256M>(reader)
+                    .withType(SYNTHETIC256M.class)
+                    .build();
+            for (SYNTHETIC256M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic512m")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC512M> csvToBean = new CsvToBeanBuilder<SYNTHETIC512M>(reader)
+                    .withType(SYNTHETIC512M.class)
+                    .build();
+            for (SYNTHETIC512M data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("synthetic1b")){
+            reader = new FileReader(path);
+            CsvToBean<SYNTHETIC1B> csvToBean = new CsvToBeanBuilder<SYNTHETIC1B>(reader)
+                    .withType(SYNTHETIC1B.class)
+                    .build();
+            for (SYNTHETIC1B data : csvToBean) {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
