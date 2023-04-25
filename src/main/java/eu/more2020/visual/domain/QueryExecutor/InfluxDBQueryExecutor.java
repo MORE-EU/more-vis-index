@@ -224,22 +224,21 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         }
     };
 
-    private List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
+    public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
         String flux = String.format(q.m4QuerySkeleton(),
                 bucket, q.getFromDate(), q.getToDate(), table, // first
                 bucket, q.getFromDate(), q.getToDate(), table, // last
                 bucket, q.getFromDate(), q.getToDate(), table, // min
                 bucket, q.getFromDate(), q.getToDate(), table, // max
                 bucket, q.getFromDate(), q.getToDate(), table); // mean
-        QueryApi queryApi = influxDBClient.getQueryApi();
-        return queryApi.query(flux);
+        return execute(flux);
     }
 
-    private List<FluxTable> executeM4OLAPQuery(InfluxDBQuery q) {
+    public List<FluxTable> executeM4OLAPQuery(InfluxDBQuery q) {
         return null;
     }
 
-    private List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q) {
+    public List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q) {
                 String flux = String.format(q.rawQuerySkeleton(),
                 bucket, q.getFromDate(), q.getToDate(), table);
         return execute(flux);

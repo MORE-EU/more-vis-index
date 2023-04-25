@@ -15,8 +15,8 @@ public abstract class AbstractQuery implements TimeInterval {
 
     final long from;
     final long to;
-    final ViewPort viewPort;
-    final QueryMethod queryMethod;
+    ViewPort viewPort;
+    QueryMethod queryMethod;
     Integer timeColumn;
     List<Integer> measures;
     HashMap<Integer, Double[]> filters;
@@ -51,6 +51,11 @@ public abstract class AbstractQuery implements TimeInterval {
         this.queryMethod = queryMethod;
         this.measures = measures;
         this.viewPort = new ViewPort(0, 0);
+    }
+
+    public AbstractQuery(long from, long to) {
+        this.from = from;
+        this.to = to;
     }
 
     @Override

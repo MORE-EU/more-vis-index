@@ -6,12 +6,9 @@ import eu.more2020.visual.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
-import eu.more2020.visual.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +30,8 @@ public class InfluxDBDatasource implements DataSource {
 
     @Override
     public DataPoints getAllDataPoints(List<Integer> measures) {
-        return new InfluxDBDatasource.InfluxDBDatapoints(dataset.getTimeRange().getFrom(), dataset.getTimeRange().getTo(), measures);
+        return new InfluxDBDatasource.InfluxDBDatapoints(dataset.getTimeRange().getFrom(),
+                dataset.getTimeRange().getTo(), measures);
     }
 
     @Override
@@ -43,57 +41,44 @@ public class InfluxDBDatasource implements DataSource {
 
     final class InfluxDBDatapoints implements DataPoints {
 
-        private final List<Integer> measures;
-
-        private final long from;
-
-        private final long to;
+        private final InfluxDBQuery influxDBQuery;
 
         public InfluxDBDatapoints(long from, long to, List<Integer> measures) {
-            this.from = from;
-            this.to = to;
-            this.measures = measures;
+            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+            this.influxDBQuery = new InfluxDBQuery(from, to, measures, measureNames);
         }
 
         @NotNull
         @Override
         public Iterator<DataPoint> iterator() {
-            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            String flux = "from(bucket:\"" + dataset.getBucket() + "\")\n" +
-                    "  |> range(start: " + DateTimeUtil.formatTimeStamp(dataset.getTimeFormat(), from).replace(" ", "T") + "Z"
-                    + " ,stop: " + DateTimeUtil.formatTimeStamp(dataset.getTimeFormat(), to).replace(" ", "T") + "Z" + ")\n" +
-                    "  |> filter(fn: (r) => r[\"_measurement\"] == \"" + dataset.getMeasurement() + "\")\n" +
-                    "  |> filter(fn: (r) => r[\"_field\"] ==\"" +
-                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                    "\")\n" +
-                    "|> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")";
-            FluxTable table = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement()).execute(flux).get(0);
-            return new InfluxDBDataPointsIterator(measureNames, table);
+            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
+            List<FluxTable> fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
+            return new InfluxDBDataPointsIterator(influxDBQuery.getMeasureNames(), fluxTables.get(0));
         }
 
         @Override
         public List<Integer> getMeasures() {
-            return measures;
+            return influxDBQuery.getMeasures();
         }
 
         @Override
         public long getFrom() {
-            return from;
+            return influxDBQuery.getFrom();
         }
 
         @Override
         public long getTo() {
-            return to;
+            return influxDBQuery.getTo();
         }
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return influxDBQuery.getFromDate();
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return influxDBQuery.getToDate();
         }
 
     }
@@ -104,15 +89,17 @@ public class InfluxDBDatasource implements DataSource {
         private AggregateInterval aggregateInterval;
 
         public InfluxDBAggregatedDatapoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
-            this.influxDBQuery = new InfluxDBQuery(from, to, measures);
+            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+            this.influxDBQuery = new InfluxDBQuery(from, to, measures, measureNames, aggregateInterval);
             this.aggregateInterval = aggregateInterval;
         }
 
         @NotNull
         @Override
         public Iterator<AggregatedDataPoint> iterator() {
-
-            return null;
+            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
+            List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4InfluxQuery(influxDBQuery);
+            return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0));
 
         }
 

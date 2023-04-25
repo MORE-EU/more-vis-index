@@ -13,22 +13,32 @@ public class InfluxDBQuery extends AbstractQuery {
 
 
     private AggregateInterval aggregateInterval;
-    private List<String> measures;
+    private List<String> measureNames;
 
-    public InfluxDBQuery(long from, long to, List<String> measures,
+    public InfluxDBQuery(long from, long to, List<String> measuresNames,
                          HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
         super(from, to, viewPort, QueryMethod.M4, groupByField);
-        this.measures = measures;
+        this.measureNames = measuresNames;
         this.aggregateInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.optimalM4(from, to, viewPort));
     }
 
 
-    public InfluxDBQuery(long from, long to, List<Integer> measures) {
-        super(from, to, QueryMethod.M4, measures);
+    public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames) {
+        super(from, to);
+        this.measures = measures;
+        this.measureNames = measureNames;
+    }
+
+    public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames, AggregateInterval aggregateInterval) {
+        super(from, to);
+        this.measures = measures;
+        this.measureNames = measureNames;
+        this.aggregateInterval = aggregateInterval;
+
     }
 
     public List<String> getMeasureNames(){
-        return measures;
+        return measureNames;
     }
 
     @Override
@@ -67,41 +77,39 @@ public class InfluxDBQuery extends AbstractQuery {
                 "    |> duplicate(column:timeSrc, as:timeDst)\n" +
                 "    |> group()" +
                 "\n" +
-                "from(bucket:\"%s\") " +
-                "|> range(start:%s, stop:%s) " +
-                "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
+                "first = from(bucket:\"%s\") \n " +
+                "|> range(start:%s, stop:%s) \n" +
+                "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                 "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                measures.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                "\") " +
-                "|> customAggregateWindow(every: " + getAggregateWindow() + ", fn: first)" +
-                "|> yield(name: \"first\")") +
-                ("from(bucket:\"%s\") " +
-                        "|> range(start:%s, stop:%s) " +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
+                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+                "\") \n" +
+                "|> customAggregateWindow(every: " + getAggregateWindow() + ", fn: first)\n") +
+                ("last = from(bucket:\"%s\") " +
+                        "|> range(start:%s, stop:%s)\n " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\")\n " +
                         "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                        measures.stream().map(Object::toString)
+                        measureNames.stream().map(Object::toString)
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                        "\")" +
-                        " |> customAggregateWindow(every: " + getAggregateWindow() + ", fn: last)" +
-                        "|> yield(name: \"last\")") +
-                ("from(bucket:\"%s\") " +
-                        "|> range(start:%s, stop:%s) " +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
+                        "\")\n" +
+                        " |> customAggregateWindow(every: " + getAggregateWindow() + ", fn: last)\n") +
+                ("min = from(bucket:\"%s\") " +
+                        "|> range(start:%s, stop:%s)\n " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                         "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                        measures.stream().map(Object::toString)
+                        measureNames.stream().map(Object::toString)
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                        "\")" +
-                        " |> customAggregateWindow(every: " + getAggregateWindow() + ", fn: min)" +
-                        "|> yield(name: \"min\")") +
-                ("from(bucket:\"%s\") " +
-                        "|> range(start:%s, stop:%s) " +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
+                        "\")\n" +
+                        " |> customAggregateWindow(every: " + getAggregateWindow() + ", fn: min)") +
+                ("max = from(bucket:\"%s\") " +
+                        "|> range(start:%s, stop:%s)\n " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                         "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                        measures.stream().map(Object::toString)
+                        measureNames.stream().map(Object::toString)
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                        "\") " +
-                        "|> customAggregateWindow(every: " + getAggregateWindow() + ", fn: max)" +
-                        "|> yield(name: \"max\")");
+                        "\")\n" +
+                        "|> customAggregateWindow(every: " + getAggregateWindow() + ", fn: max)\n") +
+                "union(tables: [min, max, last, first]) \n" +
+                "|> sort(columns: [\"_time\"], desc: false)\n";
     }
 
     @Override
@@ -113,8 +121,9 @@ public class InfluxDBQuery extends AbstractQuery {
                         "|> filter(fn: (r) => r[\"_field\"] ==\"" +
                         "|> map(fn: (r) => ({ r with hour: date.hour(t: r._time) }))  \n" +
                         "|> group(columns: [\"hour\"], mode:\"by\")\n" +
-                        "|> mean(column: \"_value\") " +
-                        "|> yield(name: \"max\")");
+                        "|> mean(column: \"_value\")\n " +
+                        "|> yield(name: \"max\")\n" +
+                        "|> group()");
     }
 
     @Override
@@ -123,8 +132,10 @@ public class InfluxDBQuery extends AbstractQuery {
                 "|> range(start:%s, stop:%s) " +
                 "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
                 "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                measures.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                "\") ");
+                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+                "\")" +
+                "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n" +
+                "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
     }
 
 }
