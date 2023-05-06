@@ -1,6 +1,7 @@
 package eu.more2020.visual.domain.Query;
 
 import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.experiments.util.UserOpType;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,12 +22,22 @@ public class Query extends AbstractQuery {
         super(from, to, queryMethod, measures,  filters, viewPort, groupByField);
     }
 
+    public Query(long from, long to, QueryMethod queryMethod, List<Integer> measures,
+                 HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField, UserOpType opType) {
+        super(from, to, queryMethod, measures,  filters, viewPort, groupByField, opType);
+    }
+
     public Query(long from, long to, List<Integer> measures) {
         super(from, to, QueryMethod.M4, measures);
     }
 
     @Override
     public String m4QuerySkeleton() {
+        return null;
+    }
+
+    @Override
+    public String m4MultiQuerySkeleton() {
         return null;
     }
 

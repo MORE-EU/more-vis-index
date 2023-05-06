@@ -5,11 +5,7 @@ import eu.more2020.visual.domain.TimeInterval;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A balanced binary-search tree keyed by Interval objects.
@@ -190,6 +186,10 @@ public class IntervalTree<T extends TimeInterval> implements Iterable<T> {
         return n.isNil() ? Optional.empty() : Optional.of(n.interval());
     }
 
+    public boolean insertAll(List<T> tL){
+        for (T t : tL) insert(t);
+        return true;
+    }
     ///////////////////////////////
     // Tree -- Insertion methods //
     ///////////////////////////////
@@ -379,12 +379,24 @@ public class IntervalTree<T extends TimeInterval> implements Iterable<T> {
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getFromDate("yyyy-MM-dd HH:mm:ss");
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("Europe/Athens")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getToDate("yyyy-MM-dd HH:mm:ss");
+        }
+
+        @Override
+        public String getFromDate(String format) {
+            return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                    .format(DateTimeFormatter.ofPattern(format));
+        }
+
+        @Override
+        public String getToDate(String format) {
+            return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                    .format(DateTimeFormatter.ofPattern(format));
         }
         ///////////////////////////////////
         // Node -- General query methods //

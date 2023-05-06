@@ -31,7 +31,8 @@ public class CsvDataSource implements DataSource {
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+                                                        List<Integer> measures, AggregateInterval aggregateInterval) {
         return null;
     }
 
@@ -80,12 +81,24 @@ public class CsvDataSource implements DataSource {
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getFromDate("yyyy-MM-dd HH:mm:ss");
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getToDate("yyyy-MM-dd HH:mm:ss");
+        }
+
+        @Override
+        public String getFromDate(String format) {
+            return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                    .format(DateTimeFormatter.ofPattern(format));
+        }
+
+        @Override
+        public String getToDate(String format) {
+            return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                    .format(DateTimeFormatter.ofPattern(format));
         }
 
 

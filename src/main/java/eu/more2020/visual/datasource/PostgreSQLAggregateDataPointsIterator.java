@@ -13,12 +13,13 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     private final ResultSet resultSet;
     private final List<Integer> measures;
     private boolean changed = false;
-    private int currentGroup = 0, group = 0;
+    private int currentGroup = -1, group = 0;
 
     public PostgreSQLAggregateDataPointsIterator(List<Integer> measures, ResultSet resultSet){
         this.measures = measures;
         this.resultSet = resultSet;
     }
+
     @Override
     public boolean hasNext() {
         try {
@@ -34,19 +35,21 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     @Override
     public AggregatedDataPoint next() {
         long firstTimestamp = 0L;
+        int i = 0;
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         try {
-            int i = 0;
            do  {
                 int measureId = measures.indexOf(resultSet.getInt(1));
                 long timestamp = resultSet.getLong(2);
                 double value = resultSet.getDouble(3);
                 group = resultSet.getInt(4);
+                currentGroup = currentGroup == -1 ? group : currentGroup;
                 if(group != currentGroup) {
                     changed = true;
                     break;
                 }
-                if (i == 0) firstTimestamp = timestamp;
+                else changed = false;
+                if (i == 0)  firstTimestamp = timestamp;
                 UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
                 statsAggregator.accept(point, measureId);
                 i++;

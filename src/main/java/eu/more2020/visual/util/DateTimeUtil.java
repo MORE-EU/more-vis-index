@@ -160,11 +160,10 @@ public class DateTimeUtil {
         return dateTime;
     }
 
-    // TODO: Some times this returns 1 less
     public static int numberOfIntervals(final long startTime, final long endTime, AggregateInterval aggregateInterval, ZoneId zoneId) {
         if(endTime == startTime) return 0;
         ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, aggregateInterval, zoneId);
-        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime - 1, aggregateInterval, zoneId);
+        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime, aggregateInterval, zoneId);
         return (int) Math.ceil(aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / (double) aggregateInterval.getInterval()) + 1;
     }
 

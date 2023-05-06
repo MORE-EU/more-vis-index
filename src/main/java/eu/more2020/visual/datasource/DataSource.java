@@ -3,6 +3,7 @@ package eu.more2020.visual.datasource;
 import eu.more2020.visual.domain.AggregateInterval;
 import eu.more2020.visual.domain.AggregatedDataPoints;
 import eu.more2020.visual.domain.DataPoints;
+import eu.more2020.visual.domain.TimeRange;
 
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
 public interface DataSource {
 
 
-    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval);
+    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+                                                 List<Integer> measures, AggregateInterval aggregateInterval);
 
     /**
      * Returns a {@link DataPoints} instance to access the data points in the time series, that

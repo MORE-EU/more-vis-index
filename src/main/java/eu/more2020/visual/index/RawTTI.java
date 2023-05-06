@@ -25,7 +25,6 @@ public class RawTTI {
 
     private final DataSource dataSource;
 
-    private boolean initialized = false;
     // The interval tree containing all the time series spans already cached
     private IntervalTree<RawTimeSeriesSpan> intervalTree;
 
@@ -38,24 +37,13 @@ public class RawTTI {
     public RawTTI(AbstractDataset dataset) {
         this.dataset = dataset;
         this.dataSource = DataSourceFactory.getDataSource(dataset);
-    }
-
-
-    public void initialize(Query query) {
         intervalTree = new IntervalTree<>();
-        List<Integer> measures = query == null || query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
-        RawTimeSeriesSpan timeSeriesSpan = new RawTimeSeriesSpan();
-        DataPoints dataPoints = dataSource.getDataPoints(query.getFrom(), query.getTo(), measures);
-        timeSeriesSpan.build(dataPoints);
-        intervalTree.insert(timeSeriesSpan);
-        initialized = true;
     }
+
 
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
-        if(!initialized) initialize(query);
         System.out.println(query);
-
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
@@ -67,7 +55,6 @@ public class RawTTI {
         // also keep the remaining difference.
         List<RawTimeSeriesSpan> overlappingIntervals = StreamSupport.stream(Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
                 .filter(span ->  (span.overlaps(query)))
-//                .sorted(Comparator.comparingDouble(span -> span.getAggregateInterval().toDuration().toMillis()))
                 .sorted(Comparator.comparing(span -> span.percentage(query), Comparator.reverseOrder()))
                 .filter(span -> {
                     if(currentDifference[0].isEmpty()) return false; // If the difference has been covered, don't check.
@@ -87,11 +74,9 @@ public class RawTTI {
                     RawTimeSeriesSpan span = new RawTimeSeriesSpan();
                     span.build(dataPoints);
                     ioCount[0] += span.getCount();
-                    System.out.println(span);
                     intervalTree.insert(span);
                     return span;
                 }).collect(Collectors.toList()));
-
         MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
@@ -110,6 +95,7 @@ public class RawTTI {
         }
         queryResults.setIoCount(ioCount[0]);
         queryResults.setData(data);
+
         return queryResults;
     }
 

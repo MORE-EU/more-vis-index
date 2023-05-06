@@ -8,7 +8,11 @@ import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,8 +39,9 @@ public class InfluxDBDatasource implements DataSource {
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
-        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, measures, aggregateInterval);
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+                                                        List<Integer> measures, AggregateInterval aggregateInterval) {
+        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, ranges, measures, aggregateInterval);
     }
 
     final class InfluxDBDatapoints implements DataPoints {
@@ -81,6 +86,16 @@ public class InfluxDBDatasource implements DataSource {
             return influxDBQuery.getToDate();
         }
 
+        @Override
+        public String getFromDate(String format) {
+            return Instant.ofEpochMilli(influxDBQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+        }
+
+        @Override
+        public String getToDate(String format) {
+            return Instant.ofEpochMilli(influxDBQuery.getTo()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+        }
+
     }
 
     final class InfluxDBAggregatedDatapoints implements AggregatedDataPoints {
@@ -94,15 +109,22 @@ public class InfluxDBDatasource implements DataSource {
             this.aggregateInterval = aggregateInterval;
         }
 
+        public InfluxDBAggregatedDatapoints(long from, long to, List<TimeRange> ranges,
+                                            List<Integer> measures, AggregateInterval aggregateInterval) {
+            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+            this.influxDBQuery = new InfluxDBQuery(from, to, ranges, measures, measureNames, aggregateInterval);
+            this.aggregateInterval = aggregateInterval;
+        }
+
         @NotNull
         @Override
         public Iterator<AggregatedDataPoint> iterator() {
             InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
-            List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4InfluxQuery(influxDBQuery);
+            List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4MultiInfluxQuery(influxDBQuery);
+            if(fluxTables.size() == 0) return Collections.emptyIterator();
             return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0));
 
         }
-
 
         @Override
         public List<Integer> getMeasures() {
@@ -129,6 +151,15 @@ public class InfluxDBDatasource implements DataSource {
             return influxDBQuery.getToDate();
         }
 
+        @Override
+        public String getFromDate(String format) {
+            return Instant.ofEpochMilli(influxDBQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+        }
 
+        @Override
+        public String getToDate(String format) {
+            return Instant.ofEpochMilli(influxDBQuery.getTo()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+
+        }
     }
 }

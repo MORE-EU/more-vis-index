@@ -2,10 +2,10 @@ package eu.more2020.visual.datasource;
 import com.google.common.collect.Iterators;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.PostgreSQLDataset;
-import eu.more2020.visual.domain.PostgreSQL.PostgreSQLConnection;
+import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
 import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
-import eu.more2020.visual.experiments.util.NamedPreparedStatement;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -28,8 +28,9 @@ public class PostgreSQLDatasource implements DataSource{
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
-        return new PostgreSQLDatasource.SQLAggregatedDataPoints(from, to, measures, aggregateInterval);
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+                                                              List<Integer> measures, AggregateInterval aggregateInterval) {
+        return new PostgreSQLDatasource.SQLAggregatedDataPoints(from, to, ranges, measures, aggregateInterval);
     }
 
     @Override
@@ -98,12 +99,22 @@ public class PostgreSQLDatasource implements DataSource{
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(sqlQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getFromDate("yyyy-MM-dd HH:mm:ss");
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(sqlQuery.getTo()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getToDate("yyyy-MM-dd HH:mm:ss");
+        }
+
+        @Override
+        public String getFromDate(String format) {
+            return Instant.ofEpochMilli(sqlQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+        }
+
+        @Override
+        public String getToDate(String format) {
+            return Instant.ofEpochMilli(sqlQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
         }
     }
 
@@ -112,8 +123,18 @@ public class PostgreSQLDatasource implements DataSource{
         private final SQLQuery sqlQuery;
         private AggregateInterval aggregateInterval;
 
+
         public SQLAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
-            this.sqlQuery = new SQLQuery(from, to, measures);
+            int width = (int) ((to - from) / aggregateInterval.toDuration().toMillis());
+            this.sqlQuery = new SQLQuery(from, to, measures, new ViewPort(width, 0));
+            this.aggregateInterval = aggregateInterval;
+        }
+
+        public SQLAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+                                       List<Integer> measures, AggregateInterval aggregateInterval) {
+            int width = DateTimeUtil.numberOfIntervals(from, to, aggregateInterval, null) - 1;
+            System.out.println(aggregateInterval);
+            this.sqlQuery = new SQLQuery(from, to, ranges, measures, new ViewPort(width, 0));
             this.aggregateInterval = aggregateInterval;
         }
 
@@ -122,7 +143,7 @@ public class PostgreSQLDatasource implements DataSource{
 
             try {
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
-                ResultSet resultSet = sqlQueryExecutor.executeM4SqlQuery(sqlQuery);
+                ResultSet resultSet = sqlQueryExecutor.executeM4MultiSqlQuery(sqlQuery);
                 return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getMeasures(), resultSet);
             }
             catch(SQLException e) {
@@ -157,12 +178,23 @@ public class PostgreSQLDatasource implements DataSource{
 
         @Override
         public String getFromDate() {
-            return Instant.ofEpochMilli(sqlQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getFromDate("yyyy-MM-dd HH:mm:ss");
         }
 
         @Override
         public String getToDate() {
-            return Instant.ofEpochMilli(sqlQuery.getTo()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return getToDate("yyyy-MM-dd HH:mm:ss");
         }
+
+        @Override
+        public String getFromDate(String format) {
+            return Instant.ofEpochMilli(sqlQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+        }
+
+        @Override
+        public String getToDate(String format) {
+            return Instant.ofEpochMilli(sqlQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+        }
+
     }
 }

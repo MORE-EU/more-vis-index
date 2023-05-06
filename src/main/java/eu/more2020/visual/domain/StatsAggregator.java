@@ -196,4 +196,8 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         return  statsAggregator;
     }
 
+    public void setCount(int count){
+        this.count = count;
+    }
+
 }

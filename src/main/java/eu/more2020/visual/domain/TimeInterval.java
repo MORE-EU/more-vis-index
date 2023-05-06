@@ -27,9 +27,11 @@ public interface TimeInterval extends Comparable<TimeInterval> {
     String getFromDate();
 
     String getToDate();
-    /**
-     * Returns the length of this.
-     */
+
+    String getFromDate(String format);
+
+    String getToDate(String format);
+
     default long length() {
         return getTo() - getFrom();
     }

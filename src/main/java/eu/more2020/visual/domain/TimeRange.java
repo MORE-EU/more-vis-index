@@ -43,6 +43,17 @@ public class TimeRange implements Serializable, TimeInterval {
     }
 
     @Override
+    public String getFromDate(String format) {
+        return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+    }
+
+    @Override
+    public String getToDate(String format) {
+        return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+    }
+
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

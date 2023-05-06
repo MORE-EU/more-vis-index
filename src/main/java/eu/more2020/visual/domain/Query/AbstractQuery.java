@@ -2,7 +2,9 @@ package eu.more2020.visual.domain.Query;
 
 import eu.more2020.visual.domain.Aggregator;
 import eu.more2020.visual.domain.TimeInterval;
+import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.experiments.util.UserOpType;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,11 +17,13 @@ public abstract class AbstractQuery implements TimeInterval {
 
     final long from;
     final long to;
+    List<TimeRange> ranges;
     ViewPort viewPort;
     QueryMethod queryMethod;
     Integer timeColumn;
     List<Integer> measures;
     HashMap<Integer, Double[]> filters;
+    UserOpType opType;
 
     //  the OLAP-type group-by resolution as a ChronoUnit (e.g. ChronoUnit.HOURS)
     ChronoField groupByField;
@@ -37,6 +41,18 @@ public abstract class AbstractQuery implements TimeInterval {
         this.groupByField = groupByField;
     }
 
+    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures,
+                         HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField, UserOpType opType) {
+        this.from = from;
+        this.to = to;
+        this.queryMethod = queryMethod;
+        this.filters = filters;
+        this.measures = measures;
+        this.viewPort = viewPort;
+        this.groupByField = groupByField;
+        this.opType = opType;
+    }
+
     public AbstractQuery(long from, long to, ViewPort viewPort, QueryMethod queryMethod, ChronoField groupByField) {
         this.from = from;
         this.to = to;
@@ -50,12 +66,30 @@ public abstract class AbstractQuery implements TimeInterval {
         this.to = to;
         this.queryMethod = queryMethod;
         this.measures = measures;
-        this.viewPort = new ViewPort(0, 0);
+        this.viewPort = new ViewPort(800, 300);
+    }
+
+    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures, ViewPort viewPort){
+        this.from = from;
+        this.to = to;
+        this.queryMethod = queryMethod;
+        this.measures = measures;
+        this.viewPort = viewPort;
     }
 
     public AbstractQuery(long from, long to) {
         this.from = from;
         this.to = to;
+    }
+
+    public AbstractQuery(long from, long to, List<TimeRange> ranges,
+                         QueryMethod queryMethod, List<Integer> measures, ViewPort viewPort) {
+        this.from = from;
+        this.to = to;
+        this.ranges = ranges;
+        this.queryMethod = queryMethod;
+        this.measures = measures;
+        this.viewPort = viewPort;
     }
 
     @Override
@@ -70,11 +104,21 @@ public abstract class AbstractQuery implements TimeInterval {
 
     @Override
     public String getFromDate() {
-        return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return getFromDate("yyyy-MM-dd HH:mm:ss");
     }
 
     @Override
     public String getToDate() {
+        return getFromDate("yyyy-MM-dd HH:mm:ss");
+    }
+
+    @Override
+    public String getFromDate(String format) {
+        return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public String getToDate(String format) {
         return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
@@ -97,6 +141,8 @@ public abstract class AbstractQuery implements TimeInterval {
         return groupByField;
     }
 
+    public UserOpType getOpType() {return opType;}
+
     public void setGroupByResolution(ChronoField groupByField) {
         this.groupByField = groupByField;
     }
@@ -111,6 +157,8 @@ public abstract class AbstractQuery implements TimeInterval {
 
     public abstract String m4QuerySkeleton();
 
+    public abstract String m4MultiQuerySkeleton();
+
     public abstract String m4WithOLAPQuerySkeleton();
 
     public QueryMethod getQueryMethod() {
@@ -118,4 +166,8 @@ public abstract class AbstractQuery implements TimeInterval {
     }
 
     public abstract String rawQuerySkeleton();
+
+    public List<TimeRange> getRanges() {
+        return ranges;
+    }
 }

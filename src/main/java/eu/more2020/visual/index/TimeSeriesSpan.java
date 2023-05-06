@@ -4,6 +4,7 @@ import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import javax.xml.crypto.Data;
+import java.sql.Time;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -46,59 +47,30 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
      */
     private AggregateInterval aggregateInterval;
 
-    /**
-     * @param dataPoints
-     * @param aggregateInterval
-     */
-    public void build(DataPoints dataPoints, AggregateInterval aggregateInterval) {
-        this.aggregateInterval = aggregateInterval;
-        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, null);
-
-        measures = dataPoints.getMeasures().stream().mapToInt(Integer::intValue).toArray();
-        counts = new int[size];
-        aggsByMeasure = new long[measures.length][size * 5];
-
-        TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
-        timeAggregator.getCount();
-        int i = 0;
-        AggregatedDataPoint aggregatedDataPoint;
-        while (timeAggregator.hasNext()) {
-            aggregatedDataPoint = timeAggregator.next();
-            if (i == 0) {
-                from = aggregatedDataPoint.getTimestamp();
-            }
-            addAggregatedDataPoint(i, dataPoints.getMeasures(), aggregatedDataPoint);
-            i++;
-        }
+    private void initialize(long from, long to,  List<Integer> measures){
+        this.size = DateTimeUtil.numberOfIntervals(from, to, aggregateInterval, null);
+        this.measures = measures.stream().mapToInt(Integer::intValue).toArray();
+        this.counts = new int[size];
+        this.aggsByMeasure = new long[this.measures.length][size * 5];
     }
 
-    public void build(AggregatedDataPoints dataPoints, AggregateInterval aggregateInterval) {
+    public TimeSeriesSpan(DataPoints dataPoints, AggregateInterval aggregateInterval){
         this.aggregateInterval = aggregateInterval;
-        Iterator<AggregatedDataPoint> it = dataPoints.iterator();
-        int i = 0;
-        size = DateTimeUtil.numberOfIntervals(dataPoints.getFrom(), dataPoints.getTo(), aggregateInterval, null);
-
-        measures = dataPoints.getMeasures().stream().mapToInt(Integer::intValue).toArray();
-        counts = new int[size];
-        aggsByMeasure = new long[measures.length][size * 5];
-        while(it.hasNext()){
-           AggregatedDataPoint aggregatedDataPoint = it.next();
-            if (i == 0) {
-                from = aggregatedDataPoint.getTimestamp();
-            }
-            addAggregatedDataPoint(i, dataPoints.getMeasures(), aggregatedDataPoint);
-            i++;
-        }
+        initialize(dataPoints.getFrom(), dataPoints.getTo(), dataPoints.getMeasures());
+    }
+    public TimeSeriesSpan(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
+        this.aggregateInterval = aggregateInterval;
+        initialize(from, to, measures);
     }
 
-    protected void addAggregatedDataPoint(int i, List<Integer> measures, AggregatedDataPoint aggregatedDataPoint) {
+    protected void addAggregatedDataPoint(int i, AggregatedDataPoint aggregatedDataPoint) {
         Stats stats = aggregatedDataPoint.getStats();
         counts[i] = stats.getCount();
         if (stats.getCount() == 0) {
             return;
         }
-        for (int j = 0; j < measures.size(); j++) {
-            int m = measures.get(j);
+        for (int j = 0; j < measures.length; j++) {
+            int m = measures[j];
             long[] data = aggsByMeasure[j];
             data[5 * i] = Double.doubleToRawLongBits(stats.getSum(m));
             data[5 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(m));
@@ -169,15 +141,26 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     @Override
     public String getFromDate() {
-        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return getFromDate("yyyy-MM-dd HH:mm:ss");
     }
 
     @Override
     public String getToDate() {
-        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return getToDate("yyyy-MM-dd HH:mm:ss");
     }
+
+    @Override
+    public String getFromDate(String format) {
+        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ofPattern(format));
+    }
+
+    @Override
+    public String getToDate(String format) {
+        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ofPattern(format));
+    }
+
 
     @Override
     public String toString() {
@@ -242,16 +225,12 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         if (newAggregateInterval.toDuration().compareTo(this.aggregateInterval.toDuration()) <= 0) {
             throw new IllegalArgumentException("The new aggregate interval must be larger than the current one.");
         }
-
-        // Create a new TimeSeriesSpan object with the new aggregate interval
-        TimeSeriesSpan rolledUpSpan = new TimeSeriesSpan();
-
-        // Build the new TimeSeriesSpan using the current data points and the new aggregate interval
-        rolledUpSpan.build(this, newAggregateInterval);
-
-        return rolledUpSpan;
+        return TimeSeriesSpanFactory.createFromRaw(this, newAggregateInterval);
     }
 
+    public void setFrom(long timestamp) {
+        this.from = timestamp;
+    }
 
     private class TimeSeriesSpanIterator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
 

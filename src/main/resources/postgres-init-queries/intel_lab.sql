@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS more;
 
-CREATE TABLE more.intel_lab(
-   datetime        TIMESTAMP NOT NULL
+CREATE TABLE more.intel_lab_tmp(
+   timestamp        TIMESTAMP NOT NULL
   ,moteid      FLOAT
   ,temperature      FLOAT
   ,humidity     FLOAT
@@ -9,35 +9,35 @@ CREATE TABLE more.intel_lab(
   ,voltage FLOAT
 );
 
-COPY more.intel_lab(datetime, moteid, temperature,
+COPY more.intel_lab(timestamp, moteid, temperature,
 humidity, light, voltage)
 FROM '%path'
 DELIMITER ','
 CSV HEADER;
 
-CREATE TABLE more.intel_lab_exp(
-   datetime   TIMESTAMP NOT NULL
+CREATE TABLE more.intel_lab(
+    epoch LONG NOT NULL
+  ,timestamp   TIMESTAMP NOT NULL
   ,value      FLOAT
   ,id         INT NOT NULL
+  ,col VARCHAR NOT NULL
 );
 
-INSERT INTO more.intel_lab_exp(datetime, value, id)
-SELECT datetime, moteid, 1 FROM more.intel_lab;
+INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, datetime, moteid, 0, 'value_1' FROM more.intel_lab_tmp;
 
-INSERT INTO more.intel_lab_exp(datetime, value, id)
-SELECT datetime, temperature, 2 FROM more.intel_lab;
+INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, datetime, temperature, 1, 'value_2' FROM more.intel_lab_tmp;
 
-INSERT INTO more.intel_lab_exp(datetime, value, id)
-SELECT datetime, humidity, 3 FROM more.intel_lab;
+INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, datetime, humidity, 2, 'value_3' FROM more.intel_lab_tmp;
 
-INSERT INTO more.intel_lab_exp(datetime, value, id)
-SELECT datetime, light, 4 FROM more.intel_lab;
+INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, datetime, light, 3, 'value_4' FROM more.intel_lab_tmp;
 
-INSERT INTO more.intel_lab_exp(datetime, value, id)
-SELECT datetime, voltage, 5 FROM more.intel_lab;
+INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
+SELECT date_part('epoch', timestamp) * 1000, datetime, voltage, 4, 'value_5' FROM more.intel_lab_tmp;
 
-CREATE INDEX intel_lab_index ON more.intel_lab_exp(id, datetime);
-CREATE INDEX intel_lab_index ON more.intel_lab(id, datetime);
+DROP TABLE more.intel_lab_tmp;
 
-
-
+CREATE INDEX intel_lab_index ON more.intel_lab(epoch, id);

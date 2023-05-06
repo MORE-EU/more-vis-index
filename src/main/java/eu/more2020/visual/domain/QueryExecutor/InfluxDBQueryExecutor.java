@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -61,6 +62,12 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return collect(executeM4InfluxQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
     }
 
+
+    @Override
+    public QueryResults executeM4MultiQuery(AbstractQuery q) throws SQLException {
+        return collect(executeM4MultiInfluxQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
+    }
+
     @Override
     public QueryResults executeM4OLAPQuery(AbstractQuery q) {
         return collect(executeM4OLAPQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
@@ -84,12 +91,30 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
-        else if(table.equals("intel_lab")){
+        else if(table.contains("intel_lab")){
             reader = new FileReader(path);
             CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
                     .withType(INTEL_LAB.class)
                     .build();
             for (INTEL_LAB data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.contains("soccer")){
+            reader = new FileReader(path);
+            CsvToBean<SOCCER> csvToBean = new CsvToBeanBuilder<SOCCER>(reader)
+                    .withType(SOCCER.class)
+                    .build();
+            for (SOCCER data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.contains("manufacturing")){
+            reader = new FileReader(path);
+            CsvToBean<MANUFACTURING> csvToBean = new CsvToBeanBuilder<MANUFACTURING>(reader)
+                    .withType(MANUFACTURING.class)
+                    .build();
+            for (MANUFACTURING data : csvToBean) {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
@@ -214,6 +239,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         deleteApi.delete(start, stop, predicate, bucket, org);
     }
 
+
     Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
         @Override
         public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
@@ -229,8 +255,20 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 bucket, q.getFromDate(), q.getToDate(), table, // first
                 bucket, q.getFromDate(), q.getToDate(), table, // last
                 bucket, q.getFromDate(), q.getToDate(), table, // min
-                bucket, q.getFromDate(), q.getToDate(), table, // max
-                bucket, q.getFromDate(), q.getToDate(), table); // mean
+                bucket, q.getFromDate(), q.getToDate(), table ); // max
+        return execute(flux);
+    }
+
+    public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQuery q){
+        List<String> args = new ArrayList<>();
+
+        for(int i = 0; i < q.getRanges().size(); i ++){
+            for(int j = 0; j < 4; j++) {
+                args.add(bucket);
+                args.add(table);
+            }
+        }
+        String flux = String.format(q.m4MultiQuerySkeleton(), args.toArray());
         return execute(flux);
     }
 

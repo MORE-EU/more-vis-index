@@ -9,8 +9,6 @@ import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.domain.Query.Query;
-import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.experiments.util.GroupByEvaluator;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
@@ -52,30 +50,11 @@ public class TTI {
     public TTI(AbstractDataset dataset) {
         this.dataset = dataset;
         this.dataSource = DataSourceFactory.getDataSource(dataset);
-    }
-
-    public void initialize(AbstractQuery query) {
         intervalTree = new IntervalTree<>();
-        List<Integer> measures = query == null || query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
-        TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan();
-        AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.accurateCalendarInterval(query.getFrom(),
-                query.getTo(), query.getViewPort(), accuracy));
-
-        if(query.getQueryMethod() == QueryMethod.RAW) {
-            DataPoints dataPoints = dataSource.getDataPoints(query.getFrom(), query.getTo(), measures);
-            timeSeriesSpan.build(dataPoints, accurateAggInterval);
-        }
-        else {
-            AggregatedDataPoints dataPoints = dataSource.getAggregatedDataPoints(query.getFrom(), query.getTo(), measures, accurateAggInterval);
-            timeSeriesSpan.build(dataPoints, accurateAggInterval);
-        }
-        intervalTree.insert(timeSeriesSpan);
-        initialized = true;
     }
 
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(AbstractQuery query) {
-        if (!initialized) initialize(query);
         LOG.info("Executing query: " + query.getFromDate() + " - " + query.getToDate());
         Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
         AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
@@ -114,23 +93,15 @@ public class TTI {
                 .collect(Collectors.toList());
 
         // Calculate and add missing intervals
-        overlappingIntervals.addAll(currentDifference[0].asRanges().stream()
-                .map(diff -> {
-                    TimeSeriesSpan span = new TimeSeriesSpan();
-                    if(query.getQueryMethod() == QueryMethod.RAW) {
-                        DataPoints dataPoints = dataSource.getDataPoints(diff.lowerEndpoint(), diff.upperEndpoint(), measures);
-                        span.build(dataPoints, accurateAggInterval);
-                    }
-                    else {
-                        AggregatedDataPoints dataPoints = dataSource.getAggregatedDataPoints(diff.lowerEndpoint(), diff.upperEndpoint(), measures, accurateAggInterval);
-                        span.build(dataPoints, accurateAggInterval);
-                    }
-                    Arrays.stream(span.getCounts()).forEach(c -> ioCount[0]+= c);
-                    intervalTree.insert(span);
-                    return span;
-                })
-                .collect(Collectors.toList()));
-
+        List<TimeRange> ranges = currentDifference[0].asRanges().stream()
+                .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
+        if(ranges.size() >= 1) {
+            AggregatedDataPoints dataPoints =
+                    dataSource.getAggregatedDataPoints(query.getFrom(), query.getTo(), ranges, measures, accurateAggInterval);
+            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ranges, accurateAggInterval);
+            overlappingIntervals.addAll(timeSeriesSpans);
+            intervalTree.insertAll(timeSeriesSpans);
+        }
         GroupByEvaluator groupByEvaluator = query.getGroupByField() != null
                 ? new GroupByEvaluator(measures, query.getGroupByField())
                 : null;

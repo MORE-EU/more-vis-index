@@ -46,13 +46,20 @@ public class QuerySequenceGenerator {
         int[] filterCounts = new Random(0).ints(count, minFilters, maxFilters + 1).toArray();
 
         Random opRand = new Random(0);
-        List<UserOpType> ops = Arrays.asList(new UserOpType[]{P, P, ZI, ZO});
+        List<UserOpType> ops = new ArrayList<>();
+        int pans = 20;
+        int zoom_in = 40;
+        int zoom_out = 39;
+        int resize = 1;
+
+        for (int i = 0; i < pans; i++) ops.add(P);
+        for (int i = 0; i < zoom_in; i++) ops.add(ZI);
+        for (int i = 0; i < zoom_out; i++) ops.add(ZO);
 
         List<AbstractQuery> queries = new ArrayList<>();
 
-        List<String> measures = q0.getMeasures().size() > dataset.getHeader().length ?
+        List<String> measures = q0.getMeasures().size() < dataset.getHeader().length ?
                 q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList()) : null;
-
         queries.add(q0);
         queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
         queries.add(new InfluxDBQuery(q0.getFrom(), q0.getTo(), measures, q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
@@ -75,7 +82,7 @@ public class QuerySequenceGenerator {
 //            System.out.println("Range: " + timeRange + " OP: " + opType + " shift: " + shifts[i] + " direction: " + directions[i]);
 
             ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getQueryMethod(), q0.getMeasures(),
-                     filters, q0.getViewPort(), q0.getGroupByField());
+                     filters, q0.getViewPort(), q0.getGroupByField(), opType);
             SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort(), q0.getGroupByField());
             InfluxDBQuery influxDBQuery = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), measures, filters, q0.getViewPort(), q0.getGroupByField());
 

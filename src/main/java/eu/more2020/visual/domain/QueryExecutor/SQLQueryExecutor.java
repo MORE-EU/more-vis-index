@@ -6,10 +6,10 @@ import eu.more2020.visual.domain.Query.SQLQuery;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
 import eu.more2020.visual.experiments.util.NamedPreparedStatement;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.transform.Result;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,6 +42,8 @@ public class SQLQueryExecutor implements QueryExecutor {
         switch (method) {
             case M4:
                 return executeM4Query(q);
+            case M4_MULTI:
+                return executeM4MultiQuery(q);
             case M4OLAP:
                 return executeM4OLAPQuery(q);
             case RAW:
@@ -54,6 +56,11 @@ public class SQLQueryExecutor implements QueryExecutor {
     @Override
     public QueryResults executeM4Query(AbstractQuery q) throws SQLException {
         return collect(executeM4SqlQuery((SQLQuery) q));
+    }
+
+    @Override
+    public QueryResults executeM4MultiQuery(AbstractQuery q) throws SQLException {
+        return collect(executeM4MultiSqlQuery((SQLQuery) q));
     }
 
     @Override
@@ -131,11 +138,23 @@ public class SQLQueryExecutor implements QueryExecutor {
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", 800);
+        preparedStatement.setInt("width", q.getViewPort().getWidth());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
        return execute(query);
+    }
+
+    public ResultSet executeM4MultiSqlQuery(SQLQuery q) throws SQLException {
+        String sql = q.m4MultiQuerySkeleton();
+        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
+        preparedStatement.setLong("from", q.getFrom());
+        preparedStatement.setLong("to", q.getTo());
+        preparedStatement.setInt("width", q.getViewPort().getWidth());
+        preparedStatement.setString("tableName", schema + "." + table);
+        String query = preparedStatement.getPreparedStatement().toString()
+                .replace("'", "");
+        return execute(query);
     }
 
     private QueryResults collect(ResultSet resultSet) throws SQLException {

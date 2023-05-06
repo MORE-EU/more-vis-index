@@ -98,14 +98,24 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
 
     @Override
     public String getFromDate() {
-        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return getFromDate("yyyy-MM-dd HH:mm:ss");
     }
 
     @Override
     public String getToDate() {
+        return getToDate("yyyy-MM-dd HH:mm:ss");
+    }
+
+    @Override
+    public String getFromDate(String format) {
         return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                .format(DateTimeFormatter.ofPattern(format));
+    }
+
+    @Override
+    public String getToDate(String format) {
+        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ofPattern(format));
     }
 
     @Override
