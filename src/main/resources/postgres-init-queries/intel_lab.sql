@@ -9,7 +9,7 @@ CREATE TABLE more.intel_lab_tmp(
   ,voltage FLOAT
 );
 
-COPY more.intel_lab(timestamp, moteid, temperature,
+COPY more.intel_lab_tmp(timestamp, moteid, temperature,
 humidity, light, voltage)
 FROM '%path'
 DELIMITER ','
