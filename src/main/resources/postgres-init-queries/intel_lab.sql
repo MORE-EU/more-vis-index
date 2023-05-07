@@ -24,19 +24,19 @@ CREATE TABLE more.intel_lab(
 );
 
 INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, datetime, moteid, 0, 'value_1' FROM more.intel_lab_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, moteid, 0, 'value_1' FROM more.intel_lab_tmp;
 
 INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, datetime, temperature, 1, 'value_2' FROM more.intel_lab_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, temperature, 1, 'value_2' FROM more.intel_lab_tmp;
 
 INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, datetime, humidity, 2, 'value_3' FROM more.intel_lab_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, humidity, 2, 'value_3' FROM more.intel_lab_tmp;
 
 INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, datetime, light, 3, 'value_4' FROM more.intel_lab_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, light, 3, 'value_4' FROM more.intel_lab_tmp;
 
 INSERT INTO more.intel_lab(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, datetime, voltage, 4, 'value_5' FROM more.intel_lab_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, voltage, 4, 'value_5' FROM more.intel_lab_tmp;
 
 DROP TABLE more.intel_lab_tmp;
 
