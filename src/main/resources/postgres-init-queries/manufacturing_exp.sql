@@ -25,7 +25,7 @@ CREATE TABLE more.manufacturing_exp(
 );
 
 INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_1,, 0, 'value_1' FROM more.manufacturing_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, value_1, 0, 'value_1' FROM more.manufacturing_exp_tmp;
 
 INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
 SELECT date_part('epoch', timestamp) * 1000, timestamp, value_2, 1, 'value_2' FROM more.manufacturing_exp_tmp;
