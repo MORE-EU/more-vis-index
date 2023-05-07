@@ -21,7 +21,7 @@ COPY more.soccer_exp_tmp(timestamp, x, y, z, abs_vel, abs_accel, vx, vy, vz, ax,
     CSV HEADER;
 
 CREATE TABLE more.soccer_exp(
-                            epoch LONG NOT NULL
+    epoch BIGINT NOT NULL
     ,timestamp   TIMESTAMP NOT NULL
     ,value      FLOAT
     ,id         INT NOT NULL

@@ -18,7 +18,7 @@ COPY more.manufacturing_tmp([0], [1], [2], [3], [4], [5], [6], [7])
     CSV HEADER;
 
 CREATE TABLE more.manufacturing(
-                                       epoch LONG NOT NULL
+     epoch BIGINT NOT NULL
     ,timestamp   TIMESTAMP NOT NULL
     ,value      FLOAT
     ,id         INT NOT NULL

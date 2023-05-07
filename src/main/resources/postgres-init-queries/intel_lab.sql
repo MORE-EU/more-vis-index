@@ -16,7 +16,7 @@ DELIMITER ','
 CSV HEADER;
 
 CREATE TABLE more.intel_lab(
-    epoch LONG NOT NULL
+    epoch BIGINT NOT NULL
   ,timestamp   TIMESTAMP NOT NULL
   ,value      FLOAT
   ,id         INT NOT NULL
