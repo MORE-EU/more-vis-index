@@ -20,13 +20,13 @@ import java.util.function.Consumer;
  */
 public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable {
 
-    private List<Integer> measures;
-    private int count = 0;
-    private final double[] sums;
-    private final double[] minValues;
-    private final long[] minTimestamps;
-    private final double[] maxValues;
-    private final long[] maxTimestamps;
+    protected List<Integer> measures;
+    protected int count = 0;
+    protected final double[] sums;
+    protected final double[] minValues;
+    protected final long[] minTimestamps;
+    protected final double[] maxValues;
+    protected final long[] maxTimestamps;
 
 
     public StatsAggregator(List<Integer> measures) {
@@ -40,6 +40,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
 
         Arrays.fill(minValues, Double.POSITIVE_INFINITY);
         Arrays.fill(maxValues, Double.NEGATIVE_INFINITY);
+
     }
 
     public void clear() {
@@ -186,7 +187,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         }
         return maxTimestamps[getMeasureIndex(measure)];    }
 
-    private int getMeasureIndex(int measure) {
+    protected int getMeasureIndex(int measure) {
         return measures.indexOf(measure);
     }
 

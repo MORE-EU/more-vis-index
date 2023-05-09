@@ -77,7 +77,7 @@ public class TTI {
         Duration finalAccurateInterval = accurateInterval;
         List<TimeSeriesSpan> overlappingIntervals = StreamSupport.stream(Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
                 .filter(span -> span.getAggregateInterval().toDuration()
-                        .compareTo(optimalM4Interval) <= 0 && (span.overlaps(query)))
+                        .compareTo(finalAccurateInterval) <= 0 && (span.overlaps(query)))
                 .sorted(Comparator.comparing(span -> span.percentage(query), Comparator.reverseOrder()))
                 .filter(span -> {
                     if (currentDifference[0].isEmpty())
@@ -107,24 +107,31 @@ public class TTI {
                 : null;
         MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
         PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
+//        SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
+
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
+        int count = 0;
         while (pixelAggregator.hasNext()) {
-            AggregatedDataPoint next = pixelAggregator.next();
-            Stats stats = next.getStats();
+            PixelAggregatedDataPoint next = pixelAggregator.next();
+            PixelStatsAggregator stats = next.getStats();
+            count ++;
             if(stats.getCount() != 0) {
                 for (int measure : measures) {
                     List<UnivariateDataPoint> measureData = data.get(measure);
+                    measureData.add(new UnivariateDataPoint(stats.getFirstTimestamp(measure), stats.getFirstValue(measure)));
+                    measureData.add(new UnivariateDataPoint(stats.getLastTimestamp(measure), stats.getLastValue(measure)));
                     measureData.add(new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure)));
                     measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
                 }
             }
         }
-        for (Integer measure : measures) {
-            double error = Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100));
-            LOG.info("Query Max Error (" + measure  +"): " + error + "%");
-        }
+        System.out.println(count);
+//        for (Integer measure : measures) {
+//            double error = Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100));
+//            LOG.info("Query Max Error (" + measure  +"): " + error + "%");
+//        }
         data.forEach((k, v) -> v.sort(compareLists));
         queryResults.setData(data);
         queryResults.setIoCount(ioCount[0]);

@@ -237,9 +237,9 @@ public class Experiments<T> {
 
         TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot(Paths.get(outFolder, plotFolder).toString());
 
-        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
-        rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
-        timeSeriesPlot.build(rawTTiResultsPath);
+//        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
+//        rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
+//        timeSeriesPlot.build(rawTTiResultsPath);
 
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
         ttiQueryResults.toMultipleCsv(ttiResultsPath);
@@ -250,12 +250,12 @@ public class Experiments<T> {
             sqlQueryResults.toMultipleCsv(sqlResultsPath);
             timeSeriesPlot.build(sqlResultsPath);
         }
-
-        if(influxDBCfg != null) {
-            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxDBQuery);
-            influxDBQueryResults.toCsv(influxDBResultsPath);
-            timeSeriesPlot.build(influxDBResultsPath);
-        }
+//
+//        if(influxDBCfg != null) {
+//            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxDBQuery);
+//            influxDBQueryResults.toCsv(influxDBResultsPath);
+//            timeSeriesPlot.build(influxDBResultsPath);
+//        }
     }
 
     private void timeQueries() throws IOException, SQLException {

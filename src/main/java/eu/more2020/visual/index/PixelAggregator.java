@@ -7,21 +7,17 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-public class PixelAggregator implements Iterator<AggregatedDataPoint>, AggregatedDataPoint {
+public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, AggregatedDataPoint {
 
     private Iterator<PixelAggregatedDataPoint> pixelAggregatedDataPointIterator;
 
-    private PixelAggregatedDataPoint pixelAggregatedDataPoint;
     private final StatsAggregator statsAggregator;
     private final List<Integer> measures;
     private final AggregateInterval m4Interval;
     private final ViewPort viewport;
-    private final Queue<PixelAggregatedDataPoint> processedDataPoints;
     private final TotalErrorEvaluator totalErrorEvaluator;
 
-    private ZonedDateTime currentPixel;
-    private ZonedDateTime nextPixel;
-    private boolean finishedIt = false;
+    private PixelAggregatedDataPoint pixelAggregatedDataPoint;
 
     public PixelAggregator(MultiSpanIterator multiSpanIterator, List<Integer> measures,
                            AggregateInterval m4Interval, ViewPort viewport) {
@@ -29,7 +25,6 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
         this.m4Interval = m4Interval;
         this.viewport = viewport;
         this.statsAggregator = new StatsAggregator(measures);
-        this.processedDataPoints = new LinkedList<>();
         this.totalErrorEvaluator = new TotalErrorEvaluator(statsAggregator, measures, viewport, m4Interval);
         calculateStats(multiSpanIterator);
     }
@@ -49,47 +44,14 @@ public class PixelAggregator implements Iterator<AggregatedDataPoint>, Aggregate
 
     @Override
     public boolean hasNext() {
-        return (!processedDataPoints.isEmpty() || pixelAggregatedDataPointIterator.hasNext());
+        return pixelAggregatedDataPointIterator.hasNext();
     }
 
-    public PixelAggregatedDataPoint getNext() {
-        if(!processedDataPoints.isEmpty()) return processedDataPoints.poll();
-        if(pixelAggregatedDataPointIterator.hasNext()) return pixelAggregatedDataPointIterator.next();
-        throw new NoSuchElementException();
-    }
 
     @Override
-    public AggregatedDataPoint next() {
-        // get current pixel data
-        moveToNextPixel();
-        while(pixelAggregatedDataPoint.startsBefore(nextPixel) && pixelAggregatedDataPointIterator.hasNext()) {
-            processedDataPoints.add(pixelAggregatedDataPoint);
-            totalErrorEvaluator.accept(pixelAggregatedDataPoint);
-            pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
-        }
-        // add last point if finished
-        if(!pixelAggregatedDataPointIterator.hasNext() && !finishedIt){
-            processedDataPoints.add(pixelAggregatedDataPoint);
-            finishedIt = true;
-        }
-        totalErrorEvaluator.update();
-        return getNext();
-    }
-
-    private void moveToNextPixel() {
-        if (currentPixel == null) {
-            pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
-            currentPixel = DateTimeUtil.getIntervalStart(pixelAggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
-            nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            totalErrorEvaluator.initialize(currentPixel);
-        } else {
-            // move pixel only if sub pixel aggregation is not complete
-            if(!pixelAggregatedDataPoint.startsBefore(nextPixel) && pixelAggregatedDataPointIterator.hasNext()) {
-                currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-                nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-                totalErrorEvaluator.add(nextPixel);
-            }
-        }
+    public PixelAggregatedDataPoint next() {
+        pixelAggregatedDataPoint = pixelAggregatedDataPointIterator.next();
+        return pixelAggregatedDataPoint;
     }
 
     @Override

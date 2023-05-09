@@ -95,7 +95,6 @@ public class RawTTI {
         }
         queryResults.setIoCount(ioCount[0]);
         queryResults.setData(data);
-
         return queryResults;
     }
 

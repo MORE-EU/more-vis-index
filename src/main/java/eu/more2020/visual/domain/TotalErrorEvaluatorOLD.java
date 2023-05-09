@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
+public class TotalErrorEvaluatorOLD implements Consumer<PixelAggregatedDataPoint>{
 
     private final List<PixelColumnErrorAggregator> errorAggregators;
     private final StatsAggregator stats;
@@ -19,7 +19,7 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
     private int currentPixelColumn;
     private boolean finishedIt = false;
 
-    public TotalErrorEvaluator(StatsAggregator stats, List<Integer> measures, ViewPort viewport, AggregateInterval interval) {
+    public TotalErrorEvaluatorOLD(StatsAggregator stats, List<Integer> measures, ViewPort viewport, AggregateInterval interval) {
         this.errorAggregators = new ArrayList<>();
         this.stats = stats;
         this.measures = measures;
@@ -77,12 +77,6 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
         private final int[] trueMinId;
         private final int[] trueMaxId;
 
-        private final double[] firstPoints;
-        private final double[] lastPoints;
-
-        private final long[] firstTimestamps;
-        private final long[] lastTimestamps;
-
         private final Stats stats;
         private final List<Integer> measures;
         private final AggregateInterval interval;
@@ -101,12 +95,6 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
             maxId = new int[length];
             trueMinId = new int[length];
             trueMaxId = new int[length];
-
-            firstPoints = new double[length];
-            lastPoints = new double[length];
-
-            firstTimestamps = new long[length];
-            lastTimestamps = new long[length];
             clear();
         }
 
@@ -132,28 +120,25 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
         public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint) {
             int i = 0;
             for (int m : measures) {
-                double min = pixelAggregatedDataPoint.getStats().getMinValue(m);
-                double max = pixelAggregatedDataPoint.getStats().getMaxValue(m);
+                int min = getPixelId(m, pixelAggregatedDataPoint.getStats().getMinValue(m));
+                int max = getPixelId(m, pixelAggregatedDataPoint.getStats().getMaxValue(m));
                 long minTimestamp = pixelAggregatedDataPoint.getStats().getMinTimestamp(m);
                 long maxTimestamp = pixelAggregatedDataPoint.getStats().getMaxTimestamp(m);
+                // if its fully overlapping initialize
                 boolean containsMin = true;
                 boolean containsMax = true;
-
-                containsMin = minTimestamp < (pixelColumn.plus(interval.getInterval(), interval.getChronoUnit()).toInstant().toEpochMilli()) &&
-                        minTimestamp >= (pixelColumn.toInstant().toEpochMilli());
-                containsMax = maxTimestamp < (pixelColumn.plus(interval.getInterval(), interval.getChronoUnit()).toInstant().toEpochMilli()) &&
-                        maxTimestamp >= (pixelColumn.toInstant().toEpochMilli());
-                if (minTimestamp <= maxTimestamp) {
-                    firstPoints[i] = min;
-                    lastPoints[i] = max;
-                    firstTimestamps[i] = minTimestamp;
-                    lastTimestamps[i] = maxTimestamp;
-                } else {
-                    firstPoints[i] = max;
-                    lastPoints[i] = min;
-                    firstTimestamps[i] = maxTimestamp;
-                    lastTimestamps[i] = minTimestamp;
+                if(pixelAggregatedDataPoint.isOverlapping()) { // check if min max falls in pixel column
+                    containsMin = minTimestamp < (pixelColumn.plus(interval.getInterval(), interval.getChronoUnit()).toInstant().toEpochMilli()) &&
+                            minTimestamp >= (pixelColumn.toInstant().toEpochMilli());
+                    containsMax = maxTimestamp < (pixelColumn.plus(interval.getInterval(), interval.getChronoUnit()).toInstant().toEpochMilli()) &&
+                            maxTimestamp >= (pixelColumn.toInstant().toEpochMilli());
+                    if(min >= minId[i] && max <= maxId[i]) continue;
                 }
+                minId[i] = containsMin ? Math.min(min, minId[i]) : minId[i];
+                maxId[i] = containsMax ? Math.max(max, maxId[i]) : maxId[i];
+                trueMinId[i] = Math.min(minId[i], min);
+                trueMaxId[i] =  Math.max(maxId[i], max);
+                i++;
             }
         }
 

@@ -14,4 +14,7 @@ public interface PixelAggregatedDataPoint extends AggregatedDataPoint  {
     public boolean endsBefore(ZonedDateTime zonedDateTime);
     public boolean endsAfter(ZonedDateTime zonedDateTime);
 
+    public PixelStatsAggregator getStats();
+
+
 }
