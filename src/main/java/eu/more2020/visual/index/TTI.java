@@ -67,8 +67,10 @@ public class TTI {
         final int[] ioCount = {0};
         RangeSet<Long> rangeSet = TreeRangeSet.create();
 
-        long from = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
-        long to = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
+//        long from = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
+//        long to = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
+        long from = query.getFrom();
+        long to = query.getTo();
         final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(from, to))};
 
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
