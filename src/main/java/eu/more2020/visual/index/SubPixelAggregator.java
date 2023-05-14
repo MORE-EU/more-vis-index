@@ -2,7 +2,10 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.apache.commons.lang3.SerializationUtils;
+import org.xbill.DNS.Zone;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
@@ -13,8 +16,10 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     protected final MultiSpanIterator multiSpanIterator;
     protected final AggregateInterval m4Interval;
     protected final ViewPort viewPort;
-    private PixelStatsAggregator statsAggregator;
+    private final long from;
+    private final long to;
 
+    private final PixelStatsAggregator statsAggregator;
 
     /**
      * The start date time value of the current pixel.
@@ -33,64 +38,74 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
     private boolean hasRemainder = false;
 
-    public SubPixelAggregator(MultiSpanIterator multiSpanIterator, List<Integer> measures,
-                              AggregateInterval m4Interval, ViewPort viewport) {
+    public SubPixelAggregator(MultiSpanIterator multiSpanIterator, long from, long to,
+                              List<Integer> measures, AggregateInterval m4Interval, ViewPort viewport) {
         this.multiSpanIterator = multiSpanIterator;
+        this.from = from;
+        this.to = to;
         this.m4Interval = m4Interval;
         this.viewPort = viewport;
         statsAggregator = new PixelStatsAggregator(measures);
     }
 
-
     @Override
     public boolean hasNext() {
+        if(aggregatedDataPoint != null && aggregatedDataPoint.getTimestamp() > to) { return false; }
         return multiSpanIterator.hasNext();
     }
 
-
+    /**
+     * Collects all sub-pixel aggregated datapoints that belong to the current pixel column.
+     * If there is a partial interval it keeps it and returns it whole in the next iteration.
+     */
     @Override
     public PixelAggregatedDataPoint next() {
+        if(hasRemainder) return remainder();
         moveToNextPixel();
         // While next sub pixel is to the left of the next pixel
         while((currentSubPixel
-                .plus(2 * subInterval.getInterval(), subInterval.getChronoUnit())
+                .plus(subInterval.getInterval(), subInterval.getChronoUnit())
                 .isBefore(nextPixel) ||
                 currentSubPixel
-                .plus(2 * subInterval.getInterval(), subInterval.getChronoUnit())
-                .equals(nextPixel)) && hasNext()) {
+                        .plus(subInterval.getInterval(), subInterval.getChronoUnit())
+                        .equals(nextPixel)) && hasNext()) {
             moveToNextSubPixel();
             statsAggregator.accept(aggregatedDataPoint); // add to stats
-            subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
         }
-        hasRemainder = !currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).equals(nextPixel); // next sub pixel is not next pixel
-        if(hasRemainder && multiSpanIterator.hasNext()) {
-            moveToNextSubPixel();
-            statsAggregator.accept(aggregatedDataPoint, currentPixel, nextPixel, true);
-        }
+        hasRemainder = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).isAfter(nextPixel); // next sub pixel is not next pixel
         return this;
     }
 
-    public void moveToNextSubPixel() {
+    private PixelAggregatedDataPoint remainder() {
+        moveToNextSubPixel();
+        hasRemainder = false;
+        statsAggregator.clear();
+        statsAggregator.accept(aggregatedDataPoint);
+        return new ImmutableSubPixelDatapoint(this);
+    }
+
+    /**
+     * Move to next aggregated data point.
+     * Change the sub pixel and its interval to correspond to the level of aggregation of the datapoint.
+     */
+    private void moveToNextSubPixel() {
         aggregatedDataPoint = (AggregatedDataPoint) multiSpanIterator.next(); // go to next datapoint
-        currentSubPixel = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()); // go to next sub pixel
+        subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
+        currentSubPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), subInterval, ZoneId.of("UTC")); // go to next sub pixel
     }
 
     private void moveToNextPixel() {
-        subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
         statsAggregator.clear();
         if (currentPixel == null) {
-            aggregatedDataPoint = (AggregatedDataPoint) multiSpanIterator.next();
-            currentSubPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), subInterval, ZoneId.of("UTC"));
+            moveToNextSubPixel();
+            while (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli())
+                moveToNextSubPixel();
             currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
             statsAggregator.accept(aggregatedDataPoint);
         } else {
             currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
             nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            if(hasRemainder) {
-                statsAggregator.accept(aggregatedDataPoint, currentPixel, nextPixel, false);
-                hasRemainder = false;
-            }
         }
     }
 
@@ -115,11 +130,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     }
 
     @Override
-    public ZonedDateTime getSubPixel() {
-        return currentSubPixel;
-    }
-
-    @Override
     public ZonedDateTime getPixel() {
         return currentPixel;
     }
@@ -133,16 +143,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     }
 
     public PixelAggregatedDataPoint persist() {
-        return new ImmutablePixelDatapoint(this);
-    }
-
-    @Override
-    public boolean isOverlapping() {
-        long currentSubPixelEnd = currentSubPixel
-                .plus(subInterval.getInterval(), subInterval.getChronoUnit())
-                .toInstant().toEpochMilli();
-        long nextPixelStart = nextPixel.toInstant().toEpochMilli();
-        return nextPixelStart < currentSubPixelEnd;
+        return new ImmutableSubPixelDatapoint(this);
     }
 
     @Override
@@ -160,7 +161,9 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         return this.currentSubPixel.plus(this.subInterval.getInterval(), this.subInterval.getChronoUnit()).isAfter(zonedDateTime);
     }
 
-    private static class ImmutablePixelDatapoint implements PixelAggregatedDataPoint {
+    public ZonedDateTime getSubPixel() {return currentSubPixel;}
+
+    private static class ImmutableSubPixelDatapoint implements PixelAggregatedDataPoint {
 
         private final ZonedDateTime subPixel;
         private final ZonedDateTime currentPixel;
@@ -170,14 +173,14 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private final PixelStatsAggregator stats;
 
-        public ImmutablePixelDatapoint(SubPixelAggregator subPixelAggregator){
+        public ImmutableSubPixelDatapoint(SubPixelAggregator subPixelAggregator){
             this(subPixelAggregator.getStats(), subPixelAggregator.getInterval(), subPixelAggregator.getSubPixel(),
                     subPixelAggregator.getPixel(), subPixelAggregator.getNextPixel());
         }
 
-        private ImmutablePixelDatapoint(PixelStatsAggregator stats, AggregateInterval subInterval,
+        private ImmutableSubPixelDatapoint(Stats stats, AggregateInterval subInterval,
                                   ZonedDateTime subPixel, ZonedDateTime currentPixel, ZonedDateTime nextPixel) {
-            this.stats = stats.clone();
+            this.stats = ((PixelStatsAggregator) stats).clone();
             this.subPixel = subPixel;
             this.currentPixel = currentPixel;
             this.nextPixel = nextPixel;
@@ -205,11 +208,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         }
 
         @Override
-        public ZonedDateTime getSubPixel() {
-            return subPixel;
-        }
-
-        @Override
         public ZonedDateTime getPixel() {
             return currentPixel;
         }
@@ -229,15 +227,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         }
 
         @Override
-        public boolean isOverlapping() {
-            long currentSubPixelEnd = subPixel
-                    .plus(interval.getInterval(), interval.getChronoUnit())
-                    .toInstant().toEpochMilli();
-            long nextPixelStart = nextPixel.toInstant().toEpochMilli();
-            return nextPixelStart < currentSubPixelEnd;
-        }
-
-        @Override
         public boolean startsBefore(ZonedDateTime zonedDateTime) {
             return this.subPixel.isBefore(zonedDateTime);
         }
@@ -250,6 +239,18 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         @Override
         public boolean endsAfter(ZonedDateTime zonedDateTime) {
             return this.subPixel.plus(this.interval.getInterval(), this.interval.getChronoUnit()).isAfter(zonedDateTime);
+        }
+
+        public ZonedDateTime getSubPixel() {
+            return subPixel;
+        }
+
+        public boolean isOverlapping() {
+            long currentSubPixelEnd = subPixel
+                    .plus(interval.getInterval(), interval.getChronoUnit())
+                    .toInstant().toEpochMilli();
+            long nextPixelStart = nextPixel.toInstant().toEpochMilli();
+            return nextPixelStart < currentSubPixelEnd;
         }
     }
 }

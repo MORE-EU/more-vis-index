@@ -38,7 +38,6 @@ public class TTI {
             return (int) (s1.getTimestamp() - s2.getTimestamp());
         }
     };
-    private boolean initialized = false;
     // The interval tree containing all the time series spans already cached
     private IntervalTree<TimeSeriesSpan> intervalTree;
 
@@ -68,9 +67,9 @@ public class TTI {
         final int[] ioCount = {0};
         RangeSet<Long> rangeSet = TreeRangeSet.create();
 
-        long newFrom = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
-        long newTo = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
-        final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(query.getFrom(), query.getTo()))};
+        long from = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
+        long to = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
+        final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(from, to))};
 
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
         // also keep the remaining difference.
@@ -97,26 +96,24 @@ public class TTI {
                 .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
         if(ranges.size() >= 1) {
             AggregatedDataPoints dataPoints =
-                    dataSource.getAggregatedDataPoints(query.getFrom(), query.getTo(), ranges, measures, accurateAggInterval);
+                    dataSource.getAggregatedDataPoints(from, to, ranges, measures, accurateAggInterval);
             List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ranges, accurateAggInterval);
             overlappingIntervals.addAll(timeSeriesSpans);
             intervalTree.insertAll(timeSeriesSpans);
         }
+        overlappingIntervals.sort((i1, i2) -> (int) (i1.getFrom() - i2.getFrom())); // Sort intervals
+
         GroupByEvaluator groupByEvaluator = query.getGroupByField() != null
                 ? new GroupByEvaluator(measures, query.getGroupByField())
                 : null;
         MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
-        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
-//        SubPixelAggregator pixelAggregator = new SubPixelAggregator(multiSpanIterator, measures, optimalM4AggInterval, query.getViewPort());
-
+        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, query.getFrom(), query.getTo(), measures, optimalM4AggInterval, query.getViewPort());
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
-        int count = 0;
         while (pixelAggregator.hasNext()) {
             PixelAggregatedDataPoint next = pixelAggregator.next();
             PixelStatsAggregator stats = next.getStats();
-            count ++;
             if(stats.getCount() != 0) {
                 for (int measure : measures) {
                     List<UnivariateDataPoint> measureData = data.get(measure);
@@ -127,7 +124,6 @@ public class TTI {
                 }
             }
         }
-        System.out.println(count);
 //        for (Integer measure : measures) {
 //            double error = Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100));
 //            LOG.info("Query Max Error (" + measure  +"): " + error + "%");

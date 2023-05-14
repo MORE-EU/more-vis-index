@@ -24,6 +24,14 @@ public class PixelStatsAggregator extends StatsAggregator {
     private final double[] lastValues;
     private final long[] lastTimestamps;
 
+    private int[] minId;
+    private int[] trueMinId;
+
+    private int[] maxId;
+    private int[] trueMaxId;
+
+    private int height;
+    private StatsAggregator stats;
     public PixelStatsAggregator(List<Integer> measures) {
         super(measures);
 
@@ -37,6 +45,21 @@ public class PixelStatsAggregator extends StatsAggregator {
         Arrays.fill(firstTimestamps, Long.MAX_VALUE);
         Arrays.fill(lastValues, Double.POSITIVE_INFINITY);
         Arrays.fill(lastTimestamps, Long.MIN_VALUE);
+    }
+
+    public PixelStatsAggregator(StatsAggregator stats, List<Integer> measures, ViewPort viewPort) {
+        this(measures);
+        this.stats = stats;
+        this.height = viewPort.getHeight();
+
+        minId = new int[height];
+        maxId = new int[height];
+        trueMinId = new int[height];
+        trueMaxId = new int[height];
+        Arrays.fill(minId, 0);
+        Arrays.fill(trueMinId, 0);
+        Arrays.fill(maxId,height - 1);
+        Arrays.fill(trueMaxId, height - 1);
     }
 
     @Override
@@ -84,14 +107,21 @@ public class PixelStatsAggregator extends StatsAggregator {
         }
     }
 
+    /** Accepts a partially overlapping interval and computes the inner-column errors.
+        @param from is the start of the interval
+        @param to is the end of the interval
+        @param isLast signifies if the interval is to the right or to the left of a pixelColumn
+     **/
     public void accept(AggregatedDataPoint dataPoint, ZonedDateTime from, ZonedDateTime to, boolean isLast) {
         Stats stats = dataPoint.getStats();
         if (stats.getCount() != 0) {
             int i = 0;
             for (int m : measures) {
                 sums[i] += stats.getSum(m);
+                // Contains min
                 if(from.toInstant().toEpochMilli() <= stats.getMinTimestamp(m) && to.toInstant().toEpochMilli() >= stats.getMinTimestamp(m)){
                     minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
+                    minId[i] = getPixelId(m, minValues[i]);
                     if (minValues[i] == stats.getMinValue(m)) {
                         minTimestamps[i] = stats.getMinTimestamp(m);
                     }
@@ -106,9 +136,13 @@ public class PixelStatsAggregator extends StatsAggregator {
                             firstValues[i] = stats.getMaxValue(m);
                         }
                     }
+                    minId[i] = trueMinId[i] = getPixelId(m, minValues[i]);
+                    trueMaxId[i] = Math.min(getPixelId(m, stats.getMaxValue(m)), trueMaxId[i]);
                 }
-                else if(from.toInstant().toEpochMilli() <= stats.getMaxTimestamp(m) && to.toInstant().toEpochMilli() >= stats.getMaxTimestamp(m)){
+                // Contains max
+                if(from.toInstant().toEpochMilli() <= stats.getMaxTimestamp(m) && to.toInstant().toEpochMilli() >= stats.getMaxTimestamp(m)){
                     maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
+                    maxId[i] = getPixelId(m, maxValues[i]);
                     if (maxValues[i] == stats.getMaxValue(m)) {
                         maxTimestamps[i] = stats.getMaxTimestamp(m);
                     }
@@ -123,41 +157,18 @@ public class PixelStatsAggregator extends StatsAggregator {
                             firstValues[i] = stats.getMaxValue(m);
                         }
                     }
-                }
-                else if(from.toInstant().toEpochMilli() <= stats.getMinTimestamp(m) && to.toInstant().toEpochMilli() >= stats.getMinTimestamp(m) &&
-                        from.toInstant().toEpochMilli() <= stats.getMaxTimestamp(m) && to.toInstant().toEpochMilli() >= stats.getMaxTimestamp(m)) {
-                    minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
-                    if (minValues[i] == stats.getMinValue(m)) {
-                        minTimestamps[i] = stats.getMinTimestamp(m);
-                    }
-                    maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
-                    if (maxValues[i] == stats.getMaxValue(m)) {
-                        maxTimestamps[i] = stats.getMaxTimestamp(m);
-                    }
-                    if(isLast){
-                        if(stats.getMinTimestamp(m) >= lastTimestamps[i]){
-                            lastTimestamps[i] = stats.getMinTimestamp(m);
-                            lastValues[i] = stats.getMinValue(m);
-                        }
-                        if(stats.getMaxTimestamp(m) >= lastTimestamps[i]){
-                            lastTimestamps[i] = stats.getMaxTimestamp(m);
-                            lastValues[i] = stats.getMaxValue(m);
-                        }
-                    } else {
-                        if(stats.getMinTimestamp(m) <= firstTimestamps[i]){
-                            firstTimestamps[i] = stats.getMinTimestamp(m);
-                            firstValues[i] = stats.getMinValue(m);
-
-                        }
-                        if(stats.getMaxTimestamp(m) <= firstTimestamps[i]){
-                            firstTimestamps[i] = stats.getMaxTimestamp(m);
-                            firstValues[i] = stats.getMaxValue(m);
-                        }
-                    }
+                    maxId[i] = trueMaxId[i] = getPixelId(m, maxValues[i]);
+                    trueMinId[i] = Math.max(getPixelId(m, stats.getMinValue(m)), trueMinId[i]);
                 }
                 i ++;
             }
         }
+    }
+
+    public int getPixelId(int m, double value){
+        double range = Math.abs(stats.getMaxValue(m)) + Math.abs(stats.getMinValue(m));
+        double bin_size = range / height;
+        return (int) ((Math.abs(value) / bin_size));
     }
 
     @Override
@@ -221,7 +232,8 @@ public class PixelStatsAggregator extends StatsAggregator {
         if (count == 0) {
             throw new IllegalStateException("No data points added to this stats aggregator yet.");
         }
-        return firstTimestamps[getMeasureIndex(measure)];    }
+        return firstTimestamps[getMeasureIndex(measure)];
+    }
 
 
     public long getLastTimestamp(int measure) {
@@ -231,4 +243,36 @@ public class PixelStatsAggregator extends StatsAggregator {
         return lastTimestamps[getMeasureIndex(measure)];
     }
 
-}
+
+    public long getMinPixelId(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return minId[getMeasureIndex(measure)];
+    }
+
+    public long getTrueMinPixelId(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return trueMinId[getMeasureIndex(measure)];
+    }
+
+    public long getMaxPixelId(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return maxId[getMeasureIndex(measure)];
+    }
+
+
+    public long getTrueMaxPixelId(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return trueMaxId[getMeasureIndex(measure)];
+    }
+
+
+
+    }

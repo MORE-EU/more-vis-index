@@ -151,7 +151,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     @Override
     public String getFromDate(String format) {
-        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC"))
+        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("UTC"))
                 .format(DateTimeFormatter.ofPattern(format));
     }
 
@@ -255,7 +255,8 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         @Override
         public AggregatedDataPoint next() {
             currentIndex = internalIt.next();
-            timestamp = startInterval.plus(currentIndex, aggregateInterval.getChronoUnit()).toInstant()
+            timestamp = startInterval.plus(currentIndex * aggregateInterval.getInterval(),
+                            aggregateInterval.getChronoUnit()).toInstant()
                     .toEpochMilli();
             return this;
         }
@@ -302,7 +303,9 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
                 public long getMaxTimestamp(int measure) {
                     return aggsByMeasure[getMeasureIndex(measure)][currentIndex * 5 + 4];
                 }
+
             };
+
         }
 
         @Override

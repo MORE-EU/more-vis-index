@@ -133,7 +133,6 @@ public class PostgreSQLDatasource implements DataSource{
         public SQLAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
                                        List<Integer> measures, AggregateInterval aggregateInterval) {
             int width = DateTimeUtil.numberOfIntervals(from, to, aggregateInterval, null) - 1;
-            System.out.println(aggregateInterval);
             this.sqlQuery = new SQLQuery(from, to, ranges, measures, new ViewPort(width, 0));
             this.aggregateInterval = aggregateInterval;
         }

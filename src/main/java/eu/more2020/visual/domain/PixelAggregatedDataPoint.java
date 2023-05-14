@@ -9,7 +9,6 @@ public interface PixelAggregatedDataPoint extends AggregatedDataPoint  {
     public ZonedDateTime getNextPixel();
     public AggregateInterval getInterval();
     public PixelAggregatedDataPoint persist();
-    public boolean isOverlapping();
     public boolean startsBefore(ZonedDateTime zonedDateTime);
     public boolean endsBefore(ZonedDateTime zonedDateTime);
     public boolean endsAfter(ZonedDateTime zonedDateTime);

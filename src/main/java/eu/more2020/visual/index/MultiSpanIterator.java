@@ -1,5 +1,7 @@
 package eu.more2020.visual.index;
 
+import eu.more2020.visual.domain.AggregatedDataPoint;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

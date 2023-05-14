@@ -133,7 +133,6 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
         return statsAggregator;
     }
 
-
     @Override
     public String toString() {
         return "{timestamp=" + DateTimeUtil.format(getTimestamp()) + ", count=" + getCount() + ", stats=" + getStats() + '}';

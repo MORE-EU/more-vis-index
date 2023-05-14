@@ -106,15 +106,15 @@ public abstract class AbstractQuery implements TimeInterval {
     public String getFromDate() {
         return getFromDate("yyyy-MM-dd HH:mm:ss");
     }
-
-    @Override
-    public String getToDate() {
-        return getFromDate("yyyy-MM-dd HH:mm:ss");
-    }
-
+    
     @Override
     public String getFromDate(String format) {
         return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public String getToDate() {
+        return getToDate("yyyy-MM-dd HH:mm:ss");
     }
 
     @Override

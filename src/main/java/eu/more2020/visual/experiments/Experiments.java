@@ -258,6 +258,93 @@ public class Experiments<T> {
 //        }
     }
 
+//    private void timeAllQueries() throws IOException, SQLException{
+//        File outFile = Paths.get(outFolder, type + "TimeQueries.csv").toFile();
+//        boolean addHeader = outFile.length() == 0;
+//        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
+//        CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
+//
+//        Stopwatch stopwatch = Stopwatch.createUnstarted();
+//        stopwatch.start();
+//
+//        ExperimentsDataset dataset = (ExperimentsDataset) createDataset();
+//        TTI postgresTti = new TTI(dataset.getPostgreSQLDataset());
+//        RawTTI postgresRawTTI = new RawTTI(dataset.getPostgreSQLDataset());
+//        TTI influxTti = new TTI(dataset.getInfluxDBDataset());
+//        RawTTI influxRawTTI = new RawTTI(dataset.getInfluxDBDataset());
+//        QueryMethod queryMethod = QueryMethod.M4_MULTI;
+//
+//        PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(postgreSQLCfg);
+//        InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
+//        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
+//        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
+//
+//        Query q0 = new Query(startTime, endTime, queryMethod, measures,
+//                filters, new ViewPort(800, 300), groupyBy);
+//        List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
+//
+//        if (addHeader) {
+//            csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "TTI results size", "RAW TTI results size",
+//                    "PostgreSQL results size", "InfluxDB results size", "TTI IO Count", "RAW TTI IO Count",
+//                    "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "Raw TTI Memory (b)");
+//        }
+//
+//        for (int i = 0; i < sequence.size(); i += 3) {
+//            double ttiTime = 0, rawTtiTIme = 0, postgreSQLTime = 0, influxDBTime = 0;
+//            Query query = (Query) sequence.get(i);
+//            SQLQuery sqlQuery = (SQLQuery) sequence.get(i + 1);
+//            InfluxDBQuery influxDBQuery = (InfluxDBQuery) sequence.get(i + 2);
+//            LOG.debug("Executing query " + i);
+//
+//            stopwatch = Stopwatch.createStarted();
+//            QueryResults queryResultsPost = postgresTti.executeQuery(query);
+//            ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//
+//            stopwatch = Stopwatch.createStarted();
+//            QueryResults rawQueryResults = rawTTI.executeQuery(query);
+//            rawTtiTIme = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//
+//            int sqlQueryResultsSize = 0, influxDBQueryResultsSize = 0;
+//            if(postgreSQLCfg != null) {
+//                stopwatch.reset();
+//                stopwatch.start();
+//                sqlQueryResultsSize = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4).getData().get(this.measures.get(0)).size();
+//                postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//            }
+//            if(influxDBCfg != null) {
+//                stopwatch.reset();
+//                stopwatch.start();
+//                influxDBQueryResultsSize = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4).getData().get(0).size();
+//                influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+//            }
+//            long memorySize = tti.calculateDeepMemorySize();
+//            long rawMemorySize = rawTTI.calculateDeepMemorySize();
+//            if(rawQueryResults.getData().get(this.measures.get(0)).size() == 0){
+//                System.out.println(rawQueryResults.getData());
+//                System.exit(0);
+//            }
+//            csvWriter.addValue(table);
+//            csvWriter.addValue(i);
+//            csvWriter.addValue(query.getOpType());
+//            csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
+//            csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
+//            csvWriter.addValue(rawQueryResults.getData().get(this.measures.get(0)).size());
+//            csvWriter.addValue(sqlQueryResultsSize);
+//            csvWriter.addValue(influxDBQueryResultsSize);
+//            csvWriter.addValue(queryResults.getIoCount());
+//            csvWriter.addValue(rawQueryResults.getIoCount());
+//            csvWriter.addValue(ttiTime);
+//            csvWriter.addValue(rawTtiTIme);
+//            csvWriter.addValue(postgreSQLTime);
+//            csvWriter.addValue(influxDBTime);
+//            csvWriter.addValue(memorySize);
+//            csvWriter.addValue(rawMemorySize);
+//            csvWriter.writeValuesToRow();
+//        }
+//        csvWriter.close();
+//
+//    }
+
     private void timeQueries() throws IOException, SQLException {
         File outFile = Paths.get(outFolder, type + "TimeQueries.csv").toFile();
         boolean addHeader = outFile.length() == 0;
@@ -296,40 +383,39 @@ public class Experiments<T> {
             QueryResults queryResults = tti.executeQuery(query);
             ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
-//            stopwatch = Stopwatch.createStarted();
-//            QueryResults rawQueryResults = rawTTI.executeQuery(query);
-//            rawTtiTIme = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            stopwatch = Stopwatch.createStarted();
+            QueryResults rawQueryResults = rawTTI.executeQuery(query);
+            rawTtiTIme = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
             int sqlQueryResultsSize = 0, influxDBQueryResultsSize = 0;
-//            if(postgreSQLCfg != null) {
-//                stopwatch.reset();
-//                stopwatch.start();
-//                sqlQueryResultsSize = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4).getData().get(this.measures.get(0)).size();
-//                postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-//            }
-//            if(influxDBCfg != null) {
-//                stopwatch.reset();
-//                stopwatch.start();
-//                influxDBQueryResultsSize = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4).getData().get(0).size();
-//                influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-//            }
-
+            if(postgreSQLCfg != null) {
+                stopwatch.reset();
+                stopwatch.start();
+                sqlQueryResultsSize = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4).getData().get(this.measures.get(0)).size();
+                postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            }
+            if(influxDBCfg != null) {
+                stopwatch.reset();
+                stopwatch.start();
+                influxDBQueryResultsSize = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4).getData().get(0).size();
+                influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            }
             long memorySize = tti.calculateDeepMemorySize();
             long rawMemorySize = rawTTI.calculateDeepMemorySize();
-//            if(rawQueryResults.getData().get(this.measures.get(0)).size() == 0){
-//                System.out.println(rawQueryResults.getData());
-//                System.exit(0);
-//            }
+            if(rawQueryResults.getData().get(this.measures.get(0)).size() == 0){
+                System.out.println(rawQueryResults.getData());
+                System.exit(0);
+            }
             csvWriter.addValue(table);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getOpType());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
-//            csvWriter.addValue(rawQueryResults.getData().get(this.measures.get(0)).size());
+            csvWriter.addValue(rawQueryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(sqlQueryResultsSize);
             csvWriter.addValue(influxDBQueryResultsSize);
             csvWriter.addValue(queryResults.getIoCount());
-//            csvWriter.addValue(rawQueryResults.getIoCount());
+            csvWriter.addValue(rawQueryResults.getIoCount());
             csvWriter.addValue(ttiTime);
             csvWriter.addValue(rawTtiTIme);
             csvWriter.addValue(postgreSQLTime);
@@ -380,6 +466,8 @@ public class Experiments<T> {
                 return new PostgreSQLDataset(postgreSQLCfg, schema, table, timeFormat);
             case "influx":
                 return new InfluxDBDataset(influxDBCfg, schema, table, timeFormat);
+            case "all":
+                return new ExperimentsDataset(postgreSQLCfg, influxDBCfg, schema, table, timeFormat);
             default:
                 break;
         }

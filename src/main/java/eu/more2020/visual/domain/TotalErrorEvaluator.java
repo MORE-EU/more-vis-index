@@ -32,7 +32,6 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
     public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint) {
         // if overlapping then accept both in this and the next
         errorAggregators.get(currentPixelColumn).accept(pixelAggregatedDataPoint);
-        if(pixelAggregatedDataPoint.isOverlapping()) errorAggregators.get(currentPixelColumn + 1).accept(pixelAggregatedDataPoint);
     }
 
     public void add(ZonedDateTime pixel){
@@ -104,7 +103,6 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
 
             firstPoints = new double[length];
             lastPoints = new double[length];
-
             firstTimestamps = new long[length];
             lastTimestamps = new long[length];
             clear();
@@ -130,49 +128,13 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
 
         @Override
         public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint) {
-            int i = 0;
-            for (int m : measures) {
-                double min = pixelAggregatedDataPoint.getStats().getMinValue(m);
-                double max = pixelAggregatedDataPoint.getStats().getMaxValue(m);
-                long minTimestamp = pixelAggregatedDataPoint.getStats().getMinTimestamp(m);
-                long maxTimestamp = pixelAggregatedDataPoint.getStats().getMaxTimestamp(m);
-                boolean containsMin = true;
-                boolean containsMax = true;
 
-                containsMin = minTimestamp < (pixelColumn.plus(interval.getInterval(), interval.getChronoUnit()).toInstant().toEpochMilli()) &&
-                        minTimestamp >= (pixelColumn.toInstant().toEpochMilli());
-                containsMax = maxTimestamp < (pixelColumn.plus(interval.getInterval(), interval.getChronoUnit()).toInstant().toEpochMilli()) &&
-                        maxTimestamp >= (pixelColumn.toInstant().toEpochMilli());
-                if (minTimestamp <= maxTimestamp) {
-                    firstPoints[i] = min;
-                    lastPoints[i] = max;
-                    firstTimestamps[i] = minTimestamp;
-                    lastTimestamps[i] = maxTimestamp;
-                } else {
-                    firstPoints[i] = max;
-                    lastPoints[i] = min;
-                    firstTimestamps[i] = maxTimestamp;
-                    lastTimestamps[i] = minTimestamp;
-                }
-            }
         }
 
         public void accept(PixelColumnErrorAggregator pixelColumnErrorAggregator) {
-            for (int i = 0; i < error.length; i++) {
-                trueMinId[i] = Math.min(trueMinId[i], pixelColumnErrorAggregator.getMinId(i));
-                trueMaxId[i] = Math.max(trueMaxId[i], pixelColumnErrorAggregator.getMaxId(i));
-                pixelColumnErrorAggregator.setTrueMinId(Math.min(minId[i], pixelColumnErrorAggregator.getTrueMinId(i)), i);
-                pixelColumnErrorAggregator.setTrueMaxId(Math.max(maxId[i], pixelColumnErrorAggregator.getTrueMaxId(i)), i);
-                double currError =  Math.abs(minId[i] - trueMinId[i]) + Math.abs(trueMaxId[i] - maxId[i]);
-                error[i] += (currError / (double)(viewport.getWidth() * viewport.getHeight()));
-            }
+
         }
 
-        public int getPixelId(int m, double value){
-            double range = Math.abs(stats.getMaxValue(m)) + Math.abs(stats.getMinValue(m));
-            double bin_size = range / height;
-            return (int) ((Math.abs(value) / bin_size) + Math.abs(stats.getMinValue(m)));
-        }
 
         public void setTrueMinId(int trueMinId, int id) {
             this.trueMinId[id] = trueMinId;
