@@ -346,7 +346,7 @@ public class Experiments<T> {
 //    }
 
     private void timeQueries() throws IOException, SQLException {
-        File outFile = Paths.get(outFolder, type + "TimeQueries.csv").toFile();
+        File outFile = Paths.get(outFolder, table + "_" + type + "TimeQueries.csv").toFile();
         boolean addHeader = outFile.length() == 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, true), csvWriterSettings);
