@@ -134,7 +134,7 @@ public class Experiments<T> {
     private void run() throws IOException, ClassNotFoundException, SQLException {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFolder,"No out folder specified.");
-        initOutput();
+        //initOutput();
         switch (command) {
             case "timeInitialization":
                 timeInitialization();
