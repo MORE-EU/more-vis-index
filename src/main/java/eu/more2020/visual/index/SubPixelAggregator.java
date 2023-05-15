@@ -98,7 +98,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         statsAggregator.clear();
         if (currentPixel == null) {
             moveToNextSubPixel();
-            while (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli())
+            while (hasNext() && (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli()))
                 moveToNextSubPixel();
             currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());

@@ -251,7 +251,6 @@ public class Experiments<T> {
             sqlQueryResults.toMultipleCsv(sqlResultsPath);
             timeSeriesPlot.build(sqlResultsPath);
         }
-//
 //        if(influxDBCfg != null) {
 //            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxDBQuery);
 //            influxDBQueryResults.toCsv(influxDBResultsPath);

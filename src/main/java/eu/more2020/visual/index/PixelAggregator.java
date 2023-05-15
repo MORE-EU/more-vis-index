@@ -54,7 +54,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         this.viewport = viewport;
         calculateStats(multiSpanIterator);
         this.statsAggregator = new PixelStatsAggregator(globalStatsAggregator, measures, viewport);
-        this.totalErrorEvaluator = new TotalErrorEvaluator(globalStatsAggregator, measures, viewport, m4Interval);
+        this.totalErrorEvaluator = new TotalErrorEvaluator(statsAggregator, measures);
     }
 
     private void calculateStats(MultiSpanIterator multiSpanIterator) {
@@ -93,7 +93,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         if(hasRemainder && hasNext()) {
             statsAggregator.accept(aggregatedDataPoint, currentPixel, nextPixel, true);
         }
-//        totalErrorEvaluator.update();
+        totalErrorEvaluator.accept(this);
         return this;
     }
 
