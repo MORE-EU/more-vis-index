@@ -104,8 +104,8 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
             nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
             statsAggregator.accept(aggregatedDataPoint);
         } else {
-            currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
+            nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
         }
     }
 

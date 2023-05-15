@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.View;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -219,10 +220,10 @@ public class Experiments<T> {
         String ttiResultsPath = Paths.get(outFolder, "plotQuery", "ttiResults").toString();
         String sqlResultsPath = Paths.get(outFolder, "plotQuery", "sqlResults").toString();
         String influxDBResultsPath = Paths.get(outFolder, "plotQuery", "influxDBResults").toString();
-
+        ViewPort viewPort = new ViewPort(800, 300);
         AbstractDataset dataset = createDataset();
         Query ttiQuery = new Query(startTime, endTime, measures,
-                filters, new ViewPort(800, 300), groupyBy);
+                filters, viewPort, groupyBy);
         List<String> measureNames = ttiQuery.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
 
         TTI tti = new TTI(dataset);
@@ -233,8 +234,8 @@ public class Experiments<T> {
 
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.getSqlQueryExecutor(schema, table);
-        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, measures, filters, new ViewPort(800, 300), null);
-        InfluxDBQuery influxDBQuery = new InfluxDBQuery(startTime, endTime, measureNames, filters, new ViewPort(800, 300), null);
+        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, measures, filters, viewPort, null);
+        InfluxDBQuery influxDBQuery = new InfluxDBQuery(startTime, endTime, measureNames, filters, viewPort, null);
 
         TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot(Paths.get(outFolder, plotFolder).toString());
 

@@ -3,6 +3,7 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,7 +42,8 @@ public class TimeSeriesSpanFactory {
         for (TimeRange range : ranges) {
             TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan(range.getFrom(), range.getTo(),
                     aggregatedDataPoints.getMeasures(), aggregateInterval);
-            int i = 0;
+            int c = 0;
+            int intervals = timeSeriesSpan.getSize();
             while(it.hasNext()){
                 if(!changed) aggregatedDataPoint = it.next();
                 else changed = false;
@@ -49,11 +51,12 @@ public class TimeSeriesSpanFactory {
                     changed = true;
                     break;
                 }
-                if (i == 0) {
+                int i = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), intervals, aggregatedDataPoint.getTimestamp());
+                if (c == 0) {
                     timeSeriesSpan.setFrom(aggregatedDataPoint.getTimestamp());
                 }
+                c++;
                 timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
-               i++;
             }
             spans.add(timeSeriesSpan);
         }

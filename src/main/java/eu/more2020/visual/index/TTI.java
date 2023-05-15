@@ -113,6 +113,7 @@ public class TTI {
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
+        int count = 0;
         while (pixelAggregator.hasNext()) {
             PixelAggregatedDataPoint next = pixelAggregator.next();
             PixelStatsAggregator stats = next.getStats();
@@ -125,7 +126,9 @@ public class TTI {
                     measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
                 }
             }
+            count ++;
         }
+        System.out.println(count);
 //        for (Integer measure : measures) {
 //            double error = Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100));
 //            LOG.info("Query Max Error (" + measure  +"): " + error + "%");

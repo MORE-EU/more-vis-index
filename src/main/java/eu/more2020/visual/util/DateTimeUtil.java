@@ -38,7 +38,6 @@ public class DateTimeUtil {
         return format(DEFAULT_FORMATTER, timeStamp, zone);
     }
 
-
     public static String format(final String format, final long timeStamp, final ZoneId zone) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return Instant.ofEpochMilli(timeStamp)
@@ -63,7 +62,6 @@ public class DateTimeUtil {
     public static String formatTimeStamp(final DateTimeFormatter formatter, final long timeStamp) {
         return format(formatter, timeStamp, UTC);
     }
-
 
     /**
      * Returns the start date time of the interval that the timestamp belongs,
@@ -166,6 +164,11 @@ public class DateTimeUtil {
         ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime, aggregateInterval, zoneId);
         return (int) Math.ceil(aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / (double) aggregateInterval.getInterval()) + 1;
     }
+
+    public static int indexInInterval(final long startTime, final long endTime, final long intervals, final long time) {
+        return (int) (intervals * (time - startTime ) / (endTime - startTime));
+    }
+
 
     /**
      * Returns the optimal M4 sampling interval in a specific range.
