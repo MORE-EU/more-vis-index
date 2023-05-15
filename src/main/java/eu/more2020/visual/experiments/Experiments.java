@@ -304,13 +304,17 @@ public class Experiments<T> {
             if(type.equals("postgres")) {
                 stopwatch.reset();
                 stopwatch.start();
-                sqlQueryResultsSize = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4).getData().get(this.measures.get(0)).size();
+                QueryResults sqlRes = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
+                if(sqlRes.getData().size() != 0)
+                    sqlQueryResultsSize = sqlRes.getData().get(this.measures.get(0)).size();
                 postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             }
             else if(type.equals("influx")) {
                 stopwatch.reset();
                 stopwatch.start();
-                influxDBQueryResultsSize = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4).getData().get(0).size();
+                QueryResults influxRes = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4);
+                if(influxRes.getData().size() != 0)
+                    influxDBQueryResultsSize = influxRes.getData().get(0).size();
                 influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             }
             long memorySize = tti.calculateDeepMemorySize();
