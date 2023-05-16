@@ -25,6 +25,7 @@ import javax.swing.text.View;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.temporal.ChronoField;
@@ -136,7 +137,7 @@ public class Experiments<T> {
         Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFolder,"No out folder specified.");
         type = type.toLowerCase(Locale.ROOT);
-        //initOutput();
+        initOutput();
         switch (command) {
             case "timeInitialization":
                 timeInitialization();
@@ -260,10 +261,15 @@ public class Experiments<T> {
     }
 
     private void timeQueries() throws IOException, SQLException {
-        File outFile = Paths.get(outFolder, table + "_" + type + "TimeQueries.csv").toFile();
+        File outFile = Paths.get(outFolder, "timeQueries", type, table, "results.csv").toFile();
         boolean addHeader = outFile.length() == 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
+
+        String rawTTiResultsPath = Paths.get(outFolder,"timeQueries", type, table, "rawResults").toString();
+        String ttiResultsPath = Paths.get(outFolder,"timeQueries", type, table, "ttiResults").toString();
+        String sqlResultsPath = Paths.get(outFolder,"timeQueries", type, table, "sqlResults").toString();
+        String influxDBResultsPath = Paths.get(outFolder,"timeQueries", type, table, "influxDBResults").toString();
 
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         stopwatch.start();
@@ -285,8 +291,8 @@ public class Experiments<T> {
                     "PostgreSQL results size", "InfluxDB results size", "TTI IO Count", "RAW TTI IO Count",
                     "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "Raw TTI Memory (b)");
         }
-
         for (int i = 0; i < sequence.size(); i += 3) {
+            QueryResults sqlQueryResults, influxDBQueryResults;
             double ttiTime = 0, rawTtiTIme = 0, postgreSQLTime = 0, influxDBTime = 0;
             Query query = (Query) sequence.get(i);
             SQLQuery sqlQuery = (SQLQuery) sequence.get(i + 1);
@@ -294,7 +300,7 @@ public class Experiments<T> {
             LOG.debug("Executing query " + i);
 
             stopwatch = Stopwatch.createStarted();
-            QueryResults queryResults = tti.executeQuery(query);
+            QueryResults ttiQueryResults = tti.executeQuery(query);
             ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
             stopwatch = Stopwatch.createStarted();
@@ -305,18 +311,20 @@ public class Experiments<T> {
             if(type.equals("postgres")) {
                 stopwatch.reset();
                 stopwatch.start();
-                QueryResults sqlRes = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
-                if(sqlRes.getData().size() != 0)
-                    sqlQueryResultsSize = sqlRes.getData().get(this.measures.get(0)).size();
+                sqlQueryResults = sqlQueryExecutor.execute(sqlQuery, QueryMethod.M4);
+                if(sqlQueryResults.getData().size() != 0)
+                    sqlQueryResultsSize = sqlQueryResults.getData().get(this.measures.get(0)).size();
                 postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+                sqlQueryResults.toMultipleCsv(Paths.get(sqlResultsPath, "query_" + i).toString());
             }
             else if(type.equals("influx")) {
                 stopwatch.reset();
                 stopwatch.start();
-                QueryResults influxRes = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4);
-                if(influxRes.getData().size() != 0)
-                    influxDBQueryResultsSize = influxRes.getData().get(0).size();
+                influxDBQueryResults = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4);
+                if(influxDBQueryResults.getData().size() != 0)
+                    influxDBQueryResultsSize = influxDBQueryResults.getData().get(0).size();
                 influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+                influxDBQueryResults.toMultipleCsv(Paths.get(influxDBResultsPath, "query_" + i).toString());
             }
             long memorySize = tti.calculateDeepMemorySize();
             long rawMemorySize = rawTTI.calculateDeepMemorySize();
@@ -324,15 +332,18 @@ public class Experiments<T> {
                 System.out.println(rawQueryResults.getData());
                 System.exit(0);
             }
+            ttiQueryResults.toMultipleCsv(Paths.get(ttiResultsPath, "query_" + i).toString());
+            // rawQueryResults.toMultipleCsv(Paths.get(rawTTiResultsPath, "query_" + i).toString());
+
             csvWriter.addValue(table);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getOpType());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
-            csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
+            csvWriter.addValue(ttiQueryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(rawQueryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(sqlQueryResultsSize);
             csvWriter.addValue(influxDBQueryResultsSize);
-            csvWriter.addValue(queryResults.getIoCount());
+            csvWriter.addValue(ttiQueryResults.getIoCount());
             csvWriter.addValue(rawQueryResults.getIoCount());
             csvWriter.addValue(ttiTime);
             csvWriter.addValue(rawTtiTIme);
@@ -370,8 +381,17 @@ public class Experiments<T> {
         }
     }
 
-    private void initOutput(){
-        recreateDir(outFolder);
+    private void initOutput() throws IOException {
+        Path outFolderPath = Paths.get(outFolder);
+        Path timeQueriesPath = Paths.get(outFolder, "timeQueries");
+        Path typePath = Paths.get(outFolder, "timeQueries", type);
+        Path tablePath = Paths.get(outFolder, "timeQueries", type, table);
+
+        FileUtil.build(outFolderPath.toString());
+        FileUtil.build(timeQueriesPath.toString());
+        FileUtil.build(typePath.toString());
+        FileUtil.build(tablePath.toString());
+//        recreateDir(outFolder);
     }
 
     private AbstractDataset createDataset() throws IOException, SQLException {

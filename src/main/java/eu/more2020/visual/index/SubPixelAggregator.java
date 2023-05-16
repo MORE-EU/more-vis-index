@@ -64,7 +64,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         moveToNextPixel();
         // While next sub pixel is to the left of the next pixel
         while((currentSubPixel
-                .plus(subInterval.getInterval(), subInterval.getChronoUnit())
+                .plus( subInterval.getInterval(), subInterval.getChronoUnit())
                 .isBefore(nextPixel) ||
                 currentSubPixel
                         .plus(subInterval.getInterval(), subInterval.getChronoUnit())
@@ -80,7 +80,10 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         moveToNextSubPixel();
         hasRemainder = false;
         statsAggregator.clear();
-        statsAggregator.accept(aggregatedDataPoint);
+        // Avoid missing data with this
+        if(!currentSubPixel.isAfter(nextPixel)) {
+            statsAggregator.accept(aggregatedDataPoint);
+        }
         return new ImmutableSubPixelDatapoint(this);
     }
 
@@ -101,11 +104,11 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
             while (hasNext() && (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli()))
                 moveToNextSubPixel();
             currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
-            nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            nextPixel = DateTimeUtil.getIntervalEnd(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             statsAggregator.accept(aggregatedDataPoint);
         } else {
-            currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
-            nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+            nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
         }
     }
 

@@ -62,6 +62,9 @@ public class DateTimeUtil {
     public static String formatTimeStamp(final DateTimeFormatter formatter, final long timeStamp) {
         return format(formatter, timeStamp, UTC);
     }
+    public static ZonedDateTime getIntervalEnd(long timestamp, AggregateInterval aggregateInterval, ZoneId zoneId) {
+        return getIntervalStart(timestamp, aggregateInterval, zoneId).plus(aggregateInterval.getInterval(), aggregateInterval.getChronoUnit());
+    }
 
     /**
      * Returns the start date time of the interval that the timestamp belongs,
