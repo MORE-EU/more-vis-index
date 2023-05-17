@@ -50,7 +50,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
     @Override
     public boolean hasNext() {
-        if(aggregatedDataPoint != null && aggregatedDataPoint.getTimestamp() > to) { return false; }
         return multiSpanIterator.hasNext();
     }
 
@@ -67,7 +66,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
                 .plus( subInterval.getInterval(), subInterval.getChronoUnit())
                 .isBefore(nextPixel) ||
                 currentSubPixel
-                        .plus(subInterval.getInterval(), subInterval.getChronoUnit())
+                        .plus( subInterval.getInterval(), subInterval.getChronoUnit())
                         .equals(nextPixel)) && hasNext()) {
             moveToNextSubPixel();
             statsAggregator.accept(aggregatedDataPoint); // add to stats
@@ -80,10 +79,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         moveToNextSubPixel();
         hasRemainder = false;
         statsAggregator.clear();
-        // Avoid missing data with this
-        if(!currentSubPixel.isAfter(nextPixel)) {
-            statsAggregator.accept(aggregatedDataPoint);
-        }
         return new ImmutableSubPixelDatapoint(this);
     }
 

@@ -63,8 +63,8 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         SubPixelAggregator subPixelAggregator = new SubPixelAggregator(multiSpanIterator, from , to, measures, m4Interval, viewport);
         while (subPixelAggregator.hasNext()) {
             PixelAggregatedDataPoint next = subPixelAggregator.next().persist();
-                aggregatedDataPoints.add(next);
-                globalStatsAggregator.accept(next);
+            aggregatedDataPoints.add(next);
+            globalStatsAggregator.accept(next);
         }
         pixelAggregatedDataPointIterator = aggregatedDataPoints.iterator();
     }

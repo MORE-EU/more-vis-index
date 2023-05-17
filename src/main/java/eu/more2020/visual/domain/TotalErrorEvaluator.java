@@ -22,7 +22,9 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
     }
 
     public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint) {
+        if(pixelAggregatedDataPoint.getCount() != 0){
 
+        }
     }
 
     private int getMeasureIndex(int measure) {
