@@ -282,7 +282,7 @@ public class Experiments<T> {
         SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
 
         Query q0 = new Query(startTime, endTime, queryMethod, measures,
-                filters, new ViewPort(800, 300), groupyBy);
+                filters, new ViewPort(1000, 600), groupyBy);
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "TTI results size", "RAW TTI results size",
