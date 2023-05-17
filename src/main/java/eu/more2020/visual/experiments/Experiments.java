@@ -262,7 +262,6 @@ public class Experiments<T> {
 
     private void timeQueries() throws IOException, SQLException {
         File outFile = Paths.get(outFolder, "timeQueries", type, table, "results.csv").toFile();
-        boolean addHeader = outFile.length() == 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
 
@@ -286,11 +285,9 @@ public class Experiments<T> {
                 filters, new ViewPort(800, 300), groupyBy);
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
-        if (addHeader) {
-            csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "TTI results size", "RAW TTI results size",
-                    "PostgreSQL results size", "InfluxDB results size", "TTI IO Count", "RAW TTI IO Count",
-                    "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "Raw TTI Memory (b)");
-        }
+        csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "TTI results size", "RAW TTI results size",
+                "PostgreSQL results size", "InfluxDB results size", "TTI IO Count", "RAW TTI IO Count",
+                "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "Raw TTI Memory (b)");
         for (int i = 0; i < sequence.size(); i += 3) {
             QueryResults sqlQueryResults, influxDBQueryResults;
             double ttiTime = 0, rawTtiTIme = 0, postgreSQLTime = 0, influxDBTime = 0;

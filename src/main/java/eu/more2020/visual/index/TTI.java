@@ -102,6 +102,7 @@ public class TTI {
             List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ranges, accurateAggInterval);
             overlappingIntervals.addAll(timeSeriesSpans);
             intervalTree.insertAll(timeSeriesSpans);
+            timeSeriesSpans.forEach(s -> ioCount[0] += s.getCounts()[0]);
         }
         overlappingIntervals.sort((i1, i2) -> (int) (i1.getFrom() - i2.getFrom())); // Sort intervals
 
