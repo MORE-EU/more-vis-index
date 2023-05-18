@@ -17,23 +17,14 @@ import java.util.function.Consumer;
  * safe and efficient parallel execution.
  * @since 1.8
  */
-public class PixelStatsAggregator extends SubPixelStatsAggregator {
+public class SubPixelStatsAggregator extends StatsAggregator {
 
     private final double[] firstValues;
     private final long[] firstTimestamps;
     private final double[] lastValues;
     private final long[] lastTimestamps;
 
-    private int[] minId;
-    private int[] trueMinId;
-
-    private int[] maxId;
-    private int[] trueMaxId;
-
-    private int height;
-    private StatsAggregator globalStats = null;
-
-    private PixelStatsAggregator(List<Integer> measures) {
+    public SubPixelStatsAggregator(List<Integer> measures) {
         super(measures);
 
         int length = measures.size();
@@ -48,21 +39,6 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
         Arrays.fill(lastTimestamps, Long.MIN_VALUE);
     }
 
-    public PixelStatsAggregator(StatsAggregator globalStats, List<Integer> measures, ViewPort viewPort) {
-        this(measures);
-        this.globalStats = globalStats;
-        this.height = viewPort.getHeight();
-
-        minId = new int[height];
-        maxId = new int[height];
-        trueMinId = new int[height];
-        trueMaxId = new int[height];
-        Arrays.fill(minId, 0);
-        Arrays.fill(trueMinId, 0);
-        Arrays.fill(maxId,height - 1);
-        Arrays.fill(trueMaxId, height - 1);
-    }
-
     @Override
     public void accept(AggregatedDataPoint dataPoint) {
         Stats stats = dataPoint.getStats();
@@ -74,12 +50,10 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                 if (minValues[i] == stats.getMinValue(m)) {
                     minTimestamps[i] = stats.getMinTimestamp(m);
                 }
-                minId[i] = Math.min(minId[i], getPixelId(m, minValues[i]));
                 maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
                 if (maxValues[i] == stats.getMaxValue(m)) {
                     maxTimestamps[i] = stats.getMaxTimestamp(m);
                 }
-                maxId[i] = Math.max(maxId[i], getPixelId(m, maxValues[i]));
                 if (count == 0) {
                     if (stats.getMinTimestamp(m) <= stats.getMaxTimestamp(m)) {
                         firstTimestamps[i] = Math.min(stats.getMinTimestamp(m), firstTimestamps[i]);
@@ -110,71 +84,9 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
         }
     }
 
-    /** Accepts a partially overlapping interval and computes the inner-column errors.
-        @param from is the start of the interval
-        @param to is the end of the interval
-        @param isLast signifies if the interval is to the right or to the left of a pixelColumn
-     **/
-    public void accept(AggregatedDataPoint dataPoint, ZonedDateTime from, ZonedDateTime to, boolean isLast) {
-        Stats stats = dataPoint.getStats();
-        if (stats.getCount() != 0) {
-            int i = 0;
-            for (int m : measures) {
-                sums[i] += stats.getSum(m);
-                // Contains min
-                trueMinId[i] = Math.min(getPixelId(m, stats.getMinValue(m)), minId[i]);
-                trueMaxId[i] = Math.max(getPixelId(m, stats.getMaxValue(m)), maxId[i]);
-                if(from.toInstant().toEpochMilli() <= stats.getMinTimestamp(m) && to.toInstant().toEpochMilli() > stats.getMinTimestamp(m)){
-                    minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
-                    if (minValues[i] == stats.getMinValue(m)) {
-                        minTimestamps[i] = stats.getMinTimestamp(m);
-                    }
-                    minId[i] = trueMinId[i] = getPixelId(m, minValues[i]);
-                    if(isLast){
-                        if(stats.getMinTimestamp(m) >= lastTimestamps[i]){
-                            lastTimestamps[i] = stats.getMinTimestamp(m);
-                            lastValues[i] = stats.getMinValue(m);
-                        }
-                    } else {
-                        if(stats.getMinTimestamp(m) <= firstTimestamps[i]){
-                            firstTimestamps[i] = stats.getMinTimestamp(m);
-                            firstValues[i] = stats.getMinValue(m);
-                        }
-                    }
-                }
-                // Contains max
-                if(from.toInstant().toEpochMilli() <= stats.getMaxTimestamp(m) && to.toInstant().toEpochMilli() > stats.getMaxTimestamp(m)){
-                    maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
-                    if (maxValues[i] == stats.getMaxValue(m)) {
-                        maxTimestamps[i] = stats.getMaxTimestamp(m);
-                    }
-                    maxId[i] = trueMaxId[i] = getPixelId(m, maxValues[i]);
-                    if(isLast){
-                        if(stats.getMaxTimestamp(m) >= lastTimestamps[i]){
-                            lastTimestamps[i] = stats.getMaxTimestamp(m);
-                            lastValues[i] = stats.getMaxValue(m);
-                        }
-                    } else {
-                        if(stats.getMaxTimestamp(m) <= firstTimestamps[i]){
-                            firstTimestamps[i] = stats.getMaxTimestamp(m);
-                            firstValues[i] = stats.getMaxValue(m);
-                        }
-                    }
-                }
-                i ++;
-            }
-        }
-    }
-
-    public int getPixelId(int m, double value){
-        double range = Math.abs(globalStats.getMaxValue(m)) + Math.abs(globalStats.getMinValue(m));
-        double bin_size = range / height;
-        return (int) ((Math.abs(value) / bin_size));
-    }
-
     @Override
-    public PixelStatsAggregator clone(){
-        PixelStatsAggregator statsAggregator = new PixelStatsAggregator(measures);
+    public SubPixelStatsAggregator clone(){
+        SubPixelStatsAggregator statsAggregator = new SubPixelStatsAggregator(measures);
         statsAggregator.combine(this);
         return statsAggregator;
     }
@@ -196,7 +108,7 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
 
     @Override
     public void combine(StatsAggregator other) {
-        PixelStatsAggregator otherP = (PixelStatsAggregator) other;
+        SubPixelStatsAggregator otherP = (SubPixelStatsAggregator) other;
         count += otherP.count;
         for (int i = 0; i < sums.length; i++) {
             sums[i] += otherP.sums[i];
@@ -244,47 +156,4 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
         return lastTimestamps[getMeasureIndex(measure)];
     }
 
-
-    public int getMinPixelId(int measure) {
-        if (count == 0) {
-            throw new IllegalStateException("No data points added to this stats aggregator yet.");
-        }
-        return minId[getMeasureIndex(measure)];
-    }
-
-    public int getTrueMinPixelId(int measure) {
-        if (count == 0) {
-            throw new IllegalStateException("No data points added to this stats aggregator yet.");
-        }
-        return trueMinId[getMeasureIndex(measure)];
-    }
-
-    public int getMaxPixelId(int measure) {
-        if (count == 0) {
-            throw new IllegalStateException("No data points added to this stats aggregator yet.");
-        }
-        return maxId[getMeasureIndex(measure)];
-    }
-
-
-    public int getTrueMaxPixelId(int measure) {
-        if (count == 0) {
-            throw new IllegalStateException("No data points added to this stats aggregator yet.");
-        }
-        return trueMaxId[getMeasureIndex(measure)];
-    }
-
-    public int getFirstPixelId(int measure) {
-        if (count == 0) {
-            throw new IllegalStateException("No data points added to this stats aggregator yet.");
-        }
-        return getPixelId(measure, firstValues[getMeasureIndex(measure)]);
-    }
-
-    public int getLastPixelId(int measure) {
-        if (count == 0) {
-            throw new IllegalStateException("No data points added to this stats aggregator yet.");
-        }
-        return getPixelId(measure, lastValues[getMeasureIndex(measure)]);
-    }
 }

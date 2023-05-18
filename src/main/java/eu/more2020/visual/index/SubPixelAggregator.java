@@ -19,7 +19,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     private final long from;
     private final long to;
 
-    private final PixelStatsAggregator statsAggregator;
+    private final SubPixelStatsAggregator statsAggregator;
 
     /**
      * The start date time value of the current pixel.
@@ -45,7 +45,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         this.to = to;
         this.m4Interval = m4Interval;
         this.viewPort = viewport;
-        statsAggregator = new PixelStatsAggregator(measures);
+        statsAggregator = new SubPixelStatsAggregator(measures);
     }
 
     @Override
@@ -79,6 +79,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         moveToNextSubPixel();
         hasRemainder = false;
         statsAggregator.clear();
+        statsAggregator.accept(aggregatedDataPoint);
         return new ImmutableSubPixelDatapoint(this);
     }
 
@@ -113,7 +114,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     }
 
     @Override
-    public PixelStatsAggregator getStats() {
+    public StatsAggregator getStats() {
         return statsAggregator;
     }
 
@@ -169,7 +170,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private final AggregateInterval interval;
 
-        private final PixelStatsAggregator stats;
+        private final SubPixelStatsAggregator stats;
 
         public ImmutableSubPixelDatapoint(SubPixelAggregator subPixelAggregator){
             this(subPixelAggregator.getStats(), subPixelAggregator.getInterval(), subPixelAggregator.getSubPixel(),
@@ -178,7 +179,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private ImmutableSubPixelDatapoint(Stats stats, AggregateInterval subInterval,
                                   ZonedDateTime subPixel, ZonedDateTime currentPixel, ZonedDateTime nextPixel) {
-            this.stats = ((PixelStatsAggregator) stats).clone();
+            this.stats = ((SubPixelStatsAggregator) stats).clone();
             this.subPixel = subPixel;
             this.currentPixel = currentPixel;
             this.nextPixel = nextPixel;
@@ -191,7 +192,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         }
 
         @Override
-        public PixelStatsAggregator getStats() {
+        public Stats getStats() {
             return stats;
         }
 

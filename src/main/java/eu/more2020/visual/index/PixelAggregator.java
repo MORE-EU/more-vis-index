@@ -71,6 +71,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
 
     @Override
     public boolean hasNext() {
+        if(nextPixel != null && nextPixel.toInstant().toEpochMilli() > to) return false;
         return pixelAggregatedDataPointIterator.hasNext();
     }
 
@@ -83,12 +84,17 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
     public PixelAggregatedDataPoint next() {
         moveToNextPixel();
         while((currentSubPixel
-                .isBefore(nextPixel)) && hasNext()) {
+                .plus( subInterval.getInterval(), subInterval.getChronoUnit())
+                .isBefore(nextPixel) ||
+                currentSubPixel
+                        .plus( subInterval.getInterval(), subInterval.getChronoUnit())
+                        .equals(nextPixel)) && hasNext()) {
             moveToNextSubPixel();
             statsAggregator.accept(aggregatedDataPoint); // add to stats
         }
-        hasRemainder = !currentSubPixel.equals(nextPixel); // is a partial overlap
+        hasRemainder = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).isAfter(nextPixel); // is a partial overlap
         if(hasRemainder && hasNext()) {
+            moveToNextSubPixel();
             statsAggregator.accept(aggregatedDataPoint, currentPixel, nextPixel, true);
         }
         totalErrorEvaluator.accept(this);
@@ -197,8 +203,9 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
 
         private final PixelStatsAggregator stats;
 
-        public ImmutablePixelDatapoint(PixelAggregator subPixelAggregator){
-            this(subPixelAggregator.getStats(), subPixelAggregator.getInterval(),
+
+        public ImmutablePixelDatapoint(PixelAggregatedDataPoint subPixelAggregator){
+            this((PixelStatsAggregator) subPixelAggregator.getStats(), subPixelAggregator.getInterval(),
                     subPixelAggregator.getPixel(), subPixelAggregator.getNextPixel());
         }
 
@@ -251,7 +258,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         }
 
         public PixelAggregatedDataPoint persist() {
-            return this;
+            return new ImmutablePixelDatapoint(this);
         }
 
         @Override

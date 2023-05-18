@@ -248,7 +248,7 @@ public class DateTimeUtil {
     public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
         Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
         int partiallyOverlapped = viewPort.getWidth();
-        Duration accurateDuration = Duration.ofMillis((long) (timeRangeDuration.toMillis() * (1 - accuracy) / (partiallyOverlapped + 1)));
+        Duration accurateDuration = Duration.ofMillis((long) (timeRangeDuration.toMillis() * (1 - accuracy) / (partiallyOverlapped + 1)) / 2);
         return maxCalendarInterval(accurateDuration);
     }
 

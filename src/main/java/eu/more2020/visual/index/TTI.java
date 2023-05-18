@@ -60,6 +60,7 @@ public class TTI {
         Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
         accurateInterval = accurateInterval.toMillis() < dataset.getSamplingInterval()
                 .toMillis() ? dataset.getSamplingInterval() : accurateInterval;
+        LOG.info("Interval: " + accurateInterval);
 
         AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
@@ -67,10 +68,10 @@ public class TTI {
         final int[] ioCount = {0};
         RangeSet<Long> rangeSet = TreeRangeSet.create();
 
-//        long from = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
-//        long to = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
-        long from = query.getFrom();
-        long to = query.getTo();
+        long from = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
+        long to = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
+//        long from = query.getFrom();
+//        long to = query.getTo();
         final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(from, to))};
 
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
@@ -114,10 +115,9 @@ public class TTI {
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 
-        int count = 0;
         while (pixelAggregator.hasNext()) {
             PixelAggregatedDataPoint next = pixelAggregator.next();
-            PixelStatsAggregator stats = next.getStats();
+            PixelStatsAggregator stats = (PixelStatsAggregator) next.getStats();
             if(stats.getCount() != 0) {
                 for (int measure : measures) {
                     List<UnivariateDataPoint> measureData = data.get(measure);
@@ -127,9 +127,7 @@ public class TTI {
                     measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
                 }
             }
-            count ++;
         }
-        System.out.println(count);
 //        for (Integer measure : measures) {
 //            double error = Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100));
 //            LOG.info("Query Max Error (" + measure  +"): " + error + "%");
