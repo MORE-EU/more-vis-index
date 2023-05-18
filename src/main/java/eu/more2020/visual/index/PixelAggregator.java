@@ -71,7 +71,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
 
     @Override
     public boolean hasNext() {
-        if(nextPixel != null && nextPixel.toInstant().toEpochMilli() > to) return false;
+        if(nextPixel != null && nextPixel.toInstant().toEpochMilli() >= to) return false;
         return pixelAggregatedDataPointIterator.hasNext();
     }
 

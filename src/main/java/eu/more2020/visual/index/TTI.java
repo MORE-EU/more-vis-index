@@ -28,6 +28,8 @@ public class TTI {
 
     private final DataSource dataSource;
 
+    private int[] ioCount = {0};
+
     private final float accuracy = 0.9f;
     Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
         @Override
@@ -52,34 +54,19 @@ public class TTI {
         intervalTree = new IntervalTree<>();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    public QueryResults executeQuery(AbstractQuery query) {
-        LOG.info("Executing query: " + query.getFromDate() + " - " + query.getToDate());
-        Duration optimalM4Interval = DateTimeUtil.optimalM4(query.getFrom(), query.getTo(), query.getViewPort());
-        AggregateInterval optimalM4AggInterval = DateTimeUtil.aggregateCalendarInterval(optimalM4Interval);
-        Duration accurateInterval = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
-        accurateInterval = accurateInterval.toMillis() < dataset.getSamplingInterval()
-                .toMillis() ? dataset.getSamplingInterval() : accurateInterval;
-        LOG.info("Interval: " + accurateInterval);
-
-        AggregateInterval accurateAggInterval = DateTimeUtil.aggregateCalendarInterval(accurateInterval);
-        List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
-        QueryResults queryResults = new QueryResults();
-        final int[] ioCount = {0};
+    private List<TimeSeriesSpan> getOverlappingIntervals(long from, long to, List<Integer> measures,
+                                                         AggregateInterval m4Interval, AggregateInterval subInterval,
+                                                         ImmutableRangeSet<Long>[] currentDifference){
         RangeSet<Long> rangeSet = TreeRangeSet.create();
-
-        long from = Math.max(dataset.getTimeRange().getFrom(), (query.getFrom() - (long) (query.getTo() - query.getFrom()) / 2));
-        long to = Math.min(dataset.getTimeRange().getTo(), (query.getTo() + (long) (query.getTo() - query.getFrom()) / 2));
-//        long from = query.getFrom();
-//        long to = query.getTo();
-        final ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(from, to))};
-
+        final int[] ioCount = {0};
+        TimeRange timeRange = new TimeRange(from, to);
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
         // also keep the remaining difference.
-        List<TimeSeriesSpan> overlappingIntervals = StreamSupport.stream(Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
+        List<TimeSeriesSpan> overlappingIntervals = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(intervalTree.overlappers(timeRange), 0), false)
                 .filter(span -> span.getAggregateInterval().toDuration()
-                        .compareTo(optimalM4Interval) <= 0 && (span.overlaps(query)))
-                .sorted(Comparator.comparing(span -> span.percentage(query), Comparator.reverseOrder()))
+                        .compareTo(m4Interval.toDuration()) <= 0 && (span.overlaps(timeRange)))
+                .sorted(Comparator.comparing(span -> span.percentage(timeRange), Comparator.reverseOrder()))
                 .filter(span -> {
                     if (currentDifference[0].isEmpty())
                         return false; // If the difference has been covered, don't check.
@@ -93,24 +80,60 @@ public class TTI {
                 })
                 .collect(Collectors.toList());
 
+        return overlappingIntervals;
+    }
+
+
+    @SuppressWarnings("UnstableApiUsage")
+    public List<TimeSeriesSpan> getTimeSeriesSpans(long from, long to, List<Integer> measures,
+                                         AggregateInterval m4Interval, AggregateInterval subInterval,
+                                         ImmutableRangeSet<Long>[] currentDifference){
+        List<TimeSeriesSpan> overlappingIntervals = getOverlappingIntervals(from, to, measures, m4Interval, subInterval, currentDifference);
         // Calculate and add missing intervals
         List<TimeRange> ranges = currentDifference[0].asRanges().stream()
                 .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
         if(ranges.size() >= 1) {
+            long newFrom = Math.max(dataset.getTimeRange().getFrom(), (from - (to - from) / 2));
+            long newTo = Math.min(dataset.getTimeRange().getTo(), (to + (to - from) / 2));
+            currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(newFrom, newTo))};
+            overlappingIntervals = getOverlappingIntervals(newFrom, newTo, measures, m4Interval, subInterval, currentDifference);
+            ranges = currentDifference[0].asRanges().stream()
+                    .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
+
             AggregatedDataPoints dataPoints =
-                    dataSource.getAggregatedDataPoints(from, to, ranges, measures, accurateAggInterval);
-            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ranges, accurateAggInterval);
+                    dataSource.getAggregatedDataPoints(newFrom, newTo, ranges, measures, subInterval);
+            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ranges, subInterval);
             overlappingIntervals.addAll(timeSeriesSpans);
             intervalTree.insertAll(timeSeriesSpans);
             timeSeriesSpans.forEach(s -> ioCount[0] += s.getCounts()[0]);
         }
         overlappingIntervals.sort((i1, i2) -> (int) (i1.getFrom() - i2.getFrom())); // Sort intervals
+        return overlappingIntervals;
+    }
+
+    public QueryResults executeQuery(AbstractQuery query) {
+        LOG.info("Executing query: " + query.getFromDate() + " - " + query.getToDate());
+        ioCount = new int[]{0};
+        Duration m4Duration = DateTimeUtil.M4(query.getFrom(), query.getTo(), query.getViewPort());
+        AggregateInterval m4Interval = DateTimeUtil.aggregateCalendarInterval(m4Duration);
+        Duration subDuration = DateTimeUtil.accurateCalendarInterval(query.getFrom(), query.getTo(), query.getViewPort(), accuracy);
+        subDuration = subDuration.toMillis() < dataset.getSamplingInterval()
+                .toMillis() ? dataset.getSamplingInterval() : subDuration;
+        AggregateInterval subInterval = DateTimeUtil.aggregateCalendarInterval(subDuration);
+        LOG.info("Interval: " + subInterval);
+
+        QueryResults queryResults = new QueryResults();
+        List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
+        long from = query.getFrom();
+        long to = query.getTo();
+        ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(from, to))};
+        List<TimeSeriesSpan> overlappingIntervals = getTimeSeriesSpans(from, to, measures, m4Interval, subInterval, currentDifference);
 
         GroupByEvaluator groupByEvaluator = query.getGroupByField() != null
                 ? new GroupByEvaluator(measures, query.getGroupByField())
                 : null;
         MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator(), groupByEvaluator);
-        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, query.getFrom(), query.getTo(), measures, optimalM4AggInterval, query.getViewPort());
+        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, query.getFrom(), query.getTo(), measures, m4Interval, query.getViewPort());
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
 

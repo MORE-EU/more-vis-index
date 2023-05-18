@@ -180,7 +180,7 @@ public class DateTimeUtil {
      * @param viewPort  A viewport object that contains information about the chart that the user is visualizing
      * @return A Duration
      */
-    public static Duration optimalM4(long from, long to, ViewPort viewPort) {
+    public static Duration M4(long from, long to, ViewPort viewPort) {
         int noOfGroups = viewPort.getWidth();
         long millisInRange = Duration.of(to - from, ChronoUnit.MILLIS).toMillis() / noOfGroups;
         return Duration.of(millisInRange, ChronoUnit.MILLIS);
