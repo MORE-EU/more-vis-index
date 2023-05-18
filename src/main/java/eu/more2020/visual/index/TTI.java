@@ -76,10 +76,9 @@ public class TTI {
 
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
         // also keep the remaining difference.
-        Duration finalAccurateInterval = optimalM4Interval;
         List<TimeSeriesSpan> overlappingIntervals = StreamSupport.stream(Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
                 .filter(span -> span.getAggregateInterval().toDuration()
-                        .compareTo(finalAccurateInterval) <= 0 && (span.overlaps(query)))
+                        .compareTo(optimalM4Interval) <= 0 && (span.overlaps(query)))
                 .sorted(Comparator.comparing(span -> span.percentage(query), Comparator.reverseOrder()))
                 .filter(span -> {
                     if (currentDifference[0].isEmpty())

@@ -17,7 +17,9 @@ import eu.more2020.visual.index.TTI;
 import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
 import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.util.io.SerializationUtilities;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -383,26 +385,44 @@ public class Experiments<T> {
         Path timeQueriesPath = Paths.get(outFolder, "timeQueries");
         Path typePath = Paths.get(outFolder, "timeQueries", type);
         Path tablePath = Paths.get(outFolder, "timeQueries", type, table);
+        Path metadataPath = Paths.get(outFolder, "metadata");
 
         FileUtil.build(outFolderPath.toString());
         FileUtil.build(timeQueriesPath.toString());
         FileUtil.build(typePath.toString());
         FileUtil.build(tablePath.toString());
+        FileUtil.build(metadataPath.toString());
 //        recreateDir(outFolder);
     }
 
     private AbstractDataset createDataset() throws IOException, SQLException {
+        String p = "";
         switch (type) {
+
             case "csv":
-                return new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
+                p = String.valueOf(Paths.get(outFolder, "metadata", "csv-" + table));
+                if(new File(p).exists()) return (CsvDataset) SerializationUtilities.loadSerializedObject(p);
+                CsvDataset csvDataset = new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
+                SerializationUtilities.storeSerializedObject(csvDataset, p);
+                return csvDataset;
             case "parquet":
-                return new ParquetDataset(path, "0", "test", timeCol, timeFormat);
+                p =  String.valueOf(Paths.get(outFolder, "metadata",  "parquet-" + table));
+                if(new File(p).exists()) return (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
+                ParquetDataset parquetDataset = new ParquetDataset(path, "0", "test", timeCol, timeFormat);
+                SerializationUtilities.storeSerializedObject(parquetDataset, p);
+                return parquetDataset;
             case "postgres":
-                return new PostgreSQLDataset(postgreSQLCfg, schema, table, timeFormat);
+                p = String.valueOf(Paths.get(outFolder, "metadata", "postgres-" +table));
+                if(new File(p).exists()) return (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
+                PostgreSQLDataset postgreSQLDataset = new PostgreSQLDataset(postgreSQLCfg, schema, table, timeFormat);
+                SerializationUtilities.storeSerializedObject(postgreSQLDataset, p);
+                return postgreSQLDataset;
             case "influx":
-                return new InfluxDBDataset(influxDBCfg, schema, table, timeFormat);
-            case "all":
-                return new ExperimentsDataset(postgreSQLCfg, influxDBCfg, schema, table, timeFormat);
+                p = String.valueOf(Paths.get(outFolder, "metadata", "influx-" + table));
+                if(new File(p).exists()) return (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
+                InfluxDBDataset influxDBDataset = new InfluxDBDataset(influxDBCfg, schema, table, timeFormat);
+                SerializationUtilities.storeSerializedObject(influxDBDataset, p);
+                return influxDBDataset;
             default:
                 break;
         }
