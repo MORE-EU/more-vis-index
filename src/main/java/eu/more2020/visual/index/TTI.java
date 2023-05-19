@@ -92,6 +92,7 @@ public class TTI {
         // Calculate and add missing intervals
         List<TimeRange> ranges = currentDifference[0].asRanges().stream()
                 .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
+        LOG.info("Missing from query: " + ranges);
         if(ranges.size() >= 1) {
             long newFrom = Math.max(dataset.getTimeRange().getFrom(), (from - (to - from) / 2));
             long newTo = Math.min(dataset.getTimeRange().getTo(), (to + (to - from) / 2));
@@ -99,6 +100,7 @@ public class TTI {
             overlappingIntervals = getOverlappingIntervals(newFrom, newTo, measures, m4Interval, subInterval, currentDifference);
             ranges = currentDifference[0].asRanges().stream()
                     .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
+            LOG.info("Missing from prefetching query: " + ranges);
 
             AggregatedDataPoints dataPoints =
                     dataSource.getAggregatedDataPoints(newFrom, newTo, ranges, measures, subInterval);
