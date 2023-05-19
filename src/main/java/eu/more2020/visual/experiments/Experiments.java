@@ -302,7 +302,8 @@ public class Experiments<T> {
             QueryResults ttiQueryResults = tti.executeQuery(query);
             ttiTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
-            stopwatch = Stopwatch.createStarted();
+            stopwatch.reset();
+            stopwatch.start();
             QueryResults rawQueryResults = rawTTI.executeQuery(query);
             rawTtiTIme = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
 
@@ -327,10 +328,6 @@ public class Experiments<T> {
             }
             long memorySize = tti.calculateDeepMemorySize();
             long rawMemorySize = rawTTI.calculateDeepMemorySize();
-            if(rawQueryResults.getData().get(this.measures.get(0)).size() == 0){
-                System.out.println(rawQueryResults.getData());
-                System.exit(0);
-            }
             ttiQueryResults.toMultipleCsv(Paths.get(ttiResultsPath, "query_" + i).toString());
             // rawQueryResults.toMultipleCsv(Paths.get(rawTTiResultsPath, "query_" + i).toString());
 
