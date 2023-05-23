@@ -91,7 +91,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
-        else if(table.contains("intel_lab")){
+        else if(table.equals("intel_lab")){
             reader = new FileReader(path);
             CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
                     .withType(INTEL_LAB.class)
@@ -100,7 +100,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
-        else if(table.contains("soccer")){
+        else if(table.equals("soccer")){
             reader = new FileReader(path);
             CsvToBean<SOCCER> csvToBean = new CsvToBeanBuilder<SOCCER>(reader)
                     .withType(SOCCER.class)
@@ -109,12 +109,39 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
-        else if(table.contains("manufacturing")){
+        else if(table.equals("manufacturing")){
             reader = new FileReader(path);
             CsvToBean<MANUFACTURING> csvToBean = new CsvToBeanBuilder<MANUFACTURING>(reader)
                     .withType(MANUFACTURING.class)
                     .build();
             for (MANUFACTURING data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("intel_lab_exp")){
+            reader = new FileReader(path);
+            CsvToBean<INTEL_LAB_EXP> csvToBean = new CsvToBeanBuilder<INTEL_LAB_EXP>(reader)
+                    .withType(INTEL_LAB_EXP.class)
+                    .build();
+            for (INTEL_LAB_EXP data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("soccer_exp")){
+            reader = new FileReader(path);
+            CsvToBean<SOCCER_EXP> csvToBean = new CsvToBeanBuilder<SOCCER_EXP>(reader)
+                    .withType(SOCCER_EXP.class)
+                    .build();
+            for (SOCCER_EXP data : csvToBean) {
+                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            }
+        }
+        else if(table.equals("manufacturing_exp")){
+            reader = new FileReader(path);
+            CsvToBean<MANUFACTURING_EXP> csvToBean = new CsvToBeanBuilder<MANUFACTURING_EXP>(reader)
+                    .withType(MANUFACTURING_EXP.class)
+                    .build();
+            for (MANUFACTURING_EXP data : csvToBean) {
                 writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
             }
         }
