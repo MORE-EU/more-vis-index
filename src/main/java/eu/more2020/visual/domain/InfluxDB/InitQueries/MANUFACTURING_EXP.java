@@ -14,7 +14,7 @@ import java.time.Instant;
 public class MANUFACTURING_EXP {
 
     @Column(timestamp = true)
-    @CsvCustomBindByName(column="0", converter = EpochConverter.class)
+    @CsvCustomBindByName(column="datetime", converter = EpochConverter.class)
     private Instant datetime;
 
     @Column
