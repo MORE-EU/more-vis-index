@@ -45,7 +45,8 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         this.to = to;
         this.m4Interval = m4Interval;
         this.viewPort = viewport;
-        statsAggregator = new SubPixelStatsAggregator(measures);
+        this.statsAggregator = new SubPixelStatsAggregator(measures);
+        initialize();
     }
 
     @Override
@@ -59,28 +60,10 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
      */
     @Override
     public PixelAggregatedDataPoint next() {
-        if(hasRemainder) return remainder();
-        moveToNextPixel();
-        // While next sub pixel is to the left of the next pixel
-        while((currentSubPixel
-                .plus( subInterval.getInterval(), subInterval.getChronoUnit())
-                .isBefore(nextPixel) ||
-                currentSubPixel
-                        .plus( subInterval.getInterval(), subInterval.getChronoUnit())
-                        .equals(nextPixel)) && hasNext()) {
-            moveToNextSubPixel();
-            statsAggregator.accept(aggregatedDataPoint); // add to stats
-        }
-        hasRemainder = currentSubPixel.plus(subInterval.getInterval(), subInterval.getChronoUnit()).isAfter(nextPixel); // next sub pixel is not next pixel
-        return this;
-    }
-
-    private PixelAggregatedDataPoint remainder() {
-        moveToNextSubPixel();
-        hasRemainder = false;
         statsAggregator.clear();
+        moveToNextSubPixel();
         statsAggregator.accept(aggregatedDataPoint);
-        return new ImmutableSubPixelDatapoint(this);
+        return this;
     }
 
     /**
@@ -93,8 +76,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         currentSubPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), subInterval, ZoneId.of("UTC")); // go to next sub pixel
     }
 
-    private void moveToNextPixel() {
-        statsAggregator.clear();
+    private void initialize() {
         if (currentPixel == null) {
             moveToNextSubPixel();
             while (hasNext() && (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli()))
@@ -102,9 +84,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
             currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = DateTimeUtil.getIntervalEnd(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             statsAggregator.accept(aggregatedDataPoint);
-        } else {
-            currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
-            nextPixel = nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
         }
     }
 

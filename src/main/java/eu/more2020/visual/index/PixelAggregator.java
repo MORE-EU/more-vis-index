@@ -54,14 +54,14 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         this.viewport = viewport;
         calculateStats(multiSpanIterator);
         this.statsAggregator = new PixelStatsAggregator(globalStatsAggregator, measures, viewport);
-        this.totalErrorEvaluator = new TotalErrorEvaluator(statsAggregator, measures);
+        this.totalErrorEvaluator = new TotalErrorEvaluator(statsAggregator, measures, viewport);
     }
 
     private void calculateStats(MultiSpanIterator multiSpanIterator) {
         this.globalStatsAggregator = new StatsAggregator(measures);
         List<PixelAggregatedDataPoint> aggregatedDataPoints = new ArrayList<>();
         SubPixelAggregator subPixelAggregator = new SubPixelAggregator(multiSpanIterator, from , to, measures, m4Interval, viewport);
-        while (subPixelAggregator.hasNext()) {
+        while (multiSpanIterator.hasNext()) {
             PixelAggregatedDataPoint next = subPixelAggregator.next().persist();
             aggregatedDataPoints.add(next);
             globalStatsAggregator.accept(next);
@@ -71,12 +71,12 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
 
     @Override
     public boolean hasNext() {
-        if(nextPixel != null && nextPixel.toInstant().toEpochMilli() >= to) return false;
+        if(nextPixel != null && nextPixel.toInstant().toEpochMilli() > to) return false;
         return pixelAggregatedDataPointIterator.hasNext();
     }
 
     /**
-     * Collects all pixel aggregated datapoints that belong to the current pixel column.
+     * Collects all aggregated datapoints that belong to the current pixel column.
      * If there is a partial interval it handles its datapoints by opening it up and only keeping those that belong in this pixel column.
      * @return This stats aggregator, based on current pixel.
      */
@@ -96,6 +96,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         if(hasRemainder && hasNext()) {
             moveToNextSubPixel();
             statsAggregator.accept(aggregatedDataPoint, currentPixel, nextPixel, true);
+            totalErrorEvaluator.acceptPartial(aggregatedDataPoint);
         }
         totalErrorEvaluator.accept(this);
         return this;
@@ -135,6 +136,10 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
                 hasRemainder = false;
             }
         }
+    }
+
+    public double getError(int m){
+        return totalErrorEvaluator.getError(m);
     }
 
     @Override

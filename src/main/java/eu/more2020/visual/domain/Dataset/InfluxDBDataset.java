@@ -54,7 +54,7 @@ public class InfluxDBDataset extends AbstractDataset {
         }
 
         String lastQuery =  "from(bucket:\"" + bucket + "\")\n" +
-                "  |> range(start: 0)\n" +
+                "  |> range(start: 0, stop:2120-01-01T00:00:00Z)\n" +
                 "  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n" +
                 "  |> keep(columns: [\"_time\"])\n" +
                 "  |> last(column: \"_time\")\n";

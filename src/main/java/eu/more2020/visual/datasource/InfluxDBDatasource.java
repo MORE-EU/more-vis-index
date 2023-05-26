@@ -1,5 +1,6 @@
 package eu.more2020.visual.datasource;
 
+import com.google.common.collect.Iterators;
 import com.influxdb.query.FluxTable;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.InfluxDBDataset;
@@ -56,9 +57,14 @@ public class InfluxDBDatasource implements DataSource {
         @NotNull
         @Override
         public Iterator<DataPoint> iterator() {
-            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
-            List<FluxTable> fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
-            return new InfluxDBDataPointsIterator(influxDBQuery.getMeasureNames(), fluxTables.get(0));
+            try {
+                InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
+                List<FluxTable> fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
+                return new InfluxDBDataPointsIterator(influxDBQuery.getMeasureNames(), fluxTables.get(0));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return Iterators.concat(new Iterator[0]);
         }
 
         @Override

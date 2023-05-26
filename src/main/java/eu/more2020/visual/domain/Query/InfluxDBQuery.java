@@ -20,7 +20,7 @@ public class InfluxDBQuery extends AbstractQuery {
                          HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
         super(from, to, viewPort, QueryMethod.M4, groupByField);
         this.measureNames = measuresNames;
-        this.aggregateInterval = DateTimeUtil.aggregateCalendarInterval(DateTimeUtil.M4(from, to, viewPort));
+        this.aggregateInterval = DateTimeUtil.aggregateInterval(DateTimeUtil.M4(from, to, viewPort));
     }
 
 

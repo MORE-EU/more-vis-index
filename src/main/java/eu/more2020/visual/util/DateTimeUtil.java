@@ -186,6 +186,11 @@ public class DateTimeUtil {
         return Duration.of(millisInRange, ChronoUnit.MILLIS);
     }
 
+    public static AggregateInterval M4Interval(long from, long to, ViewPort viewPort){
+        Duration duration = M4(from, to, viewPort);
+        return aggregateInterval(duration);
+    }
+
     /**
      * Returns a sampling interval less than or equal to the given interval, so that it can exactly divide longer durations,
      * based on the gregorian calendar.
@@ -245,6 +250,16 @@ public class DateTimeUtil {
         return Duration.of(millisDivisors[--i], ChronoUnit.MILLIS);
     }
 
+    public static AggregateInterval accurateInterval(long from, long to, ViewPort viewPort,
+                                                     Duration samplingInterval, float accuracy) {
+        Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
+        int partiallyOverlapped = viewPort.getWidth();
+        Duration subDuration = Duration.ofMillis((long) (timeRangeDuration.toMillis() * (1 - accuracy) / (partiallyOverlapped + 1)) / 2);
+        subDuration = subDuration.toMillis() < samplingInterval
+                .toMillis() ? samplingInterval : subDuration;
+        return aggregateInterval(subDuration);
+    }
+
     public static Duration accurateCalendarInterval(long from, long to, ViewPort viewPort, float accuracy) {
         Duration timeRangeDuration  = Duration.of(to - from, ChronoUnit.MILLIS);
         int partiallyOverlapped = viewPort.getWidth();
@@ -252,8 +267,7 @@ public class DateTimeUtil {
         return maxCalendarInterval(accurateDuration);
     }
 
-    // TODO: Make 1h max interval to support OLAP
-    public static AggregateInterval aggregateCalendarInterval(Duration interval){
+    public static AggregateInterval aggregateInterval(Duration interval){
         long aggregateInterval = interval.toMillis();
         ChronoUnit aggregateChronoUnit = ChronoUnit.MILLIS;
         if(aggregateInterval % 1000 == 0){

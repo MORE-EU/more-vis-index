@@ -80,6 +80,8 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                     maxTimestamps[i] = stats.getMaxTimestamp(m);
                 }
                 maxId[i] = Math.max(maxId[i], getPixelId(m, maxValues[i]));
+                trueMinId[i] = Math.min(getPixelId(m, stats.getMinValue(m)), minId[i]);
+                trueMaxId[i] = Math.max(getPixelId(m, stats.getMaxValue(m)), maxId[i]);
                 if (count == 0) {
                     if (stats.getMinTimestamp(m) <= stats.getMaxTimestamp(m)) {
                         firstTimestamps[i] = Math.min(stats.getMinTimestamp(m), firstTimestamps[i]);
@@ -121,9 +123,9 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
             int i = 0;
             for (int m : measures) {
                 sums[i] += stats.getSum(m);
-                // Contains min
                 trueMinId[i] = Math.min(getPixelId(m, stats.getMinValue(m)), minId[i]);
                 trueMaxId[i] = Math.max(getPixelId(m, stats.getMaxValue(m)), maxId[i]);
+                // Contains min
                 if(from.toInstant().toEpochMilli() <= stats.getMinTimestamp(m) && to.toInstant().toEpochMilli() > stats.getMinTimestamp(m)){
                     minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
                     if (minValues[i] == stats.getMinValue(m)) {
@@ -286,5 +288,9 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
             throw new IllegalStateException("No data points added to this stats aggregator yet.");
         }
         return getPixelId(measure, lastValues[getMeasureIndex(measure)]);
+    }
+
+    public StatsAggregator getGlobalStats() {
+        return globalStats;
     }
 }

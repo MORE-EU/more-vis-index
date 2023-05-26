@@ -242,24 +242,24 @@ public class Experiments<T> {
 
         TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot(Paths.get(outFolder, plotFolder).toString());
 
-//        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
-//        rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
-//        timeSeriesPlot.build(rawTTiResultsPath);
+        QueryResults rawTtiQueryResults = rawTTI.executeQuery(ttiQuery);
+        rawTtiQueryResults.toMultipleCsv(rawTTiResultsPath);
+        timeSeriesPlot.build(rawTTiResultsPath);
 
         QueryResults ttiQueryResults = tti.executeQuery(ttiQuery);
         ttiQueryResults.toMultipleCsv(ttiResultsPath);
         timeSeriesPlot.build(ttiResultsPath);
 
-        if(postgreSQLCfg != null) {
+        if(type.equals("postgres")) {
             QueryResults sqlQueryResults = sqlQueryExecutor.executeM4Query(sqlQuery);
             sqlQueryResults.toMultipleCsv(sqlResultsPath);
             timeSeriesPlot.build(sqlResultsPath);
         }
-//        if(influxDBCfg != null) {
-//            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxDBQuery);
-//            influxDBQueryResults.toCsv(influxDBResultsPath);
-//            timeSeriesPlot.build(influxDBResultsPath);
-//        }
+        if(type.equals("influx")) {
+            QueryResults influxDBQueryResults = influxDBQueryExecutor.executeM4Query(influxDBQuery);
+            influxDBQueryResults.toCsv(influxDBResultsPath);
+            timeSeriesPlot.build(influxDBResultsPath);
+        }
     }
 
     private void timeQueries() throws IOException, SQLException {
