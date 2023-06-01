@@ -30,65 +30,61 @@ public abstract class AbstractQuery implements TimeInterval {
 
     Aggregator groupByAggregator;
 
-    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures,
-                         HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
-        this.from = from;
-        this.to = to;
-        this.queryMethod = queryMethod;
-        this.filters = filters;
-        this.measures = measures;
-        this.viewPort = viewPort;
-        this.groupByField = groupByField;
-    }
+    float accuracy;
 
-    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures,
-                         HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField, UserOpType opType) {
+    public AbstractQuery(long from, long to, float accuracy, QueryMethod queryMethod, List<Integer> measures,
+                          ViewPort viewPort, HashMap<Integer, Double[]> filters, ChronoField groupByField, UserOpType opType) {
         this.from = from;
         this.to = to;
+        this.accuracy = accuracy;
         this.queryMethod = queryMethod;
-        this.filters = filters;
         this.measures = measures;
+        this.filters = filters;
         this.viewPort = viewPort;
         this.groupByField = groupByField;
         this.opType = opType;
     }
 
-    public AbstractQuery(long from, long to, ViewPort viewPort, QueryMethod queryMethod, ChronoField groupByField) {
-        this.from = from;
-        this.to = to;
-        this.viewPort = viewPort;
-        this.queryMethod = queryMethod;
+    public AbstractQuery(long from, long to, float accuracy, QueryMethod queryMethod, List<Integer> measures,
+                         ViewPort viewPort, UserOpType opType) {
+        this(from, to, accuracy, queryMethod, measures, viewPort, null, null, opType);
+    }
+
+    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures,
+                         ViewPort viewPort) {
+        this(from, to, 0.9F, queryMethod, measures, viewPort,
+                null, null, null);
+    }
+
+    public AbstractQuery(long from, long to, QueryMethod queryMethod,
+                         ViewPort viewPort, ChronoField groupByField) {
+        this(from, to, queryMethod, null, viewPort, groupByField);
+    }
+
+    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures,
+                         ViewPort viewPort, ChronoField groupByField) {
+        this(from, to,  queryMethod, measures, viewPort);
         this.groupByField = groupByField;
     }
 
-    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures){
-        this.from = from;
-        this.to = to;
-        this.queryMethod = queryMethod;
-        this.measures = measures;
-        this.viewPort = new ViewPort(800, 300);
+    public AbstractQuery(long from, long to, List<Integer> measures, ViewPort viewPort, ChronoField chronoField) {
+        this(from, to, QueryMethod.M4, measures, viewPort, chronoField);
     }
 
-    public AbstractQuery(long from, long to, QueryMethod queryMethod, List<Integer> measures, ViewPort viewPort){
-        this.from = from;
-        this.to = to;
-        this.queryMethod = queryMethod;
-        this.measures = measures;
-        this.viewPort = viewPort;
-    }
-
-    public AbstractQuery(long from, long to) {
-        this.from = from;
-        this.to = to;
-    }
-
-    public AbstractQuery(long from, long to, List<TimeRange> ranges,
-                         QueryMethod queryMethod, List<Integer> measures, ViewPort viewPort) {
-        this.from = from;
-        this.to = to;
+    public AbstractQuery(long from, long to,  List<TimeRange> ranges, QueryMethod queryMethod,
+                         List<Integer> measures, ViewPort viewPort) {
+        this(from, to, queryMethod, measures, viewPort);
         this.ranges = ranges;
-        this.queryMethod = queryMethod;
-        this.measures = measures;
+    }
+
+    public AbstractQuery(long from, long to){
+        this.from = from;
+        this.to = to;
+    }
+
+    public AbstractQuery(long from, long to, ViewPort viewPort){
+        this.from = from;
+        this.to = to;
         this.viewPort = viewPort;
     }
 
@@ -169,5 +165,9 @@ public abstract class AbstractQuery implements TimeInterval {
 
     public List<TimeRange> getRanges() {
         return ranges;
+    }
+
+    public float getAccuracy() {
+        return accuracy;
     }
 }

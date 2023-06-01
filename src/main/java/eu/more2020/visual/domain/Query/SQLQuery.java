@@ -11,9 +11,8 @@ import java.util.stream.Collectors;
 public class SQLQuery extends AbstractQuery{
 
 
-    public SQLQuery(long from, long to, List<Integer> measures,
-                    HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField chronoField) {
-        super(from, to, QueryMethod.M4, measures, filters, viewPort, chronoField);
+    public SQLQuery(long from, long to, List<Integer> measures, ViewPort viewPort, ChronoField groupByField) {
+        super(from, to, QueryMethod.M4, measures, viewPort, groupByField);
     }
 
     public SQLQuery(long from, long to, List<Integer> measures) {

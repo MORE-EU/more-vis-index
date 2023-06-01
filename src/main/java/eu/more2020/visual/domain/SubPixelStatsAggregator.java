@@ -1,5 +1,7 @@
 package eu.more2020.visual.domain;
 
+import eu.more2020.visual.util.DateTimeUtil;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Arrays;

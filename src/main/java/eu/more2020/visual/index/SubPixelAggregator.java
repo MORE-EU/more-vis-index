@@ -19,12 +19,15 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     private final long from;
     private final long to;
 
+    private boolean first = false;
+
     private final SubPixelStatsAggregator statsAggregator;
 
     /**
      * The start date time value of the current pixel.
      */
     private ZonedDateTime currentPixel;
+
     private ZonedDateTime currentSubPixel;
 
     /**
@@ -36,7 +39,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
     private AggregateInterval subInterval;
 
-    private boolean hasRemainder = false;
 
     public SubPixelAggregator(MultiSpanIterator multiSpanIterator, long from, long to,
                               List<Integer> measures, AggregateInterval m4Interval, ViewPort viewport) {
@@ -50,7 +52,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext(){
         return multiSpanIterator.hasNext();
     }
 
@@ -60,6 +62,10 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
      */
     @Override
     public PixelAggregatedDataPoint next() {
+        if(first) {
+            first = false;
+            return this;
+        }
         statsAggregator.clear();
         moveToNextSubPixel();
         statsAggregator.accept(aggregatedDataPoint);
@@ -70,7 +76,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
      * Move to next aggregated data point.
      * Change the sub pixel and its interval to correspond to the level of aggregation of the datapoint.
      */
-    private void moveToNextSubPixel() {
+    void moveToNextSubPixel() {
         aggregatedDataPoint = (AggregatedDataPoint) multiSpanIterator.next(); // go to next datapoint
         subInterval = ((TimeSeriesSpan) multiSpanIterator.getCurrentIterable()).getAggregateInterval();
         currentSubPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), subInterval, ZoneId.of("UTC")); // go to next sub pixel
@@ -79,11 +85,13 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
     private void initialize() {
         if (currentPixel == null) {
             moveToNextSubPixel();
-            while (hasNext() && (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli()))
+            while (hasNext() &&
+                    (aggregatedDataPoint.getTimestamp() < DateTimeUtil.getIntervalStart(from, subInterval, ZoneId.of("UTC")).toInstant().toEpochMilli()))
                 moveToNextSubPixel();
             currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = DateTimeUtil.getIntervalEnd(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             statsAggregator.accept(aggregatedDataPoint);
+            first = true;
         }
     }
 

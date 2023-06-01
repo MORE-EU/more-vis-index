@@ -7,6 +7,7 @@ import eu.more2020.visual.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -58,11 +59,12 @@ public class InfluxDBDatasource implements DataSource {
         @Override
         public Iterator<DataPoint> iterator() {
             try {
-                InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
+                InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(),
+                        dataset.getMeasurement(), dataset.getHeader());
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
                 return new InfluxDBDataPointsIterator(influxDBQuery.getMeasureNames(), fluxTables.get(0));
             } catch (Exception e){
-                e.printStackTrace();
+                System.out.println("No data in a specified query");
             }
             return Iterators.concat(new Iterator[0]);
         }
@@ -125,7 +127,7 @@ public class InfluxDBDatasource implements DataSource {
         @NotNull
         @Override
         public Iterator<AggregatedDataPoint> iterator() {
-            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement());
+            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement(), dataset.getHeader());
             List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4MultiInfluxQuery(influxDBQuery);
             if(fluxTables.size() == 0) return Collections.emptyIterator();
             return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0));

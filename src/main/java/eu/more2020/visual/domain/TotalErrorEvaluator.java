@@ -1,19 +1,22 @@
 package eu.more2020.visual.domain;
+import com.google.common.collect.*;
+
 import javax.swing.text.View;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
+public class TotalErrorEvaluator {
 
     private final PixelStatsAggregator pixelStats;
     private final List<Integer> measures;
     private final double[] error;
     private ViewPort viewPort;
-    private int[] missingMinId;
-    private int[] missingMaxId;
-    private int[] lastPixelId;
 
 
     public TotalErrorEvaluator(PixelStatsAggregator pixelStats, List<Integer> measures, ViewPort viewPort) {
@@ -22,44 +25,51 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
         this.viewPort = viewPort;
         int length = measures.size();
         error = new double[length];
-        lastPixelId = new int[length];
-        missingMinId = new int[length];
-        missingMaxId = new int[length];
-        Arrays.fill(missingMinId, -1);
-        Arrays.fill(missingMaxId, -1);
-        Arrays.fill(lastPixelId, -1);
+
     }
 
-    public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint) {
+    public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint,
+                       PixelColumn current, PixelColumn previous, PixelColumn next) {
         if(pixelAggregatedDataPoint.getCount() != 0){
             PixelStatsAggregator pixelStatsAggregator = (PixelStatsAggregator) (pixelAggregatedDataPoint.getStats());
             int i = 0;
             for (int m : measures) {
                 int firstPixelId = pixelStatsAggregator.getFirstPixelId(m);
-                if(lastPixelId[i] != -1) {
+                if(previous != null) {
+                    List<Range<Integer>> falseData = new ArrayList<>();
                     int minPixelId = pixelStatsAggregator.getMinPixelId(m);
                     int maxPixelId = pixelStatsAggregator.getMaxPixelId(m);
+                    Range<Integer> trueData = Range.closed(minPixelId, maxPixelId);
                     // Inner Column
                     int trueMinPixelId = pixelStatsAggregator.getTrueMinPixelId(m);
                     int trueMaxPixelId = pixelStatsAggregator.getTrueMaxPixelId(m);
-                    error[i] += minPixelId - trueMinPixelId;
-                    error[i] += trueMaxPixelId - maxPixelId;
+                    falseData.add(Range.closed(trueMinPixelId, minPixelId));
+                    falseData.add(Range.closed(maxPixelId, trueMaxPixelId));
                     // Intra Column False
-                    int[] coords = getLineSegment(i, lastPixelId[i], firstPixelId);
+                    int[] coords = getLineSegment(i, previous.getStats().getLastPixelId(m), firstPixelId);
                     int startPixelId = coords[0];
                     int endPixelId = coords[1];
-                    if(!(startPixelId >= minPixelId && startPixelId <= maxPixelId &&
-                            endPixelId >= minPixelId && endPixelId <= maxPixelId)){
-                        error[i] += (startPixelId - minPixelId) + (maxPixelId - endPixelId);
-                    };
+                    falseData.add(Range.closed(startPixelId, endPixelId));
                     // Intra Column Missing
-                    if(!(minPixelId < missingMinId[i] && missingMinId[i] < maxPixelId && missingMaxId[i] <= maxPixelId)){
-                        error[i] += missingMaxId[i] - missingMinId[i];
-                    }
+                    Stats prevLastStats = previous.getAggregatedDataPoints().get(previous.getAggregatedDataPoints().size() - 1).getStats();
+                    Range<Integer> missingData = Range.closed(0, 0);
+                    computeError(falseData, missingData, trueData, i);
                 }
-                lastPixelId[i] = pixelStatsAggregator.getLastPixelId(m);
                 i ++;
             }
+        }
+    }
+
+    private void computeError(List<Range<Integer>> falseData,
+                              Range<Integer> missingData,
+                              Range<Integer> trueData, int i) {
+        falseData.add(missingData);
+        ImmutableRangeSet<Integer> rangeSet =
+                ImmutableRangeSet.unionOf(falseData);
+        DiscreteDomain<Integer> domain = DiscreteDomain.integers();
+        for (Range r : rangeSet.asRanges()){
+            if(!r.isEmpty())
+                error[i] += ContiguousSet.create(r, domain).size();
         }
     }
 
@@ -74,8 +84,15 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
         int prevEndPixelId = start_y + (sy * half);
         int currentStartPixelId = sum != 1 ? prevStartPixelId + (sy * half) + sy : prevEndPixelId + (sy * half);
         int currentEndPixelId = end_y;
-        coords[0] = currentStartPixelId;
-        coords[1] = currentEndPixelId;
+
+        if(currentStartPixelId < currentEndPixelId) {
+            coords[0] = currentStartPixelId;
+            coords[1] = currentEndPixelId;
+        } else {
+            coords[1] = currentStartPixelId;
+            coords[0] = currentEndPixelId;
+        }
+
         return coords;
     }
 
@@ -84,6 +101,7 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
     }
 
     public double getError(int m){
+        // Create the superset of missing + false
         return error[getMeasureIndex(m)] / (viewPort.getHeight() * viewPort.getWidth());
     }
 
@@ -93,16 +111,5 @@ public class TotalErrorEvaluator implements Consumer<PixelAggregatedDataPoint>{
         return (int) ((Math.abs(value) / bin_size));
     }
 
-    public void acceptPartial(AggregatedDataPoint pixelAggregatedDataPoint) {
-        if (pixelAggregatedDataPoint.getCount() != 0) {
-            Stats statsAggregator = pixelAggregatedDataPoint.getStats();
-            int i = 0;
-            for (int m : measures) {
-                missingMinId[i] = getPixelId(m, statsAggregator.getMinValue(m));
-                missingMaxId[i] =  getPixelId(m, statsAggregator.getMaxValue(m));
-                i ++;
-            }
-        }
-    }
 }
 

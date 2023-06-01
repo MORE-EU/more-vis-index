@@ -12,7 +12,6 @@ public class MultiSpanIterator<T> implements Iterator<T>, Cloneable {
 
     private final Iterator<Iterator<T>> iteratorChain;
     private final Iterator<Iterable<T>> iterableChain;
-    int current = 0;
     private Iterator<T> currentIterator;
     private Iterable<T> currentIterable;
     private Iterator<T> lastIterator;

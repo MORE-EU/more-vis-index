@@ -17,7 +17,6 @@
     <logger name="eu.more2020.visual.experiments.util.QuerySequenceGenerator" level="INFO"/>
     <logger name="com.mitchellbosecke.pebble" level="ERROR"/>
 <!--    <logger name ="eu.more2020.visual.domain.QueryExecutor" level="ERROR"/>-->
-
     <root>
         <level>INFO</level>
         <appender-ref ref="CONSOLE"/>

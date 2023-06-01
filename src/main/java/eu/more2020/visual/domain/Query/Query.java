@@ -12,23 +12,28 @@ import java.util.List;
 
 public class Query extends AbstractQuery {
 
-    public Query(long from, long to, List<Integer> measures,
-                 HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
-        super(from, to, QueryMethod.M4, measures, filters, viewPort, groupByField);
+    public Query(long from, long to, float accuracy, QueryMethod queryMethod, List<Integer> measures,
+                  ViewPort viewPort, UserOpType opType) {
+        super(from, to, accuracy, queryMethod, measures, viewPort, opType);
     }
 
-    public Query(long from, long to, QueryMethod queryMethod, List<Integer> measures,
-                 HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
-        super(from, to, queryMethod, measures,  filters, viewPort, groupByField);
-    }
-
-    public Query(long from, long to, QueryMethod queryMethod, List<Integer> measures,
-                 HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField, UserOpType opType) {
-        super(from, to, queryMethod, measures,  filters, viewPort, groupByField, opType);
+    public Query(long from, long to, float accuracy, QueryMethod queryMethod, List<Integer> measures,
+                 ViewPort viewPort) {
+        super(from, to, accuracy, queryMethod, measures, viewPort, null, null, null);
     }
 
     public Query(long from, long to, List<Integer> measures) {
-        super(from, to, QueryMethod.M4, measures);
+        super(from, to, 0.9F,
+                QueryMethod.M4, measures, new ViewPort(800, 300),
+                null, null, null);
+    }
+
+    public Query(long from, long to, float accuracy, List<Integer> measures, ViewPort viewPort, UserOpType opType) {
+        super(from, to, accuracy, QueryMethod.M4, measures, viewPort, null, null, opType);
+    }
+
+    public Query(Long from, Long to, List<Integer> measures, ViewPort viewPort, ChronoField groupyByField) {
+        super(from, to, measures, viewPort, groupyByField);
     }
 
     @Override

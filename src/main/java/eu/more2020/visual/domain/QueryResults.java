@@ -26,6 +26,7 @@ public class QueryResults implements Serializable {
 
     private Map<Integer, StatsAggregator> groupByResults;
 
+    private Map<Integer, Double> error;
 
     private int ioCount = 0;
 
@@ -67,6 +68,10 @@ public class QueryResults implements Serializable {
 
     public void setIoCount(int ioCount) {
         this.ioCount = ioCount;
+    }
+
+    public void setError(Map<Integer, Double> error) {
+        this.error = error;
     }
 
     public void toCsv(String path) {
@@ -146,6 +151,10 @@ public class QueryResults implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Map<Integer, Double> getError() {
+        return error;
     }
 
     @Override

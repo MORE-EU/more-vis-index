@@ -81,6 +81,9 @@ public class Experiments<T> {
     @Parameter(names = "-c", required = true)
     private String command;
 
+    @Parameter(names = "-a")
+    private float accuracy;
+
     @Parameter(names = "-out", description = "The output folder")
     private String outFolder;
 
@@ -136,7 +139,6 @@ public class Experiments<T> {
     }
 
     private void run() throws IOException, ClassNotFoundException, SQLException {
-        Preconditions.checkNotNull(path, "You must define the input path.");
         Preconditions.checkNotNull(outFolder,"No out folder specified.");
         type = type.toLowerCase(Locale.ROOT);
         initOutput();
@@ -155,7 +157,7 @@ public class Experiments<T> {
     }
 
     private void timeInitialization() throws IOException, ClassNotFoundException, SQLException {
-
+        Preconditions.checkNotNull(path, "You must define the input path.");
         double ttiTime = 0, postgreSQLTime = 0, influxDBTime = 0;
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         File outFile = Paths.get(outFolder, "timeInitialization.csv").toFile();
@@ -223,10 +225,9 @@ public class Experiments<T> {
         String ttiResultsPath = Paths.get(outFolder, "plotQuery", "ttiResults").toString();
         String sqlResultsPath = Paths.get(outFolder, "plotQuery", "sqlResults").toString();
         String influxDBResultsPath = Paths.get(outFolder, "plotQuery", "influxDBResults").toString();
-        ViewPort viewPort = new ViewPort(800, 300);
+        ViewPort viewPort = new ViewPort(1000, 800);
         AbstractDataset dataset = createDataset();
-        Query ttiQuery = new Query(startTime, endTime, measures,
-                filters, viewPort, groupyBy);
+        Query ttiQuery = new Query(startTime, endTime, measures, viewPort, groupyBy);
         List<String> measureNames = ttiQuery.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
 
         TTI tti = new TTI(dataset);
@@ -237,8 +238,8 @@ public class Experiments<T> {
 
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
         SQLQueryExecutor sqlQueryExecutor = postgreSQL.getSqlQueryExecutor(schema, table);
-        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, measures, filters, viewPort, null);
-        InfluxDBQuery influxDBQuery = new InfluxDBQuery(startTime, endTime, measureNames, filters, viewPort, null);
+        SQLQuery sqlQuery = new SQLQuery(startTime, endTime, measures, viewPort);
+        InfluxDBQuery influxDBQuery = new InfluxDBQuery(startTime, endTime, measureNames, viewPort);
 
         TimeSeriesPlot timeSeriesPlot = new TimeSeriesPlot(Paths.get(outFolder, plotFolder).toString());
 
@@ -280,23 +281,22 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
         PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(postgreSQLCfg);
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema, table, dataset.getHeader());
         SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
 
-        Query q0 = new Query(startTime, endTime, queryMethod, measures,
-                filters, new ViewPort(1000, 600), groupyBy);
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600));
         List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
 
         csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "TTI results size", "RAW TTI results size",
                 "PostgreSQL results size", "InfluxDB results size", "TTI IO Count", "RAW TTI IO Count",
-                "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "Raw TTI Memory (b)");
+                "TTI Time (sec)", "RAW TTI Time (sec)", "PostgreSQL Time (sec)",  "InfluxDB Time (sec)",  "TTI Memory (b)", "RAW TTI Memory (b)", "Error");
         for (int i = 0; i < sequence.size(); i += 3) {
             QueryResults sqlQueryResults, influxDBQueryResults;
             double ttiTime = 0, rawTtiTIme = 0, postgreSQLTime = 0, influxDBTime = 0;
             Query query = (Query) sequence.get(i);
             SQLQuery sqlQuery = (SQLQuery) sequence.get(i + 1);
             InfluxDBQuery influxDBQuery = (InfluxDBQuery) sequence.get(i + 2);
-            LOG.debug("Executing query " + i);
+            LOG.info("Executing query " + (i / 3)  +  " " + query.getFromDate() + " - " + query.getToDate());
 
             stopwatch = Stopwatch.createStarted();
             QueryResults ttiQueryResults = tti.executeQuery(query);
@@ -315,24 +315,23 @@ public class Experiments<T> {
                 if(sqlQueryResults.getData().size() != 0)
                     sqlQueryResultsSize = sqlQueryResults.getData().get(this.measures.get(0)).size();
                 postgreSQLTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-                sqlQueryResults.toMultipleCsv(Paths.get(sqlResultsPath, "query_" + i).toString());
+                sqlQueryResults.toMultipleCsv(Paths.get(sqlResultsPath, "query_" + (i / 3)).toString());
             }
             else if(type.equals("influx")) {
                 stopwatch.reset();
                 stopwatch.start();
                 influxDBQueryResults = influxDBQueryExecutor.execute(influxDBQuery, QueryMethod.M4);
                 if(influxDBQueryResults.getData().size() != 0)
-                    influxDBQueryResultsSize = influxDBQueryResults.getData().get(0).size();
+                    influxDBQueryResultsSize = influxDBQueryResults.getData().get(this.measures.get(0)).size();
                 influxDBTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-                influxDBQueryResults.toMultipleCsv(Paths.get(influxDBResultsPath, "query_" + i).toString());
+                influxDBQueryResults.toMultipleCsv(Paths.get(influxDBResultsPath, "query_" + (i / 3)).toString());
             }
             long memorySize = tti.calculateDeepMemorySize();
             long rawMemorySize = rawTTI.calculateDeepMemorySize();
-            ttiQueryResults.toMultipleCsv(Paths.get(ttiResultsPath, "query_" + i).toString());
-            // rawQueryResults.toMultipleCsv(Paths.get(rawTTiResultsPath, "query_" + i).toString());
+            ttiQueryResults.toMultipleCsv(Paths.get(ttiResultsPath, "query_" + (i / 3)).toString());
 
             csvWriter.addValue(table);
-            csvWriter.addValue(i);
+            csvWriter.addValue(i / 3);
             csvWriter.addValue(query.getOpType());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(ttiQueryResults.getData().get(this.measures.get(0)).size());
@@ -347,7 +346,9 @@ public class Experiments<T> {
             csvWriter.addValue(influxDBTime);
             csvWriter.addValue(memorySize);
             csvWriter.addValue(rawMemorySize);
+            csvWriter.addValue(ttiQueryResults.getError());
             csvWriter.writeValuesToRow();
+            System.out.println();
         }
         csvWriter.close();
     }
@@ -357,10 +358,7 @@ public class Experiments<T> {
         Preconditions.checkNotNull(seqCount, "No sequence count specified.");
         Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
         Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
-        Preconditions.checkNotNull(minFilters, "Min filters must be specified.");
-        Preconditions.checkNotNull(maxFilters, "Max filters must be specified.");
-
-        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, minFilters, maxFilters, zoomFactor, dataset);
+        QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, zoomFactor, dataset);
         return sequenceGenerator.generateQuerySequence(q0, seqCount);
     }
 

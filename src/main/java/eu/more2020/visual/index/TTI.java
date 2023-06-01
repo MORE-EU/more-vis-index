@@ -1,5 +1,6 @@
 package eu.more2020.visual.index;
 
+import com.beust.ah.A;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -9,16 +10,15 @@ import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.experiments.util.GroupByEvaluator;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.View;
-import java.time.Duration;
+import java.sql.Time;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class TTI {
@@ -31,7 +31,6 @@ public class TTI {
 
     private int[] ioCount = {0};
 
-    private final float accuracy = 0.9f;
     Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
         @Override
         public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
@@ -56,74 +55,83 @@ public class TTI {
     }
 
 
-    public Map<Integer, List<UnivariateDataPoint>> evaluate(long from, long to,
+    public QueryResults evaluate(long from, long to, float accuracy,
                                                             List<Integer> measures,
                                                             ViewPort viewPort,
                                                             AggregateInterval m4Interval){
-
-        AggregateInterval subInterval = DateTimeUtil.accurateInterval(from, to, viewPort, dataset.getSamplingInterval(), accuracy);
-        AggregateInterval checkInterval = m4Interval;
+        QueryResults queryResults = new QueryResults();
+//        AggregateInterval subInterval = DateTimeUtil.accurateInterval(from, to, viewPort, dataset.getSamplingInterval(), accuracy);
+        TTIQueryResults ttiQueryResults = getIntervals(from, to, m4Interval);
+        List<TimeSeriesSpan> timeSeriesSpans = ttiQueryResults.getOverlappingIntervals();
+        List<TimeRange> missingIntervals = ttiQueryResults.getMissingIntervals();
+        LOG.info("Missing from query: " + missingIntervals);
+        if(missingIntervals.size() >= 1) {
+            calculateMissingIntervals(ttiQueryResults, measures, m4Interval);
+        }
+        LOG.info(String.valueOf(ttiQueryResults.getOverlappingIntervals()));
         while(true) {
-            TTIQueryResults ttiQueryResults = getOverlappingIntervals(from, to, checkInterval);
-            List<TimeRange> missingIntervals = ttiQueryResults.getMissingIntervals();
-            if(missingIntervals.size() >= 1) {
-                ttiQueryResults = calculateMissingIntervals(from, to, measures, checkInterval, subInterval);
-            }
-            MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(ttiQueryResults.getOverlappingIntervals().iterator());
+            MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(timeSeriesSpans.iterator());
+
             PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, from, to, measures, m4Interval, viewPort);
             Map<Integer, List<UnivariateDataPoint>> data = getData(pixelAggregator, measures);
-            double[] error = getError(pixelAggregator, measures);
+            Map<Integer, Double> error = getError(pixelAggregator, measures);
             boolean reEvaluate = false;
-            for (double v : error) {
+            for (double v : error.values()) {
                 if (v > 0.05) {
                     reEvaluate = true;
                     break;
                 }
             }
             if(reEvaluate){
-                checkInterval = subInterval;
+                missingIntervals = new ArrayList<>();
+                missingIntervals.add(new TimeRange(from, to));
+                AggregateInterval interval = new AggregateInterval((m4Interval.getInterval() /  2), m4Interval.getChronoUnit());
+                AggregatedDataPoints dataPoints =
+                        dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, interval);
+                timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ttiQueryResults.getMissingIntervals(), interval);
+                timeSeriesSpans.forEach(t -> ioCount[0] += (Arrays.stream(t.getCounts()).sum()));
+                intervalTree.insertAll(timeSeriesSpans);
                 continue;
             }
-            return data;
+            queryResults.setData(data);
+            queryResults.setIoCount(ioCount[0]);
+            queryResults.setError(error);
+            return queryResults;
         }
     }
 
     public QueryResults executeQuery(AbstractQuery query) {
-        LOG.info("Executing query: " + query.getFromDate() + " - " + query.getToDate());
         ioCount = new int[]{0};
         long from = query.getFrom();
         long to = query.getTo();
+        float accuracy = query.getAccuracy();
         ViewPort viewPort = query.getViewPort();
         AggregateInterval m4Interval = DateTimeUtil.M4Interval(from, to, viewPort);
-        QueryResults queryResults = new QueryResults();
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
-        Map<Integer, List<UnivariateDataPoint>> data = evaluate(from, to, measures, viewPort, m4Interval);
-        queryResults.setData(data);
-        queryResults.setIoCount(ioCount[0]);
-        return queryResults;
+        return evaluate(from, to, accuracy, measures, viewPort, m4Interval);
     }
 
 
-    @SuppressWarnings("UnstableApiUsage")
-    public TTIQueryResults calculateMissingIntervals(long from, long to, List<Integer> measures,
-                                                          AggregateInterval m4Interval, AggregateInterval subInterval){
+    public TTIQueryResults calculateMissingIntervals(TTIQueryResults ttiQueryResults, List<Integer> measures, AggregateInterval interval){
+//        long newFrom = Math.max(dataset.getTimeRange().getFrom(), (from - (to - from) / 2));
+//        long newTo = Math.min(dataset.getTimeRange().getTo(), (to + (to - from) / 2));
+//        LOG.info("Prefetching query: " + new TimeRange(newFrom, newTo));
+//        LOG.info("M4: " + m4Interval);
+//        LOG.info("Sub: " + subInterval);
+        long from = ttiQueryResults.getFrom();
+        long to = ttiQueryResults.getTo();
         // Calculate and add missing intervals
-        long newFrom = Math.max(dataset.getTimeRange().getFrom(), (from - (to - from) / 2));
-        long newTo = Math.min(dataset.getTimeRange().getTo(), (to + (to - from) / 2));
-        TTIQueryResults ttiQueryResults = getOverlappingIntervals(newFrom, newTo, m4Interval);
-        List<TimeRange> missingIntervals = ttiQueryResults.getMissingIntervals();
-        LOG.info("Missing from prefetching query: " + missingIntervals);
         AggregatedDataPoints dataPoints =
-                dataSource.getAggregatedDataPoints(newFrom, newTo, missingIntervals, measures, subInterval);
-        List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, missingIntervals, subInterval);
+                dataSource.getAggregatedDataPoints(from, to, ttiQueryResults.getMissingIntervals(), measures, interval);
+        List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ttiQueryResults.getMissingIntervals(), interval);
+        timeSeriesSpans.forEach(t -> ioCount[0] += (Arrays.stream(t.getCounts()).sum()));
         intervalTree.insertAll(timeSeriesSpans);
         ttiQueryResults.addAll(timeSeriesSpans);
-        System.out.println(ttiQueryResults.getOverlappingIntervals());
         return ttiQueryResults;
     }
 
-    private TTIQueryResults getOverlappingIntervals(long from, long to, AggregateInterval interval){
+    private TTIQueryResults getIntervals(long from, long to, AggregateInterval interval){
         ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(Range.closed(from, to))};
         RangeSet<Long> rangeSet = TreeRangeSet.create();
         TimeRange timeRange = new TimeRange(from, to);
@@ -148,7 +156,7 @@ public class TTI {
                 .collect(Collectors.toList());
         List<TimeRange> ranges = currentDifference[0].asRanges().stream()
                 .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint())).collect(Collectors.toList());
-        return new TTIQueryResults(overlappingIntervals, ranges);
+        return new TTIQueryResults(from, to, overlappingIntervals, ranges);
     }
 
     public Map<Integer, List<UnivariateDataPoint>> getData(PixelAggregator pixelAggregator, List<Integer> measures){
@@ -171,16 +179,18 @@ public class TTI {
         return data;
     }
 
-    public double[] getError(PixelAggregator pixelAggregator, List<Integer> measures){
-        double[] error = new double[measures.size()];
+
+    public Map<Integer, Double> getError(PixelAggregator pixelAggregator, List<Integer> measures){
+        Map<Integer, Double> error = new HashMap<>(measures.size());
         int i = 0;
         for (Integer measure : measures) {
-            error[i] = pixelAggregator.getError(measure);
+            error.put(measure, pixelAggregator.getError(measure));
             LOG.info("Query Max Error (" + measure  +"): " + Double.parseDouble(String.format("%.3f", pixelAggregator.getError(measure) * 100)) + "%");
             i ++;
         }
         return error;
     }
+
     /**
      * Calculates the deep memory size of this instance.
      *

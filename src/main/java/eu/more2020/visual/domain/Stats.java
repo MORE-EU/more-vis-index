@@ -18,4 +18,5 @@ public interface Stats {
     public long getMinTimestamp(int measure);
 
     public long getMaxTimestamp(int measure);
+
 }

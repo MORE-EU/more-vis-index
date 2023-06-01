@@ -7,12 +7,14 @@ import com.influxdb.query.FluxTable;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import eu.more2020.visual.domain.AggregateInterval;
 import eu.more2020.visual.domain.InfluxDB.InitQueries.*;
 import eu.more2020.visual.domain.Query.AbstractQuery;
 import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,27 +22,31 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class InfluxDBQueryExecutor implements QueryExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(InfluxDBQueryExecutor.class);
 
-
+    String[] header;
     InfluxDBClient influxDBClient;
     String table;
     String bucket;
     String org;
 
+
     public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, String org,
-                                 String bucket, String table) {
+                                 String bucket, String table, String[] header) {
         this.influxDBClient = influxDBClient;
         this.org = org;
         this.table = table;
         this.bucket = bucket;
+        this.header = header;
     }
 
     @Override
@@ -59,23 +65,23 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     @Override
     public QueryResults executeM4Query(AbstractQuery q) {
-        return collect(executeM4InfluxQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
+        return collect(executeM4InfluxQuery((InfluxDBQuery) q));
     }
 
 
     @Override
     public QueryResults executeM4MultiQuery(AbstractQuery q) throws SQLException {
-        return collect(executeM4MultiInfluxQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
+        return collect(executeM4MultiInfluxQuery((InfluxDBQuery) q));
     }
 
     @Override
     public QueryResults executeM4OLAPQuery(AbstractQuery q) {
-        return collect(executeM4OLAPQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
+        return collect(executeM4OLAPQuery((InfluxDBQuery) q));
     }
 
     @Override
     public QueryResults executeRawQuery(AbstractQuery q) {
-        return collect(executeRawInfluxQuery((InfluxDBQuery) q), ((InfluxDBQuery) q).getMeasureNames());
+        return collect(executeRawInfluxQuery((InfluxDBQuery) q));
     }
 
     @Override
@@ -288,13 +294,14 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQuery q){
         List<String> args = new ArrayList<>();
-
+        args.add((q.getFrom() % q.getAggregateInterval().toDuration().toMillis() +"ms"));
         for(int i = 0; i < q.getRanges().size(); i ++){
             for(int j = 0; j < 4; j++) {
                 args.add(bucket);
                 args.add(table);
             }
         }
+        System.out.println(args);
         String flux = String.format(q.m4MultiQuerySkeleton(), args.toArray());
         return execute(flux);
     }
@@ -309,13 +316,13 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return execute(flux);
     }
 
-    private QueryResults collect(List<FluxTable> tables, List<String> measureNames){
+    private QueryResults collect(List<FluxTable> tables){
         QueryResults queryResults = new QueryResults();
         HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
         for (FluxTable fluxTable : tables) {
             List<FluxRecord> records = fluxTable.getRecords();
             for (FluxRecord fluxRecord : records) {
-                Integer fieldId = measureNames.indexOf(fluxRecord.getField());
+                Integer fieldId = Arrays.asList(header).indexOf(fluxRecord.getField());
                 data.computeIfAbsent(fieldId, k -> new ArrayList<>()).add(
                         new UnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
                                 Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));

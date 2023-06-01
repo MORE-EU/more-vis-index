@@ -6,6 +6,7 @@ import eu.more2020.visual.domain.AggregatedDataPoint;
 import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.domain.StatsAggregator;
 import eu.more2020.visual.domain.UnivariateDataPoint;
+import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.Instant;
 import java.util.Iterator;
@@ -20,7 +21,6 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 
     private final List<FluxRecord> records;
     private int current;
-    private boolean changed = false;
     private long group, currentGroup; // long because it's a timestamp with the stop of the bucket a row belongs too.
     private final int size;
 
@@ -52,7 +52,6 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
             double value = (double) record.getValue();
             group = ((Instant) record.getValues().get("_stop")).toEpochMilli();
             if (group != currentGroup) {
-                changed = true;
                 break;
             }
             current ++;

@@ -4,6 +4,7 @@ import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public enum Direction {
@@ -14,8 +15,8 @@ public enum Direction {
 
 
         //SYNTH
-        directionPairs.add(new Pair<>(L, 1d));
-        directionPairs.add(new Pair<>(R, 1d));
+        directionPairs.add(new Pair<>(L, 0.9d));
+        directionPairs.add(new Pair<>(R, 0.1d));
 
         EnumeratedDistribution<Direction> distribution = new EnumeratedDistribution<>(directionPairs);
         distribution.reseedRandomGenerator(0);

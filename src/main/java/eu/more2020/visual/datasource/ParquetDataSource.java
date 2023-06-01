@@ -35,6 +35,7 @@ public class ParquetDataSource implements DataSource {
                                                         List<Integer> measures, AggregateInterval aggregateInterval) {
         return null;
     }
+
     /**
      * Represents a series of {@link ParquetDataPoint} instances.
      * The iterator returned from this class accesses the Parquet files as the data points are requested.

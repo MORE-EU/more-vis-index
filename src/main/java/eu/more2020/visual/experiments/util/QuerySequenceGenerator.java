@@ -31,6 +31,15 @@ public class QuerySequenceGenerator {
 
     private AbstractDataset dataset;
 
+    int seed = 0;
+
+    public QuerySequenceGenerator(float minShift, float maxShift, float zoomFactor, AbstractDataset dataset) {
+        this.minShift = minShift;
+        this.maxShift = maxShift;
+        this.zoomFactor = zoomFactor;
+        this.dataset = dataset;
+    }
+
     public QuerySequenceGenerator(float minShift, float maxShift, int minFilters, int maxFilters, float zoomFactor, AbstractDataset dataset) {
         this.minShift = minShift;
         this.maxShift = maxShift;
@@ -42,14 +51,14 @@ public class QuerySequenceGenerator {
 
     public List<AbstractQuery> generateQuerySequence(Query q0, int count) {
         Direction[] directions = Direction.getRandomDirections(count);
-        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
-        int[] filterCounts = new Random(0).ints(count, minFilters, maxFilters + 1).toArray();
+//        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
+        double[] shifts = new Random(seed).doubles(count, minShift, maxShift).toArray();
 
-        Random opRand = new Random(0);
+        Random opRand = new Random(seed);
         List<UserOpType> ops = new ArrayList<>();
-        int pans = 33;
-        int zoom_in = 33;
-        int zoom_out = 34;
+        int pans = 50;
+        int zoom_in = 25;
+        int zoom_out = 25;
         int resize = 1;
 
         for (int i = 0; i < pans; i++) ops.add(P);
@@ -58,13 +67,12 @@ public class QuerySequenceGenerator {
 
         List<AbstractQuery> queries = new ArrayList<>();
 
-        List<String> measures = q0.getMeasures().size() < dataset.getHeader().length ?
+        List<String> measureNames = q0.getMeasures().size() < dataset.getHeader().length ?
                 q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList()) : null;
         queries.add(q0);
-        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
-        queries.add(new InfluxDBQuery(q0.getFrom(), q0.getTo(), measures, q0.getFilters(), q0.getViewPort(), q0.getGroupByField()));
+        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), q0.getViewPort()));
+        queries.add(new InfluxDBQuery(q0.getFrom(), q0.getTo(), measureNames, q0.getViewPort()));
         Query ttiQuery = q0;
-        System.out.println(new TimeRange(q0.getFrom(), q0.getTo()));
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
@@ -77,19 +85,15 @@ public class QuerySequenceGenerator {
                 timeRange = pan(ttiQuery, shifts[i], directions[i]);
             }
 
-            HashMap<Integer, Double[]> filters = new HashMap<>();
-            int filterCount = filterCounts[i];
-//            System.out.println("Range: " + timeRange + " OP: " + opType + " shift: " + shifts[i] + " direction: " + directions[i]);
-
-            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getQueryMethod(), q0.getMeasures(),
-                     filters, q0.getViewPort(), q0.getGroupByField(), opType);
-            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), filters, q0.getViewPort(), q0.getGroupByField());
-            InfluxDBQuery influxDBQuery = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), measures, filters, q0.getViewPort(), q0.getGroupByField());
+            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
+                    q0.getQueryMethod(), q0.getMeasures(),
+                    q0.getViewPort(), opType);
+            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), q0.getViewPort());
+            InfluxDBQuery influxDBQuery = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), measureNames, q0.getViewPort());
 
             queries.add(ttiQuery);
             queries.add(sqlQuery);
             queries.add(influxDBQuery);
-
         }
         return queries;
 

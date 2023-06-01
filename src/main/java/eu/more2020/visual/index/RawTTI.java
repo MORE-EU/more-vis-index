@@ -74,9 +74,11 @@ public class RawTTI {
                     RawTimeSeriesSpan span = new RawTimeSeriesSpan();
                     span.build(dataPoints);
                     ioCount[0] += span.getCount();
-                    intervalTree.insert(span);
+                    if(span.getCount() > 0) intervalTree.insert(span);
                     return span;
-                }).collect(Collectors.toList()));
+                })
+                .filter(s -> s.getCount() > 0)
+                .collect(Collectors.toList()));
         MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
 
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()

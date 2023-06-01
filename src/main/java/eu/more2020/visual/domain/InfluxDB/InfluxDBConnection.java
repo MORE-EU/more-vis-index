@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +20,6 @@ public class InfluxDBConnection {
     private static final Logger LOG = LoggerFactory.getLogger(InfluxDBConnection.class);
     private String config;
     private InfluxDBClient client;
-    private String bucket;
     private String token;
     private String org;
     private String url;
@@ -57,12 +57,18 @@ public class InfluxDBConnection {
         }
     }
 
-    private InfluxDBQueryExecutor createQueryExecutor(String bucket, String measurement) {
-        return new InfluxDBQueryExecutor(client, org, bucket, measurement);
+    private InfluxDBQueryExecutor createQueryExecutor(String bucket, String measurement, String[] header) {
+        return new InfluxDBQueryExecutor(client, org, bucket, measurement, header);
     }
 
     public InfluxDBQueryExecutor getSqlQueryExecutor(String bucket, String measurement) {
-        return this.createQueryExecutor(bucket, measurement);
+        return this.createQueryExecutor(bucket, measurement, new String[]{});
     }
+
+    public InfluxDBQueryExecutor getSqlQueryExecutor(String bucket, String measurement, String[] header) {
+        return this.createQueryExecutor(bucket, measurement, header);
+    }
+
+
 
 }

@@ -56,7 +56,7 @@ public class TimeSeriesSpanFactory {
                     timeSeriesSpan.setFrom(aggregatedDataPoint.getTimestamp());
                 }
                 c++;
-                timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
+                timeSeriesSpan.addAggregatedDataPoint(c, aggregatedDataPoint);
             }
             spans.add(timeSeriesSpan);
         }

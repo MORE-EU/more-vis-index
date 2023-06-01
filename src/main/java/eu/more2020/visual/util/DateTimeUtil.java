@@ -66,18 +66,34 @@ public class DateTimeUtil {
         return getIntervalStart(timestamp, aggregateInterval, zoneId).plus(aggregateInterval.getInterval(), aggregateInterval.getChronoUnit());
     }
 
-    /**
-     * Returns the start date time of the interval that the timestamp belongs,
-     * based on the given interval, unit and timezone.
-     * It follows a calendar-based approach, considering intervals that align with the start of day,
-     * month, etc.
-     *
-     * @param timestamp The timestamp to find an interval for, in milliseconds from epoch
-     * @param aggregateInterval  The aggregate interval
-     * @param zoneId    The zone id.
-     * @return A ZonedDateTime instance set to the start of the interval this timestamp belongs
-     * @throws IllegalArgumentException if the timestamp is negative or the interval is less than one
-     */
+    public static ZonedDateTime getInterval(long timestamp, AggregateInterval aggregateInterval, ZoneId zoneId) {
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("Timestamp cannot be less than zero");
+        }
+        if (aggregateInterval.getInterval() < 1) {
+            throw new IllegalArgumentException("AggregateInterval interval must be greater than zero");
+        }
+
+        if (zoneId == null) {
+            zoneId = ZoneId.of("UTC");
+        }
+
+
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
+
+    }
+        /**
+         * Returns the start date time of the interval that the timestamp belongs,
+         * based on the given interval, unit and timezone.
+         * It follows a calendar-based approach, considering intervals that align with the start of day,
+         * month, etc.
+         *
+         * @param timestamp The timestamp to find an interval for, in milliseconds from epoch
+         * @param aggregateInterval  The aggregate interval
+         * @param zoneId    The zone id.
+         * @return A ZonedDateTime instance set to the start of the interval this timestamp belongs
+         * @throws IllegalArgumentException if the timestamp is negative or the interval is less than one
+         */
     public static ZonedDateTime getIntervalStart(long timestamp, AggregateInterval aggregateInterval, ZoneId zoneId) {
         if (timestamp < 0) {
             throw new IllegalArgumentException("Timestamp cannot be less than zero");
@@ -265,6 +281,21 @@ public class DateTimeUtil {
         int partiallyOverlapped = viewPort.getWidth();
         Duration accurateDuration = Duration.ofMillis((long) (timeRangeDuration.toMillis() * (1 - accuracy) / (partiallyOverlapped + 1)) / 2);
         return maxCalendarInterval(accurateDuration);
+    }
+
+    public static String getInfluxDBAggregateWindow(AggregateInterval aggregateInterval) {
+        switch (aggregateInterval.getChronoUnit().toString()) {
+            case ("Millis"):
+                return aggregateInterval.getInterval() + "ms";
+            case ("Seconds"):
+                return aggregateInterval.getInterval() + "s";
+            case ("Minutes"):
+                return aggregateInterval.getInterval() + "m";
+            case ("Hours"):
+                return aggregateInterval.getInterval() + "h";
+            default:
+                return "inf";
+        }
     }
 
     public static AggregateInterval aggregateInterval(Duration interval){
