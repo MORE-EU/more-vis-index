@@ -86,7 +86,8 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
                 globalStatsAggregator.accept(aggregatedDataPoint);
                 moveToNextSubPixel();
             }
-            boolean isPartial = !prevSubPixel.equals(nextPixel) && prevSubPixel.isBefore(nextPixel); // is a partial overlap
+
+            boolean isPartial = !currentSubPixel.equals(nextPixel) && prevSubPixel.isBefore(nextPixel); // is a partial overlap
             if(isPartial && subPixelAggregator.hasNext()) {
                 AggregatedDataPoint persistedAggregatedDatapoint = prevAggregatedDataPoint.persist();
                 nextDataPoints.add(persistedAggregatedDatapoint);
@@ -129,7 +130,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
             statsAggregator.accept(aggregatedDataPoint);
         }
         statsAggregator.moveToNextPixel();
-        pixelColumn.setStats(statsAggregator.clone());
+//        pixelColumn.setStats(statsAggregator.clone());
 //        totalErrorEvaluator.accept(this, pixelColumn, prevPixelColumn, nextPixelColumn);
     }
 

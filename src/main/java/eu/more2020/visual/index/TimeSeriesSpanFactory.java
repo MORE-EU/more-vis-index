@@ -39,10 +39,12 @@ public class TimeSeriesSpanFactory {
         Iterator<AggregatedDataPoint> it = aggregatedDataPoints.iterator();
         boolean changed = false;
         AggregatedDataPoint aggregatedDataPoint = null;
+
         for (TimeRange range : ranges) {
             TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan(range.getFrom(), range.getTo(),
                     aggregatedDataPoints.getMeasures(), aggregateInterval);
-            int c = 0;
+            timeSeriesSpan.setFrom(range.getFrom());
+
             int intervals = timeSeriesSpan.getSize();
             while(it.hasNext()){
                 if(!changed) aggregatedDataPoint = it.next();
@@ -52,11 +54,7 @@ public class TimeSeriesSpanFactory {
                     break;
                 }
                 int i = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), intervals, aggregatedDataPoint.getTimestamp());
-                if (c == 0) {
-                    timeSeriesSpan.setFrom(aggregatedDataPoint.getTimestamp());
-                }
-                c++;
-                timeSeriesSpan.addAggregatedDataPoint(c, aggregatedDataPoint);
+                timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
             }
             spans.add(timeSeriesSpan);
         }

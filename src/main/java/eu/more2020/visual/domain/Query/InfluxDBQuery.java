@@ -74,7 +74,7 @@ public class InfluxDBQuery extends AbstractQuery {
     public String m4QuerySkeleton() {
         return ("customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
                 "  tables\n" +
-                "    |> window(every:every, offset: %offset, createEmpty:true)\n" +
+                "    |> window(every:every, offset: %s, createEmpty:true)\n" +
                 "    |> fn(column:column)\n" +
                 "    |> duplicate(column:timeSrc, as:timeDst)\n" +
                 "    |> group()" +

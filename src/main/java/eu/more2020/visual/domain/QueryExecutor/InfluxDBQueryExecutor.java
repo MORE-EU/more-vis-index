@@ -284,7 +284,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     };
 
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
+
         String flux = String.format(q.m4QuerySkeleton(),
+                (q.getFrom() % q.getAggregateInterval().toDuration().toMillis() +"ms"),
                 bucket, q.getFromDate(), q.getToDate(), table, // first
                 bucket, q.getFromDate(), q.getToDate(), table, // last
                 bucket, q.getFromDate(), q.getToDate(), table, // min

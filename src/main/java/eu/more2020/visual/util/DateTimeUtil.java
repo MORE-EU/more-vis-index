@@ -66,22 +66,6 @@ public class DateTimeUtil {
         return getIntervalStart(timestamp, aggregateInterval, zoneId).plus(aggregateInterval.getInterval(), aggregateInterval.getChronoUnit());
     }
 
-    public static ZonedDateTime getInterval(long timestamp, AggregateInterval aggregateInterval, ZoneId zoneId) {
-        if (timestamp < 0) {
-            throw new IllegalArgumentException("Timestamp cannot be less than zero");
-        }
-        if (aggregateInterval.getInterval() < 1) {
-            throw new IllegalArgumentException("AggregateInterval interval must be greater than zero");
-        }
-
-        if (zoneId == null) {
-            zoneId = ZoneId.of("UTC");
-        }
-
-
-        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
-
-    }
         /**
          * Returns the start date time of the interval that the timestamp belongs,
          * based on the given interval, unit and timezone.
@@ -112,68 +96,68 @@ public class DateTimeUtil {
         long interval = aggregateInterval.getInterval();
         ChronoUnit unit = aggregateInterval.getChronoUnit();
 
-        switch (aggregateInterval.getChronoUnit()) {
-            case MILLIS:
-                if (1000 % interval == 0) {
-                    dateTime = dateTime.withNano(0);
-                } else {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0);
-                }
-                break;
-            case SECONDS:
-                if (60 % interval == 0) {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0);
-                } else {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0);
-                }
-                break;
-            case MINUTES:
-                if (60 % interval == 0) {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0);
-                } else {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0).withHour(0);
-                }
-                break;
-            case HOURS:
-                if (24 % interval == 0) {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0).withHour(0);
-                } else {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0);
-                }
-                break;
-            case DAYS:
-                if (interval == 1) {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0);
-                } else {
-                    dateTime = dateTime.withNano(0)
-                            .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0).withMonth(0);
-                }
-                break;
-            case MONTHS:
-            case YEARS:
-                dateTime = dateTime.withNano(0)
-                        .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0).withMonth(0);
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected unit of type: "
-                        + unit);
-        }
-
-        if (dateTime.toInstant().toEpochMilli() == timestamp) {
-            return dateTime;
-        }
-        while (dateTime.toInstant().toEpochMilli() <= timestamp) {
-            dateTime = dateTime.plus(interval, unit);
-        }
-        dateTime = dateTime.minus(interval, unit);
+//        switch (aggregateInterval.getChronoUnit()) {
+//            case MILLIS:
+//                if (1000 % interval == 0) {
+//                    dateTime = dateTime.withNano(0);
+//                } else {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0);
+//                }
+//                break;
+//            case SECONDS:
+//                if (60 % interval == 0) {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0);
+//                } else {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0);
+//                }
+//                break;
+//            case MINUTES:
+//                if (60 % interval == 0) {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0);
+//                } else {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0).withHour(0);
+//                }
+//                break;
+//            case HOURS:
+//                if (24 % interval == 0) {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0).withHour(0);
+//                } else {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0);
+//                }
+//                break;
+//            case DAYS:
+//                if (interval == 1) {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0);
+//                } else {
+//                    dateTime = dateTime.withNano(0)
+//                            .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0).withMonth(0);
+//                }
+//                break;
+//            case MONTHS:
+//            case YEARS:
+//                dateTime = dateTime.withNano(0)
+//                        .withSecond(0).withMinute(0).withHour(0).withDayOfMonth(0).withMonth(0);
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Unexpected unit of type: "
+//                        + unit);
+//        }
+//
+//        if (dateTime.toInstant().toEpochMilli() == timestamp) {
+//            return dateTime;
+//        }
+//        while (dateTime.toInstant().toEpochMilli() <= timestamp) {
+//            dateTime = dateTime.plus(interval, unit);
+//        }
+//        dateTime = dateTime.minus(interval, unit);
         return dateTime;
     }
 

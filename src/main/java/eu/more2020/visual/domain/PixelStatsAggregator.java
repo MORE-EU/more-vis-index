@@ -78,54 +78,6 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
         this.m4Interval = m4Interval;
     }
 
-//    @Override
-//    public void accept(AggregatedDataPoint dataPoint) {
-//        Stats stats = dataPoint.getStats();
-//        if (stats.getCount() != 0) {
-//            int i = 0;
-//            for (int m : measures) {
-//                sums[i] += stats.getSum(m);
-//                minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
-//                if (minValues[i] == stats.getMinValue(m)) {
-//                    minTimestamps[i] = stats.getMinTimestamp(m);
-//                }
-//                minId[i] = Math.min(minId[i], getPixelId(m, minValues[i]));
-//                maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
-//                if (maxValues[i] == stats.getMaxValue(m)) {
-//                    maxTimestamps[i] = stats.getMaxTimestamp(m);
-//                }
-//                maxId[i] = Math.max(maxId[i], getPixelId(m, maxValues[i]));
-//                trueMinId[i] = Math.min(getPixelId(m, stats.getMinValue(m)), minId[i]);
-//                trueMaxId[i] = Math.max(getPixelId(m, stats.getMaxValue(m)), maxId[i]);
-//                if (count == 0) {
-//                    if (stats.getMinTimestamp(m) <= stats.getMaxTimestamp(m)) {
-//                        firstTimestamps[i] = Math.min(stats.getMinTimestamp(m), firstTimestamps[i]);
-//                        if(firstTimestamps[i] == stats.getMinTimestamp(m)) {
-//                            firstValues[i] = stats.getMinValue(m);
-//                        }
-//                    } else {
-//                        firstTimestamps[i] = Math.min(stats.getMaxTimestamp(m), firstTimestamps[i]);
-//                        if(firstTimestamps[i] == stats.getMaxTimestamp(m)) {
-//                            firstValues[i] = stats.getMaxValue(m);
-//                        }
-//                    }
-//                }
-//                if (stats.getMinTimestamp(m) <= stats.getMaxTimestamp(m)) {
-//                    lastTimestamps[i] = Math.max(stats.getMaxTimestamp(m), lastTimestamps[i]);
-//                    if(lastTimestamps[i] == stats.getMaxTimestamp(m)) {
-//                        lastValues[i] = stats.getMaxValue(m);
-//                    }
-//                } else {
-//                    lastTimestamps[i] = Math.max(stats.getMinTimestamp(m), lastTimestamps[i]);
-//                    if(lastTimestamps[i] == stats.getMinTimestamp(m)) {
-//                        lastValues[i] = stats.getMinValue(m);
-//                    }
-//                }
-//                i++;
-//            }
-//            count += 1;
-//        }
-//    }
 
     @Override
     public void accept(AggregatedDataPoint dataPoint) {
@@ -136,18 +88,15 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                 sums[i] += stats.getSum(m);
                 trueMinId[i] = Math.min(getPixelId(m, stats.getMinValue(m)), minId[i]);
                 trueMaxId[i] = Math.max(getPixelId(m, stats.getMaxValue(m)), maxId[i]);
-                System.out.println(DateTimeUtil.format(stats.getMinTimestamp(m), ZoneId.of("UTC")));
-                System.out.println(DateTimeUtil.format(stats.getMaxTimestamp(m), ZoneId.of("UTC")));
-                System.out.println(nextPixel);
-                System.out.println();
                 // Contains min
                 if(currentPixel.toInstant().toEpochMilli() <= stats.getMinTimestamp(m)
-                        && nextPixel.toInstant().toEpochMilli() > stats.getMinTimestamp(m)){
+                        && nextPixel.toInstant().toEpochMilli() >= stats.getMinTimestamp(m)){
                     minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
                     if (minValues[i] == stats.getMinValue(m)) {
                         minTimestamps[i] = stats.getMinTimestamp(m);
                     }
                     minId[i] = trueMinId[i] = getPixelId(m, minValues[i]);
+
                     if(count == 0){
                         if(stats.getMinTimestamp(m) <= firstTimestamps[i]){
                             firstTimestamps[i] = stats.getMinTimestamp(m);
@@ -161,7 +110,7 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                 }
                 // Contains max
                 if(currentPixel.toInstant().toEpochMilli() <= stats.getMaxTimestamp(m)
-                        && nextPixel.toInstant().toEpochMilli() > stats.getMaxTimestamp(m)){
+                        && nextPixel.toInstant().toEpochMilli() >= stats.getMaxTimestamp(m)){
                     maxValues[i] = Math.max(maxValues[i], stats.getMaxValue(m));
                     if (maxValues[i] == stats.getMaxValue(m)) {
                         maxTimestamps[i] = stats.getMaxTimestamp(m);
