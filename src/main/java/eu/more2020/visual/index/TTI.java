@@ -60,8 +60,8 @@ public class TTI {
                                                             ViewPort viewPort,
                                                             AggregateInterval m4Interval){
         QueryResults queryResults = new QueryResults();
-        AggregateInterval subInterval = DateTimeUtil.accurateInterval(from, to, viewPort, dataset.getSamplingInterval(), accuracy);
-//        AggregateInterval subInterval = m4Interval;
+//        AggregateInterval subInterval = DateTimeUtil.accurateInterval(from, to, viewPort, dataset.getSamplingInterval(), accuracy);
+        AggregateInterval subInterval = m4Interval;
 
         TTIQueryResults ttiQueryResults = getIntervals(from, to, subInterval);
         List<TimeSeriesSpan> timeSeriesSpans = ttiQueryResults.getOverlappingIntervals();

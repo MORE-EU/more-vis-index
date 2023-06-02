@@ -25,7 +25,6 @@ public class TotalErrorEvaluator {
         this.viewPort = viewPort;
         int length = measures.size();
         error = new double[length];
-
     }
 
     public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint,
