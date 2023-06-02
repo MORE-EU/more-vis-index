@@ -118,11 +118,11 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                     if (maxValues[i] == stats.getMaxValue(m)) {
                         maxTimestamps[i] = stats.getMaxTimestamp(m);
                     }
+                    maxId[i] = trueMaxId[i] = getPixelId(m, maxValues[i]);
                     minValues[i] = Math.min(minValues[i], stats.getMaxValue(m));
                     if (minValues[i] == stats.getMaxValue(m)) {
                         minTimestamps[i] = stats.getMaxTimestamp(m);
                     }
-                    maxId[i] = trueMaxId[i] = getPixelId(m, maxValues[i]);
                     if(count == 0){
                         if(stats.getMaxTimestamp(m) <= firstTimestamps[i]){
                             firstTimestamps[i] = stats.getMaxTimestamp(m);

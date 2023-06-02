@@ -138,6 +138,19 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         PixelColumn nextPixelColumn = current == size - 1 ? null : pixelColumnData[current + 1];
         List<AggregatedDataPoint> aggregatedDataPoints = pixelColumn.getAggregatedDataPoints();
         for (AggregatedDataPoint aggregatedDataPoint : aggregatedDataPoints){
+            if(aggregatedDataPoint.getCount() > 0)
+                if ((pixelColumn.getFrom().toInstant().toEpochMilli() > (aggregatedDataPoint.getStats().getMaxTimestamp(2)) ||
+                        pixelColumn.getTo().toInstant().toEpochMilli() < (aggregatedDataPoint.getStats().getMaxTimestamp(2))) ||
+                        (pixelColumn.getFrom().toInstant().toEpochMilli() > (aggregatedDataPoint.getStats().getMinTimestamp(2)) ||
+                                pixelColumn.getTo().toInstant().toEpochMilli() < (aggregatedDataPoint.getStats().getMinTimestamp(2)))) {
+                    System.out.println(pixelColumn.getFrom());
+                    System.out.println(DateTimeUtil.format(aggregatedDataPoint.getTimestamp()));
+                    System.out.println(DateTimeUtil.format(aggregatedDataPoint.getStats().getMinTimestamp(2)));
+                    System.out.println(DateTimeUtil.format(aggregatedDataPoint.getStats().getMaxTimestamp(2)));
+                    System.out.println(pixelColumn.getTo());
+                    System.out.println();
+                    continue;
+                }
             statsAggregator.accept(aggregatedDataPoint);
         }
         statsAggregator.moveToNextPixel();
