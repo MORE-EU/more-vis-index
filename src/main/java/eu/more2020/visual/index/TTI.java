@@ -61,12 +61,14 @@ public class TTI {
                                                             AggregateInterval m4Interval){
         QueryResults queryResults = new QueryResults();
 //        AggregateInterval subInterval = DateTimeUtil.accurateInterval(from, to, viewPort, dataset.getSamplingInterval(), accuracy);
-        TTIQueryResults ttiQueryResults = getIntervals(from, to, m4Interval);
+        AggregateInterval subInterval = m4Interval;
+
+        TTIQueryResults ttiQueryResults = getIntervals(from, to, subInterval);
         List<TimeSeriesSpan> timeSeriesSpans = ttiQueryResults.getOverlappingIntervals();
         List<TimeRange> missingIntervals = ttiQueryResults.getMissingIntervals();
         LOG.info("Missing from query: " + missingIntervals);
         if(missingIntervals.size() >= 1) {
-            calculateMissingIntervals(ttiQueryResults, measures, m4Interval);
+            calculateMissingIntervals(ttiQueryResults, measures, subInterval);
         }
         LOG.info(String.valueOf(ttiQueryResults.getOverlappingIntervals()));
         while(true) {
@@ -85,10 +87,10 @@ public class TTI {
             if(reEvaluate){
                 missingIntervals = new ArrayList<>();
                 missingIntervals.add(new TimeRange(from, to));
-                AggregateInterval interval = new AggregateInterval((m4Interval.getInterval() /  2), m4Interval.getChronoUnit());
+                subInterval = new AggregateInterval((subInterval.getInterval() /  2), subInterval.getChronoUnit());
                 AggregatedDataPoints dataPoints =
-                        dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, interval);
-                timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ttiQueryResults.getMissingIntervals(), interval);
+                        dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, subInterval);
+                timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ttiQueryResults.getMissingIntervals(), subInterval);
                 timeSeriesSpans.forEach(t -> ioCount[0] += (Arrays.stream(t.getCounts()).sum()));
                 intervalTree.insertAll(timeSeriesSpans);
                 continue;
@@ -174,6 +176,7 @@ public class TTI {
                     measureData.add(new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure)));
                 }
             }
+
         }
         data.forEach((k, v) -> v.sort(compareLists));
         return data;

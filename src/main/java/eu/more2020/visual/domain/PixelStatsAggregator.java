@@ -88,6 +88,10 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                 sums[i] += stats.getSum(m);
                 trueMinId[i] = Math.min(getPixelId(m, stats.getMinValue(m)), minId[i]);
                 trueMaxId[i] = Math.max(getPixelId(m, stats.getMaxValue(m)), maxId[i]);
+//                System.out.println(DateTimeUtil.format(dataPoint.getTimestamp()));
+//                System.out.println(DateTimeUtil.format(stats.getMinTimestamp(2)));
+//                System.out.println(DateTimeUtil.format(stats.getMaxTimestamp(2)));
+
                 // Contains min
                 if(currentPixel.toInstant().toEpochMilli() <= stats.getMinTimestamp(m)
                         && nextPixel.toInstant().toEpochMilli() >= stats.getMinTimestamp(m)){
@@ -107,6 +111,7 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                         lastTimestamps[i] = stats.getMinTimestamp(m);
                         lastValues[i] = stats.getMinValue(m);
                     }
+//                    System.out.println(1);
                 }
                 // Contains max
                 if(currentPixel.toInstant().toEpochMilli() <= stats.getMaxTimestamp(m)
@@ -126,11 +131,14 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
                         lastTimestamps[i] = stats.getMaxTimestamp(m);
                         lastValues[i] = stats.getMaxValue(m);
                     }
+//                    System.out.println(2);
                 }
                 i ++;
             }
             count ++;
         }
+//        if(getCount() == 0) System.out.println(nextPixel);
+//        System.out.println();
     }
 
     public int getPixelId(int m, double value){
@@ -262,5 +270,10 @@ public class PixelStatsAggregator extends SubPixelStatsAggregator {
 
     public StatsAggregator getGlobalStats() {
         return globalStats;
+    }
+
+    public void movePixel(ZonedDateTime from, ZonedDateTime to) {
+        currentPixel = from;
+        nextPixel = to;
     }
 }
