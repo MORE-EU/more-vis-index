@@ -53,4 +53,5 @@ public class ImmutableAggregatedDataPoint implements AggregatedDataPoint {
     public Stats getStats() {
         return stats;
     }
+
 }

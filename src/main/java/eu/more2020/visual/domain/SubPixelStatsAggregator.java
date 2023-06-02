@@ -46,7 +46,7 @@ public class SubPixelStatsAggregator extends StatsAggregator {
         Stats stats = dataPoint.getStats();
         if (stats.getCount() != 0) {
             int i = 0;
-            for (int m : measures) {
+                for (int m : measures) {
                 sums[i] += stats.getSum(m);
                 minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
                 if (minValues[i] == stats.getMinValue(m)) {
@@ -111,7 +111,7 @@ public class SubPixelStatsAggregator extends StatsAggregator {
     @Override
     public void combine(StatsAggregator other) {
         SubPixelStatsAggregator otherP = (SubPixelStatsAggregator) other;
-        count += otherP.count;
+        count = otherP.count;
         for (int i = 0; i < sums.length; i++) {
             sums[i] += otherP.sums[i];
             minValues[i] = Math.min(minValues[i], otherP.minValues[i]);

@@ -80,12 +80,13 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
             else dataPoints = pixelColumnData[current].getAggregatedDataPoints();
             pixelColumnData[current + 1] = new PixelColumn(nextPixel, nextPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit()));
             nextDataPoints = new ArrayList<>();
-
             while(currentSubPixel.isBefore(nextPixel)
                     && (currentSubPixel.isAfter(currentPixel) || currentSubPixel.equals(currentPixel))
                     && subPixelAggregator.hasNext()) {
                 dataPoints.add(aggregatedDataPoint.persist());
-                globalStatsAggregator.accept(aggregatedDataPoint);
+                if(aggregatedDataPoint.getCount() > 0) {
+                    globalStatsAggregator.accept(aggregatedDataPoint);
+                }
                 moveToNextSubPixel();
             }
             pixelColumnData[current].setAggregatedDataPoints(dataPoints);
@@ -94,7 +95,7 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
                 continue;
             };
             boolean isPartial = !currentSubPixel.equals(nextPixel) && prevSubPixel.isBefore(nextPixel); // is a partial overlap
-            if(isPartial && subPixelAggregator.hasNext()) {
+            if(isPartial) {
                 AggregatedDataPoint persistedAggregatedDatapoint = prevAggregatedDataPoint.persist();
                 nextDataPoints.add(persistedAggregatedDatapoint);
                 pixelColumnData[current].setPartialRight(true);
@@ -137,18 +138,6 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         PixelColumn nextPixelColumn = current == size - 1 ? null : pixelColumnData[current + 1];
         List<AggregatedDataPoint> aggregatedDataPoints = pixelColumn.getAggregatedDataPoints();
         for (AggregatedDataPoint aggregatedDataPoint : aggregatedDataPoints){
-            if(aggregatedDataPoint.getCount() == 0 ) continue;
-            // TODO: THIS IS A PATCH. NEEDS TO BE FIXED, THERE ARE DATAPOINTS THAT ARE AGGREGATED WRONGLY.
-            if((pixelColumn.getFrom().toInstant().toEpochMilli() > (aggregatedDataPoint.getStats().getMaxTimestamp(2)) ||
-            pixelColumn.getTo().toInstant().toEpochMilli() < (aggregatedDataPoint.getStats().getMaxTimestamp(2))) ||
-                    (pixelColumn.getFrom().toInstant().toEpochMilli() > (aggregatedDataPoint.getStats().getMinTimestamp(2)) ||
-                    pixelColumn.getTo().toInstant().toEpochMilli() < (aggregatedDataPoint.getStats().getMinTimestamp(2)))){
-//                System.out.println(pixelColumn.getFrom());
-//                System.out.println(DateTimeUtil.format(aggregatedDataPoint.getTimestamp()));
-//                System.out.println(pixelColumn.getTo());
-//                System.out.println();
-                continue;
-            }
             statsAggregator.accept(aggregatedDataPoint);
         }
         statsAggregator.moveToNextPixel();

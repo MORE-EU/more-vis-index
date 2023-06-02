@@ -163,7 +163,7 @@ public class InfluxDBQuery extends AbstractQuery {
             s +=  "min_" + i + ", max_" + i + ", last_" + i + ", first_" + i + ",";
         s = s.substring(0, s.length() - 1);
         s += "])";
-        s += "|> sort(columns: [\"_stop\"], desc: false)\n";
+        s += "|> sort(columns: [\"_time\"], desc: false)\n";
 
         return s;
     }

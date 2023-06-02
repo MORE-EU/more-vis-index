@@ -3,6 +3,7 @@ package eu.more2020.visual.index;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.http.client.utils.CloneUtils;
 import org.xbill.DNS.Zone;
 
 import java.io.Serializable;
@@ -21,7 +22,6 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
     private boolean first = false;
 
-    private final SubPixelStatsAggregator statsAggregator;
 
     /**
      * The start date time value of the current pixel.
@@ -39,6 +39,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
     private AggregateInterval subInterval;
 
+    private final SubPixelStatsAggregator subPixelStatsAggregator;
 
     public SubPixelAggregator(MultiSpanIterator multiSpanIterator, long from, long to,
                               List<Integer> measures, AggregateInterval m4Interval, ViewPort viewport) {
@@ -47,7 +48,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         this.to = to;
         this.m4Interval = m4Interval;
         this.viewPort = viewport;
-        this.statsAggregator = new SubPixelStatsAggregator(measures);
+        this.subPixelStatsAggregator = new SubPixelStatsAggregator(measures);
         initialize();
     }
 
@@ -66,9 +67,9 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
             first = false;
             return this;
         }
-        statsAggregator.clear();
+        subPixelStatsAggregator.clear();
         moveToNextSubPixel();
-        statsAggregator.accept(aggregatedDataPoint);
+        subPixelStatsAggregator.accept(aggregatedDataPoint);
         return this;
     }
 
@@ -90,19 +91,19 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
                 moveToNextSubPixel();
             currentPixel = DateTimeUtil.getIntervalStart(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
             nextPixel = DateTimeUtil.getIntervalEnd(aggregatedDataPoint.getTimestamp(), m4Interval, ZoneId.of("UTC"));
-            statsAggregator.accept(aggregatedDataPoint);
+            subPixelStatsAggregator.accept(aggregatedDataPoint);
             first = true;
         }
     }
 
     @Override
     public int getCount() {
-        return statsAggregator.getCount();
+        return aggregatedDataPoint.getCount();
     }
 
     @Override
-    public StatsAggregator getStats() {
-        return statsAggregator;
+    public Stats getStats() {
+        return this.subPixelStatsAggregator;
     }
 
     @Override
@@ -128,7 +129,7 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
         return subInterval;
     }
 
-    public PixelAggregatedDataPoint persist() {
+    public PixelAggregatedDataPoint persist()  {
         return new ImmutableSubPixelDatapoint(this);
     }
 
@@ -157,7 +158,8 @@ public class SubPixelAggregator implements Iterator<PixelAggregatedDataPoint>, P
 
         private final AggregateInterval interval;
 
-        private final SubPixelStatsAggregator stats;
+        private final Stats stats;
+
 
         public ImmutableSubPixelDatapoint(SubPixelAggregator subPixelAggregator){
             this(subPixelAggregator.getStats(), subPixelAggregator.getInterval(), subPixelAggregator.getSubPixel(),

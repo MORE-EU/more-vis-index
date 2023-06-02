@@ -42,25 +42,27 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 
     @Override
     public AggregatedDataPoint next() {
-        long firstTimestamp = 0L;
         StatsAggregator statsAggregator = new StatsAggregator(measures);
-        int i = 0;
-        do {
+        boolean empty = true;
+        while(hasNext()) {
             FluxRecord record = records.get(current);
             int measureId = measureNames.indexOf(record.getField());
             long timestamp = Objects.requireNonNull(record.getTime()).toEpochMilli();
             double value = (double) record.getValue();
-            group = ((Instant) record.getValues().get("_stop")).toEpochMilli();
-            if (group != currentGroup) {
+            currentGroup = ((Instant) record.getValues().get("_start")).toEpochMilli();
+            UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
+            if(currentGroup != group){
+                if(empty){
+                    statsAggregator.accept(point, measureId);
+                }
                 break;
             }
-            current ++;
-            if (i == 0) firstTimestamp = timestamp;
-            UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
+            empty = false;
             statsAggregator.accept(point, measureId);
-            i++;
-        } while(hasNext());
-        currentGroup = group;
-        return new ImmutableAggregatedDataPoint(firstTimestamp, statsAggregator);
+            current ++;
+        }
+        AggregatedDataPoint dataPoint = new ImmutableAggregatedDataPoint(group, statsAggregator);
+        group = currentGroup;
+        return dataPoint;
     }
 }
