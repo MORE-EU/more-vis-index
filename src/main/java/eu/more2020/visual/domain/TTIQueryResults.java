@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class TTIQueryResults {
-    private List<TimeSeriesSpan> overlappingIntervals;
+    private List<TimeSeriesSpan> overlappingSpans;
     private List<TimeRange> missingIntervals;
     private long from;
     private long to;
@@ -16,13 +16,13 @@ public class TTIQueryResults {
     public TTIQueryResults(long from, long to, List<TimeSeriesSpan> overlappingIntervals, List<TimeRange> missingIntervals) {
         this.from = from;
         this.to = to;
-        this.overlappingIntervals = overlappingIntervals;
+        this.overlappingSpans = overlappingIntervals;
         this.missingIntervals = missingIntervals;
         overlappingIntervals.sort((i1, i2) -> (int) (i1.getFrom() - i2.getFrom())); // Sort intervals
     }
 
-    public List<TimeSeriesSpan> getOverlappingIntervals() {
-        return overlappingIntervals;
+    public List<TimeSeriesSpan> getOverlappingSpans() {
+        return overlappingSpans;
     }
 
     public List<TimeRange> getMissingIntervals() {
@@ -30,9 +30,9 @@ public class TTIQueryResults {
     }
 
     public boolean addAll(List<TimeSeriesSpan> timeSeriesSpans){
-        boolean added = overlappingIntervals.addAll(timeSeriesSpans);
+        boolean added = overlappingSpans.addAll(timeSeriesSpans);
         if(!added) return false;
-        overlappingIntervals.sort(Comparator.comparing(TimeSeriesSpan::getFrom)); // Sort intervals
+        overlappingSpans.sort(Comparator.comparing(TimeSeriesSpan::getFrom)); // Sort intervals
         missingIntervals = new ArrayList<>();
         return true;
     }

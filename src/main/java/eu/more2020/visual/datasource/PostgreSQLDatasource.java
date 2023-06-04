@@ -28,7 +28,7 @@ public class PostgreSQLDatasource implements DataSource{
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
                                                               List<Integer> measures, AggregateInterval aggregateInterval) {
         return new PostgreSQLDatasource.SQLAggregatedDataPoints(from, to, ranges, measures, aggregateInterval);
     }
@@ -130,7 +130,7 @@ public class PostgreSQLDatasource implements DataSource{
             this.aggregateInterval = aggregateInterval;
         }
 
-        public SQLAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+        public SQLAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
                                        List<Integer> measures, AggregateInterval aggregateInterval) {
             int width = DateTimeUtil.numberOfIntervals(from, to, aggregateInterval, null) - 1;
             this.sqlQuery = new SQLQuery(from, to, ranges, measures, new ViewPort(width, 0));

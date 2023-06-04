@@ -1,12 +1,12 @@
 package eu.more2020.visual.domain.Query;
 
 import eu.more2020.visual.domain.AggregateInterval;
+import eu.more2020.visual.domain.TimeInterval;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.temporal.ChronoField;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +44,7 @@ public class InfluxDBQuery extends AbstractQuery {
 
     }
 
-    public InfluxDBQuery(long from, long to, List<TimeRange> ranges, List<Integer> measures, List<String> measureNames, AggregateInterval aggregateInterval) {
+    public InfluxDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames, AggregateInterval aggregateInterval) {
         super(from, to);
         this.measures = measures;
         this.ranges = ranges;
@@ -53,7 +53,7 @@ public class InfluxDBQuery extends AbstractQuery {
 
     }
 
-    public List<String> getMeasureNames(){
+    public List<String> getMeasureNames() {
         return measureNames;
     }
 
@@ -116,7 +116,7 @@ public class InfluxDBQuery extends AbstractQuery {
 
     @Override
     public String m4MultiQuerySkeleton() {
-        String s =  "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
+        String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
                 "  tables\n" +
                 "    |> window(every:every, offset: %s , createEmpty:true)\n" +
                 "    |> fn(column:column)\n" +
@@ -124,7 +124,7 @@ public class InfluxDBQuery extends AbstractQuery {
                 "    |> group()\n";
         String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
         int i = 0;
-        for (TimeRange r : ranges) {
+        for (TimeInterval r : ranges) {
             s += ("first_" + i + "= from(bucket:\"%s\") \n " +
                     "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
                     "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
@@ -159,8 +159,8 @@ public class InfluxDBQuery extends AbstractQuery {
             i++;
         }
         s += "union(tables: [";
-        for (i = 0; i < ranges.size(); i ++)
-            s +=  "min_" + i + ", max_" + i + ", last_" + i + ", first_" + i + ",";
+        for (i = 0; i < ranges.size(); i++)
+            s += "min_" + i + ", max_" + i + ", last_" + i + ", first_" + i + ",";
         s = s.substring(0, s.length() - 1);
         s += "])";
         s += "|> sort(columns: [\"_time\"], desc: false)\n";
@@ -170,7 +170,7 @@ public class InfluxDBQuery extends AbstractQuery {
 
     @Override
     public String m4WithOLAPQuerySkeleton() {
-        return  m4QuerySkeleton() +
+        return m4QuerySkeleton() +
                 ("from(bucket:\"%s\") " +
                         "|> range(start:%s, stop:%s) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +

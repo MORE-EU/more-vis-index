@@ -31,7 +31,7 @@ public class CsvDataSource implements DataSource {
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
                                                         List<Integer> measures, AggregateInterval aggregateInterval) {
         return null;
     }

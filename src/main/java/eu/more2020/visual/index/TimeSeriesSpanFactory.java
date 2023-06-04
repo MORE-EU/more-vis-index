@@ -34,13 +34,13 @@ public class TimeSeriesSpanFactory {
     }
 
     public static List<TimeSeriesSpan> create(AggregatedDataPoints aggregatedDataPoints,
-                                             List<TimeRange> ranges, AggregateInterval aggregateInterval){
+                                             List<TimeInterval> ranges, AggregateInterval aggregateInterval){
         List<TimeSeriesSpan> spans = new ArrayList<>();
         Iterator<AggregatedDataPoint> it = aggregatedDataPoints.iterator();
         boolean changed = false;
         AggregatedDataPoint aggregatedDataPoint = null;
 
-        for (TimeRange range : ranges) {
+        for (TimeInterval range : ranges) {
             TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan(range.getFrom(), range.getTo(),
                     aggregatedDataPoints.getMeasures(), aggregateInterval);
             timeSeriesSpan.setFrom(range.getFrom());

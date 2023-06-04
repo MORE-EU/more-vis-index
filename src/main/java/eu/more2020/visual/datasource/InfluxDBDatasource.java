@@ -41,7 +41,7 @@ public class InfluxDBDatasource implements DataSource {
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeRange> ranges,
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
                                                         List<Integer> measures, AggregateInterval aggregateInterval) {
         return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, ranges, measures, aggregateInterval);
     }
@@ -117,7 +117,7 @@ public class InfluxDBDatasource implements DataSource {
             this.aggregateInterval = aggregateInterval;
         }
 
-        public InfluxDBAggregatedDatapoints(long from, long to, List<TimeRange> ranges,
+        public InfluxDBAggregatedDatapoints(long from, long to, List<TimeInterval> ranges,
                                             List<Integer> measures, AggregateInterval aggregateInterval) {
             List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
             this.influxDBQuery = new InfluxDBQuery(from, to, ranges, measures, measureNames, aggregateInterval);

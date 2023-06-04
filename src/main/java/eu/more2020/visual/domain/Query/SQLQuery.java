@@ -1,5 +1,6 @@
 package eu.more2020.visual.domain.Query;
 
+import eu.more2020.visual.domain.TimeInterval;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
 
@@ -23,7 +24,7 @@ public class SQLQuery extends AbstractQuery{
         super(from, to, QueryMethod.M4, measures, viewPort);
     }
 
-    public SQLQuery(long from, long to, List<TimeRange> ranges,
+    public SQLQuery(long from, long to, List<TimeInterval> ranges,
                     List<Integer> measures, ViewPort viewPort) {
         super(from, to, ranges, QueryMethod.M4, measures, viewPort);
     }

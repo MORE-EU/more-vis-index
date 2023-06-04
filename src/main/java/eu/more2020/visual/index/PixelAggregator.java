@@ -3,12 +3,16 @@ package eu.more2020.visual.index;
 import com.beust.ah.A;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
 public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, PixelAggregatedDataPoint {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PixelAggregator.class);
 
     protected final MultiSpanIterator multiSpanIterator;
     protected final AggregateInterval m4Interval;
@@ -111,6 +115,8 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         size ++;
         current ++;
         currentPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
+        LOG.debug("" + currentPixel.toInstant().toEpochMilli());
+
         nextPixel = currentPixel.plus(m4Interval.getInterval(), m4Interval.getChronoUnit());
     }
 
