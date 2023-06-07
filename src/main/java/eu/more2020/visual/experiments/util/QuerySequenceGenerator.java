@@ -49,7 +49,7 @@ public class QuerySequenceGenerator {
         this.dataset = dataset;
     }
 
-    public List<AbstractQuery> generateQuerySequence(Query q0, int count) {
+    public List<AbstractQuery> generateQuerySequence(AbstractQuery q0, int count) {
         Direction[] directions = Direction.getRandomDirections(count);
 //        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
         double[] shifts = new Random(seed).doubles(count, minShift, maxShift).toArray();
@@ -68,40 +68,38 @@ public class QuerySequenceGenerator {
         for (int i = 0; i < zoom_out; i++) ops.add(ZO);
 
         List<AbstractQuery> queries = new ArrayList<>();
-
-        List<String> measureNames = q0.getMeasures().size() < dataset.getHeader().length ?
-                q0.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList()) : null;
         queries.add(q0);
-        queries.add(new SQLQuery(q0.getFrom(), q0.getTo(), q0.getMeasures(), q0.getViewPort()));
-        queries.add(new InfluxDBQuery(q0.getFrom(), q0.getTo(), measureNames, q0.getViewPort()));
-        Query ttiQuery = q0;
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
 
             if (zoomFactor > 1 && opType.equals(ZI)) {
-                timeRange = zoomIn(ttiQuery);
+                timeRange = zoomIn(q0);
             } else if (zoomFactor > 1 && opType.equals(ZO)) {
-                timeRange = zoomOut(ttiQuery);
+                timeRange = zoomOut(q0);
             } else {
-                timeRange = pan(ttiQuery, shifts[i], directions[i]);
+                timeRange = pan(q0, shifts[i], directions[i]);
             }
+            AbstractQuery q = null;
+            if(q0 instanceof Query) {
+                q = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
+                        q0.getQueryMethod(), q0.getMeasures(),
+                        q0.getViewPort(), opType);
+            }
+            else if(q0 instanceof SQLQuery){
+                q = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), q0.getViewPort(), opType);
 
-            ttiQuery = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
-                    q0.getQueryMethod(), q0.getMeasures(),
-                    q0.getViewPort(), opType);
-            SQLQuery sqlQuery = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), q0.getViewPort());
-            InfluxDBQuery influxDBQuery = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), measureNames, q0.getViewPort());
-
-            queries.add(ttiQuery);
-            queries.add(sqlQuery);
-            queries.add(influxDBQuery);
+            }
+            else if(q0 instanceof InfluxDBQuery) {
+                q = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), ((InfluxDBQuery) q0).getMeasureNames(), q0.getViewPort(), opType);
+            }
+            queries.add(q);
         }
         return queries;
 
     }
 
-    private TimeRange pan(Query query, double shift, Direction direction) {
+    private TimeRange pan(AbstractQuery query, double shift, Direction direction) {
         long from = query.getFrom();
         long to = query.getTo();
         long timeShift = (long) ((to - from) * shift);
@@ -125,15 +123,15 @@ public class QuerySequenceGenerator {
     }
 
 
-    private TimeRange zoomOut(Query query) {
+    private TimeRange zoomOut(AbstractQuery query) {
         return zoom(query, zoomFactor);
     }
 
-    private TimeRange zoomIn(Query query) {
+    private TimeRange zoomIn(AbstractQuery query) {
         return zoom(query, 1f / zoomFactor);
     }
 
-    private TimeRange zoom(Query query, float zoomFactor) {
+    private TimeRange zoom(AbstractQuery query, float zoomFactor) {
         long from = query.getFrom();
         long to = query.getTo();
         float middle = (from + to) / 2f;

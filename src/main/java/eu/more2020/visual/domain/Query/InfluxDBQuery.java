@@ -4,6 +4,7 @@ import eu.more2020.visual.domain.AggregateInterval;
 import eu.more2020.visual.domain.TimeInterval;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.experiments.util.UserOpType;
 import eu.more2020.visual.util.DateTimeUtil;
 
 import java.time.temporal.ChronoField;
@@ -28,6 +29,18 @@ public class InfluxDBQuery extends AbstractQuery {
         super(from, to, viewPort);
         this.aggregateInterval = DateTimeUtil.aggregateInterval(DateTimeUtil.M4(from, to, viewPort));
         this.measureNames = measuresNames;
+    }
+
+    public InfluxDBQuery(long from, long to, List<String> measuresNames, ViewPort viewPort, UserOpType opType) {
+        super(from, to, viewPort);
+        this.aggregateInterval = DateTimeUtil.aggregateInterval(DateTimeUtil.M4(from, to, viewPort));
+        this.measureNames = measuresNames;
+        this.opType = opType;
+    }
+
+    public InfluxDBQuery(long from, long to, ViewPort viewPort, List<Integer> measures) {
+        super(from, to, viewPort);
+        this.measures = measures;
     }
 
     public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames) {

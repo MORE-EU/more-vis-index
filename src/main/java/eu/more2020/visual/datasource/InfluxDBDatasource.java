@@ -59,8 +59,8 @@ public class InfluxDBDatasource implements DataSource {
         @Override
         public Iterator<DataPoint> iterator() {
             try {
-                InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(),
-                        dataset.getMeasurement(), dataset.getHeader());
+                InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(),
+                        dataset.getName(), dataset.getHeader());
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
                 return new InfluxDBDataPointsIterator(influxDBQuery.getMeasureNames(), fluxTables.get(0));
             } catch (Exception e){
@@ -127,7 +127,7 @@ public class InfluxDBDatasource implements DataSource {
         @NotNull
         @Override
         public Iterator<AggregatedDataPoint> iterator() {
-            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getBucket(), dataset.getMeasurement(), dataset.getHeader());
+            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName(), dataset.getHeader());
             List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4MultiInfluxQuery(influxDBQuery);
             if(fluxTables.size() == 0) return Collections.emptyIterator();
             return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0));
