@@ -118,6 +118,16 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     }
 
     @Override
+    public long getFrom() {
+        return currentInterval.toInstant().toEpochMilli();
+    }
+
+    @Override
+    public long getTo() {
+        return nextInterval.toInstant().toEpochMilli();
+    }
+
+    @Override
     public double[] getValues() {
         throw new UnsupportedOperationException();
     }
@@ -132,6 +142,8 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     public Stats getStats() {
         return statsAggregator;
     }
+
+
 
     @Override
     public String toString() {

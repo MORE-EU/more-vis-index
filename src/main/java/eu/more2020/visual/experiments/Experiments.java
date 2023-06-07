@@ -7,26 +7,28 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
-import eu.more2020.visual.domain.*;
+import eu.more2020.visual.datasource.DataSourceQuery;
+import eu.more2020.visual.datasource.InfluxDBQuery;
+import eu.more2020.visual.datasource.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.datasource.QueryExecutor.QueryExecutor;
+import eu.more2020.visual.datasource.QueryExecutor.QueryExecutorFactory;
+import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.datasource.SQLQuery;
 import eu.more2020.visual.domain.Dataset.*;
+import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
-import eu.more2020.visual.domain.Query.*;
-import eu.more2020.visual.domain.QueryExecutor.QueryExecutor;
-import eu.more2020.visual.domain.QueryExecutor.QueryExecutorFactory;
+import eu.more2020.visual.domain.Query.Query;
+import eu.more2020.visual.domain.Query.QueryMethod;
+import eu.more2020.visual.domain.QueryResults;
+import eu.more2020.visual.domain.ViewPort;
 import eu.more2020.visual.experiments.util.*;
 import eu.more2020.visual.index.RawTTI;
 import eu.more2020.visual.index.TTI;
-import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
-import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
-import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
 import eu.more2020.visual.util.io.SerializationUtilities;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.math3.analysis.function.Abs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.View;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,7 +36,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -74,10 +79,10 @@ public class Experiments<T> {
     public Float zoomFactor = 0f;
 
 
-    @Parameter(names = "-startTime", converter = EpochConverter.class,  variableArity = true, description = "Start Time Epoch")
+    @Parameter(names = "-startTime", converter = EpochConverter.class, variableArity = true, description = "Start Time Epoch")
     Long startTime = 0L;
 
-    @Parameter(names = "-endTime", converter = EpochConverter.class,  variableArity = true, description = "End Time Epoch")
+    @Parameter(names = "-endTime", converter = EpochConverter.class, variableArity = true, description = "End Time Epoch")
     Long endTime = 0L;
 
     @Parameter(names = "-filters", converter = FilterConverter.class, description = "Q0 Filters")
@@ -117,7 +122,7 @@ public class Experiments<T> {
     @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
-    @Parameter(names = "--groupBy", converter = OLAPConverter.class,  description = "Measure index memory after every query in the sequence")
+    @Parameter(names = "--groupBy", converter = OLAPConverter.class, description = "Measure index memory after every query in the sequence")
     private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
 
     @Parameter(names = "--help", help = true, description = "Displays help")
@@ -143,7 +148,7 @@ public class Experiments<T> {
     }
 
     private void run() throws IOException, ClassNotFoundException, SQLException {
-        Preconditions.checkNotNull(outFolder,"No out folder specified.");
+        Preconditions.checkNotNull(outFolder, "No out folder specified.");
         type = type.toLowerCase(Locale.ROOT);
         initOutput();
         switch (command) {
@@ -153,14 +158,14 @@ public class Experiments<T> {
             case "timeQueries":
                 timeQueries();
                 break;
-            case "plot":
+            /*case "plot":
                 plotQuery();
-                break;
+                break;*/
             default:
         }
     }
 
-    private void initializePostgreSQL()throws IOException, SQLException{
+    private void initializePostgreSQL() throws IOException, SQLException {
         AbstractDataset dataset = createDataset();
         PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(config);
         SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
@@ -168,7 +173,7 @@ public class Experiments<T> {
         sqlQueryExecutor.initialize(path);
     }
 
-    private void initializeInfluxDB()throws IOException, SQLException{
+    private void initializeInfluxDB() throws IOException, SQLException {
         AbstractDataset dataset = createDataset();
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(),
@@ -179,7 +184,7 @@ public class Experiments<T> {
 
     private void initialize() throws IOException, SQLException {
         Preconditions.checkNotNull(mode, "You must define the execution mode (tti, raw, postgres, influx).");
-        switch(mode) {
+        switch (mode) {
             case "postgres":
                 initializePostgreSQL();
             case "influx":
@@ -190,7 +195,7 @@ public class Experiments<T> {
     }
 
     private void timeQueriesTTI() throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder,"timeQueries", type, table, "ttiResults").toString();
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "ttiResults").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -198,15 +203,15 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
-        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600));
-        List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory",  "Error");
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600), null);
+        List<Query> sequence = generateQuerySequence(q0, dataset);
+        csvWriter.writeHeaders("dataset", "query #", "operation", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory", "Error");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);
             QueryResults queryResults;
             double time = 0;
-            LOG.info("Executing query " + i  +  " " + query.getFromDate() + " - " + query.getToDate());
+            LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
             queryResults = tti.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             long memorySize = tti.calculateDeepMemorySize();
@@ -228,7 +233,7 @@ public class Experiments<T> {
     }
 
     private void timeQueriesRawTTI() throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder,"timeQueries", type, table, "rawResults").toString();
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "rawResults").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -236,15 +241,15 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         RawTTI rawTTI = new RawTTI(dataset);
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
-        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600));
-        List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600), null);
+        List<Query> sequence = generateQuerySequence(q0, dataset);
+        csvWriter.writeHeaders("dataset", "query #", "operation", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);
             QueryResults queryResults;
             double time = 0;
-            LOG.info("Executing query " + i  +  " " + query.getFromDate() + " - " + query.getToDate());
+            LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
             queryResults = rawTTI.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             long memorySize = rawTTI.calculateDeepMemorySize();
@@ -266,7 +271,7 @@ public class Experiments<T> {
     }
 
     private void timeQueriesM4() throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder,"timeQueries", type, table, "m4Results").toString();
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "m4Results").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -274,16 +279,24 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         QueryExecutor queryExecutor = QueryExecutorFactory.getQueryExecutor(dataset);
         QueryMethod queryMethod = QueryMethod.M4;
-        AbstractQuery q0 = generateFirstQuery(dataset);
-        List<AbstractQuery> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset","query #", "operation", "timeRange", "Results size", "Time (sec)");
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600), null);
+        List<Query> sequence = generateQuerySequence(q0, dataset);
+        csvWriter.writeHeaders("dataset", "query #", "operation", "timeRange", "Results size", "Time (sec)");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
-            AbstractQuery query = sequence.get(i);
+            Query query = sequence.get(i);
             QueryResults queryResults;
             double time = 0;
-            LOG.info("Executing query " + i  +  " " + query.getFromDate() + " - " + query.getToDate());
-            queryResults = queryExecutor.execute(query, queryMethod);
+            LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
+            DataSourceQuery dataSourceQuery = null;
+            switch (type) {
+                case "postgres":
+                    dataSourceQuery = new SQLQuery(startTime, endTime, measures, 1000);
+                case "influx":
+                    List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+                    dataSourceQuery = new InfluxDBQuery(startTime, endTime, measures, measureNames, 1000);
+            }
+            queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);
@@ -301,9 +314,9 @@ public class Experiments<T> {
 
     private void timeQueries() throws IOException, SQLException {
         Preconditions.checkNotNull(mode, "You must define the execution mode (tti, raw, postgres, influx).");
-        Path path = Paths.get(outFolder,"timeQueries", type, table, mode + "Results");
+        Path path = Paths.get(outFolder, "timeQueries", type, table, mode + "Results");
         FileUtil.build(path.toString());
-        switch(mode) {
+        switch (mode) {
             case "tti":
                 timeQueriesTTI();
                 break;
@@ -318,21 +331,23 @@ public class Experiments<T> {
         }
     }
 
-    private AbstractQuery generateFirstQuery(AbstractDataset dataset){
+/*
+    private DataSourceQuery generateFirstQuery(AbstractDataset dataset){
         switch (type) {
             case "postgres":
-                return new SQLQuery(startTime, endTime, measures, new ViewPort(1000, 600));
+                return new SQLQuery(startTime, endTime, measures, 1000);
             case "influx":
                 List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-                return new InfluxDBQuery(startTime, endTime, measureNames, new ViewPort(1000, 600));
+                return new InfluxDBQuery(startTime, endTime, measures, measureNames, 1000);
             default:
                 LOG.error("Wrong type of dataset provided");
                 System.exit(0);
         }
         return null;
     }
+*/
 
-    private List<AbstractQuery> generateQuerySequence(AbstractQuery q0, AbstractDataset dataset) {
+    private List<Query> generateQuerySequence(Query q0, AbstractDataset dataset) {
         Preconditions.checkNotNull(seqCount, "No sequence count specified.");
         Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
         Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
@@ -341,7 +356,7 @@ public class Experiments<T> {
     }
 
 
-    private void plotQuery() throws IOException, SQLException {
+/*    private void plotQuery() throws IOException, SQLException {
         String plotFolder = "plotQuery";
         recreateDir(Paths.get(outFolder, plotFolder).toString());
         String rawTTiResultsPath = Paths.get(outFolder,"plotQuery", "rawResults").toString();
@@ -352,7 +367,7 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         Query ttiQuery = new Query(startTime, endTime, measures, viewPort, groupyBy);
         List<String> measureNames = ttiQuery.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-    }
+    }*/
 
     private void recreateDir(String folder) {
         try {
@@ -387,25 +402,25 @@ public class Experiments<T> {
         switch (type) {
             case "csv":
                 p = String.valueOf(Paths.get(outFolder, "metadata", "csv-" + table));
-                if(new File(p).exists()) return (CsvDataset) SerializationUtilities.loadSerializedObject(p);
+                if (new File(p).exists()) return (CsvDataset) SerializationUtilities.loadSerializedObject(p);
                 CsvDataset csvDataset = new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
                 SerializationUtilities.storeSerializedObject(csvDataset, p);
                 return csvDataset;
             case "parquet":
-                p =  String.valueOf(Paths.get(outFolder, "metadata",  "parquet-" + table));
-                if(new File(p).exists()) return (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
+                p = String.valueOf(Paths.get(outFolder, "metadata", "parquet-" + table));
+                if (new File(p).exists()) return (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
                 ParquetDataset parquetDataset = new ParquetDataset(path, "0", "test", timeCol, timeFormat);
                 SerializationUtilities.storeSerializedObject(parquetDataset, p);
                 return parquetDataset;
             case "postgres":
-                p = String.valueOf(Paths.get(outFolder, "metadata", "postgres-" +table));
-                if(new File(p).exists()) return (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
+                p = String.valueOf(Paths.get(outFolder, "metadata", "postgres-" + table));
+                if (new File(p).exists()) return (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
                 PostgreSQLDataset postgreSQLDataset = new PostgreSQLDataset(config, schema, table, timeFormat);
                 SerializationUtilities.storeSerializedObject(postgreSQLDataset, p);
                 return postgreSQLDataset;
             case "influx":
                 p = String.valueOf(Paths.get(outFolder, "metadata", "influx-" + table));
-                if(new File(p).exists()) return (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
+                if (new File(p).exists()) return (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
                 InfluxDBDataset influxDBDataset = new InfluxDBDataset(config, schema, table, timeFormat);
                 SerializationUtilities.storeSerializedObject(influxDBDataset, p);
                 return influxDBDataset;

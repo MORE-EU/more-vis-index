@@ -1,72 +1,35 @@
-package eu.more2020.visual.domain.Query;
+package eu.more2020.visual.datasource;
 
-import eu.more2020.visual.domain.AggregateInterval;
 import eu.more2020.visual.domain.TimeInterval;
-import eu.more2020.visual.domain.TimeRange;
-import eu.more2020.visual.domain.ViewPort;
-import eu.more2020.visual.experiments.util.UserOpType;
-import eu.more2020.visual.util.DateTimeUtil;
 
-import java.time.temporal.ChronoField;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InfluxDBQuery extends AbstractQuery {
+public class InfluxDBQuery extends DataSourceQuery {
+    private final List<String> measureNames;
 
-
-    private AggregateInterval aggregateInterval;
-    private List<String> measureNames;
-
-    public InfluxDBQuery(long from, long to, List<String> measuresNames,
-                         HashMap<Integer, Double[]> filters, ViewPort viewPort, ChronoField groupByField) {
-        super(from, to, QueryMethod.M4, viewPort, groupByField);
-        this.measureNames = measuresNames;
-        this.aggregateInterval = DateTimeUtil.aggregateInterval(DateTimeUtil.M4(from, to, viewPort));
+    public InfluxDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames, Integer numberOfGroups) {
+        super(from, to, ranges, measures, numberOfGroups);
+        this.measureNames = measureNames;
+        if (numberOfGroups == null) {
+            this.aggregateInterval = -1;
+        } else {
+            this.aggregateInterval = (to - from) / numberOfGroups;
+        }
     }
 
-    public InfluxDBQuery(long from, long to, List<String> measuresNames, ViewPort viewPort) {
-        super(from, to, viewPort);
-        this.aggregateInterval = DateTimeUtil.aggregateInterval(DateTimeUtil.M4(from, to, viewPort));
-        this.measureNames = measuresNames;
-    }
-
-    public InfluxDBQuery(long from, long to, List<String> measuresNames, ViewPort viewPort, UserOpType opType) {
-        super(from, to, viewPort);
-        this.aggregateInterval = DateTimeUtil.aggregateInterval(DateTimeUtil.M4(from, to, viewPort));
-        this.measureNames = measuresNames;
-        this.opType = opType;
-    }
-
-    public InfluxDBQuery(long from, long to, ViewPort viewPort, List<Integer> measures) {
-        super(from, to, viewPort);
-        this.measures = measures;
+    public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames, Integer numberOfGroups) {
+        this(from, to, null, measures, measureNames, numberOfGroups);
     }
 
     public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames) {
-        super(from, to);
-        this.measures = measures;
-        this.measureNames = measureNames;
+        this(from, to, null, measures, measureNames, null);
     }
 
-    public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames, AggregateInterval aggregateInterval) {
-        super(from, to);
-        this.measures = measures;
-        this.measureNames = measureNames;
-        this.aggregateInterval = aggregateInterval;
+    private final long aggregateInterval;
 
-    }
 
-    public InfluxDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames, AggregateInterval aggregateInterval) {
-        super(from, to);
-        this.measures = measures;
-        this.ranges = ranges;
-        this.measureNames = measureNames;
-        this.aggregateInterval = aggregateInterval;
-
-    }
-
-    public List<String> getMeasureNames() {
+    public final List<String> getMeasureNames() {
         return measureNames;
     }
 
@@ -82,6 +45,9 @@ public class InfluxDBQuery extends AbstractQuery {
         return toDate.replace(" ", "T") + "Z";
     }
 
+    public long getAggregateInterval() {
+        return aggregateInterval;
+    }
 
     @Override
     public String m4QuerySkeleton() {
@@ -98,7 +64,7 @@ public class InfluxDBQuery extends AbstractQuery {
                 "|> filter(fn: (r) => r[\"_field\"] ==\"" +
                 measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                 "\") \n" +
-                "|> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: first)\n") +
+                "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: first)\n") +
                 ("last = from(bucket:\"%s\") " +
                         "|> range(start:%s, stop:%s)\n " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\")\n " +
@@ -106,7 +72,7 @@ public class InfluxDBQuery extends AbstractQuery {
                         measureNames.stream().map(Object::toString)
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                         "\")\n" +
-                        " |> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: last)\n") +
+                        " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: last)\n") +
                 ("min = from(bucket:\"%s\") " +
                         "|> range(start:%s, stop:%s)\n " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
@@ -114,7 +80,7 @@ public class InfluxDBQuery extends AbstractQuery {
                         measureNames.stream().map(Object::toString)
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                         "\")\n" +
-                        " |> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: min)") +
+                        " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: min)") +
                 ("max = from(bucket:\"%s\") " +
                         "|> range(start:%s, stop:%s)\n " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
@@ -122,7 +88,7 @@ public class InfluxDBQuery extends AbstractQuery {
                         measureNames.stream().map(Object::toString)
                                 .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                         "\")\n" +
-                        "|> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: max)\n") +
+                        "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: max)\n") +
                 "union(tables: [min, max, last, first]) \n" +
                 "|> sort(columns: [\"_time\"], desc: false)\n";
     }
@@ -144,7 +110,7 @@ public class InfluxDBQuery extends AbstractQuery {
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
                     measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                     "\") \n" +
-                    "|> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: first)\n") +
+                    "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: first)\n") +
                     ("last_" + i + "= from(bucket:\"%s\") " +
                             "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
                             "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\")\n " +
@@ -152,7 +118,7 @@ public class InfluxDBQuery extends AbstractQuery {
                             measureNames.stream().map(Object::toString)
                                     .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                             "\")\n" +
-                            " |> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: last)\n") +
+                            " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: last)\n") +
                     ("min_" + i + " = from(bucket:\"%s\") " +
                             "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
                             "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
@@ -160,7 +126,7 @@ public class InfluxDBQuery extends AbstractQuery {
                             measureNames.stream().map(Object::toString)
                                     .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                             "\")\n" +
-                            " |> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: min)\n") +
+                            " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: min)\n") +
                     ("max_" + i + " = from(bucket:\"%s\") " +
                             "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
                             "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
@@ -168,7 +134,7 @@ public class InfluxDBQuery extends AbstractQuery {
                             measureNames.stream().map(Object::toString)
                                     .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                             "\")\n" +
-                            "|> customAggregateWindow(every: " + DateTimeUtil.getInfluxDBAggregateWindow(aggregateInterval) + ", fn: max)\n");
+                            "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: max)\n");
             i++;
         }
         s += "union(tables: [";
@@ -207,7 +173,4 @@ public class InfluxDBQuery extends AbstractQuery {
                 "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
     }
 
-    public AggregateInterval getAggregateInterval() {
-        return aggregateInterval;
-    }
 }

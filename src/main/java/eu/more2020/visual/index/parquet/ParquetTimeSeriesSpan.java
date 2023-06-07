@@ -17,9 +17,10 @@ public class ParquetTimeSeriesSpan extends TimeSeriesSpan {
      */
     private ParquetDataPoint.ParquetFileOffset[] fileOffsets;
 
-    public ParquetTimeSeriesSpan(DataPoints dataPoints, AggregateInterval aggregateInterval) {
-        super(dataPoints, aggregateInterval);
+    public ParquetTimeSeriesSpan(long from, long to, List<Integer> measures, int size) {
+        super(from, to, measures, size);
     }
+
 
     @Override
     protected void addAggregatedDataPoint(int i, AggregatedDataPoint aggregatedDataPoint) {

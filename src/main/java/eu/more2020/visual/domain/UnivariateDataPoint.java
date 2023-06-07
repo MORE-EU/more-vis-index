@@ -34,7 +34,7 @@ public class UnivariateDataPoint {
 
     @Override
     public String toString() {
-        return "{" + DateTimeUtil.format(timestamp) +
+        return "{" + timestamp + ", " + DateTimeUtil.format(timestamp) +
                 ", " + value +
                 '}';
     }

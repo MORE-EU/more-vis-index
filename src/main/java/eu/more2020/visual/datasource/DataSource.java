@@ -11,7 +11,7 @@ public interface DataSource {
 
 
     AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals,
-                                                 List<Integer> measures, AggregateInterval aggregateInterval);
+                                                 List<Integer> measures, int numberOfGroups);
 
     /**
      * Returns a {@link DataPoints} instance to access the data points in the time series, that

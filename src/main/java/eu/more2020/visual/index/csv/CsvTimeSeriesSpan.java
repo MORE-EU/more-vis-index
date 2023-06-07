@@ -16,8 +16,8 @@ public class CsvTimeSeriesSpan extends TimeSeriesSpan {
      */
     private long[] fileOffsets;
 
-    public CsvTimeSeriesSpan(DataPoints dataPoints, AggregateInterval aggregateInterval) {
-        super(dataPoints, aggregateInterval);
+    public CsvTimeSeriesSpan(long from, long to, List<Integer> measures, int size) {
+        super(from, to, measures, size);
     }
 
     @Override

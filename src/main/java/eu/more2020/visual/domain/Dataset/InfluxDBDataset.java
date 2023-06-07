@@ -3,7 +3,7 @@ package eu.more2020.visual.domain.Dataset;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
-import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.domain.TimeRange;
 
 import java.time.Duration;

@@ -1,12 +1,11 @@
-package eu.more2020.visual.domain.QueryExecutor;
+package eu.more2020.visual.datasource.QueryExecutor;
 
-import eu.more2020.visual.domain.Query.AbstractQuery;
+import eu.more2020.visual.datasource.DataSourceQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
-import eu.more2020.visual.domain.Query.SQLQuery;
+import eu.more2020.visual.datasource.SQLQuery;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
 import eu.more2020.visual.experiments.util.NamedPreparedStatement;
-import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ public class SQLQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public QueryResults execute(AbstractQuery q, QueryMethod method) throws SQLException {
+    public QueryResults execute(DataSourceQuery q, QueryMethod method) throws SQLException {
         switch (method) {
             case M4:
                 return executeM4Query(q);
@@ -54,22 +53,22 @@ public class SQLQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public QueryResults executeM4Query(AbstractQuery q) throws SQLException {
+    public QueryResults executeM4Query(DataSourceQuery q) throws SQLException {
         return collect(executeM4SqlQuery((SQLQuery) q));
     }
 
     @Override
-    public QueryResults executeM4MultiQuery(AbstractQuery q) throws SQLException {
+    public QueryResults executeM4MultiQuery(DataSourceQuery q) throws SQLException {
         return collect(executeM4MultiSqlQuery((SQLQuery) q));
     }
 
     @Override
-    public QueryResults executeM4OLAPQuery(AbstractQuery q) throws SQLException {
+    public QueryResults executeM4OLAPQuery(DataSourceQuery q) throws SQLException {
         return collect(executeM4OLAPSqlQuery((SQLQuery) q));
     }
 
     @Override
-    public QueryResults executeRawQuery(AbstractQuery q) throws SQLException {
+    public QueryResults executeRawQuery(DataSourceQuery q) throws SQLException {
         return collect(executeRawSqlQuery((SQLQuery) q));
     }
 
@@ -138,7 +137,7 @@ public class SQLQueryExecutor implements QueryExecutor {
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getViewPort().getWidth());
+        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
@@ -150,7 +149,7 @@ public class SQLQueryExecutor implements QueryExecutor {
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getViewPort().getWidth());
+        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");

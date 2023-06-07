@@ -32,7 +32,7 @@ public class ParquetDataSource implements DataSource {
 
     @Override
     public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
-                                                        List<Integer> measures, AggregateInterval aggregateInterval) {
+                                                        List<Integer> measures, int numberOfGroups) {
         return null;
     }
 

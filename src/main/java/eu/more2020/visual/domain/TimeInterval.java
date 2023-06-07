@@ -6,6 +6,9 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import eu.more2020.visual.index.TimeSeriesSpan;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,14 +29,21 @@ public interface TimeInterval extends Comparable<TimeInterval> {
      */
     long getTo();
 
+    default String getFromDate(String format) {
+        return Instant.ofEpochMilli(getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+    }
 
-    String getFromDate();
+    default String getFromDate() {
+        return getFromDate("yyyy-MM-dd HH:mm:ss");
+    }
 
-    String getToDate();
+    default String getToDate() {
+        return getToDate("yyyy-MM-dd HH:mm:ss");
+    }
 
-    String getFromDate(String format);
-
-    String getToDate(String format);
+    default String getToDate(String format) {
+        return Instant.ofEpochMilli(getTo()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
+    }
 
     default long length() {
         return getTo() - getFrom();
@@ -41,9 +51,8 @@ public interface TimeInterval extends Comparable<TimeInterval> {
 
 
     default boolean contains(long x) {
-        return (getFrom() > x && getTo() < x) || getFrom() == x || getTo() == x;
+        return getFrom() <= x && getTo() > x;
     }
-
 
     /**
      * Returns if this interval is adjacent to the specified interval.
@@ -60,6 +69,7 @@ public interface TimeInterval extends Comparable<TimeInterval> {
     default boolean overlaps(TimeInterval other) {
         return getTo() > other.getFrom() && other.getTo() > getFrom();
     }
+
 
     default boolean encloses(TimeInterval other) {
         return (getFrom() <= (other.getFrom()) && this.getTo() >= (other.getTo()));
@@ -107,6 +117,10 @@ public interface TimeInterval extends Comparable<TimeInterval> {
         return ImmutableRangeSet.of(thisRange).difference(otherRangeSet).asRanges().stream()
                 .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint()))
                 .collect(Collectors.toList());
+    }
+
+    default String getIntervalString() {
+        return "[" + Instant.ofEpochMilli(getFrom()) + " (" + getFrom() + "), " + Instant.ofEpochMilli(getTo()) + " (" + getTo() + "))";
     }
 
 }

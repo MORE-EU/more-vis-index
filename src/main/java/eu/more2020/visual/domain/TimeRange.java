@@ -69,10 +69,8 @@ public class TimeRange implements Serializable, TimeInterval {
 
     @Override
     public String toString() {
-        return "TimeRange{" +
-                "from=" + getFromDate() +
-                ", to=" + getToDate() +
-                ", " + from  + " " + to +
-                '}';
+        return "[" + getFromDate() + "(" + getFrom() + ")"+
+                ", " + getToDate() + "(" + getTo() + ")" +
+                ')';
     }
 }

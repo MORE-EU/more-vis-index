@@ -1,9 +1,11 @@
 package eu.more2020.visual.domain;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-public class AggregateInterval {
+public class AggregateInterval implements Comparable<AggregateInterval> {
     private long interval;
     private ChronoUnit chronoUnit;
 
@@ -20,16 +22,22 @@ public class AggregateInterval {
         return chronoUnit;
     }
 
-    public Duration toDuration(){
+    public Duration toDuration() {
         return Duration.of(interval, chronoUnit);
     }
 
     @Override
     public String toString() {
         return "AggregateInterval{" +
-                 interval +
-                 " " +
-                 chronoUnit +
+                interval +
+                " " +
+                chronoUnit +
                 '}';
     }
+
+    @Override
+    public int compareTo(@NotNull AggregateInterval o) {
+        return Long.compare(this.toDuration().toMillis(), o.toDuration().toMillis());
+    }
+
 }

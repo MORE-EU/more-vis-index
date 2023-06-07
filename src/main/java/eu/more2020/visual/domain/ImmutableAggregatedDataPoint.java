@@ -1,19 +1,24 @@
 package eu.more2020.visual.domain;
 
 
-import eu.more2020.visual.util.DateTimeUtil;
-
-import java.util.Arrays;
-
 /**
  * Represents a single, immutable multi-measure data point with a number of values and a timestamp.
  */
 public class ImmutableAggregatedDataPoint implements AggregatedDataPoint {
 
     /**
-     * The timestamp of the first data point.
+     * Creates a new ImmutableAggregatedDataPoint from the given AggregatedDataPoint.
      */
-    private final long timestamp;
+    public static ImmutableAggregatedDataPoint fromAggregatedDataPoint(AggregatedDataPoint aggregatedDataPoint) {
+        return new ImmutableAggregatedDataPoint(aggregatedDataPoint.getFrom(), aggregatedDataPoint.getTo(), aggregatedDataPoint.getStats());
+    }
+
+    // The start timestamp of this data point (inclusive)
+    private final long from;
+
+    // The end timestamp of this data point (exclusive)
+    private final long to;
+
 
     /**
      * An array of double values, corresponding to a set of measures.
@@ -24,20 +29,33 @@ public class ImmutableAggregatedDataPoint implements AggregatedDataPoint {
 
 
     /**
-     * Creates a new data point with a timestamp and an array of values.
-     *
-     * @param timestamp A timestamp.
-     * @param stats    The data point statistics.
+     * Creates a new ImmutableAggregatedDataPoint with the given from, to, and stats.
+     * @param from The start timestamp (inclusive)
+     * @param to The end timestamp (exclusive)
+     * @param stats The stats of this aggregated data point
      */
-    public ImmutableAggregatedDataPoint(final long timestamp, final Stats stats) {
-        this.timestamp = timestamp;
+    public ImmutableAggregatedDataPoint(final long from, final long to, final Stats stats) {
+        this.from = from;
+        this.to = to;
         this.stats = stats;
+
     }
 
     @Override
     public long getTimestamp() {
-        return timestamp;
+        return from;
     }
+
+    @Override
+    public long getFrom() {
+        return from;
+    }
+
+    @Override
+    public long getTo() {
+        return to;
+    }
+
 
     @Override
     public double[] getValues() {
@@ -52,6 +70,14 @@ public class ImmutableAggregatedDataPoint implements AggregatedDataPoint {
     @Override
     public Stats getStats() {
         return stats;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "from=" + getFrom() +
+                ", to=" + getTo() +
+                '}';
     }
 
 }

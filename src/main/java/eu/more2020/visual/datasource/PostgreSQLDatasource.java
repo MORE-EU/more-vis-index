@@ -3,9 +3,7 @@ import com.google.common.collect.Iterators;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.PostgreSQLDataset;
 import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
-import eu.more2020.visual.domain.Query.SQLQuery;
-import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
-import eu.more2020.visual.util.DateTimeUtil;
+import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -29,8 +27,8 @@ public class PostgreSQLDatasource implements DataSource{
 
     @Override
     public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
-                                                              List<Integer> measures, AggregateInterval aggregateInterval) {
-        return new PostgreSQLDatasource.SQLAggregatedDataPoints(from, to, ranges, measures, aggregateInterval);
+                                                              List<Integer> measures, int numberOfGroups) {
+        return new SQLAggregatedDataPoints(from, to, ranges, measures, numberOfGroups);
     }
 
     @Override
@@ -50,7 +48,7 @@ public class PostgreSQLDatasource implements DataSource{
 
     /**
      * Represents a series of {@link SQLDataPoints} instances.
-     * The iterator returned from this class accesses the Parquet files as the data points are requested.
+     * The iterator returned from this class accesses the SQL database to request the data points.
      */
     final class SQLDataPoints implements DataPoints {
 
@@ -124,17 +122,13 @@ public class PostgreSQLDatasource implements DataSource{
         private AggregateInterval aggregateInterval;
 
 
-        public SQLAggregatedDataPoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
-            int width = (int) ((to - from) / aggregateInterval.toDuration().toMillis());
-            this.sqlQuery = new SQLQuery(from, to, measures, new ViewPort(width, 0));
-            this.aggregateInterval = aggregateInterval;
+        public SQLAggregatedDataPoints(long from, long to, List<Integer> measures, int numberOfGroups) {
+            this.sqlQuery = new SQLQuery(from, to, measures, numberOfGroups);
         }
 
         public SQLAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
-                                       List<Integer> measures, AggregateInterval aggregateInterval) {
-            int width = DateTimeUtil.numberOfIntervals(from, to, aggregateInterval, null) - 1;
-            this.sqlQuery = new SQLQuery(from, to, ranges, measures, new ViewPort(width, 0));
-            this.aggregateInterval = aggregateInterval;
+                                       List<Integer> measures, int numberOfGroups) {
+            this.sqlQuery = new SQLQuery(from, to, ranges, measures, numberOfGroups);
         }
 
         @NotNull
@@ -143,7 +137,7 @@ public class PostgreSQLDatasource implements DataSource{
             try {
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
                 ResultSet resultSet = sqlQueryExecutor.executeM4MultiSqlQuery(sqlQuery);
-                return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getMeasures(), resultSet);
+                return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getMeasures(), resultSet, aggregateInterval);
             }
             catch(SQLException e) {
                 e.printStackTrace();

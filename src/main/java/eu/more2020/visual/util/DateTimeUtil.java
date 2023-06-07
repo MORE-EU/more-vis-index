@@ -180,14 +180,13 @@ public class DateTimeUtil {
      * @param viewPort  A viewport object that contains information about the chart that the user is visualizing
      * @return A Duration
      */
-    public static Duration M4(long from, long to, ViewPort viewPort) {
-        int noOfGroups = viewPort.getWidth();
-        long millisInRange = Duration.of(to - from, ChronoUnit.MILLIS).toMillis() / noOfGroups;
+    public static Duration M4(long from, long to, int width) {
+        long millisInRange = Duration.of(to - from, ChronoUnit.MILLIS).toMillis() / width;
         return Duration.of(millisInRange, ChronoUnit.MILLIS);
     }
 
-    public static AggregateInterval M4Interval(long from, long to, ViewPort viewPort){
-        Duration duration = M4(from, to, viewPort);
+    public static AggregateInterval M4Interval(long from, long to, int width){
+        Duration duration = M4(from, to, width);
         return aggregateInterval(duration);
     }
 

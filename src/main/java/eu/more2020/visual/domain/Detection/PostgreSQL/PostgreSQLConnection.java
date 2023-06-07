@@ -1,6 +1,6 @@
 package eu.more2020.visual.domain.Detection.PostgreSQL;
 
-import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

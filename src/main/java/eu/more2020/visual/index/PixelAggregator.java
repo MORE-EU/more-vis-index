@@ -1,6 +1,6 @@
+/*
 package eu.more2020.visual.index;
 
-import com.beust.ah.A;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
@@ -20,9 +20,11 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
     private final PixelStatsAggregator statsAggregator;
     private StatsAggregator globalStatsAggregator;
 
-    /**
+    */
+/**
      * The start date time value of the current pixel.
-     */
+     *//*
+
     private ZonedDateTime currentPixel;
     private ZonedDateTime firstPixel;
     private ZonedDateTime lastPixel;
@@ -30,9 +32,11 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
     private ZonedDateTime prevSubPixel;
     private ZonedDateTime currentSubPixel;
 
-    /**
+    */
+/**
      * The start date time value of the next pixel.
-     */
+     *//*
+
     private ZonedDateTime nextPixel;
 
     private PixelAggregatedDataPoint aggregatedDataPoint, prevAggregatedDataPoint = null;
@@ -125,11 +129,13 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         return current < size;
     }
 
-    /**
+    */
+/**
      * Collects all aggregated datapoints that belong to the current pixel column.
      * If there is a partial interval it handles its datapoints by opening it up and only keeping those that belong in this pixel column.
      * @return This stats aggregator, based on current pixel.
-     */
+     *//*
+
     @Override
     public PixelAggregatedDataPoint next() {
         statsAggregator.clear();
@@ -317,3 +323,4 @@ public class PixelAggregator implements Iterator<PixelAggregatedDataPoint>, Pixe
         }
     }
 }
+*/

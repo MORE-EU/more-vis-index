@@ -5,15 +5,12 @@ import com.influxdb.query.FluxTable;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
-import eu.more2020.visual.domain.Query.InfluxDBQuery;
-import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
-import eu.more2020.visual.util.DateTimeUtil;
+import eu.more2020.visual.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -42,8 +39,8 @@ public class InfluxDBDatasource implements DataSource {
 
     @Override
     public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
-                                                        List<Integer> measures, AggregateInterval aggregateInterval) {
-        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, ranges, measures, aggregateInterval);
+                                                        List<Integer> measures, int numberOfGroups) {
+        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, ranges, measures, numberOfGroups);
     }
 
     final class InfluxDBDatapoints implements DataPoints {
@@ -109,19 +106,16 @@ public class InfluxDBDatasource implements DataSource {
     final class InfluxDBAggregatedDatapoints implements AggregatedDataPoints {
 
         private final InfluxDBQuery influxDBQuery;
-        private AggregateInterval aggregateInterval;
 
-        public InfluxDBAggregatedDatapoints(long from, long to, List<Integer> measures, AggregateInterval aggregateInterval) {
+        public InfluxDBAggregatedDatapoints(long from, long to, List<Integer> measures, int numberOfGroups) {
             List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            this.influxDBQuery = new InfluxDBQuery(from, to, measures, measureNames, aggregateInterval);
-            this.aggregateInterval = aggregateInterval;
+            this.influxDBQuery = new InfluxDBQuery(from, to, measures, measureNames, numberOfGroups);
         }
 
         public InfluxDBAggregatedDatapoints(long from, long to, List<TimeInterval> ranges,
-                                            List<Integer> measures, AggregateInterval aggregateInterval) {
+                                            List<Integer> measures, int numberOfGroups) {
             List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            this.influxDBQuery = new InfluxDBQuery(from, to, ranges, measures, measureNames, aggregateInterval);
-            this.aggregateInterval = aggregateInterval;
+            this.influxDBQuery = new InfluxDBQuery(from, to, ranges, measures, measureNames, numberOfGroups);
         }
 
         @NotNull
@@ -130,7 +124,7 @@ public class InfluxDBDatasource implements DataSource {
             InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName(), dataset.getHeader());
             List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4MultiInfluxQuery(influxDBQuery);
             if(fluxTables.size() == 0) return Collections.emptyIterator();
-            return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0));
+            return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0), influxDBQuery.getNumberOfGroups());
 
         }
 

@@ -1,32 +1,29 @@
-package eu.more2020.visual.domain.QueryExecutor;
+package eu.more2020.visual.datasource.QueryExecutor;
 
-import com.influxdb.client.*;
+import com.influxdb.client.DeleteApi;
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.QueryApi;
+import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
-
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import eu.more2020.visual.domain.AggregateInterval;
+import eu.more2020.visual.datasource.DataSourceQuery;
+import eu.more2020.visual.datasource.InfluxDBQuery;
 import eu.more2020.visual.domain.InfluxDB.InitQueries.*;
-import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.QueryResults;
 import eu.more2020.visual.domain.UnivariateDataPoint;
-import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class InfluxDBQueryExecutor implements QueryExecutor {
@@ -50,7 +47,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public QueryResults execute(AbstractQuery q, QueryMethod method) {
+    public QueryResults execute(DataSourceQuery q, QueryMethod method) {
         switch (method) {
             case M4:
                 return executeM4Query(q);
@@ -64,23 +61,23 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public QueryResults executeM4Query(AbstractQuery q) {
+    public QueryResults executeM4Query(DataSourceQuery q) {
         return collect(executeM4InfluxQuery((InfluxDBQuery) q));
     }
 
 
     @Override
-    public QueryResults executeM4MultiQuery(AbstractQuery q) throws SQLException {
+    public QueryResults executeM4MultiQuery(DataSourceQuery q) throws SQLException {
         return collect(executeM4MultiInfluxQuery((InfluxDBQuery) q));
     }
 
     @Override
-    public QueryResults executeM4OLAPQuery(AbstractQuery q) {
+    public QueryResults executeM4OLAPQuery(DataSourceQuery q) {
         return collect(executeM4OLAPQuery((InfluxDBQuery) q));
     }
 
     @Override
-    public QueryResults executeRawQuery(AbstractQuery q) {
+    public QueryResults executeRawQuery(DataSourceQuery q) {
         return collect(executeRawInfluxQuery((InfluxDBQuery) q));
     }
 
@@ -287,9 +284,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
         @Override
         public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
-            if (s1==null && s2==null) return 0;//swapping has no point here
-            if (s1==null) return  1;
-            if (s2==null) return -1;
+            if (s1 == null && s2 == null) return 0;//swapping has no point here
+            if (s1 == null) return 1;
+            if (s2 == null) return -1;
             return (int) (s1.getTimestamp() - s2.getTimestamp());
         }
     };
@@ -297,19 +294,19 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
 
         String flux = String.format(q.m4QuerySkeleton(),
-                (q.getFrom() % q.getAggregateInterval().toDuration().toMillis() +"ms"),
+                (q.getFrom() % q.getAggregateInterval() + "ms"),
                 bucket, q.getFromDate(), q.getToDate(), table, // first
                 bucket, q.getFromDate(), q.getToDate(), table, // last
                 bucket, q.getFromDate(), q.getToDate(), table, // min
-                bucket, q.getFromDate(), q.getToDate(), table ); // max
+                bucket, q.getFromDate(), q.getToDate(), table); // max
         return execute(flux);
     }
 
-    public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQuery q){
+    public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval().toDuration().toMillis() +"ms"));
-        for(int i = 0; i < q.getRanges().size(); i ++){
-            for(int j = 0; j < 4; j++) {
+        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
+        for (int i = 0; i < q.getRanges().size(); i++) {
+            for (int j = 0; j < 4; j++) {
                 args.add(bucket);
                 args.add(table);
             }
@@ -324,12 +321,12 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     public List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q) {
-                String flux = String.format(q.rawQuerySkeleton(),
+        String flux = String.format(q.rawQuerySkeleton(),
                 bucket, q.getFromDate(), q.getToDate(), table);
         return execute(flux);
     }
 
-    private QueryResults collect(List<FluxTable> tables){
+    private QueryResults collect(List<FluxTable> tables) {
         QueryResults queryResults = new QueryResults();
         HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
         for (FluxTable fluxTable : tables) {

@@ -1,19 +1,14 @@
 package eu.more2020.visual.index;
 
-import com.google.common.collect.ImmutableRangeSet;
-import com.google.common.collect.RangeSet;
-import com.google.common.collect.TreeRangeSet;
 import eu.more2020.visual.datasource.DataSource;
 import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
-import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.util.DateTimeUtil;
+import eu.more2020.visual.domain.Query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -47,39 +42,255 @@ public class TTI {
         intervalTree = new IntervalTree<>();
     }
 
-    public QueryResults executeQuery(AbstractQuery query) {
+    class SpanIteratorPair {
+        TimeSeriesSpan span;
+        AggregatedDataPoint aggregatedDataPoint;
+        Iterator<AggregatedDataPoint> iterator;
+
+        SpanIteratorPair(TimeSeriesSpan span, AggregatedDataPoint aggregatedDataPoint, Iterator<AggregatedDataPoint> iterator) {
+            this.span = span;
+            this.aggregatedDataPoint = aggregatedDataPoint;
+            this.iterator = iterator;
+        }
+    }
+
+    public QueryResults executeQuery(Query query) {
         long from = query.getFrom();
         long to = query.getTo();
-        float accuracy = query.getAccuracy();
+        QueryResults queryResults = new QueryResults();
         ViewPort viewPort = query.getViewPort();
-        AggregateInterval pixelColumnInterval = DateTimeUtil.M4Interval(from, to, viewPort);
+        long pixelColumnInterval = (to - from) / viewPort.getWidth();
+        LOG.debug("Pixel column interval: " + pixelColumnInterval + " ms");
         List<Integer> measures = Optional.ofNullable(query.getMeasures()).orElse(dataset.getMeasures());
 
-        QueryResults queryResults = new QueryResults();
+
+        List<PixelColumn> pixelColumns = new ArrayList<>();
+        LOG.debug("Creating pixel columns for view port: " + viewPort);
+        for (long i = 0; i < viewPort.getWidth(); i++) {
+            long pixelFrom = from + (i * pixelColumnInterval);
+            long pixelTo = pixelFrom + pixelColumnInterval;
+            PixelColumn pixelColumn = new PixelColumn(pixelFrom, pixelTo, measures);
+            pixelColumns.add(pixelColumn);
+        }
+
+        // Query the interval tree for all spans that overlap the query interval.
+        List<TimeSeriesSpan> overlappingSpans = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
+                // Filter out spans with aggregate interval larger than the pixel column interval.
+                // This way, each of the groups of the resulting spans will overlap at most two pixel columns.
+                .filter(span -> span.getAggregateInterval() <= pixelColumnInterval)
+                .collect(Collectors.toList());
 
 
-        List<TimeSeriesSpan> overlappingSpans = getOverlappingSpans(query, pixelColumnInterval);
+        // Find the part of the query interval that is not covered by the spans in the interval tree.
         List<TimeInterval> missingIntervals = query.difference(overlappingSpans);
-
         LOG.info("Missing from query: " + missingIntervals);
 
+        // Fetch the missing data from the data source.
         if (missingIntervals.size() >= 1) {
+            LOG.info("Fetching missing data from data source");
             AggregatedDataPoints dataPoints =
-                    dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, pixelColumnInterval);
-            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, missingIntervals, pixelColumnInterval);
+                    dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, viewPort.getWidth());
+            LOG.info("Fetched missing data from data source");
+            // Create time series spans from the missing data and insert them into the interval tree.
+            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, missingIntervals, viewPort.getWidth());
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
             intervalTree.insertAll(timeSeriesSpans);
             overlappingSpans.addAll(timeSeriesSpans);
-            overlappingSpans.sort(Comparator.comparing(TimeSeriesSpan::getFrom)); // Sort intervals
+            LOG.info("Inserted new time series spans into interval tree");
         }
 
-        MultiSpanIterator<TimeSeriesSpan> multiSpanIterator = new MultiSpanIterator(overlappingSpans.iterator());
+        // Create a priority queue storing the SpanIteratorPair, and
+        // populate it with the first data point from each span's iterator.
+        PriorityQueue<SpanIteratorPair> queue = new PriorityQueue<>(
+                Comparator.comparing((SpanIteratorPair pair) -> pair.aggregatedDataPoint.getTimestamp())
+                        .thenComparingLong(pair -> pair.span.getAggregateInterval()));
+
+        for (
+                TimeSeriesSpan span : overlappingSpans) {
+            Iterator<AggregatedDataPoint> iterator = span.iterator(from, to);
+            if (iterator.hasNext()) {
+                queue.add(new SpanIteratorPair(span, iterator.next(), iterator));
+            }
+        }
+
+        // currentTime is the end timestamp of the last data point that was processed.
+        long currentTime = -1;
+        TimeSeriesSpan lastSpanUsed = null;
+
+        // Repeatedly pull from the queue, getting the earliest next data point from the
+        // span with the smallest aggregation interval.
+        while (!queue.isEmpty()) {
+            SpanIteratorPair pair = queue.poll();
+            Iterator<AggregatedDataPoint> iterator = pair.iterator;
+            AggregatedDataPoint aggregatedDataPoint = pair.aggregatedDataPoint;
+            Stats stats = aggregatedDataPoint.getStats();
+            TimeSeriesSpan span = pair.span;
+
+//            LOG.debug("Processing data point with timestamp: " + aggregatedDataPoint.getTimestamp() + ", aggregation interval: " + aggregatedDataPoint.getAggregateInterval() + ", and count: " + stats.getCount());
+
+//            while (pair.aggregatedDataPoint.getTimestamp() > currentTime) {
+//
+//            }
+
+            if (lastSpanUsed != null && aggregatedDataPoint.getTimestamp() < currentTime && span.getAggregateInterval() < lastSpanUsed.getAggregateInterval()) {
+                // If the data point is before currentTime, and the aggregation interval is greater than or equal to the last span used,
+                // then we can skip this data point and continue to the next one.
+                LOG.debug("Skipping data point with timestamp: " + aggregatedDataPoint.getTimestamp() + " and aggregation interval: " + span.getAggregateInterval());
+                continue;
+            }
 
 
-        PixelAggregator pixelAggregator = new PixelAggregator(multiSpanIterator, from, to, measures, pixelColumnInterval, viewPort);
-        Map<Integer, List<UnivariateDataPoint>> data = getData(pixelAggregator, measures);
-        Map<Integer, Double> error = getError(pixelAggregator, measures);
-        /*boolean reEvaluate = false;
+            int pixelColumnIndex = getPixelColumnForTimestamp(aggregatedDataPoint.getFrom(), from, to, viewPort.getWidth());
+            if (pixelColumnIndex < viewPort.getWidth()) {/* && pixelColumns.get(pixelColumnIndex).overlaps(aggregatedDataPoint)) {*/
+                pixelColumns.get(pixelColumnIndex).addAggregatedDataPoint(aggregatedDataPoint);
+            }
+            if (pixelColumnIndex < viewPort.getWidth() - 1 && pixelColumns.get(pixelColumnIndex + 1).overlaps(aggregatedDataPoint)) {
+                // If the next pixel column overlaps the data point, then we need to add the data point to the next pixel column as well.
+                pixelColumns.get(pixelColumnIndex + 1).addAggregatedDataPoint(aggregatedDataPoint);
+            }
+
+/*            if (aggregatedDataPoint.getStats().getCount() != 0) {
+                for (int measure : measures) {
+                    UnivariateDataPoint minPoint = new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure));
+                    if (getPixelColumnForTimestamp(minPoint.getTimestamp(), from, to, viewPort.getWidth(), pixelColumnInterval) < viewPort.getWidth() &&
+                            pixelColumns.get(getPixelColumnForTimestamp(minPoint.getTimestamp(), from, to, viewPort.getWidth(), pixelColumnInterval)).contains(stats.getMinTimestamp(measure))) {
+//                        LOG.debug("Adding MIN data point with timestamp: " + minPoint.getTimestamp() + " and value: " + minPoint.getValue());
+                        pixelColumns.get(getPixelColumnForTimestamp(minPoint.getTimestamp(), from, to, viewPort.getWidth(), pixelColumnInterval)).addDataPoint(minPoint, measure);
+                    }
+                    UnivariateDataPoint maxPoint = new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure));
+                    if (getPixelColumnForTimestamp(maxPoint.getTimestamp(), from, to, viewPort.getWidth(), pixelColumnInterval) < viewPort.getWidth() &&
+                            pixelColumns.get(getPixelColumnForTimestamp(maxPoint.getTimestamp(), from, to, viewPort.getWidth(), pixelColumnInterval)).contains(stats.getMaxTimestamp(measure))) {
+//                        LOG.debug("Adding MIN data point with timestamp: " + minPoint.getTimestamp() + " and value: " + minPoint.getValue());
+                        pixelColumns.get(getPixelColumnForTimestamp(maxPoint.getTimestamp(), from, to, viewPort.getWidth(), pixelColumnInterval)).addDataPoint(maxPoint, measure);
+                    }
+
+                }
+            }*/
+
+            // Update currentTime to the end of the current data point's covered time
+            currentTime = pair.aggregatedDataPoint.getTo();
+
+            // Update lastSpanUsed to the span that was just used
+            lastSpanUsed = span;
+
+            // If the iterator has more data points, add the next one to the queue.
+            if (iterator.hasNext()) {
+                queue.add(new SpanIteratorPair(span, iterator.next(), iterator));
+            }
+        }
+
+/*        // If currentTime is still less than the end of the query interval, then we need to fetch more data from the data source.
+        while (currentTime < to) {
+        }*/
+
+
+    /*boolean reEvaluate = false;
+        for (double v : error.values()) {
+            if (v > 0.05) {
+                reEvaluate = true;
+                break;
+            }
+        }
+        if (reEvaluate) {
+            missingIntervals = new ArrayList<>();
+            missingIntervals.add(new TimeRange(from, to));
+            subInterval = new AggregateInterval((subInterval.getInterval() / 2), subInterval.getChronoUnit());
+            AggregatedDataPoints dataPoints =
+                    dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, subInterval);
+            timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, ttiQueryResults.getMissingIntervals(), subInterval);
+            timeSeriesSpans.forEach(t -> ioCount[0] += (Arrays.stream(t.getCounts()).sum()));
+            intervalTree.insertAll(timeSeriesSpans);
+            continue;
+        }*/
+        Map<Integer, List<UnivariateDataPoint>> resultData = new HashMap<>();
+        for (
+                int measure : measures) {
+            List<UnivariateDataPoint> dataPoints = new ArrayList<>();
+            for (PixelColumn pixelColumn : pixelColumns) {
+                LOG.debug("Pixel column: " + pixelColumn);
+                UnivariateDataPoint firstPoint = pixelColumn.getFirstPoints().get(measure);
+                UnivariateDataPoint minPoint = pixelColumn.getMinPoints().get(measure);
+                UnivariateDataPoint maxPoint = pixelColumn.getMaxPoints().get(measure);
+                UnivariateDataPoint lastPoint = pixelColumn.getLastPoints().get(measure);
+                if (firstPoint != null) {
+                    dataPoints.add(firstPoint);
+                    if (minPoint.getTimestamp() < maxPoint.getTimestamp()) {
+                        dataPoints.add(minPoint);
+                        dataPoints.add(maxPoint);
+                    } else {
+                        dataPoints.add(maxPoint);
+                        dataPoints.add(minPoint);
+                    }
+                    dataPoints.add(lastPoint);
+                }
+            }
+            resultData.put(measure, dataPoints);
+        }
+        queryResults.setData(resultData);
+
+        Map<Integer, Double> error = new HashMap<>();
+        for (
+                Integer measure : measures) {
+            error.put(measure, 0d);
+        }
+        queryResults.setError(error);
+        return queryResults;
+    }
+
+    /*public QueryResults executeQuery(AbstractQuery query) {
+        long from = query.getFrom();
+        long to = query.getTo();
+        QueryResults queryResults = new QueryResults();
+        ViewPort viewPort = query.getViewPort();
+
+        List<Integer> measures = Optional.ofNullable(query.getMeasures()).orElse(dataset.getMeasures());
+
+
+
+        List<PixelColumn> pixelColumns = createPixelColumns(from, to, viewPort.getWidth());
+        LOG.debug("Created pixel columns");
+
+        List<TimeSeriesSpan> overlappingSpans = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
+                .collect(Collectors.toList());
+
+        AggregateInterval pixelColumnInterval = DateTimeUtil.M4Interval(from, to,  viewPort.getWidth());
+
+
+        List<TimeInterval> missingIntervals = query.difference(overlappingSpans);
+        LOG.info("Missing from query: " + missingIntervals);
+
+        if (missingIntervals.size() >= 1) {
+            LOG.info("Fetching missing data from data source");
+            AggregatedDataPoints dataPoints =
+                    dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, pixelColumnInterval);
+            LOG.info("Fetched missing data from data source");
+            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, missingIntervals, pixelColumnInterval);
+            LOG.info("Created time series spans for fetched data");
+            timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
+            intervalTree.insertAll(timeSeriesSpans);
+            overlappingSpans.addAll(timeSeriesSpans);
+            LOG.info("Inserted new time series spans into interval tree");
+        }
+
+
+
+        for (TimeSeriesSpan span : overlappingSpans) {
+            LOG.debug("Processing time series span: " + span);
+            for (int measure : measures) {
+                Iterator<UnivariateDataPoint> iterator = span.getMinMaxIterator(from, to, measure);
+                while (iterator.hasNext()) {
+                    UnivariateDataPoint point = iterator.next();
+                    PixelColumn pixelColumn = pixelColumns.get(getPixelColumnForTimestamp(point.getTimestamp(), from, to, viewPort.getWidth()));
+                    pixelColumn.addDataPoint(point, measure);
+                }
+            }
+        }
+
+
+
+        *//*boolean reEvaluate = false;
             for (double v : error.values()) {
                 if (v > 0.05) {
                     reEvaluate = true;
@@ -96,14 +307,49 @@ public class TTI {
                 timeSeriesSpans.forEach(t -> ioCount[0] += (Arrays.stream(t.getCounts()).sum()));
                 intervalTree.insertAll(timeSeriesSpans);
                 continue;
-            }*/
-        queryResults.setData(data);
+            }*//*
+        Map<Integer, List<UnivariateDataPoint>> resultData = new HashMap<>();
+        for (int measure : measures) {
+            List<UnivariateDataPoint> dataPoints = new ArrayList<>();
+            for (PixelColumn pixelColumn : pixelColumns) {
+                UnivariateDataPoint firstPoint = pixelColumn.getFirstPoints().get(measure);
+                UnivariateDataPoint minPoint = pixelColumn.getMinPoints().get(measure);
+                UnivariateDataPoint maxPoint = pixelColumn.getMaxPoints().get(measure);
+                UnivariateDataPoint lastPoint = pixelColumn.getLastPoints().get(measure);
+                if (firstPoint != null) {
+                    dataPoints.add(firstPoint);
+                    if (minPoint.getTimestamp() < maxPoint.getTimestamp()) {
+                        dataPoints.add(minPoint);
+                        dataPoints.add(maxPoint);
+                    } else {
+                        dataPoints.add(maxPoint);
+                        dataPoints.add(minPoint);
+                    }
+                    dataPoints.add(lastPoint);
+                }
+            }
+            resultData.put(measure, dataPoints);
+        }
+        queryResults.setData(resultData);
+
+        Map<Integer, Double> error = new HashMap<>();
+        for (Integer measure : measures) {
+            error.put(measure, 0d);
+        }
         queryResults.setError(error);
         return queryResults;
+    }*/
+
+
+    private int getPixelColumnForTimestamp(long timestamp, long from, long to, int width) {
+/*        if (timestamp == to) {
+            return width - 1;
+        } else {*/
+        return (int) ((double) width * (timestamp - from) / (to - from));
     }
 
 
-    private List<TimeSeriesSpan> getOverlappingSpans(AbstractQuery query, AggregateInterval pixelColumnInterval) {
+/*    private List<TimeSeriesSpan> getOverlappingSpans(AbstractQuery query, AggregateInterval pixelColumnInterval) {
         ImmutableRangeSet<Long>[] currentDifference = new ImmutableRangeSet[]{ImmutableRangeSet.of(TimeInterval.toGuavaRange(query))};
         RangeSet<Long> rangeSet = TreeRangeSet.create();
         // Sort overlapping spans, by their query coverage. Then find which are the ones covering the whole range, and
@@ -128,8 +374,9 @@ public class TTI {
 
         overlappingSpans.sort((i1, i2) -> (int) (i1.getFrom() - i2.getFrom())); // Sort intervals
         return overlappingSpans;
-    }
+    }*/
 
+/*
     public Map<Integer, List<UnivariateDataPoint>> getData(PixelAggregator pixelAggregator, List<Integer> measures) {
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
@@ -151,8 +398,9 @@ public class TTI {
         data.forEach((k, v) -> v.sort(compareLists));
         return data;
     }
+*/
 
-
+/*
     public Map<Integer, Double> getError(PixelAggregator pixelAggregator, List<Integer> measures) {
         Map<Integer, Double> error = new HashMap<>(measures.size());
         int i = 0;
@@ -162,7 +410,7 @@ public class TTI {
             i++;
         }
         return error;
-    }
+    }*/
 
     /**
      * Calculates the deep memory size of this instance.

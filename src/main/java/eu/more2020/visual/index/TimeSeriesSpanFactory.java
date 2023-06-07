@@ -2,6 +2,8 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -10,13 +12,12 @@ import java.util.List;
 
 public class TimeSeriesSpanFactory {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TimeSeriesSpanFactory.class);
+
     //TODO: Handle first and last tuples for database results
 
-    /**
-     * @param dataPoints
-     * @param aggregateInterval
-     */
-    public static TimeSeriesSpan createFromRaw(DataPoints dataPoints, AggregateInterval aggregateInterval) {
+
+/*    public static TimeSeriesSpan createFromRaw(DataPoints dataPoints, AggregateInterval aggregateInterval) {
         TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan(dataPoints, aggregateInterval);
         TimeAggregator timeAggregator = new TimeAggregator(dataPoints, aggregateInterval);
         timeAggregator.getCount();
@@ -31,10 +32,10 @@ public class TimeSeriesSpanFactory {
             i++;
         }
         return timeSeriesSpan;
-    }
+    }*/
 
     public static List<TimeSeriesSpan> create(AggregatedDataPoints aggregatedDataPoints,
-                                             List<TimeInterval> ranges, AggregateInterval aggregateInterval){
+                                             List<TimeInterval> ranges, int spanSize){
         List<TimeSeriesSpan> spans = new ArrayList<>();
         Iterator<AggregatedDataPoint> it = aggregatedDataPoints.iterator();
         boolean changed = false;
@@ -42,8 +43,7 @@ public class TimeSeriesSpanFactory {
 
         for (TimeInterval range : ranges) {
             TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan(range.getFrom(), range.getTo(),
-                    aggregatedDataPoints.getMeasures(), aggregateInterval);
-            timeSeriesSpan.setFrom(range.getFrom());
+                    aggregatedDataPoints.getMeasures(), spanSize);
 
             int intervals = timeSeriesSpan.getSize();
             while(it.hasNext()){
@@ -57,6 +57,8 @@ public class TimeSeriesSpanFactory {
                 timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
             }
             spans.add(timeSeriesSpan);
+            LOG.info("Created time series span:" + timeSeriesSpan);
+
         }
         return spans;
     }

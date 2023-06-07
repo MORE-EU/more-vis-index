@@ -15,9 +15,12 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     private boolean changed = false;
     private int currentGroup = -1, group = 0;
 
-    public PostgreSQLAggregateDataPointsIterator(List<Integer> measures, ResultSet resultSet){
+    private AggregateInterval aggregateInterval;
+
+    public PostgreSQLAggregateDataPointsIterator(List<Integer> measures, ResultSet resultSet, AggregateInterval aggregateInterval){
         this.measures = measures;
         this.resultSet = resultSet;
+        this.aggregateInterval = aggregateInterval;
     }
 
     @Override
@@ -58,8 +61,8 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
             e.printStackTrace();
         }
         currentGroup = group;
-        return new ImmutableAggregatedDataPoint(firstTimestamp, statsAggregator);
+        long to = firstTimestamp + aggregateInterval.toDuration().toMillis();
+        return new ImmutableAggregatedDataPoint(firstTimestamp, to, statsAggregator);
     }
-
 
 }

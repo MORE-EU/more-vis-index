@@ -3,15 +3,12 @@ package eu.more2020.visual.domain.InfluxDB;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
-import eu.more2020.visual.domain.QueryExecutor.InfluxDBQueryExecutor;
-import eu.more2020.visual.domain.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 

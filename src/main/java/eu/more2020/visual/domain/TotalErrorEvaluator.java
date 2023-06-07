@@ -1,15 +1,8 @@
 package eu.more2020.visual.domain;
 import com.google.common.collect.*;
 
-import javax.swing.text.View;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TotalErrorEvaluator {
 
@@ -29,7 +22,7 @@ public class TotalErrorEvaluator {
 
     public void accept(PixelAggregatedDataPoint pixelAggregatedDataPoint,
                        PixelColumn current, PixelColumn previous, PixelColumn next) {
-        if(pixelAggregatedDataPoint.getCount() != 0){
+        /*if(pixelAggregatedDataPoint.getCount() != 0){
             PixelStatsAggregator pixelStatsAggregator = (PixelStatsAggregator) (pixelAggregatedDataPoint.getStats());
             int i = 0;
             for (int m : measures) {
@@ -56,7 +49,7 @@ public class TotalErrorEvaluator {
                 }
                 i ++;
             }
-        }
+        }*/
     }
 
     private void computeError(List<Range<Integer>> falseData,

@@ -1,18 +1,15 @@
 package eu.more2020.visual.experiments.util;
 
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
-import eu.more2020.visual.domain.Query.AbstractQuery;
-import eu.more2020.visual.domain.Query.InfluxDBQuery;
 import eu.more2020.visual.domain.Query.Query;
-import eu.more2020.visual.domain.Query.SQLQuery;
+import eu.more2020.visual.datasource.InfluxDBQuery;
+import eu.more2020.visual.datasource.SQLQuery;
 import eu.more2020.visual.domain.TimeRange;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import static eu.more2020.visual.experiments.util.UserOpType.*;
 
@@ -49,7 +46,7 @@ public class QuerySequenceGenerator {
         this.dataset = dataset;
     }
 
-    public List<AbstractQuery> generateQuerySequence(AbstractQuery q0, int count) {
+    public List<Query> generateQuerySequence(Query q0, int count) {
         Direction[] directions = Direction.getRandomDirections(count);
 //        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
         double[] shifts = new Random(seed).doubles(count, minShift, maxShift).toArray();
@@ -67,7 +64,7 @@ public class QuerySequenceGenerator {
         for (int i = 0; i < zoom_in; i++) ops.add(ZI);
         for (int i = 0; i < zoom_out; i++) ops.add(ZO);
 
-        List<AbstractQuery> queries = new ArrayList<>();
+        List<Query> queries = new ArrayList<>();
         queries.add(q0);
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
@@ -80,26 +77,16 @@ public class QuerySequenceGenerator {
             } else {
                 timeRange = pan(q0, shifts[i], directions[i]);
             }
-            AbstractQuery q = null;
-            if(q0 instanceof Query) {
-                q = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
-                        q0.getQueryMethod(), q0.getMeasures(),
-                        q0.getViewPort(), opType);
-            }
-            else if(q0 instanceof SQLQuery){
-                q = new SQLQuery(timeRange.getFrom(), timeRange.getTo(), q0.getMeasures(), q0.getViewPort(), opType);
-
-            }
-            else if(q0 instanceof InfluxDBQuery) {
-                q = new InfluxDBQuery(timeRange.getFrom(), timeRange.getTo(), ((InfluxDBQuery) q0).getMeasureNames(), q0.getViewPort(), opType);
-            }
+            Query q = q = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
+                    q0.getQueryMethod(), q0.getMeasures(),
+                    q0.getViewPort(), opType);
             queries.add(q);
         }
         return queries;
 
     }
 
-    private TimeRange pan(AbstractQuery query, double shift, Direction direction) {
+    private TimeRange pan(Query query, double shift, Direction direction) {
         long from = query.getFrom();
         long to = query.getTo();
         long timeShift = (long) ((to - from) * shift);
@@ -123,15 +110,15 @@ public class QuerySequenceGenerator {
     }
 
 
-    private TimeRange zoomOut(AbstractQuery query) {
+    private TimeRange zoomOut(Query query) {
         return zoom(query, zoomFactor);
     }
 
-    private TimeRange zoomIn(AbstractQuery query) {
+    private TimeRange zoomIn(Query query) {
         return zoom(query, 1f / zoomFactor);
     }
 
-    private TimeRange zoom(AbstractQuery query, float zoomFactor) {
+    private TimeRange zoom(Query query, float zoomFactor) {
         long from = query.getFrom();
         long to = query.getTo();
         float middle = (from + to) / 2f;

@@ -1,39 +1,23 @@
-package eu.more2020.visual.domain.Query;
+package eu.more2020.visual.datasource;
 
-import eu.more2020.visual.domain.TimeRange;
-import eu.more2020.visual.domain.ViewPort;
-import eu.more2020.visual.experiments.util.UserOpType;
+import eu.more2020.visual.domain.TimeInterval;
 
-import java.time.temporal.ChronoField;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SQLQuery extends AbstractQuery{
+public class SQLQuery extends DataSourceQuery {
 
-
-    public SQLQuery(long from, long to, List<Integer> measures, ViewPort viewPort, ChronoField groupByField) {
-        super(from, to, QueryMethod.M4, measures, viewPort, groupByField);
+    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, int numberOfGroups) {
+        super(from, to, ranges, measures, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<Integer> measures) {
-        this(from, to, measures, new ViewPort(800, 300));
+    public SQLQuery(long from, long to, List<Integer> measures, int numberOfGroups) {
+        super(from, to, null, measures, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<Integer> measures, ViewPort viewPort) {
-        super(from, to, QueryMethod.M4, measures, viewPort);
+    public SQLQuery(long from, long to, List<Integer> measures){
+        super(from, to, null, measures,  null);
     }
-
-    public SQLQuery(long from, long to, List<Integer> measures, ViewPort viewPort, UserOpType opType) {
-        super(from, to, QueryMethod.M4, measures, viewPort);
-        this.opType = opType;
-    }
-
-    public SQLQuery(long from, long to, List<TimeRange> ranges,
-                    List<Integer> measures, ViewPort viewPort) {
-        super(from, to, ranges, QueryMethod.M4, measures, viewPort);
-    }
-
 
     private String qM4Skeleton(){
        return "WITH Q_M AS (SELECT Q.id, epoch, value, k FROM :tableName as Q \n" +

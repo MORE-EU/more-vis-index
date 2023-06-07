@@ -9,11 +9,7 @@ import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
-import eu.more2020.visual.util.DateTimeUtil;
 
-import javax.management.openmbean.SimpleType;
-import java.time.Duration;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,7 +39,6 @@ public class RawTTI {
 
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
-        System.out.println(query);
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
