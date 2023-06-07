@@ -291,10 +291,12 @@ public class Experiments<T> {
             DataSourceQuery dataSourceQuery = null;
             switch (type) {
                 case "postgres":
-                    dataSourceQuery = new SQLQuery(startTime, endTime, measures, 1000);
+                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), query.getMeasures(), query.getViewPort().getWidth());
+                    break;
                 case "influx":
                     List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-                    dataSourceQuery = new InfluxDBQuery(startTime, endTime, measures, measureNames, 1000);
+                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), query.getMeasures(), measureNames, query.getViewPort().getWidth());
+                    break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
