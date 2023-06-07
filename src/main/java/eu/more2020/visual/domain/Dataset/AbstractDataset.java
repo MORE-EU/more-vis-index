@@ -26,7 +26,7 @@ public abstract class AbstractDataset implements Serializable {
     private String[] header;
     private String timeCol;
     private String timeFormat;
-    private String farmName;
+    private String schema;
     private TimeRange timeRange;
     private String type;
     List<DataFileInfo> fileInfoList = new ArrayList<>();
@@ -81,13 +81,6 @@ public abstract class AbstractDataset implements Serializable {
         this.timeFormat = timeFormat;
     }
 
-    public String getFarmName() {
-        return farmName;
-    }
-
-    public void setFarmName(String farmName) {
-        this.farmName = farmName;
-    }
 
     public String getName() {
         return name;
@@ -140,6 +133,10 @@ public abstract class AbstractDataset implements Serializable {
 
     public List<Integer> getMeasures(){return null;}
 
+    public String getSchema() {
+        return schema;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -154,23 +151,5 @@ public abstract class AbstractDataset implements Serializable {
     @Override
     public int hashCode() {
         return 31;
-    }
-
-    @Override
-    public String toString() {
-        return "AbstractDataset{" +
-                "samplingInterval=" + samplingInterval +
-                ", path='" + path + '\'' +
-                ", id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", resType=" + resType +
-                ", header=" + Arrays.toString(header) +
-                ", timeCol=" + timeCol +
-                ", timeFormat='" + timeFormat + '\'' +
-                ", farmName='" + farmName + '\'' +
-                ", timeRange=" + timeRange +
-                ", type='" + type + '\'' +
-                ", fileInfoList=" + fileInfoList +
-                '}';
     }
 }

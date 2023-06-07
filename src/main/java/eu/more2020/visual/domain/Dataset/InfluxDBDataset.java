@@ -84,10 +84,19 @@ public class InfluxDBDataset extends AbstractDataset {
                 .collect(Collectors.toList());
     }
 
-    public String getMeasurement(){return measurement;}
-    public String getBucket() {return bucket;}
     public String getConfig(){
         return influxDBCfg;
     }
+
+    @Override
+    public String getSchema(){
+        return bucket;
+    }
+
+    @Override
+    public String getName(){
+        return measurement;
+    }
+
 
 }

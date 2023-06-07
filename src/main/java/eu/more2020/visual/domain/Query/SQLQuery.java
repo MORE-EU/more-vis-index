@@ -2,6 +2,7 @@ package eu.more2020.visual.domain.Query;
 
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
+import eu.more2020.visual.experiments.util.UserOpType;
 
 import java.time.temporal.ChronoField;
 import java.util.HashMap;
@@ -21,6 +22,11 @@ public class SQLQuery extends AbstractQuery{
 
     public SQLQuery(long from, long to, List<Integer> measures, ViewPort viewPort) {
         super(from, to, QueryMethod.M4, measures, viewPort);
+    }
+
+    public SQLQuery(long from, long to, List<Integer> measures, ViewPort viewPort, UserOpType opType) {
+        super(from, to, QueryMethod.M4, measures, viewPort);
+        this.opType = opType;
     }
 
     public SQLQuery(long from, long to, List<TimeRange> ranges,

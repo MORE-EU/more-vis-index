@@ -88,175 +88,186 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     public void initialize(String path) throws FileNotFoundException {
         WriteApi writeApi = influxDBClient.makeWriteApi();
         FileReader reader;
-        if(table.equals("bebeze")) {
-            reader = new FileReader(path);
-            CsvToBean<BEBEZE> csvToBean = new CsvToBeanBuilder<BEBEZE>(reader)
-                    .withType(BEBEZE.class)
-                    .build();
-            for (BEBEZE data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+        switch (table) {
+            case "bebeze": {
+                reader = new FileReader(path);
+                CsvToBean<BEBEZE> csvToBean = new CsvToBeanBuilder<BEBEZE>(reader)
+                        .withType(BEBEZE.class)
+                        .build();
+                for (BEBEZE data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("intel_lab")){
-            reader = new FileReader(path);
-            CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
-                    .withType(INTEL_LAB.class)
-                    .build();
-            for (INTEL_LAB data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "intel_lab": {
+                reader = new FileReader(path);
+                CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
+                        .withType(INTEL_LAB.class)
+                        .build();
+                for (INTEL_LAB data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("soccer")){
-            reader = new FileReader(path);
-            CsvToBean<SOCCER> csvToBean = new CsvToBeanBuilder<SOCCER>(reader)
-                    .withType(SOCCER.class)
-                    .build();
-            for (SOCCER data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "soccer": {
+                reader = new FileReader(path);
+                CsvToBean<SOCCER> csvToBean = new CsvToBeanBuilder<SOCCER>(reader)
+                        .withType(SOCCER.class)
+                        .build();
+                for (SOCCER data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("manufacturing")){
-            reader = new FileReader(path);
-            CsvToBean<MANUFACTURING> csvToBean = new CsvToBeanBuilder<MANUFACTURING>(reader)
-                    .withType(MANUFACTURING.class)
-                    .build();
-            for (MANUFACTURING data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "manufacturing": {
+                reader = new FileReader(path);
+                CsvToBean<MANUFACTURING> csvToBean = new CsvToBeanBuilder<MANUFACTURING>(reader)
+                        .withType(MANUFACTURING.class)
+                        .build();
+                for (MANUFACTURING data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("intel_lab_exp")){
-            reader = new FileReader(path);
-            CsvToBean<INTEL_LAB_EXP> csvToBean = new CsvToBeanBuilder<INTEL_LAB_EXP>(reader)
-                    .withType(INTEL_LAB_EXP.class)
-                    .build();
-            for (INTEL_LAB_EXP data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "intel_lab_exp": {
+                reader = new FileReader(path);
+                CsvToBean<INTEL_LAB_EXP> csvToBean = new CsvToBeanBuilder<INTEL_LAB_EXP>(reader)
+                        .withType(INTEL_LAB_EXP.class)
+                        .build();
+                for (INTEL_LAB_EXP data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("soccer_exp")){
-            reader = new FileReader(path);
-            CsvToBean<SOCCER_EXP> csvToBean = new CsvToBeanBuilder<SOCCER_EXP>(reader)
-                    .withType(SOCCER_EXP.class)
-                    .build();
-            for (SOCCER_EXP data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "soccer_exp": {
+                reader = new FileReader(path);
+                CsvToBean<SOCCER_EXP> csvToBean = new CsvToBeanBuilder<SOCCER_EXP>(reader)
+                        .withType(SOCCER_EXP.class)
+                        .build();
+                for (SOCCER_EXP data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("manufacturing_exp")){
-            reader = new FileReader(path);
-            CsvToBean<MANUFACTURING_EXP> csvToBean = new CsvToBeanBuilder<MANUFACTURING_EXP>(reader)
-                    .withType(MANUFACTURING_EXP.class)
-                    .build();
-            for (MANUFACTURING_EXP data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "manufacturing_exp": {
+                reader = new FileReader(path);
+                CsvToBean<MANUFACTURING_EXP> csvToBean = new CsvToBeanBuilder<MANUFACTURING_EXP>(reader)
+                        .withType(MANUFACTURING_EXP.class)
+                        .build();
+                for (MANUFACTURING_EXP data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic1m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC1M> csvToBean = new CsvToBeanBuilder<SYNTHETIC1M>(reader)
-                    .withType(SYNTHETIC1M.class)
-                    .build();
-            for (SYNTHETIC1M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic1m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC1M> csvToBean = new CsvToBeanBuilder<SYNTHETIC1M>(reader)
+                        .withType(SYNTHETIC1M.class)
+                        .build();
+                for (SYNTHETIC1M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic2m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC2M> csvToBean = new CsvToBeanBuilder<SYNTHETIC2M>(reader)
-                    .withType(SYNTHETIC2M.class)
-                    .build();
-            for (SYNTHETIC2M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic2m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC2M> csvToBean = new CsvToBeanBuilder<SYNTHETIC2M>(reader)
+                        .withType(SYNTHETIC2M.class)
+                        .build();
+                for (SYNTHETIC2M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic4m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC4M> csvToBean = new CsvToBeanBuilder<SYNTHETIC4M>(reader)
-                    .withType(SYNTHETIC4M.class)
-                    .build();
-            for (SYNTHETIC4M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic4m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC4M> csvToBean = new CsvToBeanBuilder<SYNTHETIC4M>(reader)
+                        .withType(SYNTHETIC4M.class)
+                        .build();
+                for (SYNTHETIC4M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic8m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC8M> csvToBean = new CsvToBeanBuilder<SYNTHETIC8M>(reader)
-                    .withType(SYNTHETIC8M.class)
-                    .build();
-            for (SYNTHETIC8M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic8m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC8M> csvToBean = new CsvToBeanBuilder<SYNTHETIC8M>(reader)
+                        .withType(SYNTHETIC8M.class)
+                        .build();
+                for (SYNTHETIC8M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic16m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC16M> csvToBean = new CsvToBeanBuilder<SYNTHETIC16M>(reader)
-                    .withType(SYNTHETIC16M.class)
-                    .build();
-            for (SYNTHETIC16M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic16m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC16M> csvToBean = new CsvToBeanBuilder<SYNTHETIC16M>(reader)
+                        .withType(SYNTHETIC16M.class)
+                        .build();
+                for (SYNTHETIC16M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic32m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC32M> csvToBean = new CsvToBeanBuilder<SYNTHETIC32M>(reader)
-                    .withType(SYNTHETIC32M.class)
-                    .build();
-            for (SYNTHETIC32M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic32m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC32M> csvToBean = new CsvToBeanBuilder<SYNTHETIC32M>(reader)
+                        .withType(SYNTHETIC32M.class)
+                        .build();
+                for (SYNTHETIC32M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic64m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC64M> csvToBean = new CsvToBeanBuilder<SYNTHETIC64M>(reader)
-                    .withType(SYNTHETIC64M.class)
-                    .build();
-            for (SYNTHETIC64M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic64m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC64M> csvToBean = new CsvToBeanBuilder<SYNTHETIC64M>(reader)
+                        .withType(SYNTHETIC64M.class)
+                        .build();
+                for (SYNTHETIC64M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic128m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC128M> csvToBean = new CsvToBeanBuilder<SYNTHETIC128M>(reader)
-                    .withType(SYNTHETIC128M.class)
-                    .build();
-            for (SYNTHETIC128M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic128m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC128M> csvToBean = new CsvToBeanBuilder<SYNTHETIC128M>(reader)
+                        .withType(SYNTHETIC128M.class)
+                        .build();
+                for (SYNTHETIC128M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic128m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC128M> csvToBean = new CsvToBeanBuilder<SYNTHETIC128M>(reader)
-                    .withType(SYNTHETIC128M.class)
-                    .build();
-            for (SYNTHETIC128M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic256m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC256M> csvToBean = new CsvToBeanBuilder<SYNTHETIC256M>(reader)
+                        .withType(SYNTHETIC256M.class)
+                        .build();
+                for (SYNTHETIC256M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic256m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC256M> csvToBean = new CsvToBeanBuilder<SYNTHETIC256M>(reader)
-                    .withType(SYNTHETIC256M.class)
-                    .build();
-            for (SYNTHETIC256M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic512m": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC512M> csvToBean = new CsvToBeanBuilder<SYNTHETIC512M>(reader)
+                        .withType(SYNTHETIC512M.class)
+                        .build();
+                for (SYNTHETIC512M data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
-        }
-        else if(table.equals("synthetic512m")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC512M> csvToBean = new CsvToBeanBuilder<SYNTHETIC512M>(reader)
-                    .withType(SYNTHETIC512M.class)
-                    .build();
-            for (SYNTHETIC512M data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
-            }
-        }
-        else if(table.equals("synthetic1b")){
-            reader = new FileReader(path);
-            CsvToBean<SYNTHETIC1B> csvToBean = new CsvToBeanBuilder<SYNTHETIC1B>(reader)
-                    .withType(SYNTHETIC1B.class)
-                    .build();
-            for (SYNTHETIC1B data : csvToBean) {
-                writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+            case "synthetic1b": {
+                reader = new FileReader(path);
+                CsvToBean<SYNTHETIC1B> csvToBean = new CsvToBeanBuilder<SYNTHETIC1B>(reader)
+                        .withType(SYNTHETIC1B.class)
+                        .build();
+                for (SYNTHETIC1B data : csvToBean) {
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                }
+                break;
             }
         }
         influxDBClient.close();
