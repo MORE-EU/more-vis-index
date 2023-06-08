@@ -210,7 +210,8 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory", "Error");
+        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "IO Count",
+                "Time (sec)", "Processing Time", "Query Time", "Memory", "Error");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);
@@ -230,6 +231,8 @@ public class Experiments<T> {
             csvWriter.addValue(0);
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(time);
+            csvWriter.addValue(time - queryResults.getQueryTime());
+            csvWriter.addValue(queryResults.getQueryTime());
             csvWriter.addValue(memorySize);
             csvWriter.addValue(queryResults.getError());
             csvWriter.writeValuesToRow();
@@ -330,8 +333,19 @@ public class Experiments<T> {
         for  (int i = 0; i < runs; i ++){
             Path runPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + i);
             FileUtil.build(runPath.toString());
-            Path path = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, mode + "Results");
-            FileUtil.build(path.toString());
+            if(!mode.equals("all")) {
+                Path path = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, mode + "Results");
+                FileUtil.build(path.toString());
+            }
+            else {
+                Path path1 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "tti" + "Results");
+                Path path2 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "raw" + "Results");
+                Path path3 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "postgres" + "Results");
+                FileUtil.build(path1.toString());
+                FileUtil.build(path2.toString());
+                FileUtil.build(path3.toString());
+
+            }
         }
         for(int i = 0; i < runs; i ++) {
             switch (mode) {
@@ -343,6 +357,11 @@ public class Experiments<T> {
                     break;
                 case "m4":
                     timeQueriesM4(i);
+                    break;
+                case "all":
+                    timeQueriesTTI(i);
+                    timeQueriesM4(i);
+                    timeQueriesRawTTI(i);
                     break;
                 default:
                     System.exit(0);

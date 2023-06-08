@@ -1,5 +1,6 @@
 package eu.more2020.visual.index;
 
+import com.google.common.base.Stopwatch;
 import eu.more2020.visual.datasource.DataSource;
 import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -86,16 +88,19 @@ public class TTI {
         // Find the part of the query interval that is not covered by the spans in the interval tree.
         List<TimeInterval> missingIntervals = query.difference(overlappingSpans);
         LOG.info("Missing from query: " + missingIntervals);
-
+        double queryTime = 0;
         // Fetch the missing data from the data source.
         if (missingIntervals.size() >= 1) {
             LOG.info("Fetching missing data from data source");
+            Stopwatch stopwatch = Stopwatch.createStarted();
             AggregatedDataPoints dataPoints =
                     dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, viewPort.getWidth());
             LOG.info("Fetched missing data from data source");
             // Create time series spans from the missing data and insert them into the interval tree.
             List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(dataPoints, missingIntervals, viewPort.getWidth());
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
+            queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            stopwatch.stop();
             intervalTree.insertAll(timeSeriesSpans);
             overlappingSpans.addAll(timeSeriesSpans);
             LOG.info("Inserted new time series spans into interval tree");
@@ -238,6 +243,7 @@ public class TTI {
             error.put(measure, 0d);
         }
         queryResults.setError(error);
+        queryResults.setQueryTime(queryTime);
         return queryResults;
     }
 

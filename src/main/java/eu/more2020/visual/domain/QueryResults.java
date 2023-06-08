@@ -30,6 +30,8 @@ public class QueryResults implements Serializable {
 
     private int ioCount = 0;
 
+    private double queryTime = 0;
+
     public List<LocalDateTime> getTimeRange() {
         return this.timeRange;
     }
@@ -73,6 +75,7 @@ public class QueryResults implements Serializable {
     public void setError(Map<Integer, Double> error) {
         this.error = error;
     }
+
 
     public void toCsv(String path) {
         File file = new File(path);
@@ -155,6 +158,14 @@ public class QueryResults implements Serializable {
 
     public Map<Integer, Double> getError() {
         return error;
+    }
+
+    public double getQueryTime() {
+        return queryTime;
+    }
+
+    public void setQueryTime(double queryTime) {
+        this.queryTime = queryTime;
     }
 
     @Override
