@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.View;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -119,7 +120,11 @@ public class Experiments<T> {
     private String schema;
     @Parameter(names = "-table", description = "PostgreSQL/InfluxDB table name to query")
     private String table;
-    @Parameter(names = "--measureMem", description = "Measure index memory after every query in the sequence")
+    @Parameter(names = "-viewport", converter = ViewPortConverter.class, description = "Viewport of query")
+    private ViewPort viewPort;
+    @Parameter(names = "-runs", description = "Times to run each experiment workflow")
+    private Integer runs;
+    @Parameter(names = "--measureMem",  description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
     @Parameter(names = "--groupBy", converter = OLAPConverter.class, description = "Measure index memory after every query in the sequence")
@@ -194,8 +199,8 @@ public class Experiments<T> {
         }
     }
 
-    private void timeQueriesTTI() throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "ttiResults").toString();
+    private void timeQueriesTTI(int run) throws IOException, SQLException {
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "ttiResults").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -203,7 +208,7 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
-        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600), null);
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory", "Error");
         for (int i = 0; i < sequence.size(); i += 1) {
@@ -215,7 +220,7 @@ public class Experiments<T> {
             queryResults = tti.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             long memorySize = tti.calculateDeepMemorySize();
-            queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
+            if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getOpType());
@@ -232,8 +237,8 @@ public class Experiments<T> {
         csvWriter.flush();
     }
 
-    private void timeQueriesRawTTI() throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "rawResults").toString();
+    private void timeQueriesRawTTI(int run) throws IOException, SQLException {
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "rawResults").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -241,7 +246,7 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         RawTTI rawTTI = new RawTTI(dataset);
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
-        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600), null);
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");
         for (int i = 0; i < sequence.size(); i += 1) {
@@ -253,7 +258,7 @@ public class Experiments<T> {
             queryResults = rawTTI.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             long memorySize = rawTTI.calculateDeepMemorySize();
-            queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
+            if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getOpType());
@@ -270,8 +275,8 @@ public class Experiments<T> {
         csvWriter.flush();
     }
 
-    private void timeQueriesM4() throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "m4Results").toString();
+    private void timeQueriesM4(int run) throws IOException, SQLException {
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "m4Results").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -279,7 +284,7 @@ public class Experiments<T> {
         AbstractDataset dataset = createDataset();
         QueryExecutor queryExecutor = QueryExecutorFactory.getQueryExecutor(dataset);
         QueryMethod queryMethod = QueryMethod.M4;
-        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, new ViewPort(1000, 600), null);
+        Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "timeRange", "Results size", "Time (sec)");
         for (int i = 0; i < sequence.size(); i += 1) {
@@ -298,7 +303,7 @@ public class Experiments<T> {
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-            queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
+            if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getOpType());
@@ -314,20 +319,26 @@ public class Experiments<T> {
 
     private void timeQueries() throws IOException, SQLException {
         Preconditions.checkNotNull(mode, "You must define the execution mode (tti, raw, postgres, influx).");
-        Path path = Paths.get(outFolder, "timeQueries", type, table, mode + "Results");
-        FileUtil.build(path.toString());
-        switch (mode) {
-            case "tti":
-                timeQueriesTTI();
-                break;
-            case "raw":
-                timeQueriesRawTTI();
-                break;
-            case "m4":
-                timeQueriesM4();
-                break;
-            default:
-                System.exit(0);
+        for  (int i = 0; i < runs; i ++){
+            Path runPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + i);
+            FileUtil.build(runPath.toString());
+            Path path = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, mode + "Results");
+            FileUtil.build(path.toString());
+        }
+        for(int i = 0; i < runs; i ++) {
+            switch (mode) {
+                case "tti":
+                    timeQueriesTTI(i);
+                    break;
+                case "raw":
+                    timeQueriesRawTTI(i);
+                    break;
+                case "m4":
+                    timeQueriesM4(i);
+                    break;
+                default:
+                    System.exit(0);
+            }
         }
     }
 
@@ -354,7 +365,6 @@ public class Experiments<T> {
         QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, zoomFactor, dataset);
         return sequenceGenerator.generateQuerySequence(q0, seqCount);
     }
-
 
 /*    private void plotQuery() throws IOException, SQLException {
         String plotFolder = "plotQuery";
@@ -388,7 +398,6 @@ public class Experiments<T> {
         Path typePath = Paths.get(outFolder, "timeQueries", type);
         Path tablePath = Paths.get(outFolder, "timeQueries", type, table);
         Path metadataPath = Paths.get(outFolder, "metadata");
-
         FileUtil.build(outFolderPath.toString());
         FileUtil.build(timeQueriesPath.toString());
         FileUtil.build(typePath.toString());
