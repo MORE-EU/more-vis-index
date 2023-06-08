@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -133,12 +134,12 @@ public class TTI {
 //
 //            }
 
-            if (lastSpanUsed != null && aggregatedDataPoint.getTimestamp() < currentTime && span.getAggregateInterval() < lastSpanUsed.getAggregateInterval()) {
+/*            if (lastSpanUsed != null && aggregatedDataPoint.getTimestamp() < currentTime && span.getAggregateInterval() < lastSpanUsed.getAggregateInterval()) {
                 // If the data point is before currentTime, and the aggregation interval is greater than or equal to the last span used,
                 // then we can skip this data point and continue to the next one.
                 LOG.debug("Skipping data point with timestamp: " + aggregatedDataPoint.getTimestamp() + " and aggregation interval: " + span.getAggregateInterval());
                 continue;
-            }
+            }*/
 
 
             int pixelColumnIndex = getPixelColumnForTimestamp(aggregatedDataPoint.getFrom(), from, to, viewPort.getWidth());
@@ -207,8 +208,10 @@ public class TTI {
         for (
                 int measure : measures) {
             List<UnivariateDataPoint> dataPoints = new ArrayList<>();
+            int i = 0;
             for (PixelColumn pixelColumn : pixelColumns) {
-                LOG.debug("Pixel column: " + pixelColumn);
+                LOG.debug("Pixel column {}: {}", i, pixelColumn);
+                i++;
                 UnivariateDataPoint firstPoint = pixelColumn.getFirstPoints().get(measure);
                 UnivariateDataPoint minPoint = pixelColumn.getMinPoints().get(measure);
                 UnivariateDataPoint maxPoint = pixelColumn.getMaxPoints().get(measure);

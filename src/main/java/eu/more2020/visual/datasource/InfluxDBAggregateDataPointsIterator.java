@@ -2,7 +2,11 @@ package eu.more2020.visual.datasource;
 
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
-import eu.more2020.visual.domain.*;
+import eu.more2020.visual.domain.AggregatedDataPoint;
+import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
+import eu.more2020.visual.domain.StatsAggregator;
+import eu.more2020.visual.domain.UnivariateDataPoint;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +26,9 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
     private final int size;
     private int current;
     private long groupTimestamp, currentGroupTimestamp;
-    private long endTimestamp;
+    private long endTimestamp, currentEndTimestamp;
+
+    private int i = 0;
 
     private final Integer numberOfGroups;
 
@@ -35,7 +41,9 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         this.current = 0;
         if (!records.isEmpty()) {
             groupTimestamp = ((Instant) records.get(current).getValues().get("_start")).toEpochMilli();
+            endTimestamp = ((Instant) records.get(current).getValues().get("_stop")).toEpochMilli();
             currentGroupTimestamp = groupTimestamp;
+            currentEndTimestamp = endTimestamp;
         }
     }
 
@@ -60,19 +68,29 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
             long timestamp = Objects.requireNonNull(record.getTime()).toEpochMilli();
             double value = (double) record.getValue();
             currentGroupTimestamp = ((Instant) record.getValues().get("_start")).toEpochMilli();
-            endTimestamp = ((Instant) record.getValues().get("_stop")).toEpochMilli();
-            StringBuilder stringBuilder = new StringBuilder();
-            record.getValues().forEach((k, v) -> stringBuilder.append(k).append(": ").append(v).append(", "));
-            LOG.debug("Agg Interval: {} Record: {}", endTimestamp - currentGroupTimestamp, stringBuilder);
+            currentEndTimestamp = ((Instant) record.getValues().get("_stop")).toEpochMilli();
+            if(currentGroupTimestamp != groupTimestamp){
+                break;
+            }
+
             UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
             statsAggregator.accept(point, measureId);
             current++;
         }
 
-        // todo: we need to check if the end timestamp is right here and matches the ones from the time series span
-        AggregatedDataPoint dataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, endTimestamp, statsAggregator);
+        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, endTimestamp, statsAggregator);
+//        StringBuilder stringBuilder = new StringBuilder();
+//        record.getValues().forEach((k, v) -> stringBuilder.append(k).append(": ").append(v).append(", "));
+        //todo: remove this
+        LOG.debug("Agg Interval {}: {} AggDataPoint: start: {} end: {}, minTimestamp: {}, minValue: {}", i, aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint.getFromDate(), aggregatedDataPoint.getToDate(),
+                DateTimeUtil.format(aggregatedDataPoint.getStats().getMinTimestamp(2)), aggregatedDataPoint.getStats().getMinValue(2));
+        LOG.debug("Agg Interval {}: {} AggDataPoint: start: {} end: {}, maxTimestamp: {}, maxValue: {}", i, aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint.getFromDate(), aggregatedDataPoint.getToDate(),
+                aggregatedDataPoint.getStats().getMaxTimestamp(2), aggregatedDataPoint.getStats().getMaxValue(2));
         groupTimestamp = currentGroupTimestamp;
-        return dataPoint;
+        endTimestamp = currentEndTimestamp;
+
+        i++;
+        return aggregatedDataPoint;
     }
 
 }
