@@ -42,7 +42,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         try {
            do  {
-                int measureId = measures.indexOf(resultSet.getInt(1));
+                int measure = resultSet.getInt(1);
                 long timestamp = resultSet.getLong(2);
                 double value = resultSet.getDouble(3);
                 group = resultSet.getInt(4);
@@ -54,7 +54,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
                 else changed = false;
                 if (i == 0)  firstTimestamp = timestamp;
                 UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
-                statsAggregator.accept(point, measureId);
+                statsAggregator.accept(point, measure);
                 i++;
             } while(resultSet.next());
         } catch (SQLException e) {

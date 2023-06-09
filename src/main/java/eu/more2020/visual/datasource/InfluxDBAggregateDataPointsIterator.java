@@ -64,7 +64,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 
         while (hasNext() && currentGroupTimestamp == groupTimestamp) {
             FluxRecord record = records.get(current);
-            int measureId = measureNames.indexOf(record.getField());
+            int measure = measures.get(measureNames.indexOf(record.getField()));
             long timestamp = Objects.requireNonNull(record.getTime()).toEpochMilli();
             double value = (double) record.getValue();
             currentGroupTimestamp = ((Instant) record.getValues().get("_start")).toEpochMilli();
@@ -74,7 +74,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
             }
 
             UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
-            statsAggregator.accept(point, measureId);
+            statsAggregator.accept(point, measure);
             current++;
         }
 
@@ -82,10 +82,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 //        StringBuilder stringBuilder = new StringBuilder();
 //        record.getValues().forEach((k, v) -> stringBuilder.append(k).append(": ").append(v).append(", "));
         //todo: remove this
-        LOG.debug("Agg Interval {}: {} AggDataPoint: start: {} end: {}, minTimestamp: {}, minValue: {}", i, aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint.getFromDate(), aggregatedDataPoint.getToDate(),
-                DateTimeUtil.format(aggregatedDataPoint.getStats().getMinTimestamp(2)), aggregatedDataPoint.getStats().getMinValue(2));
-        LOG.debug("Agg Interval {}: {} AggDataPoint: start: {} end: {}, maxTimestamp: {}, maxValue: {}", i, aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint.getFromDate(), aggregatedDataPoint.getToDate(),
-                aggregatedDataPoint.getStats().getMaxTimestamp(2), aggregatedDataPoint.getStats().getMaxValue(2));
+        LOG.debug("Creating agg datapoint from InfluxDB with agg interval {}: {}", aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint);
         groupTimestamp = currentGroupTimestamp;
         endTimestamp = currentEndTimestamp;
 

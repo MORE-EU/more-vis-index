@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PixelColumn implements TimeInterval {
 
@@ -17,10 +15,7 @@ public class PixelColumn implements TimeInterval {
 
     List<Integer> measures;
 
-    private final Map<Integer, UnivariateDataPoint> minPoints;
-    private final Map<Integer, UnivariateDataPoint> maxPoints;
-    private final Map<Integer, UnivariateDataPoint> firstPoints;
-    private final Map<Integer, UnivariateDataPoint> lastPoints;
+    private final StatsAggregator statsAggregator;
 
 
     // The left and right agg data points of this pixel column. These can be either partially-contained inside this pixel column and overlap, or fully-contained.
@@ -30,11 +25,8 @@ public class PixelColumn implements TimeInterval {
     public PixelColumn(long from, long to, List<Integer> measures) {
         this.from = from;
         this.to = to;
-        minPoints = new HashMap<>();
-        maxPoints = new HashMap<>();
-        firstPoints = new HashMap<>();
-        lastPoints = new HashMap<>();
         this.measures = measures;
+        statsAggregator = new StatsAggregator(measures);
     }
 
     public void addAggregatedDataPoint(AggregatedDataPoint dp) {
@@ -49,49 +41,25 @@ public class PixelColumn implements TimeInterval {
 
         Stats stats = dp.getStats();
 
+        // todo: here, in case we add data from time series span, we add the same min-max point twice. This is not a problem, but it's not optimal.
+        for (int measure : measures) {
+            if (this.contains(stats.getMinTimestamp(measure))) {
+                statsAggregator.accept(dp.getStats().getMinDataPoint(measure), measure);
+            }
 
-        if (stats.getCount() != 0) {
-            for (int measure : measures) {
-                if (this.contains(stats.getMinTimestamp(measure))) {
-                    UnivariateDataPoint minPoint = new UnivariateDataPoint(stats.getMinTimestamp(measure), stats.getMinValue(measure));
-//                    LOG.debug("Adding MIN data point with timestamp: " + minPoint.getTimestamp() + " and value: " + minPoint.getValue());
-                    addUnivariateDataPoint(minPoint, measure);
-                }
-                if (this.contains(stats.getMaxTimestamp(measure))) {
-                    UnivariateDataPoint maxPoint = new UnivariateDataPoint(stats.getMaxTimestamp(measure), stats.getMaxValue(measure));
-//                    LOG.debug("Adding MAX data point with timestamp: " + maxPoint.getTimestamp() + " and value: " + maxPoint.getValue());
-                    this.addUnivariateDataPoint(maxPoint, measure);
-                }
+            if (this.contains(stats.getMaxTimestamp(measure))) {
+                statsAggregator.accept(dp.getStats().getMaxDataPoint(measure), measure);
+            }
+
+            if (this.contains(stats.getFirstTimestamp(measure))) {
+                statsAggregator.accept(dp.getStats().getFirstDataPoint(measure), measure);
+            }
+
+            if (this.contains(stats.getLastTimestamp(measure))) {
+                statsAggregator.accept(dp.getStats().getLastDataPoint(measure), measure);
             }
         }
-    }
 
-
-    public void addUnivariateDataPoint(UnivariateDataPoint dp, int measure) {
-        UnivariateDataPoint minPoint = minPoints.get(measure);
-        UnivariateDataPoint maxPoint = maxPoints.get(measure);
-        UnivariateDataPoint firstPoint = firstPoints.get(measure);
-        UnivariateDataPoint lastPoint = lastPoints.get(measure);
-
-        if (minPoint == null) {
-            minPoints.put(measure, dp);
-            maxPoints.put(measure, dp);
-            firstPoints.put(measure, dp);
-            lastPoints.put(measure, dp);
-            return;
-        }
-
-        if (dp.getValue() < minPoint.getValue()) {
-            minPoints.put(measure, dp);
-        } else if (dp.getValue() > maxPoint.getValue()) {
-            maxPoints.put(measure, dp);
-        }
-
-        if (dp.getTimestamp() < firstPoint.getTimestamp()) {
-            firstPoints.put(measure, dp);
-        } else if (dp.getTimestamp() > lastPoint.getTimestamp()) {
-            lastPoints.put(measure, dp);
-        }
     }
 
     @Override
@@ -105,20 +73,8 @@ public class PixelColumn implements TimeInterval {
     }
 
 
-    public Map<Integer, UnivariateDataPoint> getMinPoints() {
-        return minPoints;
-    }
-
-    public Map<Integer, UnivariateDataPoint> getMaxPoints() {
-        return maxPoints;
-    }
-
-    public Map<Integer, UnivariateDataPoint> getFirstPoints() {
-        return firstPoints;
-    }
-
-    public Map<Integer, UnivariateDataPoint> getLastPoints() {
-        return lastPoints;
+    public Stats getStats() {
+        return statsAggregator;
     }
 
     public List<AggregatedDataPoint> getLeft() {
@@ -131,7 +87,7 @@ public class PixelColumn implements TimeInterval {
 
     @Override
     public String toString() {
-        return "PixelColumn{ timeInterval: " + getIntervalString() + "}";
+        return "PixelColumn{ timeInterval: " + getIntervalString() + ", stats: " + statsAggregator + "}";
     }
 
 }

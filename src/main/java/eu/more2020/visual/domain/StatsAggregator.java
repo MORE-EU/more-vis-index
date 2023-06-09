@@ -1,11 +1,13 @@
 package eu.more2020.visual.domain;
 
-import org.apache.hadoop.fs.Stat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * An object for computing aggregate statistics for multi-variate time series data points.
@@ -20,6 +22,8 @@ import java.util.function.Consumer;
  */
 public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StatsAggregator.class);
+
     protected List<Integer> measures;
     protected int count = 0;
     protected final double[] sums;
@@ -27,7 +31,10 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
     protected final long[] minTimestamps;
     protected final double[] maxValues;
     protected final long[] maxTimestamps;
-
+    protected final double[] firstValues;
+    protected final long[] firstTimestamps;
+    protected final double[] lastValues;
+    protected final long[] lastTimestamps;
 
     public StatsAggregator(List<Integer> measures) {
         this.measures = measures;
@@ -37,10 +44,11 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         minTimestamps = new long[length];
         maxValues = new double[length];
         maxTimestamps = new long[length];
-
-        Arrays.fill(minValues, Double.POSITIVE_INFINITY);
-        Arrays.fill(maxValues, Double.NEGATIVE_INFINITY);
-
+        firstValues = new double[length];
+        firstTimestamps = new long[length];
+        lastValues = new double[length];
+        lastTimestamps = new long[length];
+        clear();
     }
 
     public void clear() {
@@ -50,6 +58,8 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         Arrays.fill(minTimestamps, -1l);
         Arrays.fill(maxValues, Double.NEGATIVE_INFINITY);
         Arrays.fill(maxTimestamps, -1l);
+        Arrays.fill(firstTimestamps, Long.MAX_VALUE);
+        Arrays.fill(lastTimestamps, -1l);
     }
 
 
@@ -60,12 +70,13 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
      */
     @Override
     public void accept(DataPoint dataPoint) {
-        if (dataPoint instanceof AggregatedDataPoint){
+        if (dataPoint instanceof AggregatedDataPoint) {
             accept((AggregatedDataPoint) dataPoint);
             return;
         }
         ++count;
-        for (int i = 0; i < dataPoint.getValues().length; i++) {
+        for (int measure : measures) {
+            int i = getMeasureIndex(measure);
             double value = dataPoint.getValues()[i];
             sums[i] += value;
             minValues[i] = Math.min(minValues[i], value);
@@ -76,12 +87,21 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
             if (maxValues[i] == value) {
                 maxTimestamps[i] = dataPoint.getTimestamp();
             }
+            if (firstTimestamps[i] > dataPoint.getTimestamp()) {
+                firstValues[i] = value;
+                firstTimestamps[i] = dataPoint.getTimestamp();
+            }
+            if (lastTimestamps[i] < dataPoint.getTimestamp()) {
+                lastValues[i] = value;
+                lastTimestamps[i] = dataPoint.getTimestamp();
+            }
         }
     }
 
-    public void accept(UnivariateDataPoint dataPoint, int i) {
+    public void accept(UnivariateDataPoint dataPoint, int measure) {
         ++count;
         double value = dataPoint.getValue();
+        int i = getMeasureIndex(measure);
         sums[i] += value;
         minValues[i] = Math.min(minValues[i], value);
         if (minValues[i] == value) {
@@ -91,14 +111,22 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         if (maxValues[i] == value) {
             maxTimestamps[i] = dataPoint.getTimestamp();
         }
+        if (firstTimestamps[i] > dataPoint.getTimestamp()) {
+            firstValues[i] = value;
+            firstTimestamps[i] = dataPoint.getTimestamp();
+        }
+        if (lastTimestamps[i] < dataPoint.getTimestamp()) {
+            lastValues[i] = value;
+            lastTimestamps[i] = dataPoint.getTimestamp();
+        }
     }
 
     public void accept(AggregatedDataPoint dataPoint) {
         Stats stats = dataPoint.getStats();
-        if (stats.getCount() != 0) {
-            count += stats.getCount();
-            int i = 0;
+        if (dataPoint.getCount() != 0) {
+            count += dataPoint.getCount();
             for (int m : measures) {
+                int i = getMeasureIndex(m);
                 sums[i] += stats.getSum(m);
                 minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
                 if (minValues[i] == stats.getMinValue(m)) {
@@ -108,7 +136,14 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
                 if (maxValues[i] == stats.getMaxValue(m)) {
                     maxTimestamps[i] = stats.getMaxTimestamp(m);
                 }
-                i++;
+                if (firstTimestamps[i] > stats.getMinTimestamp(m)) {
+                    firstValues[i] = stats.getMinValue(m);
+                    firstTimestamps[i] = stats.getMinTimestamp(m);
+                }
+                if (lastTimestamps[i] < stats.getMaxTimestamp(m)) {
+                    lastValues[i] = stats.getMaxValue(m);
+                    lastTimestamps[i] = stats.getMaxTimestamp(m);
+                }
             }
         }
     }
@@ -121,6 +156,9 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
      * @throws NullPointerException if {@code other} is null
      */
     public void combine(StatsAggregator other) {
+        if (!hasSameMeasures(other)) {
+            throw new IllegalArgumentException("Cannot combine stats with different measures");
+        }
         count += other.count;
         for (int i = 0; i < sums.length; i++) {
             sums[i] += other.sums[i];
@@ -132,8 +170,29 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
             if (maxValues[i] == other.maxValues[i]) {
                 maxTimestamps[i] = other.maxTimestamps[i];
             }
+            if (firstTimestamps[i] > other.firstTimestamps[i]) {
+                firstValues[i] = other.firstValues[i];
+                firstTimestamps[i] = other.firstTimestamps[i];
+            }
+            if (lastTimestamps[i] < other.lastTimestamps[i]) {
+                lastValues[i] = other.lastValues[i];
+                lastTimestamps[i] = other.lastTimestamps[i];
+            }
         }
     }
+
+    /**
+     * Checks if the measures of this StatsAggregator and another StatsAggregator are the same.
+     *
+     * @param other another StatsAggregator
+     * @return boolean - returns true if measures are the same, else false
+     */
+    public boolean hasSameMeasures(StatsAggregator other) {
+        return this.measures != null && other.measures != null &&
+                this.measures.size() == other.measures.size() &&
+                this.measures.stream().allMatch(measure -> other.measures.contains(measure));
+    }
+
 
     @Override
     public int getCount() {
@@ -185,20 +244,60 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         if (count == 0) {
             throw new IllegalStateException("No data points added to this stats aggregator yet.");
         }
-        return maxTimestamps[getMeasureIndex(measure)];    }
+        return maxTimestamps[getMeasureIndex(measure)];
+    }
+
+    @Override
+    public double getFirstValue(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return firstValues[getMeasureIndex(measure)];
+    }
+
+    @Override
+    public long getFirstTimestamp(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return firstTimestamps[getMeasureIndex(measure)];
+    }
+
+    @Override
+    public double getLastValue(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return lastValues[getMeasureIndex(measure)];
+    }
+
+    @Override
+    public long getLastTimestamp(int measure) {
+        if (count == 0) {
+            throw new IllegalStateException("No data points added to this stats aggregator yet.");
+        }
+        return lastTimestamps[getMeasureIndex(measure)];
+    }
 
     protected int getMeasureIndex(int measure) {
         return measures.indexOf(measure);
     }
 
-    public StatsAggregator clone(){
+    public StatsAggregator clone() {
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         statsAggregator.combine(this);
-        return  statsAggregator;
+        return statsAggregator;
     }
 
-    public void setCount(int count){
+    public void setCount(int count) {
         this.count = count;
     }
 
+    @Override
+    public String toString() {
+        return count == 0 ? "count=0" :
+                measures.stream()
+                        .map(measure -> this.toString(measure))
+                        .collect(Collectors.joining(", "));
+    }
 }

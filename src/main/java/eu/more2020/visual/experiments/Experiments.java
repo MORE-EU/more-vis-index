@@ -340,7 +340,7 @@ public class Experiments<T> {
             else {
                 Path path1 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "tti" + "Results");
                 Path path2 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "raw" + "Results");
-                Path path3 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "postgres" + "Results");
+                Path path3 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "m4" + "Results");
                 FileUtil.build(path1.toString());
                 FileUtil.build(path2.toString());
                 FileUtil.build(path3.toString());

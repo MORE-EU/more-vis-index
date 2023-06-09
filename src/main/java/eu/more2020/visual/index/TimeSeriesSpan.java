@@ -288,6 +288,30 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
                 public long getMaxTimestamp(int measure) {
                     return aggsByMeasure[getMeasureIndex(measure)][index * 5 + 4];
                 }
+
+                @Override
+                public double getFirstValue(int measure) {
+                    return getMinTimestamp(measure) < getMaxTimestamp(measure) ?
+                            getMinValue(measure) : getMaxValue(measure);
+                }
+
+                @Override
+                public long getFirstTimestamp(int measure) {
+                    return getMinTimestamp(measure) < getMaxTimestamp(measure) ?
+                            getMinTimestamp(measure) : getMaxTimestamp(measure);
+                }
+
+                @Override
+                public double getLastValue(int measure) {
+                    return getMinTimestamp(measure) > getMaxTimestamp(measure) ?
+                            getMinValue(measure) : getMaxValue(measure);
+                }
+
+                @Override
+                public long getLastTimestamp(int measure) {
+                    return getMinTimestamp(measure) > getMaxTimestamp(measure) ?
+                            getMinTimestamp(measure) : getMaxTimestamp(measure);
+                }
             };
         }
 

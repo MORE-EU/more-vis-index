@@ -54,10 +54,10 @@ public class QuerySequenceGenerator {
         Random opRand = new Random(seed);
         List<UserOpType> ops = new ArrayList<>();
         int pans = 50;
-//        int zoom_in = 25;
-//        int zoom_out = 25;
-        int zoom_in = 0;
-        int zoom_out = 0;
+        int zoom_in = 25;
+        int zoom_out = 25;
+//        int zoom_in = 0;
+//        int zoom_out = 0;
         int resize = 1;
 
         for (int i = 0; i < pans; i++) ops.add(P);

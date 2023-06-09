@@ -74,10 +74,7 @@ public class ImmutableAggregatedDataPoint implements AggregatedDataPoint {
 
     @Override
     public String toString() {
-        return "{" +
-                "from=" + getFrom() +
-                ", to=" + getTo() +
-                '}';
+        return getString();
     }
 
 }

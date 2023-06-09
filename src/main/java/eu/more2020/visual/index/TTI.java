@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -148,6 +147,7 @@ public class TTI {
 
 
             int pixelColumnIndex = getPixelColumnForTimestamp(aggregatedDataPoint.getFrom(), from, to, viewPort.getWidth());
+
             if (pixelColumnIndex < viewPort.getWidth()) {/* && pixelColumns.get(pixelColumnIndex).overlaps(aggregatedDataPoint)) {*/
                 pixelColumns.get(pixelColumnIndex).addAggregatedDataPoint(aggregatedDataPoint);
             }
@@ -210,17 +210,24 @@ public class TTI {
             continue;
         }*/
         Map<Integer, List<UnivariateDataPoint>> resultData = new HashMap<>();
-        for (
-                int measure : measures) {
+        for (int measure : measures) {
             List<UnivariateDataPoint> dataPoints = new ArrayList<>();
             int i = 0;
             for (PixelColumn pixelColumn : pixelColumns) {
                 LOG.debug("Pixel column {}: {}", i, pixelColumn);
                 i++;
-                UnivariateDataPoint firstPoint = pixelColumn.getFirstPoints().get(measure);
-                UnivariateDataPoint minPoint = pixelColumn.getMinPoints().get(measure);
-                UnivariateDataPoint maxPoint = pixelColumn.getMaxPoints().get(measure);
-                UnivariateDataPoint lastPoint = pixelColumn.getLastPoints().get(measure);
+
+                Stats pixelColumnStats = pixelColumn.getStats();
+
+                if (pixelColumnStats.getCount() == 0) {
+                    continue;
+                }
+
+                UnivariateDataPoint firstPoint = new UnivariateDataPoint(pixelColumnStats.getFirstTimestamp(measure), pixelColumnStats.getFirstValue(measure));
+                UnivariateDataPoint minPoint = new UnivariateDataPoint(pixelColumnStats.getMinTimestamp(measure), pixelColumnStats.getMinValue(measure));
+                UnivariateDataPoint maxPoint = new UnivariateDataPoint(pixelColumnStats.getMaxTimestamp(measure), pixelColumnStats.getMaxValue(measure));
+                UnivariateDataPoint lastPoint = new UnivariateDataPoint(pixelColumnStats.getLastTimestamp(measure), pixelColumnStats.getLastValue(measure));
+
                 if (firstPoint != null) {
                     dataPoints.add(firstPoint);
                     if (minPoint.getTimestamp() < maxPoint.getTimestamp()) {
