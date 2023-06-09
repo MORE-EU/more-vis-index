@@ -97,7 +97,7 @@ public class TTI {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();
             missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
-            AggregatedDataPoints dataPoints =
+            missingDataPoints =
                     dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, viewPort.getWidth());
             queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             stopwatch.stop();
