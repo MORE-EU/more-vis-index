@@ -1,6 +1,7 @@
 package eu.more2020.visual.util;
 
 import eu.more2020.visual.domain.AggregateInterval;
+import eu.more2020.visual.domain.TimeInterval;
 import eu.more2020.visual.domain.TimeRange;
 import eu.more2020.visual.domain.ViewPort;
 import org.slf4j.Logger;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DateTimeUtil {
 
@@ -302,4 +305,30 @@ public class DateTimeUtil {
         }
         return new AggregateInterval(aggregateInterval, aggregateChronoUnit);
     }
+
+    private static long[] findBinRange(long x, long a, long b, long n){
+        long bin_width = (b - a) / n;
+        long bin_index = (x - a) / bin_width;
+        long bin_start = a + bin_index * bin_width;
+        long bin_end = bin_start + bin_width;
+        if (bin_index == n) {
+            bin_end = b; // Set bin_end to the upper limit of the interval
+        }
+        return new long[] {bin_start, bin_end};
+    }
+
+    public static List<TimeInterval> correctIntervals(long from, long to, int numberOfGroups, List<TimeInterval> ranges) {
+        List<TimeInterval> newRanges = new ArrayList<>();
+        for(TimeInterval range : ranges){
+            long f = range.getFrom();
+            long t = range.getTo();
+            long new_from = findBinRange(f, from, to, numberOfGroups)[0];
+            long new_to = findBinRange(t, from, to, numberOfGroups)[1];
+            newRanges.add(new TimeRange(new_from, new_to));
+        }
+        return newRanges;
+
+    }
+
+
 }

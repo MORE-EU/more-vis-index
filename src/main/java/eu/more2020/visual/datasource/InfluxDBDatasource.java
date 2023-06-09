@@ -6,11 +6,13 @@ import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.datasource.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

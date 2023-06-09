@@ -6,6 +6,7 @@ import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +93,7 @@ public class TTI {
         if (missingIntervals.size() >= 1) {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();
+            missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
             AggregatedDataPoints dataPoints =
                     dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, viewPort.getWidth());
             LOG.info("Fetched missing data from data source");
@@ -104,6 +106,7 @@ public class TTI {
             overlappingSpans.addAll(timeSeriesSpans);
             LOG.info("Inserted new time series spans into interval tree");
         }
+
 
         // Create a priority queue storing the SpanIteratorPair, and
         // populate it with the first data point from each span's iterator.
@@ -253,6 +256,7 @@ public class TTI {
         queryResults.setQueryTime(queryTime);
         return queryResults;
     }
+
 
     /*public QueryResults executeQuery(AbstractQuery query) {
         long from = query.getFrom();
