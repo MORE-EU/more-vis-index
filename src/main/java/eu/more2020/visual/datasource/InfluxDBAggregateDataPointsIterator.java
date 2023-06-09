@@ -79,10 +79,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         }
 
         AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, endTimestamp, statsAggregator);
-//        StringBuilder stringBuilder = new StringBuilder();
-//        record.getValues().forEach((k, v) -> stringBuilder.append(k).append(": ").append(v).append(", "));
-        //todo: remove this
-        LOG.debug("Creating agg datapoint from InfluxDB with agg interval {}: {}", aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint);
+        //LOG.debug("Creating agg datapoint from InfluxDB with agg interval {}: {}", aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint);
         groupTimestamp = currentGroupTimestamp;
         endTimestamp = currentEndTimestamp;
 
