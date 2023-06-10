@@ -55,7 +55,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "  tables\n" +
                 "    |> window(every:every, offset: %s, createEmpty:true)\n" +
                 "    |> fn(column:column)\n" +
-                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
+//                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
                 "    |> group()" +
                 "\n" +
                 "first = from(bucket:\"%s\") \n " +
@@ -99,7 +99,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "  tables\n" +
                 "    |> window(every:every, offset: %s , createEmpty:true)\n" +
                 "    |> fn(column:column)\n" +
-                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
+//                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
                 "    |> group()\n";
         String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
         int i = 0;
