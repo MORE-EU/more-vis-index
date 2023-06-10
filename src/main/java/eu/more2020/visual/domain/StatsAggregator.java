@@ -102,24 +102,28 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         ++count;
         double value = dataPoint.getValue();
         int i = getMeasureIndex(measure);
-        sums[i] += value;
-        minValues[i] = Math.min(minValues[i], value);
-        if (minValues[i] == value) {
+
+        if (minValues[i] > value) {
+            minValues[i] = value;
             minTimestamps[i] = dataPoint.getTimestamp();
         }
-        maxValues[i] = Math.max(maxValues[i], value);
-        if (maxValues[i] == value) {
+
+        if (maxValues[i] < value) {
+            maxValues[i] = value;
             maxTimestamps[i] = dataPoint.getTimestamp();
         }
+
         if (firstTimestamps[i] > dataPoint.getTimestamp()) {
             firstValues[i] = value;
             firstTimestamps[i] = dataPoint.getTimestamp();
         }
+
         if (lastTimestamps[i] < dataPoint.getTimestamp()) {
             lastValues[i] = value;
             lastTimestamps[i] = dataPoint.getTimestamp();
         }
     }
+
 
     public void accept(AggregatedDataPoint dataPoint) {
         Stats stats = dataPoint.getStats();
