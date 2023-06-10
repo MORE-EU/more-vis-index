@@ -92,19 +92,21 @@ public class TTI {
         double queryTime = 0;
 
         // Fetch the missing data from the data source.
+        List<AggregatedDataPoint> missingDataPointList = null;
         AggregatedDataPoints missingDataPoints = null;
         if (missingIntervals.size() >= 1) {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();
             missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
-            missingDataPoints =
-                    dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, viewPort.getWidth());
+            missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, viewPort.getWidth());
+            missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
+
             queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             stopwatch.stop();
             LOG.info("Fetched missing data from data source");
 
             // Add the data points fetched from the data store to the pixel columns
-            missingDataPoints.spliterator().forEachRemaining(aggregatedDataPoint -> {
+            missingDataPointList.forEach(aggregatedDataPoint -> {
                 addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
             });
             LOG.debug("Added fetched data points to pixel columns");
@@ -164,15 +166,15 @@ public class TTI {
             }
         }
 
-        if (missingDataPoints != null) {
+/*        if (missingDataPoints != null) {
             // Create time series spans from the missing data and insert them into the interval tree.
-            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(missingDataPoints, missingIntervals, viewPort.getWidth());
+            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(missingDataPointList, measures, missingIntervals, viewPort.getWidth());
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
 
             intervalTree.insertAll(timeSeriesSpans);
             overlappingSpans.addAll(timeSeriesSpans);
             LOG.info("Inserted new time series spans into interval tree");
-        }
+        }*/
 
 /*        // If currentTime is still less than the end of the query interval, then we need to fetch more data from the data source.
         while (currentTime < to) {
@@ -212,6 +214,8 @@ public class TTI {
             }
             resultData.put(measure, dataPoints);
         }
+        //todo: remove this, just for debugging here
+        resultData.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(resultData);
 
         Map<Integer, Double> error = new HashMap<>();
@@ -335,7 +339,7 @@ public class TTI {
         return (int) ((double) width * (timestamp - from) / (to - from));
     }
 
-    private void addAggregatedDataPointToPixelColumns(Query query, List<PixelColumn> pixelColumns, AggregatedDataPoint aggregatedDataPoint, ViewPort viewPort){
+    private void addAggregatedDataPointToPixelColumns(Query query, List<PixelColumn> pixelColumns, AggregatedDataPoint aggregatedDataPoint, ViewPort viewPort) {
         int pixelColumnIndex = getPixelColumnForTimestamp(aggregatedDataPoint.getFrom(), query.getFrom(), query.getTo(), viewPort.getWidth());
 
         if (pixelColumnIndex < viewPort.getWidth()) {

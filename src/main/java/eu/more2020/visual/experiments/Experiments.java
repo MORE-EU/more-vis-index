@@ -311,6 +311,7 @@ public class Experiments<T> {
                     break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
+            stopwatch.stop();
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);

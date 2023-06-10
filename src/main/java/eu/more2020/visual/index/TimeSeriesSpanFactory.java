@@ -2,6 +2,7 @@ package eu.more2020.visual.index;
 
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.apache.parquet.filter2.predicate.Operators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +35,16 @@ public class TimeSeriesSpanFactory {
         return timeSeriesSpan;
     }*/
 
-    public static List<TimeSeriesSpan> create(AggregatedDataPoints aggregatedDataPoints,
+    public static List<TimeSeriesSpan> create(List<AggregatedDataPoint> aggregatedDataPointsList, List<Integer> measures,
                                              List<TimeInterval> ranges, int spanSize){
         List<TimeSeriesSpan> spans = new ArrayList<>();
-        Iterator<AggregatedDataPoint> it = aggregatedDataPoints.iterator();
+        Iterator<AggregatedDataPoint> it = aggregatedDataPointsList.iterator();
         boolean changed = false;
         AggregatedDataPoint aggregatedDataPoint = null;
 
         for (TimeInterval range : ranges) {
             TimeSeriesSpan timeSeriesSpan = new TimeSeriesSpan(range.getFrom(), range.getTo(),
-                    aggregatedDataPoints.getMeasures(), spanSize);
+                    measures, spanSize);
 
             int intervals = timeSeriesSpan.getSize();
             while(it.hasNext()){
