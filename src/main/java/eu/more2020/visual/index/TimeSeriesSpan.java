@@ -76,11 +76,21 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         for (int j = 0; j < measures.length; j++) {
             int m = measures[j];
             long[] data = aggsByMeasure[j];
+            long minTimestamp = stats.getMinTimestamp(m);
+            long maxTimestamp = stats.getMaxTimestamp(m);
+            double minValue = stats.getMinValue(m);
+            double maxValue = stats.getMaxValue(m);
+
             data[5 * i] = Double.doubleToRawLongBits(stats.getSum(m));
-            data[5 * i + 1] = Double.doubleToRawLongBits(stats.getMinValue(m));
-            data[5 * i + 2] = stats.getMinTimestamp(m);
-            data[5 * i + 3] = Double.doubleToRawLongBits(stats.getMaxValue(m));
-            data[5 * i + 4] = stats.getMaxTimestamp(m);
+            data[5 * i + 1] = Double.doubleToRawLongBits(minValue);
+            data[5 * i + 2] = minTimestamp;
+            data[5 * i + 3] = Double.doubleToRawLongBits(maxValue);
+            // not sure if this helps. we do it to keep the last timestamp in case of same values in the interval
+            if (maxValue == stats.getLastValue(m)){
+                data[5 * i + 4] = stats.getLastTimestamp(m);
+            } else {
+                data[5 * i + 4] = maxTimestamp;
+            }
         }
     }
 

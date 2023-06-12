@@ -44,6 +44,23 @@ public interface Stats {
         return new UnivariateDataPoint(getLastTimestamp(measure), getLastValue(measure));
     }
 
+    default String getString(int measure) {
+        return "{" +
+                "measure=" + measure +
+                ", count=" + getCount() +
+                ", sum=" + getSum(measure) +
+                ", min=" + getMinValue(measure) +
+                ", minTimestamp=" + getMinTimestamp(measure) +
+                ", max=" + getMaxValue(measure) +
+                ", maxTimestamp=" + getMaxTimestamp(measure) +
+                ", first=" + getFirstValue(measure) +
+                ", firstTimestamp=" + getFirstTimestamp(measure) +
+                ", last=" + getLastValue(measure) +
+                ", lastTimestamp=" + getLastTimestamp(measure) +
+                ", average=" + getAverageValue(measure) +
+                '}';
+    }
+
     default String toString(int measure) {
         return "{" +
                 "measure=" + measure +
