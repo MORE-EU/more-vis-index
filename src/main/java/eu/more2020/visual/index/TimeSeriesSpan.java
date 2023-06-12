@@ -21,7 +21,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
     private static final Logger LOG = LoggerFactory.getLogger(TimeSeriesSpan.class);
 
-    int[] measures;
+    List<Integer> measures;
 
     /**
      * The aggregate values for every window interval and for every measure.
@@ -57,9 +57,9 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         this.to = to;
         this.aggregateInterval = (to - from) / size;
         LOG.debug("Initializing time series span [{},{}) with size {} and aggregate interval {}", from, to, size, aggregateInterval);
-        this.measures = measures.stream().mapToInt(Integer::intValue).toArray();
+        this.measures = measures;
         this.counts = new int[size];
-        this.aggsByMeasure = new long[this.measures.length][size * 5];
+        this.aggsByMeasure = new long[this.measures.size()][size * 5];
     }
 
 
@@ -73,8 +73,8 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         if (stats.getCount() == 0) {
             return;
         }
-        for (int j = 0; j < measures.length; j++) {
-            int m = measures[j];
+        for (int j = 0; j < measures.size(); j++) {
+            int m = measures.get(j);
             long[] data = aggsByMeasure[j];
             long minTimestamp = stats.getMinTimestamp(m);
             long maxTimestamp = stats.getMaxTimestamp(m);
@@ -114,7 +114,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
 
     public List<Integer> getMeasures() {
-        return Arrays.stream(measures).boxed().collect(Collectors.toList());
+        return measures;
     }
 
 
@@ -177,12 +177,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
     }
 
     private int getMeasureIndex(int measure) {
-        for (int i = 0; i < measures.length; i++) {
-            if (measures[i] == measure) {
-                return i;
-            }
-        }
-        return -1;
+        return measures.indexOf(measure);
     }
 
 
@@ -204,7 +199,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
         final int REF_SIZE = 4;
 
 
-        long measuresMemory = REF_SIZE + ARRAY_OVERHEAD + (measures.length * INT_SIZE);
+        long measuresMemory = REF_SIZE + ARRAY_OVERHEAD + (measures.size() * INT_SIZE);
 
         long aggsByMeasureMemory = REF_SIZE + ARRAY_OVERHEAD + aggsByMeasure.length * (REF_SIZE + ARRAY_OVERHEAD + (size * 5 * LONG_SIZE));
 
@@ -263,6 +258,11 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
             return new Stats() {
 
                 private int index = currentIndex;
+
+                @Override
+                public List<Integer> getMeasures() {
+                    return measures;
+                }
 
                 @Override
                 public int getCount() {

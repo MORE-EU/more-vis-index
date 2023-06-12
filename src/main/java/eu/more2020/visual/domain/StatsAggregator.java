@@ -153,50 +153,43 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
     }
 
     /**
-     * Combines the state of another {@code StatsAggregator} instance into this
-     * one.
+     * Combines the state of a {@code Stats} instance into this
+     * StatsAggregator.
      *
-     * @param other another {@code StatsAggregator}
-     * @throws NullPointerException if {@code other} is null
+     * @param other another {@code Stats}
+     * @throws IllegalArgumentException if the other Stats instance does not have the same measures as this StatsAggregator
      */
-    public void combine(StatsAggregator other) {
+    public void combine(Stats other) {
         if (!hasSameMeasures(other)) {
             throw new IllegalArgumentException("Cannot combine stats with different measures");
         }
-        count += other.count;
+        count += other.getCount();
         for (int i = 0; i < sums.length; i++) {
-            sums[i] += other.sums[i];
-            minValues[i] = Math.min(minValues[i], other.minValues[i]);
-            if (minValues[i] == other.minValues[i]) {
-                minTimestamps[i] = other.minTimestamps[i];
+            sums[i] += other.getSum(i);
+            minValues[i] = Math.min(minValues[i], other.getMinValue(i));
+            if (minValues[i] == other.getMinValue(i)) {
+                minTimestamps[i] = other.getMinTimestamp(i);
             }
-            maxValues[i] = Math.max(maxValues[i], other.maxValues[i]);
-            if (maxValues[i] == other.maxValues[i]) {
-                maxTimestamps[i] = other.maxTimestamps[i];
+            maxValues[i] = Math.max(maxValues[i], other.getMaxValue(i));
+            if (maxValues[i] == other.getMaxValue(i)) {
+                maxTimestamps[i] = other.getMaxTimestamp(i);
             }
-            if (firstTimestamps[i] > other.firstTimestamps[i]) {
-                firstValues[i] = other.firstValues[i];
-                firstTimestamps[i] = other.firstTimestamps[i];
+            if (firstTimestamps[i] > other.getFirstTimestamp(i)) {
+                firstValues[i] = other.getFirstValue(i);
+                firstTimestamps[i] = other.getFirstTimestamp(i);
             }
-            if (lastTimestamps[i] < other.lastTimestamps[i]) {
-                lastValues[i] = other.lastValues[i];
-                lastTimestamps[i] = other.lastTimestamps[i];
+            if (lastTimestamps[i] < other.getLastTimestamp(i)) {
+                lastValues[i] = other.getLastValue(i);
+                lastTimestamps[i] = other.getLastTimestamp(i);
             }
         }
     }
 
-    /**
-     * Checks if the measures of this StatsAggregator and another StatsAggregator are the same.
-     *
-     * @param other another StatsAggregator
-     * @return boolean - returns true if measures are the same, else false
-     */
-    public boolean hasSameMeasures(StatsAggregator other) {
-        return this.measures != null && other.measures != null &&
-                this.measures.size() == other.measures.size() &&
-                this.measures.stream().allMatch(measure -> other.measures.contains(measure));
-    }
 
+    @Override
+    public List<Integer> getMeasures() {
+        return measures;
+    }
 
     @Override
     public int getCount() {

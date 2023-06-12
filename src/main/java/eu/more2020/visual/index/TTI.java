@@ -67,11 +67,6 @@ public class TTI {
         LOG.debug("Pixel column interval: " + pixelColumnInterval + " ms");
         List<Integer> measures = Optional.ofNullable(query.getMeasures()).orElse(dataset.getMeasures());
 
-        // The stats aggregator for the whole query interval to keep track of the min/max values
-        // and determine the y-axis scale.
-        StatsAggregator windowStatsAggregator = new StatsAggregator(measures);
-
-
         List<PixelColumn> pixelColumns = new ArrayList<>();
         for (long i = 0; i < viewPort.getWidth(); i++) {
             long pixelFrom = from + (i * pixelColumnInterval);
@@ -133,7 +128,6 @@ public class TTI {
 
 
             addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
-            windowStatsAggregator.accept(aggregatedDataPoint);
 
             // Update currentTime to the end of the current data point's covered time
             currentTime = pair.aggregatedDataPoint.getTo();
@@ -147,14 +141,8 @@ public class TTI {
             }
         }
 
-        int[] errors = new int[measures.size()];
-        for (PixelColumn pixelColumn : pixelColumns) {
-            int[] columnErrorsByMeasure = pixelColumn.computeMaxInnerPixelError(windowStatsAggregator);
-            for (int i = 0; i < measures.size(); i++) {
-                errors[i] += columnErrorsByMeasure[i];
-            }
-        }
-        LOG.debug("Errors: " + Arrays.toString(errors));
+//        MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
+//        LOG.debug("Errors: " + maxErrorEvaluator.computeMaxError());
 
 
         // Find the part of the query interval that is not covered by the spans in the interval tree.
@@ -179,7 +167,6 @@ public class TTI {
             // Add the data points fetched from the data store to the pixel columns
             missingDataPointList.forEach(aggregatedDataPoint -> {
                 addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
-                windowStatsAggregator.accept(aggregatedDataPoint);
             });
 
             LOG.debug("Added fetched data points to pixel columns");

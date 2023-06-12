@@ -1,9 +1,12 @@
 package eu.more2020.visual.domain;
 
+import java.util.List;
+
 /**
  * A representation of aggregate statistics for multi-variate time series data points.
  */
 public interface Stats {
+    public List<Integer> getMeasures();
 
     public int getCount();
 
@@ -42,6 +45,18 @@ public interface Stats {
 
     default UnivariateDataPoint getLastDataPoint(int measure) {
         return new UnivariateDataPoint(getLastTimestamp(measure), getLastValue(measure));
+    }
+
+    /**
+     * Checks if the measures of this Stats and another Stats are the same.
+     *
+     * @param other another Stats
+     * @return boolean - returns true if measures are the same, else false
+     */
+    default boolean hasSameMeasures(Stats other) {
+        return this.getMeasures() != null && other.getMeasures() != null &&
+                this.getMeasures().size() == other.getMeasures().size() &&
+                this.getMeasures().stream().allMatch(measure -> other.getMeasures().contains(measure));
     }
 
     default String getString(int measure) {
