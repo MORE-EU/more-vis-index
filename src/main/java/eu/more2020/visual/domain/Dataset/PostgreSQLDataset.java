@@ -83,13 +83,15 @@ public class PostgreSQLDataset extends AbstractDataset {
                 .boxed()
                 .collect(Collectors.toList());
     }
-
     public String getConfig() {
         return config;
     }
-    public String getTable() {
+
+    @Override
+    public String getName() {
         return table;
     }
+    @Override
     public String getSchema() {return schema; }
 
 }

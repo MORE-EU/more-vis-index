@@ -72,7 +72,6 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
             if(currentGroupTimestamp != groupTimestamp){
                 break;
             }
-
             UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
             statsAggregator.accept(point, measure);
             current++;

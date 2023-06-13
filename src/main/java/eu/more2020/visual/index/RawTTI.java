@@ -82,6 +82,7 @@ public class RawTTI {
         while(multiSpanIterator.hasNext()){
             DataPoint next = (DataPoint) multiSpanIterator.next();
             long timestamp = next.getTimestamp();
+            if(timestamp < query.getFrom() | timestamp > query.getTo()) continue;
             double[] values = next.getValues();
             int i = 0;
             for (int m : measures) {
@@ -90,6 +91,7 @@ public class RawTTI {
                 i++;
             }
         }
+        data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setIoCount(ioCount[0]);
         queryResults.setData(data);
         return queryResults;

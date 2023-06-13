@@ -157,7 +157,7 @@ public class TTI {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();
             missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
-            missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures,  2 * viewPort.getWidth());
+            missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures,  10 * viewPort.getWidth());
             missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
 
             queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
@@ -172,7 +172,7 @@ public class TTI {
             LOG.debug("Added fetched data points to pixel columns");
 
             // Create time series spans from the missing data and insert them into the interval tree.
-            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(missingDataPointList, measures, missingIntervals, 2 * viewPort.getWidth());
+            List<TimeSeriesSpan> timeSeriesSpans = TimeSeriesSpanFactory.create(missingDataPointList, measures, missingIntervals, 10 * viewPort.getWidth());
 
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
             timeSeriesSpans.forEach(t -> t.iterator().forEachRemaining(dp -> {

@@ -172,6 +172,7 @@ public class Experiments<T> {
 
     private void initializePostgreSQL() throws IOException, SQLException {
         AbstractDataset dataset = createDataset();
+        if(config == null) config = "postgreSQL.cfg";
         PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(config);
         SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
         sqlQueryExecutor.drop();
@@ -180,6 +181,7 @@ public class Experiments<T> {
 
     private void initializeInfluxDB() throws IOException, SQLException {
         AbstractDataset dataset = createDataset();
+        if(config == null) config = "influxDB.cfg";
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(),
                 dataset.getName(), dataset.getHeader());

@@ -61,7 +61,7 @@ public class PostgreSQLDatasource implements DataSource{
         @NotNull
         public Iterator<DataPoint> iterator() {
             try {
-                SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
+                SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
                 ResultSet resultSet = sqlQueryExecutor.executeRawSqlQuery(sqlQuery);
                 return new PostgreSQLDataPointsIterator(sqlQuery.getMeasures(), resultSet);
             }
@@ -135,7 +135,7 @@ public class PostgreSQLDatasource implements DataSource{
         public Iterator<AggregatedDataPoint> iterator() {
 
             try {
-                SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
+                SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
                 ResultSet resultSet = sqlQueryExecutor.executeM4MultiSqlQuery(sqlQuery);
                 return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getMeasures(), resultSet, aggregateInterval);
             }

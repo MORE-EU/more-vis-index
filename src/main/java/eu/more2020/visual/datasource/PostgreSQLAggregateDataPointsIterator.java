@@ -1,6 +1,7 @@
 package eu.more2020.visual.datasource;
 
 import eu.more2020.visual.domain.*;
+import org.apache.log4j.LogMF;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,6 +39,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     @Override
     public AggregatedDataPoint next() {
         long firstTimestamp = 0L;
+        long lastTimestamp = 0L;
         int i = 0;
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         try {
@@ -53,6 +55,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
                 }
                 else changed = false;
                 if (i == 0)  firstTimestamp = timestamp;
+                lastTimestamp = timestamp;
                 UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
                 statsAggregator.accept(point, measure);
                 i++;
@@ -61,8 +64,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
             e.printStackTrace();
         }
         currentGroup = group;
-        long to = firstTimestamp + aggregateInterval.toDuration().toMillis();
-        return new ImmutableAggregatedDataPoint(firstTimestamp, to, statsAggregator);
+        return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 
 }
