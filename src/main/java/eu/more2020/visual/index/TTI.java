@@ -153,12 +153,12 @@ public class TTI {
         // Fetch the missing data from the data source.
         List<AggregatedDataPoint> missingDataPointList = null;
         AggregatedDataPoints missingDataPoints = null;
-        int kk = 100;
+        int kk = 5;
         if (missingIntervals.size() >= 1) {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();
             missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
-            missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures,  kk * viewPort.getWidth());
+            missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures,kk * viewPort.getWidth());
             missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
 
             queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
@@ -178,7 +178,7 @@ public class TTI {
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
             timeSeriesSpans.forEach(t -> t.iterator().forEachRemaining(dp -> {
                 AggregatedDataPoint aggregatedDataPoint = (AggregatedDataPoint) dp;
-                LOG.debug("Span data point: {} with stats {}", aggregatedDataPoint.getIntervalString(), aggregatedDataPoint.getStats().getString(2));
+//                LOG.debug("Span data point: {} with stats {}", aggregatedDataPoint.getIntervalString(), aggregatedDataPoint.getStats().getString(2));
             }));
 
             intervalTree.insertAll(timeSeriesSpans);

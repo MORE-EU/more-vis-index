@@ -80,6 +80,8 @@ public abstract class DataSourceQuery implements TimeInterval {
 
     public abstract String m4MultiQuerySkeleton();
 
+    public abstract String minMaxQuerySkeleton();
+
     public abstract String m4WithOLAPQuerySkeleton();
 
     public abstract String rawQuerySkeleton();

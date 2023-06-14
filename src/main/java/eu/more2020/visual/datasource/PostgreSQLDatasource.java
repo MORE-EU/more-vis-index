@@ -119,7 +119,6 @@ public class PostgreSQLDatasource implements DataSource{
     final class SQLAggregatedDataPoints implements AggregatedDataPoints {
 
         private final SQLQuery sqlQuery;
-        private AggregateInterval aggregateInterval;
 
 
         public SQLAggregatedDataPoints(long from, long to, List<Integer> measures, int numberOfGroups) {
@@ -136,8 +135,9 @@ public class PostgreSQLDatasource implements DataSource{
 
             try {
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
-                ResultSet resultSet = sqlQueryExecutor.executeM4MultiSqlQuery(sqlQuery);
-                return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getMeasures(), resultSet, aggregateInterval);
+                ResultSet resultSet = sqlQueryExecutor.executeMinMaxSqlQuery(sqlQuery);
+                return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getFrom(), sqlQuery.getTo(),
+                        sqlQuery.getMeasures(), resultSet, sqlQuery.getNumberOfGroups());
             }
             catch(SQLException e) {
                 e.printStackTrace();

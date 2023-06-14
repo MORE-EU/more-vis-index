@@ -19,5 +19,7 @@ public interface QueryExecutor {
 
     QueryResults executeRawQuery(DataSourceQuery q) throws SQLException;
 
+    QueryResults executeMinMaxQuery(DataSourceQuery q) throws SQLException;
+
     void initialize(String path) throws SQLException, FileNotFoundException;
 }

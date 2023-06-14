@@ -209,7 +209,7 @@ public class Experiments<T> {
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
         TTI tti = new TTI(dataset);
-        QueryMethod queryMethod = QueryMethod.M4_MULTI;
+        QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "IO Count",
@@ -252,7 +252,7 @@ public class Experiments<T> {
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
         RawTTI rawTTI = new RawTTI(dataset);
-        QueryMethod queryMethod = QueryMethod.M4_MULTI;
+        QueryMethod queryMethod = QueryMethod.RAW;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");

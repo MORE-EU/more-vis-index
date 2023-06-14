@@ -82,6 +82,11 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     @Override
+    public QueryResults executeMinMaxQuery(DataSourceQuery q) throws SQLException {
+        return null;
+    }
+
+    @Override
     public void initialize(String path) throws FileNotFoundException {
         WriteApi writeApi = influxDBClient.makeWriteApi();
         FileReader reader;

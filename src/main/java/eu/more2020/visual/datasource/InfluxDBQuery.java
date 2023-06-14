@@ -111,6 +111,11 @@ public class InfluxDBQuery extends DataSourceQuery {
         return s;
     }
 
+    @Override
+    public String minMaxQuerySkeleton() {
+        return null;
+    }
+
 //    @Override
 //    public String m4MultiQuerySkeleton() {
 //        String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";

@@ -5,4 +5,5 @@ public enum QueryMethod {
     M4_MULTI,
     M4OLAP,
     RAW,
+    MIN_MAX,
 }

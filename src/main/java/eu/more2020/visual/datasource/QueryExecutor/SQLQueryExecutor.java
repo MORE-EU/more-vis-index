@@ -47,6 +47,8 @@ public class SQLQueryExecutor implements QueryExecutor {
                 return executeM4OLAPQuery(q);
             case RAW:
                 return executeRawQuery(q);
+            case MIN_MAX:
+                return executeMinMaxQuery(q);
             default:
                 throw new UnsupportedOperationException("Unsupported Query Method");
         }
@@ -70,6 +72,11 @@ public class SQLQueryExecutor implements QueryExecutor {
     @Override
     public QueryResults executeRawQuery(DataSourceQuery q) throws SQLException {
         return collect(executeRawSqlQuery((SQLQuery) q));
+    }
+
+    @Override
+    public QueryResults executeMinMaxQuery(DataSourceQuery q) throws SQLException {
+        return collect(executeMinMaxSqlQuery((SQLQuery) q));
     }
 
     @Override
@@ -146,6 +153,18 @@ public class SQLQueryExecutor implements QueryExecutor {
 
     public ResultSet executeM4MultiSqlQuery(SQLQuery q) throws SQLException {
         String sql = q.m4MultiQuerySkeleton();
+        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
+        preparedStatement.setLong("from", q.getFrom());
+        preparedStatement.setLong("to", q.getTo());
+        preparedStatement.setInt("width", q.getNumberOfGroups());
+        preparedStatement.setString("tableName", schema + "." + table);
+        String query = preparedStatement.getPreparedStatement().toString()
+                .replace("'", "");
+        return execute(query);
+    }
+
+    public ResultSet executeMinMaxSqlQuery(SQLQuery q) throws SQLException {
+        String sql = q.minMaxQuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
