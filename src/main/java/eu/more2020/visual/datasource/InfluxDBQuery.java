@@ -58,94 +58,149 @@ public class InfluxDBQuery extends DataSourceQuery {
 //                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
                 "    |> group()" +
                 "\n" +
-                "first = from(bucket:\"%s\") \n " +
+                "data = () => from(bucket:\"%s\") \n" +
                 "|> range(start:%s, stop:%s) \n" +
                 "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                 "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                "\") \n" +
-                "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: first)\n") +
-                ("last = from(bucket:\"%s\") " +
-                        "|> range(start:%s, stop:%s)\n " +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\")\n " +
-                        "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                        measureNames.stream().map(Object::toString)
-                                .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                        "\")\n" +
-                        " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: last)\n") +
-                ("min = from(bucket:\"%s\") " +
-                        "|> range(start:%s, stop:%s)\n " +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
-                        "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                        measureNames.stream().map(Object::toString)
-                                .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                        "\")\n" +
-                        " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: min)") +
-                ("max = from(bucket:\"%s\") " +
-                        "|> range(start:%s, stop:%s)\n " +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
-                        "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                        measureNames.stream().map(Object::toString)
-                                .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                        "\")\n" +
-                        "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: max)\n") +
-                "union(tables: [min, max, last, first]) \n" +
-                "|> sort(columns: [\"_time\"], desc: false)\n";
+                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                " \n" +
+                "aggregate = (tables=<-, agg, name) =>\n" +
+                "    tables\n" +
+                "        |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: agg)\n" +
+                "\n" +
+                "union(\n" +
+                "    tables: [\n" +
+                "        data() |> aggregate(agg: first, name: \"first\"),\n" +
+                "        data() |> aggregate(agg: max, name: \"max\"),\n" +
+                "        data() |> aggregate(agg: min, name: \"min\"),\n" +
+                "        data() |> aggregate(agg: last, name: \"last\"),\n" +
+                "    ],\n" +
+                ")" +
+                "|> sort(columns: [\"_time\"], desc: false)\n");
     }
+
 
     @Override
     public String m4MultiQuerySkeleton() {
-        String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
-                "  tables\n" +
-                "    |> window(every:every, offset: %s , createEmpty:true)\n" +
-                "    |> fn(column:column)\n" +
-//                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
-                "    |> group()\n";
         String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+        String s =
+                "aggregate = (tables=<-, agg, name) => tables" +
+                "\n" +
+                "|> aggregateWindow(every:" + aggregateInterval + "ms, fn: agg, createEmpty: true, timeSrc:\"_start\")" +
+                "\n";
+
         int i = 0;
         for (TimeInterval r : ranges) {
-            s += ("first_" + i + "= from(bucket:\"%s\") \n " +
-                    "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
+            s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
+                    "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
                     "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                    "\") \n" +
-                    "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: first)\n") +
-                    ("last_" + i + "= from(bucket:\"%s\") " +
-                            "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
-                            "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\")\n " +
-                            "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                            measureNames.stream().map(Object::toString)
-                                    .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                            "\")\n" +
-                            " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: last)\n") +
-                    ("min_" + i + " = from(bucket:\"%s\") " +
-                            "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
-                            "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
-                            "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                            measureNames.stream().map(Object::toString)
-                                    .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                            "\")\n" +
-                            " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: min)\n") +
-                    ("max_" + i + " = from(bucket:\"%s\") " +
-                            "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
-                            "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
-                            "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                            measureNames.stream().map(Object::toString)
-                                    .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-                            "\")\n" +
-                            "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: max)\n");
-            i++;
+                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                    " \n";
         }
-        s += "union(tables: [";
-        for (i = 0; i < ranges.size(); i++)
-            s += "min_" + i + ", max_" + i + ", last_" + i + ", first_" + i + ",";
-        s = s.substring(0, s.length() - 1);
-        s += "])";
-        s += "|> sort(columns: [\"_time\"], desc: false)\n";
-
+        s += "union(\n" +
+                "    tables: [\n";
+        for(i = 0; i < ranges.size(); i ++){
+            s +=    "data_" + i + "() |> aggregate(agg: first, name: \"first\"),\n" +
+                    "data_" + i + "() |> aggregate(agg: max, name: \"max\"),\n" +
+                    "data_" + i + "() |> aggregate(agg: min, name: \"min\"),\n" +
+                    "data_" + i + "() |> aggregate(agg: last, name: \"last\"),\n";
+        }
+        s+= "])" +
+                "\n" + "|> sort(columns: [\"_time\"], desc: false)\n";
         return s;
     }
+
+//    @Override
+//    public String m4MultiQuerySkeleton() {
+//        String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+//        String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
+//                "  tables\n" +
+//                "    |> window(every:every, offset: %s, createEmpty:true)\n" +
+//                "    |> fn(column:column)\n" +
+//                "    |> group()" +
+//                "\n" +
+//                "aggregate = (tables=<-, agg, name) => tables" +
+//                "\n" +
+//                "|> customAggregateWindow(every:" + aggregateInterval + "ms, fn: agg)" +
+//                "\n";
+//
+//        int i = 0;
+//        for (TimeInterval r : ranges) {
+//            s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
+//                    "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
+//                    "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+//                    "|> filter(fn: (r) => r[\"_field\"] ==\"" +
+//                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+//                    " \n";
+//        }
+//        s += "union(\n" +
+//                "    tables: [\n";
+//        for(i = 0; i < ranges.size(); i ++){
+//            s +=    "data_" + i + "() |> aggregate(agg: first, name: \"first\"),\n" +
+//                    "data_" + i + "() |> aggregate(agg: max, name: \"max\"),\n" +
+//                    "data_" + i + "() |> aggregate(agg: min, name: \"min\"),\n" +
+//                    "data_" + i + "() |> aggregate(agg: last, name: \"last\"),\n";
+//        }
+//        s+= "])" +
+//                "\n" + "|> sort(columns: [\"_time\"], desc: false)\n";
+//        return s;
+//    }
+
+//
+//    @Override
+//    public String m4MultiQuerySkeleton() {
+//        String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
+//                "  tables\n" +
+//                "    |> window(every:every, offset: %s , createEmpty:true)\n" +
+//                "    |> fn(column:column)\n" +
+////                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
+//                "    |> group()\n";
+//        String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+//        int i = 0;
+//        for (TimeInterval r : ranges) {
+//            s += ("first_" + i + "= from(bucket:\"%s\") \n " +
+//                    "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
+//                    "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+//                    "|> filter(fn: (r) => r[\"_field\"] ==\"" +
+//                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+//                    "\") \n" +
+//                    "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: first)\n") +
+//                    ("last_" + i + "= from(bucket:\"%s\") " +
+//                            "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
+//                            "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\")\n " +
+//                            "|> filter(fn: (r) => r[\"_field\"] ==\"" +
+//                            measureNames.stream().map(Object::toString)
+//                                    .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+//                            "\")\n" +
+//                            " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: last)\n") +
+//                    ("min_" + i + " = from(bucket:\"%s\") " +
+//                            "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
+//                            "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+//                            "|> filter(fn: (r) => r[\"_field\"] ==\"" +
+//                            measureNames.stream().map(Object::toString)
+//                                    .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+//                            "\")\n" +
+//                            " |> customAggregateWindow(every: " + aggregateInterval + "ms, fn: min)\n") +
+//                    ("max_" + i + " = from(bucket:\"%s\") " +
+//                            "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ") \n" +
+//                            "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+//                            "|> filter(fn: (r) => r[\"_field\"] ==\"" +
+//                            measureNames.stream().map(Object::toString)
+//                                    .collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+//                            "\")\n" +
+//                            "|> customAggregateWindow(every: " + aggregateInterval + "ms, fn: max)\n");
+//            i++;
+//        }
+//        s += "union(tables: [";
+//        for (i = 0; i < ranges.size(); i++)
+//            s += "min_" + i + ", max_" + i + ", last_" + i + ", first_" + i + ",";
+//        s = s.substring(0, s.length() - 1);
+//        s += "])";
+//        s += "|> sort(columns: [\"_time\"], desc: false)\n";
+//
+//        return s;
+//    }
 
     @Override
     public String m4WithOLAPQuerySkeleton() {

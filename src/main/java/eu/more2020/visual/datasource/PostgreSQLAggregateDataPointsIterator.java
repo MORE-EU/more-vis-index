@@ -38,26 +38,29 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
 
     @Override
     public AggregatedDataPoint next() {
-        long firstTimestamp = 0L;
+        long firstTimestamp = Long.MAX_VALUE;
         long lastTimestamp = 0L;
         int i = 0;
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         try {
            do  {
                 int measure = resultSet.getInt(1);
-                long timestamp = resultSet.getLong(2);
-                double value = resultSet.getDouble(3);
-                group = resultSet.getInt(4);
+                long min_timestamp = resultSet.getLong(2);
+                long max_timestamp = resultSet.getLong(3);
+                double value = resultSet.getDouble(4);
+                group = resultSet.getInt(5);
                 currentGroup = currentGroup == -1 ? group : currentGroup;
                 if(group != currentGroup) {
                     changed = true;
                     break;
                 }
                 else changed = false;
-                if (i == 0)  firstTimestamp = timestamp;
-                lastTimestamp = timestamp;
-                UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
-                statsAggregator.accept(point, measure);
+                if (i == 0)  firstTimestamp = Math.min(min_timestamp, firstTimestamp);
+                lastTimestamp = Math.max(max_timestamp, lastTimestamp);
+                UnivariateDataPoint point1 = new UnivariateDataPoint(min_timestamp, value);
+                statsAggregator.accept(point1, measure);
+                UnivariateDataPoint point2 = new UnivariateDataPoint(max_timestamp, value);
+                statsAggregator.accept(point2, measure);
                 i++;
             } while(resultSet.next());
         } catch (SQLException e) {

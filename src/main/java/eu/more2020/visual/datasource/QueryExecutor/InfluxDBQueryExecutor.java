@@ -292,26 +292,21 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     };
 
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
-
         String flux = String.format(q.m4QuerySkeleton(),
                 (q.getFrom() % q.getAggregateInterval() + "ms"),
-                bucket, q.getFromDate(), q.getToDate(), table, // first
-                bucket, q.getFromDate(), q.getToDate(), table, // last
-                bucket, q.getFromDate(), q.getToDate(), table, // min
-                bucket, q.getFromDate(), q.getToDate(), table); // max
+                bucket, q.getFromDate(), q.getToDate(), table);
         return execute(flux);
     }
 
     public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
+//        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
         for (int i = 0; i < q.getRanges().size(); i++) {
             for (int j = 0; j < 4; j++) {
                 args.add(bucket);
                 args.add(table);
             }
         }
-        System.out.println(args);
         String flux = String.format(q.m4MultiQuerySkeleton(), args.toArray());
         return execute(flux);
     }
