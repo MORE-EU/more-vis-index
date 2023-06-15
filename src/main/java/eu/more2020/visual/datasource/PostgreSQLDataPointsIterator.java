@@ -36,7 +36,10 @@ public class PostgreSQLDataPointsIterator implements Iterator<DataPoint> {
             int i = 0;
             while (i < measures.size() && resultSet.next()) {
                 datetime = resultSet.getLong(2);
-                values[i] = resultSet.getDouble(3);
+                Double val = resultSet.getObject(3) == null ? null : resultSet.getDouble(3);
+                if(val == null) continue;
+                values[i] = val;
+                ;
                 i ++;
             }
         } catch (SQLException e) {

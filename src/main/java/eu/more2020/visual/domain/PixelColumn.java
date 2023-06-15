@@ -62,7 +62,8 @@ public class PixelColumn implements TimeInterval {
         Stats stats = dp.getStats();
 
         // todo: here, in case we add data from time series span, we add the same min-max point twice. This is not a problem, but it's not optimal.
-        for (int measure : measures) {
+        if(stats.getCount() > 0)
+            for (int measure : measures) {
             if (this.contains(stats.getMinTimestamp(measure))) {
                 statsAggregator.accept(dp.getStats().getMinDataPoint(measure), measure);
             }

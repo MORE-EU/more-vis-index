@@ -197,7 +197,8 @@ public class SQLQueryExecutor implements QueryExecutor {
             Integer measure = resultSet.getInt(1);
             long epoch = resultSet.getLong(2);
             long epoch2 = resultSet.getLong(3);
-            Double val = resultSet.getDouble(4);
+            Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
+            if(val == null) continue;
             data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
                     new UnivariateDataPoint(epoch, val));
             data.computeIfAbsent(measure, k -> new ArrayList<>()).add(

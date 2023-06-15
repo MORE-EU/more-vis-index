@@ -92,20 +92,23 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
                 resultSet.next();
                 int measure = resultSet.getInt(1);
                 k = resultSet.getInt(2);
-                double v_min = resultSet.getDouble(3);
-                double v_max = resultSet.getDouble(4);
+                Double v_min = resultSet.getObject(3) == null ? null : resultSet.getDouble(3);
+                Double v_max = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
                 firstTimestamp = from + k * aggregateInterval;
-                UnivariateDataPoint point1 = new UnivariateDataPoint(firstTimestamp, v_min);
-                statsAggregator.accept(point1, measure);
-                UnivariateDataPoint point2 = new UnivariateDataPoint(firstTimestamp, v_max);
-                statsAggregator.accept(point2, measure);
+                if(v_min != null) {
+                    UnivariateDataPoint point1 = new UnivariateDataPoint(firstTimestamp, v_min);
+                    statsAggregator.accept(point1, measure);
+                }
+                if(v_max != null) {
+                    UnivariateDataPoint point2 = new UnivariateDataPoint(firstTimestamp, v_max);
+                    statsAggregator.accept(point2, measure);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         long lastTimestamp = hasNext() ? from + (k + 1) * aggregateInterval : to;
-        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp),
-                DateTimeUtil.format(lastTimestamp), aggregateInterval);
+//        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), aggregateInterval);
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 
