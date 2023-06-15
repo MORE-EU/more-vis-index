@@ -64,15 +64,25 @@ public class SQLQuery extends DataSourceQuery {
     @Override
     public String m4QuerySkeleton() {
         return qM4Skeleton() +
-                "SELECT id, epoch, value, k FROM Q_M " +
-                "ORDER BY k, epoch";
+                "SELECT id, min(epoch) as min_epoch, max(epoch) as max_epoch, value, k FROM Q_M " +
+                "GROUP BY id, value, k " +
+                "ORDER BY k, min_epoch";
     }
+
+
+//    @Override
+//    public String m4QuerySkeleton() {
+//        return qM4Skeleton() +
+//                "SELECT id, epoch, value, k FROM Q_M " +
+//                "ORDER BY k, epoch";
+//    }
+//
 
     @Override
     public String m4MultiQuerySkeleton() {
         return qMultiM4Skeleton() +
                 "SELECT id, MIN(epoch) AS min_epoch, MAX(epoch) AS max_epoch, value, k FROM Q_M " +
-                "GROUP BY id, value, k " +
+                "GROUP BY id, k, value " +
                 "ORDER BY k, min_epoch";
     }
 
@@ -84,8 +94,9 @@ public class SQLQuery extends DataSourceQuery {
                 "FROM :tableName \n" +
                 "WHERE " +
                 this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
-                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
-                "GROUP BY id, k";
+                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) + " " +
+                "GROUP BY id, k " +
+                "ORDER BY k, id";
     }
 
     @Override

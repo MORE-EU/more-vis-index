@@ -132,7 +132,6 @@ public class PostgreSQLDatasource implements DataSource{
 
         @NotNull
         public Iterator<AggregatedDataPoint> iterator() {
-
             try {
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
                 ResultSet resultSet = sqlQueryExecutor.executeMinMaxSqlQuery(sqlQuery);

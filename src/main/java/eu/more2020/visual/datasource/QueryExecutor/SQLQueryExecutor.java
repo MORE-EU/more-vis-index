@@ -175,17 +175,35 @@ public class SQLQueryExecutor implements QueryExecutor {
         return execute(query);
     }
 
+//    private QueryResults collect(ResultSet resultSet) throws SQLException {
+//        QueryResults queryResults = new QueryResults();
+//        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+//        while(resultSet.next()){
+//            Integer measure = resultSet.getInt(1);
+//            long epoch = resultSet.getLong(2);
+//            Double val = resultSet.getDouble(3);
+//            data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
+//                    new UnivariateDataPoint(epoch, val));
+//        }
+//        data.forEach((k, v) -> v.sort(compareLists));
+//        queryResults.setData(data);
+//        return queryResults;
+//    }
+
     private QueryResults collect(ResultSet resultSet) throws SQLException {
         QueryResults queryResults = new QueryResults();
         HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
         while(resultSet.next()){
             Integer measure = resultSet.getInt(1);
             long epoch = resultSet.getLong(2);
-            Double val = resultSet.getDouble(3);
+            long epoch2 = resultSet.getLong(3);
+            Double val = resultSet.getDouble(4);
             data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
                     new UnivariateDataPoint(epoch, val));
+            data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
+                    new UnivariateDataPoint(epoch2, val));
         }
-        data.forEach((k, v) -> v.sort(compareLists));
+        data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(data);
         return queryResults;
     }

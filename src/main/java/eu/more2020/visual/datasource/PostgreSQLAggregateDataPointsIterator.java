@@ -1,16 +1,22 @@
 package eu.more2020.visual.datasource;
 
 import eu.more2020.visual.domain.*;
+import eu.more2020.visual.index.TTI;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.apache.log4j.LogMF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PostgreSQLAggregateDataPointsIterator implements Iterator<AggregatedDataPoint> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PostgreSQLAggregateDataPointsIterator.class);
 
     private final ResultSet resultSet;
     private final List<Integer> measures;
@@ -19,12 +25,12 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     private boolean changed = false;
     private int currentGroup = -1, group = 0;
 
-    private int noOfGroups;
+    private final long aggregateInterval;
 
     public PostgreSQLAggregateDataPointsIterator(long from, long to, List<Integer> measures, ResultSet resultSet, int noOfGroups){
         this.measures = measures;
         this.resultSet = resultSet;
-        this.noOfGroups = noOfGroups;
+        this.aggregateInterval = (to - from) / noOfGroups;
         this.from = from;
         this.to = to;
     }
@@ -32,9 +38,10 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     @Override
     public boolean hasNext() {
         try {
-            if(resultSet.isAfterLast()) return false;
-            if(changed) return true;
-            return resultSet.next();
+            return !(resultSet.isLast() || resultSet.isAfterLast());
+//            if(resultSet.isAfterLast()) return false;
+//            if(changed) return true;
+//            return resultSet.next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -79,10 +86,10 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     public AggregatedDataPoint next() {
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         long firstTimestamp = from;
-        long aggregateInterval = (to - from) / noOfGroups;
         int k = 0;
         try {
             for (int m : measures) {
+                resultSet.next();
                 int measure = resultSet.getInt(1);
                 k = resultSet.getInt(2);
                 double v_min = resultSet.getDouble(3);
@@ -92,12 +99,13 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
                 statsAggregator.accept(point1, measure);
                 UnivariateDataPoint point2 = new UnivariateDataPoint(firstTimestamp, v_max);
                 statsAggregator.accept(point2, measure);
-                resultSet.next();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         long lastTimestamp = hasNext() ? from + (k + 1) * aggregateInterval : to;
+        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp),
+                DateTimeUtil.format(lastTimestamp), aggregateInterval);
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 
