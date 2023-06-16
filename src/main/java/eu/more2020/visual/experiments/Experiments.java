@@ -155,6 +155,16 @@ public class Experiments<T> {
     private void run() throws IOException, ClassNotFoundException, SQLException {
         Preconditions.checkNotNull(outFolder, "No out folder specified.");
         type = type.toLowerCase(Locale.ROOT);
+        switch(type){
+            case "postgres":
+                if(config == null) config = "postgreSQL.cfg";
+                break;
+            case "influx":
+                if(config == null) config = "influxDB.cfg";
+                break;
+            default:
+                Preconditions.checkNotNull(outFolder, "No config files specified.");
+        }
         initOutput();
         switch (command) {
             case "initialize":
@@ -172,7 +182,6 @@ public class Experiments<T> {
 
     private void initializePostgreSQL() throws IOException, SQLException {
         AbstractDataset dataset = createDataset();
-        if(config == null) config = "postgreSQL.cfg";
         PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(config);
         SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
         sqlQueryExecutor.drop();
@@ -181,7 +190,6 @@ public class Experiments<T> {
 
     private void initializeInfluxDB() throws IOException, SQLException {
         AbstractDataset dataset = createDataset();
-        if(config == null) config = "influxDB.cfg";
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(),
                 dataset.getName(), dataset.getHeader());
@@ -425,6 +433,7 @@ public class Experiments<T> {
     private void initOutput() throws IOException {
         Path outFolderPath = Paths.get(outFolder);
         Path timeQueriesPath = Paths.get(outFolder, "timeQueries");
+        recreateDir(timeQueriesPath.toString());
         Path typePath = Paths.get(outFolder, "timeQueries", type);
         Path tablePath = Paths.get(outFolder, "timeQueries", type, table);
         Path metadataPath = Paths.get(outFolder, "metadata");

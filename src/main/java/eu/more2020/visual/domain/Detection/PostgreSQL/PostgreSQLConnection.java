@@ -32,6 +32,7 @@ public class PostgreSQLConnection {
                             properties.getProperty("user"), properties.getProperty("password"));
             LOG.info("Initialized PostgreSQL connection");
         } catch (Exception e) {
+            e.printStackTrace();
             LOG.error(e.getClass().getName()+": "+e.getMessage());
         }
     }
