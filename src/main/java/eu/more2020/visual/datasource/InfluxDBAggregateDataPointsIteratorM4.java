@@ -6,16 +6,18 @@ import eu.more2020.visual.domain.AggregatedDataPoint;
 import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.domain.StatsAggregator;
 import eu.more2020.visual.domain.UnivariateDataPoint;
-import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
-public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedDataPoint> {
+public class InfluxDBAggregateDataPointsIteratorM4 implements Iterator<AggregatedDataPoint> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InfluxDBAggregateDataPointsIterator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InfluxDBAggregateDataPointsIteratorM4.class);
 
     private final List<Integer> measures;
     private final List<String> measureNames;
@@ -29,7 +31,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 
     private final Integer numberOfGroups;
 
-    public InfluxDBAggregateDataPointsIterator(List<String> measureNames, List<Integer> measures, FluxTable table, Integer numberOfGroups) {
+    public InfluxDBAggregateDataPointsIteratorM4(List<String> measureNames, List<Integer> measures, FluxTable table, Integer numberOfGroups) {
         this.measures = measures;
         this.measureNames = measureNames;
         this.records = table.getRecords();
@@ -58,13 +60,15 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 
     private AggregatedDataPoint createAggregatedDataPoint() {
         StatsAggregator statsAggregator = new StatsAggregator(measures);
+
         while (hasNext() && currentGroupTimestamp == groupTimestamp) {
             FluxRecord record = records.get(current);
             int measure = measures.get(measureNames.indexOf(record.getField()));
             long timestamp = Objects.requireNonNull(record.getTime()).toEpochMilli();
             if(record.getValue() != null) { // check for empty value
                 double value = (double) record.getValue();
-                currentGroupTimestamp = record.getTime().toEpochMilli();
+                currentGroupTimestamp = ((Instant) record.getValues().get("_start")).toEpochMilli();
+                currentEndTimestamp = ((Instant) record.getValues().get("_stop")).toEpochMilli();
                 if (currentGroupTimestamp != groupTimestamp) {
                     break;
                 }
@@ -73,14 +77,13 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
             }
             current++;
         }
-        if(!hasNext()){
-            currentGroupTimestamp = endTimestamp;
-        }
-        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
-//        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp));
+
+        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, endTimestamp, statsAggregator);
+        //LOG.debug("Creating agg datapoint from InfluxDB with agg interval {}: {}", aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint);
         groupTimestamp = currentGroupTimestamp;
+        endTimestamp = currentEndTimestamp;
+
         i++;
         return aggregatedDataPoint;
     }
-
 }
