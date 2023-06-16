@@ -135,12 +135,12 @@ public class PostgreSQLDatasource implements DataSource{
         public Iterator<AggregatedDataPoint> iterator() {
             try {
                 SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
-//                ResultSet resultSet = sqlQueryExecutor.executeMinMaxSqlQuery(sqlQuery);
-//                return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getFrom(), sqlQuery.getTo(),
-//                        sqlQuery.getMeasures(), resultSet, sqlQuery.getNumberOfGroups());
-                ResultSet resultSet = sqlQueryExecutor.executeM4MultiSqlQuery(sqlQuery);
-                return new PostgreSQLAggregateDataPointsIteratorM4(sqlQuery.getFrom(), sqlQuery.getTo(),
+                ResultSet resultSet = sqlQueryExecutor.executeMinMaxSqlQuery(sqlQuery);
+                return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getFrom(), sqlQuery.getTo(),
                         sqlQuery.getMeasures(), resultSet, sqlQuery.getNumberOfGroups());
+//                ResultSet resultSet = sqlQueryExecutor.executeM4MultiSqlQuery(sqlQuery);
+//                return new PostgreSQLAggregateDataPointsIteratorM4(sqlQuery.getFrom(), sqlQuery.getTo(),
+//                        sqlQuery.getMeasures(), resultSet, sqlQuery.getNumberOfGroups());
             }
             catch(SQLException e) {
                 e.printStackTrace();

@@ -4,6 +4,7 @@ import eu.more2020.visual.domain.AggregatedDataPoint;
 import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.domain.StatsAggregator;
 import eu.more2020.visual.domain.UnivariateDataPoint;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,6 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
     @Override
     public AggregatedDataPoint next() {
         long firstTimestamp = Long.MAX_VALUE;
-        long lastTimestamp = 0L;
         int i = 0;
         StatsAggregator statsAggregator = new StatsAggregator(measures);
         try {
@@ -57,14 +57,13 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
                 long min_timestamp = resultSet.getLong(2);
                 long max_timestamp = resultSet.getLong(3);
                 double value = resultSet.getDouble(4);
+                firstTimestamp = from + group * aggregateInterval;
                 group = resultSet.getInt(5);
                 currentGroup = currentGroup == -1 ? group : currentGroup;
                 if (group != currentGroup) {
                     changed = true;
                     break;
                 } else changed = false;
-                if (i == 0) firstTimestamp = Math.min(min_timestamp, firstTimestamp);
-                lastTimestamp = Math.max(max_timestamp, lastTimestamp);
                 UnivariateDataPoint point1 = new UnivariateDataPoint(min_timestamp, value);
                 statsAggregator.accept(point1, measure);
                 UnivariateDataPoint point2 = new UnivariateDataPoint(max_timestamp, value);
@@ -75,6 +74,10 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
             e.printStackTrace();
         }
         currentGroup = group;
+        long lastTimestamp = hasNext() ? from + group * aggregateInterval : to;
+
+//        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp));
+
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 }

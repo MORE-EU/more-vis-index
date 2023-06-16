@@ -23,15 +23,15 @@ public class SQLQuery extends DataSourceQuery {
     private String qM4Skeleton(){
         return "WITH Q_M AS (SELECT Q.id, epoch, value, k FROM :tableName as Q \n" +
                 "JOIN " +
-                "(SELECT id, round( \n" +
-                ":width * (CAST((epoch - :from ) as float) / (:to - :from ))) as k, \n" +
+                "(SELECT id, floor( \n" +
+                ":width * CAST((epoch - :from ) as float) / (:to - :from )) as k, \n" +
                 "min(value) as v_min, max(value) as v_max, \n"  +
                 "min(epoch) as t_min, max(epoch) as t_max \n"  +
                 "FROM :tableName \n" +
                 "WHERE epoch >= :from AND epoch <= :to \n" +
                 "AND id IN (" + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") \n" +
                 "GROUP BY id, k ) as QA \n"+
-                "ON k = round(:width * (CAST((epoch - :from ) as float) / (:to - :from ))) \n" +
+                "ON k = floor(:width * CAST((epoch - :from ) as float) / (:to - :from )) \n" +
                 "AND QA.id = Q.id \n" +
                 "AND (value = v_min OR value = v_max OR \n" +
                 "epoch = t_min OR epoch = t_max) \n" +
@@ -42,8 +42,8 @@ public class SQLQuery extends DataSourceQuery {
     private String qMultiM4Skeleton(){
         return "WITH Q_M AS (SELECT Q.id, epoch, value, k FROM :tableName as Q \n" +
                 "JOIN " +
-                "(SELECT id, abs(round( \n" +
-                ":width * (epoch - :from ) / (:to - :from ))) as k, \n" +
+                "(SELECT id, floor( \n" +
+                ":width * CAST((epoch - :from ) as float) / (:to - :from )) as k, \n" +
                 "min(value) as v_min, max(value) as v_max, \n"  +
                 "min(epoch) as t_min, max(epoch) as t_max \n"  +
                 "FROM :tableName \n" +
@@ -51,7 +51,7 @@ public class SQLQuery extends DataSourceQuery {
                 this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
                         + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
                 "GROUP BY id, k ) as QA \n"+
-                "ON k = abs(round(:width * (epoch - :from ) / (:to - :from ))) \n" +
+                "ON k = floor(:width * CAST((epoch - :from ) as float) / (:to - :from )) \n" +
                 "AND QA.id = Q.id \n" +
                 "AND (value = v_min OR value = v_max OR \n" +
                 "epoch = t_min OR epoch = t_max) \n" +
@@ -89,8 +89,8 @@ public class SQLQuery extends DataSourceQuery {
 
     @Override
     public String minMaxQuerySkeleton() {
-        return "SELECT id, abs(round( \n" +
-                ":width * (epoch - :from ) / (:to - :from ))) as k, \n" +
+        return "SELECT id, floor( \n" +
+                ":width * CAST((epoch - :from ) as float) / (:to - :from )) as k, \n" +
                 "min(value) as v_min, max(value) as v_max \n"  +
                 "FROM :tableName \n" +
                 "WHERE " +
