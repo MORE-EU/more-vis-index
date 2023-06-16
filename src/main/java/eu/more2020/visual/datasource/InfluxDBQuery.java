@@ -113,7 +113,31 @@ public class InfluxDBQuery extends DataSourceQuery {
 
     @Override
     public String minMaxQuerySkeleton() {
-        return null;
+        String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+        String s =
+                "aggregate = (tables=<-, agg, name) => tables" +
+                        "\n" +
+                        "|> aggregateWindow(every:" + aggregateInterval + "ms, fn: agg, timeSrc:\"_start\")" +
+                        "\n";
+
+        int i = 0;
+        for (TimeInterval r : ranges) {
+            s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
+                    "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
+                    "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+                    "|> filter(fn: (r) => r[\"_field\"] ==\"" +
+                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                    " \n";
+        }
+        s += "union(\n" +
+                "    tables: [\n";
+        for(i = 0; i < ranges.size(); i ++){
+            s +=    "data_" + i + "() |> aggregate(agg: max, name: \"max\"),\n" +
+                    "data_" + i + "() |> aggregate(agg: min, name: \"min\"),\n";
+        }
+        s+= "])" +
+                "\n" + "|> sort(columns: [\"_time\"], desc: false)\n";
+        return s;
     }
 
 //    @Override

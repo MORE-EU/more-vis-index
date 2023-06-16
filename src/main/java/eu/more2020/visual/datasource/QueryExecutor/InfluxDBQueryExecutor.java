@@ -55,6 +55,8 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 return executeM4OLAPQuery(q);
             case RAW:
                 return executeRawQuery(q);
+            case MIN_MAX:
+                return executeMinMaxQuery(q);
             default:
                 return executeM4Query(q);
         }
@@ -82,9 +84,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public QueryResults executeMinMaxQuery(DataSourceQuery q) throws SQLException {
-        return null;
-    }
+    public QueryResults executeMinMaxQuery(DataSourceQuery q) {return collect(executeMinMaxInfluxQuery((InfluxDBQuery) q));}
 
     @Override
     public void initialize(String path) throws FileNotFoundException {
@@ -313,6 +313,19 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
             }
         }
         String flux = String.format(q.m4MultiQuerySkeleton(), args.toArray());
+        return execute(flux);
+    }
+
+    public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQuery q) {
+        List<String> args = new ArrayList<>();
+//        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
+        for (int i = 0; i < q.getRanges().size(); i++) {
+            for (int j = 0; j < 2; j++) {
+                args.add(bucket);
+                args.add(table);
+            }
+        }
+        String flux = String.format(q.minMaxQuerySkeleton(), args.toArray());
         return execute(flux);
     }
 
