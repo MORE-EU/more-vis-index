@@ -4,7 +4,6 @@ import eu.more2020.visual.domain.AggregatedDataPoint;
 import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.domain.StatsAggregator;
 import eu.more2020.visual.domain.UnivariateDataPoint;
-import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
 
     private final long aggregateInterval;
 
-    public PostgreSQLAggregateDataPointsIteratorM4(long from, long to, List<Integer> measures, ResultSet resultSet, int noOfGroups){
+    public PostgreSQLAggregateDataPointsIteratorM4(long from, long to, List<Integer> measures, ResultSet resultSet, int noOfGroups) {
         this.measures = measures;
         this.resultSet = resultSet;
         this.aggregateInterval = (to - from) / noOfGroups;
@@ -37,8 +36,8 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
     @Override
     public boolean hasNext() {
         try {
-            if(resultSet.isAfterLast()) return false;
-            if(changed) return true;
+            if (resultSet.isAfterLast()) return false;
+            if (changed) return true;
             return resultSet.next();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -56,7 +55,7 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
                 int measure = resultSet.getInt(1);
                 long min_timestamp = resultSet.getLong(2);
                 long max_timestamp = resultSet.getLong(3);
-                double value = resultSet.getDouble(4);
+                Double value = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
                 firstTimestamp = from + group * aggregateInterval;
                 group = resultSet.getInt(5);
                 currentGroup = currentGroup == -1 ? group : currentGroup;
@@ -64,10 +63,12 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
                     changed = true;
                     break;
                 } else changed = false;
-                UnivariateDataPoint point1 = new UnivariateDataPoint(min_timestamp, value);
-                statsAggregator.accept(point1, measure);
-                UnivariateDataPoint point2 = new UnivariateDataPoint(max_timestamp, value);
-                statsAggregator.accept(point2, measure);
+                if (value != null) {
+                    UnivariateDataPoint point1 = new UnivariateDataPoint(min_timestamp, value);
+                    statsAggregator.accept(point1, measure);
+                    UnivariateDataPoint point2 = new UnivariateDataPoint(max_timestamp, value);
+                    statsAggregator.accept(point2, measure);
+                }
                 i++;
             } while (resultSet.next());
         } catch (SQLException e) {
