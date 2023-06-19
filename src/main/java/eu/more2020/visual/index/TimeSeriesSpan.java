@@ -301,26 +301,22 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
 
                 @Override
                 public double getFirstValue(int measure) {
-                    return getMinTimestamp(measure) < getMaxTimestamp(measure) ?
-                            getMinValue(measure) : getMaxValue(measure);
+                    return (getMinValue(measure) + getMaxValue(measure)) / 2;
                 }
 
                 @Override
                 public long getFirstTimestamp(int measure) {
-                    return getMinTimestamp(measure) < getMaxTimestamp(measure) ?
-                            getMinTimestamp(measure) : getMaxTimestamp(measure);
+                    return timestamp + 1;
                 }
 
                 @Override
                 public double getLastValue(int measure) {
-                    return getMinTimestamp(measure) > getMaxTimestamp(measure) ?
-                            getMinValue(measure) : getMaxValue(measure);
+                    return (getMinValue(measure) + getMaxValue(measure)) / 2;
                 }
 
                 @Override
                 public long getLastTimestamp(int measure) {
-                    return getMinTimestamp(measure) > getMaxTimestamp(measure) ?
-                            getMinTimestamp(measure) : getMaxTimestamp(measure);
+                    return getTo() - 1;
                 }
             };
         }
