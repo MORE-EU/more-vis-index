@@ -103,7 +103,7 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
      * @return A positive index.
      */
     private int getIndex(final long timestamp) {
-        int index = (int) ((double) size * (timestamp - from) / (to - from));
+        int index = (int) ((timestamp - from) / aggregateInterval);
         if (index >= size) {
             return size - 1;
         } else if (index < 0) {
@@ -349,72 +349,4 @@ public class TimeSeriesSpan implements DataPoints, TimeInterval {
             throw new UnsupportedOperationException();
         }
     }
-
-    /*private class MinMaxIterator implements Iterator<UnivariateDataPoint> {
-        private int currentIdx;
-        private int maxIdx;
-        private int measureIndex;
-        private UnivariateDataPoint nextMin, nextMax;
-
-        private long queryStartTimestamp;
-
-        private long queryEndTimestamp;
-
-        public MinMaxIterator(long queryStartTimestamp, long queryEndTimestamp, int measure) {
-            this.queryStartTimestamp = queryStartTimestamp;
-            this.queryEndTimestamp = queryEndTimestamp;
-            this.currentIdx = getIndex(queryStartTimestamp);
-            this.maxIdx = queryEndTimestamp >= 0 ? getIndex(queryEndTimestamp) : size - 1;
-            this.measureIndex = getMeasureIndex(measure);
-            if (this.measureIndex < 0) {
-                throw new IllegalArgumentException("Measure not found in TimeSeriesSpan");
-            }
-            advance();
-        }
-
-        private void advance() {
-            while ((nextMin == null && nextMax == null) && currentIdx <= maxIdx) {
-                long[] data = aggsByMeasure[measureIndex];
-                if (counts[currentIdx] == 0) {
-                    currentIdx++;
-                    continue;
-                }
-
-                long minTimestamp = data[currentIdx * 5 + 2];
-                double minValue = Double.longBitsToDouble(data[currentIdx * 5 + 1]);
-                if (minTimestamp >= queryStartTimestamp && minTimestamp < queryEndTimestamp) {
-                    nextMin = new UnivariateDataPoint(minTimestamp, minValue);
-                }
-
-                long maxTimestamp = data[currentIdx * 5 + 4];
-                double maxValue = Double.longBitsToDouble(data[currentIdx * 5 + 3]);
-                if (maxTimestamp >= queryStartTimestamp && maxTimestamp < queryEndTimestamp) {
-                    nextMax = new UnivariateDataPoint(maxTimestamp, maxValue);
-                }
-                currentIdx++;
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            return nextMin != null || nextMax != null;
-        }
-
-        public UnivariateDataPoint next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            UnivariateDataPoint result;
-            if (nextMin != null && (nextMax == null || nextMin.getTimestamp() <= nextMax.getTimestamp())) {
-                result = nextMin;
-                nextMin = null;
-            } else {
-                result = nextMax;
-                nextMax = null;
-            }
-            advance();
-            return result;
-        }
-    }*/
-
 }

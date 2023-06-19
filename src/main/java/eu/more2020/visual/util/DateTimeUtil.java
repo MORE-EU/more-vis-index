@@ -172,7 +172,8 @@ public class DateTimeUtil {
     }
 
     public static int indexInInterval(final long startTime, final long endTime, final long intervals, final long time) {
-        return (int) (intervals * (time - startTime ) / (endTime - startTime));
+        long intervalLength = (endTime - startTime) / intervals;
+        return (int) ((time - startTime ) / intervalLength);
     }
 
 
