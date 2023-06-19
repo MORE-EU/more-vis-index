@@ -18,18 +18,16 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(StatsAggregator.class);
 
     private List<Integer> measures;
-    private final long from;
-    private final long to;
+    private  long from;
+    private long to;
 
     private int count = 0;
     private final double[] sums;
     private final double[] minValues;
     private final double[] maxValues;
 
-    public NonTimestampedStatsAggregator(List<Integer> measures, long from, long to) {
+    public NonTimestampedStatsAggregator(List<Integer> measures) {
         this.measures = measures;
-        this.from = from;
-        this.to = to;
         int length = measures.size();
         sums = new double[length];
         minValues = new double[length];
@@ -109,5 +107,13 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
 
     protected int getMeasureIndex(int measure) {
         return measures.indexOf(measure);
+    }
+
+    public void setFrom(long from) {
+        this.from = from;
+    }
+
+    public void setTo(long to) {
+        this.to = to;
     }
 }

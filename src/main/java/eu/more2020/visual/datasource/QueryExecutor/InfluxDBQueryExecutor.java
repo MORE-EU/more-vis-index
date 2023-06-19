@@ -318,7 +318,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-//        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
+        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
         for (int i = 0; i < q.getRanges().size(); i++) {
             for (int j = 0; j < 2; j++) {
                 args.add(bucket);

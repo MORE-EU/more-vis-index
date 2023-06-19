@@ -116,7 +116,7 @@ public class InfluxDBQuery extends DataSourceQuery {
         String s =
                 "aggregate = (tables=<-, agg, name) => tables" +
                         "\n" +
-                        "|> aggregateWindow(every:" + aggregateInterval + "ms, fn: agg, timeSrc:\"_start\")" +
+                        "|> aggregateWindow(every:" + aggregateInterval + "ms, offset: %s, fn: agg, timeSrc:\"_start\")" +
                         "\n";
 
         int i = 0;

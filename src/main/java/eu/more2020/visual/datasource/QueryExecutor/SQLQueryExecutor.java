@@ -199,9 +199,9 @@ public class SQLQueryExecutor implements QueryExecutor {
             long epoch2 = resultSet.getLong(3);
             Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
             if(val == null) continue;
-            data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
+            data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
                     new UnivariateDataPoint(epoch, val));
-            data.computeIfAbsent(measure, k -> new ArrayList<>()).add(
+            data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
                     new UnivariateDataPoint(epoch2, val));
         }
         data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));

@@ -45,7 +45,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     
     @Override
     public AggregatedDataPoint next() {
-        StatsAggregator statsAggregator = new StatsAggregator(measures);
+        NonTimestampedStatsAggregator statsAggregator = new NonTimestampedStatsAggregator(measures);
         long firstTimestamp = from;
         int k = 0;
         try {
@@ -57,18 +57,18 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
                 Double v_max = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
                 firstTimestamp = from + k * aggregateInterval;
                 if(v_min != null) {
-                    UnivariateDataPoint point1 = new UnivariateDataPoint(firstTimestamp, v_min);
-                    statsAggregator.accept(point1, measure);
+                    statsAggregator.accept(v_min, measure);
                 }
                 if(v_max != null) {
-                    UnivariateDataPoint point2 = new UnivariateDataPoint(firstTimestamp, v_max);
-                    statsAggregator.accept(point2, measure);
+                    statsAggregator.accept(v_max, measure);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         long lastTimestamp = hasNext() ? from + (k + 1) * aggregateInterval : to;
+        statsAggregator.setFrom(firstTimestamp);
+        statsAggregator.setTo(lastTimestamp);
 //        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), aggregateInterval);
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }

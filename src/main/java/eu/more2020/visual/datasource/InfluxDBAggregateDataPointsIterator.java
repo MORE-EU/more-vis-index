@@ -2,10 +2,7 @@ package eu.more2020.visual.datasource;
 
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
-import eu.more2020.visual.domain.AggregatedDataPoint;
-import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
-import eu.more2020.visual.domain.StatsAggregator;
-import eu.more2020.visual.domain.UnivariateDataPoint;
+import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +34,6 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         this.numberOfGroups = numberOfGroups;
         this.current = 0;
         if (!records.isEmpty()) {
-            //TODO: Change this back
             groupTimestamp = ((Instant) records.get(current).getValues().get("_start")).toEpochMilli();
             endTimestamp = ((Instant) records.get(current).getValues().get("_stop")).toEpochMilli();
             currentGroupTimestamp = groupTimestamp;
@@ -57,25 +53,25 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
     }
 
     private AggregatedDataPoint createAggregatedDataPoint() {
-        StatsAggregator statsAggregator = new StatsAggregator(measures);
+        NonTimestampedStatsAggregator statsAggregator = new NonTimestampedStatsAggregator(measures);
         while (hasNext() && currentGroupTimestamp == groupTimestamp) {
             FluxRecord record = records.get(current);
             int measure = measures.get(measureNames.indexOf(record.getField()));
-            long timestamp = Objects.requireNonNull(record.getTime()).toEpochMilli();
             if(record.getValue() != null) { // check for empty value
                 double value = (double) record.getValue();
                 currentGroupTimestamp = record.getTime().toEpochMilli();
                 if (currentGroupTimestamp != groupTimestamp) {
                     break;
                 }
-                UnivariateDataPoint point = new UnivariateDataPoint(timestamp, value);
-                statsAggregator.accept(point, measure);
+                statsAggregator.accept(value, measure);
             }
             current++;
         }
         if(!hasNext()){
             currentGroupTimestamp = endTimestamp;
         }
+        statsAggregator.setFrom(groupTimestamp);
+        statsAggregator.setTo(currentGroupTimestamp);
         AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
 //        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp));
         groupTimestamp = currentGroupTimestamp;
