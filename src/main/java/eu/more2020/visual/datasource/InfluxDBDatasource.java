@@ -126,7 +126,7 @@ public class InfluxDBDatasource implements DataSource {
             InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName(), dataset.getHeader());
             List<FluxTable> fluxTables = influxDBQueryExecutor.executeMinMaxInfluxQuery(influxDBQuery);
             if(fluxTables.size() == 0) return Collections.emptyIterator();
-            return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0), influxDBQuery.getNumberOfGroups());
+            return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables, influxDBQuery.getNumberOfGroups());
 //            return new InfluxDBAggregateDataPointsIteratorM4(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables.get(0), influxDBQuery.getNumberOfGroups());
 
         }

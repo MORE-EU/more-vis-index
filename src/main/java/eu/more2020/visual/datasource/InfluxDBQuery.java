@@ -127,6 +127,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
                     measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                     " \n";
+            i++;
         }
         s += "union(\n" +
                 "    tables: [\n";
@@ -161,6 +162,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
                     measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                     " \n";
+            i++;
         }
         s += "union(\n" +
                 "    tables: [\n";
