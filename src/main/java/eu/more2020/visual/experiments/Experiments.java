@@ -220,7 +220,7 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "IO Count",
+        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "Results size", "IO Count",
                 "Time (sec)", "Processing Time", "Query Time", "Memory", "Error");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
@@ -237,6 +237,8 @@ public class Experiments<T> {
             csvWriter.addValue(query.getOpType());
             csvWriter.addValue(viewPort.getWidth());
             csvWriter.addValue(viewPort.getHeight());
+            csvWriter.addValue(query.getFrom());
+            csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(0);
             csvWriter.addValue(queryResults.getIoCount());
@@ -263,7 +265,7 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.RAW;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");
+        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);
@@ -279,6 +281,8 @@ public class Experiments<T> {
             csvWriter.addValue(query.getOpType());
             csvWriter.addValue(viewPort.getWidth());
             csvWriter.addValue(viewPort.getHeight());
+            csvWriter.addValue(query.getFrom());
+            csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(queryResults.getIoCount());
@@ -303,7 +307,7 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.M4;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "timeRange", "Results size", "Time (sec)");
+        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "Results size", "Time (sec)");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = sequence.get(i);
@@ -329,6 +333,8 @@ public class Experiments<T> {
             csvWriter.addValue(query.getOpType());
             csvWriter.addValue(viewPort.getWidth());
             csvWriter.addValue(viewPort.getHeight());
+            csvWriter.addValue(query.getFrom());
+            csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(time);
