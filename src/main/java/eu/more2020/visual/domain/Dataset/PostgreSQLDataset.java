@@ -1,6 +1,6 @@
 package eu.more2020.visual.domain.Dataset;
 
-import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
+import eu.more2020.visual.domain.PostgreSQL.PostgreSQLConnection;
 import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
 import eu.more2020.visual.domain.TimeRange;
 

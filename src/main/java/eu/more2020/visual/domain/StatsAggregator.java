@@ -164,23 +164,26 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
             throw new IllegalArgumentException("Cannot combine stats with different measures");
         }
         count += other.getCount();
-        for (int i = 0; i < sums.length; i++) {
-            sums[i] += other.getSum(i);
-            minValues[i] = Math.min(minValues[i], other.getMinValue(i));
-            if (minValues[i] == other.getMinValue(i)) {
-                minTimestamps[i] = other.getMinTimestamp(i);
-            }
-            maxValues[i] = Math.max(maxValues[i], other.getMaxValue(i));
-            if (maxValues[i] == other.getMaxValue(i)) {
-                maxTimestamps[i] = other.getMaxTimestamp(i);
-            }
-            if (firstTimestamps[i] > other.getFirstTimestamp(i)) {
-                firstValues[i] = other.getFirstValue(i);
-                firstTimestamps[i] = other.getFirstTimestamp(i);
-            }
-            if (lastTimestamps[i] < other.getLastTimestamp(i)) {
-                lastValues[i] = other.getLastValue(i);
-                lastTimestamps[i] = other.getLastTimestamp(i);
+        if(count != 0) {
+            for (int m : measures) {
+                int i = getMeasureIndex(m);
+                sums[i] += other.getSum(m);
+                minValues[i] = Math.min(minValues[i], other.getMinValue(m));
+                if (minValues[i] == other.getMinValue(m)) {
+                    minTimestamps[i] = other.getMinTimestamp(m);
+                }
+                maxValues[i] = Math.max(maxValues[i], other.getMaxValue(m));
+                if (maxValues[i] == other.getMaxValue(m)) {
+                    maxTimestamps[i] = other.getMaxTimestamp(m);
+                }
+                if (firstTimestamps[i] > other.getFirstTimestamp(m)) {
+                    firstValues[i] = other.getFirstValue(m);
+                    firstTimestamps[i] = other.getFirstTimestamp(m);
+                }
+                if (lastTimestamps[i] < other.getLastTimestamp(m)) {
+                    lastValues[i] = other.getLastValue(m);
+                    lastTimestamps[i] = other.getLastTimestamp(m);
+                }
             }
         }
     }

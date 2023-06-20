@@ -80,24 +80,25 @@ public class TTI {
                 addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
             }
         }
+        MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
 
-//        MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
-//        LOG.debug("Errors: " + maxErrorEvaluator.computeMaxError());
-
+        maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
+        List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
+        missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
 
         // Find the part of the query interval that is not covered by the spans in the interval tree.
-        List<TimeInterval> missingIntervals = query.difference(overlappingSpans);
-        LOG.info("Missing from query: " + missingIntervals);
+        LOG.info("Unable to Determine Errors: " + missingIntervals);
         double queryTime = 0;
 
         // Fetch the missing data from the data source.
         List<AggregatedDataPoint> missingDataPointList = null;
         AggregatedDataPoints missingDataPoints = null;
-        int aggFactor = 1;
+
+        int aggFactor = 2;
         if (missingIntervals.size() >= 1) {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();
-            missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
+//            missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
             missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, aggFactor * viewPort.getWidth());
             missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
 

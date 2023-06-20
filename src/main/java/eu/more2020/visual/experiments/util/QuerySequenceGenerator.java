@@ -66,18 +66,19 @@ public class QuerySequenceGenerator {
 
         List<Query> queries = new ArrayList<>();
         queries.add(q0);
+        Query q = q0;
         for (int i = 0; i < count - 1; i++) {
             UserOpType opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
 
             if (zoomFactor > 1 && opType.equals(ZI)) {
-                timeRange = zoomIn(q0);
+                timeRange = zoomIn(q);
             } else if (zoomFactor > 1 && opType.equals(ZO)) {
-                timeRange = zoomOut(q0);
+                timeRange = zoomOut(q);
             } else {
-                timeRange = pan(q0, shifts[i], directions[i]);
+                timeRange = pan(q, shifts[i], directions[i]);
             }
-            Query q = q = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
+            q = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(),
                     q0.getQueryMethod(), q0.getMeasures(),
                     q0.getViewPort(), opType);
             queries.add(q);

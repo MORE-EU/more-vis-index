@@ -18,6 +18,7 @@ public class MaxErrorEvaluator {
 
     private final List<PixelColumn> pixelColumns;
 
+    private List<TimeInterval> missingRanges;
 
     public MaxErrorEvaluator(List<Integer> measures, ViewPort viewPort, List<PixelColumn> pixelColumns) {
         this.measures = measures;
@@ -72,7 +73,7 @@ public class MaxErrorEvaluator {
 
     public List<List<Integer>> computeMaxPixelErrorsPerColumnAndMeasure() {
         List<List<Integer>> maxPixelErrorsPerColumnAndMeasure = new ArrayList<>();
-
+        missingRanges = new ArrayList<>();
         // The stats aggregator for the whole query interval to keep track of the min/max values
         // and determine the y-axis scale.
         StatsAggregator viewPortStatsAggregator = new StatsAggregator(measures);
@@ -84,6 +85,7 @@ public class MaxErrorEvaluator {
 
             if (maxInnerColumnPixelRanges == null) {
                 maxPixelErrorsPerColumnAndMeasure.add(null);
+                missingRanges.add(currentPixelColumn);
                 continue;
             }
 
@@ -98,16 +100,20 @@ public class MaxErrorEvaluator {
                 // Check if there is a previous PixelColumn
                 if (i > 0) {
                     PixelColumn previousPixelColumn = pixelColumns.get(i - 1);
-                    Range<Integer> leftMaxFalsePixels = currentPixelColumn.getPixelIdsForLineSegment(measure, previousPixelColumn.getStats().getLastTimestamp(measure), previousPixelColumn.getStats().getLastValue(measure),
-                            currentPixelColumn.getStats().getFirstTimestamp(measure), currentPixelColumn.getStats().getFirstValue(measure), viewPortStatsAggregator);
-                    pixelErrorRangeSet.add(leftMaxFalsePixels);
+                    if(previousPixelColumn.getStats().getCount() != 0) {
+                        Range<Integer> leftMaxFalsePixels = currentPixelColumn.getPixelIdsForLineSegment(measure, previousPixelColumn.getStats().getLastTimestamp(measure), previousPixelColumn.getStats().getLastValue(measure),
+                                currentPixelColumn.getStats().getFirstTimestamp(measure), currentPixelColumn.getStats().getFirstValue(measure), viewPortStatsAggregator);
+                        pixelErrorRangeSet.add(leftMaxFalsePixels);
+                    }
                 }
                 // Check if there is a next PixelColumn
                 if (i < pixelColumns.size() - 1) {
                     PixelColumn nextPixelColumn = pixelColumns.get(i + 1);
-                    Range<Integer> rightMaxFalsePixels = currentPixelColumn.getPixelIdsForLineSegment(measure, currentPixelColumn.getStats().getLastTimestamp(measure), currentPixelColumn.getStats().getLastValue(measure),
-                            currentPixelColumn.getStats().getFirstTimestamp(measure), currentPixelColumn.getStats().getFirstValue(measure), viewPortStatsAggregator);
-                    pixelErrorRangeSet.add(rightMaxFalsePixels);
+                    if(nextPixelColumn.getStats().getCount() != 0) {
+                        Range<Integer> rightMaxFalsePixels = currentPixelColumn.getPixelIdsForLineSegment(measure, currentPixelColumn.getStats().getLastTimestamp(measure), currentPixelColumn.getStats().getLastValue(measure),
+                                nextPixelColumn.getStats().getFirstTimestamp(measure), nextPixelColumn.getStats().getFirstValue(measure), viewPortStatsAggregator);
+                        pixelErrorRangeSet.add(rightMaxFalsePixels);
+                    }
                 }
                 pixelErrorRangeSet.remove(currentPixelColumn.getActualInnerColumnPixelRange(measure, viewPortStatsAggregator));
 
@@ -116,13 +122,14 @@ public class MaxErrorEvaluator {
                         .sum();
                 maxPixelErrorsPerMeasure.add(maxWrongPixelsForMeasure);
             }
-
             maxPixelErrorsPerColumnAndMeasure.add(maxPixelErrorsPerMeasure);
         }
 
         return maxPixelErrorsPerColumnAndMeasure;
     }
 
-
+    public List<TimeInterval> getMissingRanges() {
+        return missingRanges;
+    }
 }
 

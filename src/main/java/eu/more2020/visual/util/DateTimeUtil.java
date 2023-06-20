@@ -181,7 +181,7 @@ public class DateTimeUtil {
      * Returns the optimal M4 sampling interval in a specific range.
      * @param from The start timestamp to find the M4 sampling interval for (in timestamps)
      * @param to The end timestamp to find the M4 sampling interval for (in timestamps)
-     * @param viewPort  A viewport object that contains information about the chart that the user is visualizing
+     * @param width  A viewport object that contains information about the chart that the user is visualizing
      * @return A Duration
      */
     public static Duration M4(long from, long to, int width) {
@@ -319,8 +319,22 @@ public class DateTimeUtil {
     }
 
     public static List<TimeInterval> correctIntervals(long from, long to, int numberOfGroups, List<TimeInterval> ranges) {
+        if(ranges.size() == 0) return ranges;
         List<TimeInterval> newRanges = new ArrayList<>();
-        for(TimeInterval range : ranges){
+        List<TimeInterval> groupedRanges = new ArrayList<>();
+        TimeInterval currentGroup = ranges.get(0);
+        for(TimeInterval currentRange : ranges){
+            if (currentGroup.getTo() == currentRange.getFrom()) {
+                // Extend the current group
+                currentGroup = new TimeRange(currentGroup.getFrom(), currentRange.getTo());
+                groupedRanges.set(groupedRanges.size() - 1, currentGroup);
+            } else {
+                // Start a new group
+                currentGroup = currentRange;
+                groupedRanges.add(currentGroup);
+            }
+        }
+        for(TimeInterval range : groupedRanges) {
             long f = range.getFrom();
             long t = range.getTo();
             long new_from = findBinRange(f, from, to, numberOfGroups)[0];
@@ -328,7 +342,6 @@ public class DateTimeUtil {
             newRanges.add(new TimeRange(new_from, new_to));
         }
         return newRanges;
-
     }
 
 

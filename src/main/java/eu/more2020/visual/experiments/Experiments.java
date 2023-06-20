@@ -15,7 +15,7 @@ import eu.more2020.visual.datasource.QueryExecutor.QueryExecutorFactory;
 import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
 import eu.more2020.visual.datasource.SQLQuery;
 import eu.more2020.visual.domain.Dataset.*;
-import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
+import eu.more2020.visual.domain.PostgreSQL.PostgreSQLConnection;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.domain.Query.QueryMethod;
@@ -29,7 +29,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.View;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

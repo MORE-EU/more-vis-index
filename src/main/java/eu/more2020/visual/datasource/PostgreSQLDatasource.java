@@ -2,9 +2,8 @@ package eu.more2020.visual.datasource;
 import com.google.common.collect.Iterators;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.PostgreSQLDataset;
-import eu.more2020.visual.domain.Detection.PostgreSQL.PostgreSQLConnection;
+import eu.more2020.visual.domain.PostgreSQL.PostgreSQLConnection;
 import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
-import eu.more2020.visual.domain.Query.QueryMethod;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;

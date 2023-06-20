@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,23 +132,29 @@ public class PixelColumn implements TimeInterval {
 
         if (leftSubRange != null) {
             Range<Long> finalLeftSubRange = leftSubRange;
-            leftPartial = left.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getTo() >= finalLeftSubRange.upperEndpoint())
+            if(left.size() == 0) leftPartial = null;
+            else leftPartial = left.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getTo() >= finalLeftSubRange.upperEndpoint())
                     .min(Comparator.comparingLong(aggregatedDataPoint -> aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom()))
                     .orElseThrow(() ->
-                            new IllegalStateException("Could not determine the left partially contained group."));
+                            new IllegalStateException("Could not determine the left partially contained group " +
+                                    DateTimeUtil.format(getFrom()) + " - "  + DateTimeUtil.format(getTo())));
         } else {
             leftPartial = null;
         }
         if (rightSubRange != null) {
             Range<Long> finalRightSubRange = rightSubRange;
-            rightPartial = right.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getFrom() <= finalRightSubRange.lowerEndpoint())
+            if(right.size() == 0) rightPartial = null;
+            else
+                rightPartial = right.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getFrom() <= finalRightSubRange.lowerEndpoint())
                     .min(Comparator.comparingLong(aggregatedDataPoint -> aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom()))
                     .orElseThrow(() ->
-                            new IllegalStateException("Could not determine the right partially contained group."));
+                            new IllegalStateException("Could not determine the right partially contained group " +
+                                    DateTimeUtil.format(getFrom()) + " - "  + DateTimeUtil.format(getTo())));
 
         } else {
             rightPartial = null;
         }
+
 
     }
 
@@ -161,10 +168,10 @@ public class PixelColumn implements TimeInterval {
         Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
 
         if (fullyContainedDisjointRanges.size() > 1) {
-            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
+//            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
             return null;
         } else if (fullyContainedDisjointRanges.size() == 0) {
-            LOG.debug("There is no fully contained range in this pixel column.");
+//            LOG.debug("There is no fully contained range in this pixel column.");
             return null;
         }
 
@@ -229,6 +236,7 @@ public class PixelColumn implements TimeInterval {
      * @return A Range object representing the range of inner-column pixel IDs
      */
     public Range<Integer> getActualInnerColumnPixelRange(int measure, Stats viewPortStats) {
+        if(fullyContainedStatsAggregator.getCount() == 0) return Range.closed(0, 0);
         return Range.closed(getPixelId(measure, fullyContainedStatsAggregator.getMinValue(measure), viewPortStats), getPixelId(measure, fullyContainedStatsAggregator.getMaxValue(measure), viewPortStats));
     }
 

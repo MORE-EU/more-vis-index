@@ -1,4 +1,4 @@
-package eu.more2020.visual.domain.Detection.PostgreSQL;
+package eu.more2020.visual.domain.PostgreSQL;
 
 import eu.more2020.visual.datasource.QueryExecutor.SQLQueryExecutor;
 import org.slf4j.Logger;
