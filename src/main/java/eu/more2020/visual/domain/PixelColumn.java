@@ -26,27 +26,27 @@ public class PixelColumn implements TimeInterval {
 
     private final RangeSet<Long> fullyContainedRangeSet = TreeRangeSet.create();
 
+    private final StatsAggregator fullyContainedStatsAggregator;
+
+
+    private AggregatedDataPoint leftPartial;
+    private AggregatedDataPoint rightPartial;
+
 
     // The left and right agg data points of this pixel column. These can be either partially-contained inside this pixel column and overlap, or fully-contained.
     private List<AggregatedDataPoint> left = new ArrayList<>();
     private List<AggregatedDataPoint> right = new ArrayList<>();
-
-    // todo: remove this. just for debugging
-    private List<AggregatedDataPoint> all = new ArrayList<>();
-
 
     public PixelColumn(long from, long to, List<Integer> measures, ViewPort viewPort) {
         this.from = from;
         this.to = to;
         this.measures = measures;
         statsAggregator = new StatsAggregator(measures);
+        fullyContainedStatsAggregator = new StatsAggregator(measures);
         this.viewPort = viewPort;
     }
 
     public void addAggregatedDataPoint(AggregatedDataPoint dp) {
-
-        all.add(ImmutableAggregatedDataPoint.fromAggregatedDataPoint(dp));
-
         if (dp.getFrom() <= from) {
             left.add(ImmutableAggregatedDataPoint.fromAggregatedDataPoint(dp));
         }
@@ -55,31 +55,38 @@ public class PixelColumn implements TimeInterval {
             right.add(ImmutableAggregatedDataPoint.fromAggregatedDataPoint(dp));
         }
 
-        if (this.encloses(dp)) {
-            fullyContainedRangeSet.add(TimeInterval.toGuavaRange(dp));
-        }
-
         Stats stats = dp.getStats();
 
-        // todo: here, in case we add data from time series span, we add the same min-max point twice. This is not a problem, but it's not optimal.
-        if(stats.getCount() > 0)
-            for (int measure : measures) {
-            if (this.contains(stats.getMinTimestamp(measure))) {
-                statsAggregator.accept(dp.getStats().getMinDataPoint(measure), measure);
-            }
 
-            if (this.contains(stats.getMaxTimestamp(measure))) {
-                statsAggregator.accept(dp.getStats().getMaxDataPoint(measure), measure);
-            }
-
-            if (this.contains(stats.getFirstTimestamp(measure))) {
-                statsAggregator.accept(dp.getStats().getFirstDataPoint(measure), measure);
-            }
-
-            if (this.contains(stats.getLastTimestamp(measure))) {
-                statsAggregator.accept(dp.getStats().getLastDataPoint(measure), measure);
-            }
+        if (this.encloses(dp)) {
+            fullyContainedRangeSet.add(TimeInterval.toGuavaRange(dp));
+            if (stats.getCount() > 0)
+                for (int measure : measures) {
+                    fullyContainedStatsAggregator.accept(stats.getMinDataPoint(measure), measure);
+                    fullyContainedStatsAggregator.accept(stats.getMaxDataPoint(measure), measure);
+                }
         }
+
+
+        // todo: here, in case we add data from time series span, we add the same min-max point twice. This is not a problem, but it's not optimal.
+        if (stats.getCount() > 0)
+            for (int measure : measures) {
+                if (this.contains(stats.getMinTimestamp(measure))) {
+                    statsAggregator.accept(dp.getStats().getMinDataPoint(measure), measure);
+                }
+
+                if (this.contains(stats.getMaxTimestamp(measure))) {
+                    statsAggregator.accept(dp.getStats().getMaxDataPoint(measure), measure);
+                }
+
+                if (this.contains(stats.getFirstTimestamp(measure))) {
+                    statsAggregator.accept(dp.getStats().getFirstDataPoint(measure), measure);
+                }
+
+                if (this.contains(stats.getLastTimestamp(measure))) {
+                    statsAggregator.accept(dp.getStats().getLastDataPoint(measure), measure);
+                }
+            }
 
     }
 
@@ -96,22 +103,9 @@ public class PixelColumn implements TimeInterval {
         return (int) ((double) viewPort.getHeight() * (value - viewPortStats.getMinValue(m)) / (viewPortStats.getMaxValue(m) - viewPortStats.getMinValue(m)));
     }
 
-
-    public List<Range<Integer>> computeMaxInnerPixelRange(Stats viewPortStats) {
+    private void determinePartialContained() {
         Range<Long> pixelColumnTimeRange = Range.closedOpen(from, to);
-
-        int[] errors = new int[measures.size()];
-        Arrays.fill(errors, -1);
-
-        Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
-
-        if (fullyContainedDisjointRanges.size() > 1) {
-            throw new IllegalArgumentException("There are gaps in the fully contained ranges of this pixel column.");
-        } else if (fullyContainedDisjointRanges.size() == 0) {
-            return null;
-        }
-
-        Range<Long> fullyContainedRange = fullyContainedDisjointRanges.iterator().next();
+        Range<Long> fullyContainedRange = fullyContainedRangeSet.span();
 
         ImmutableRangeSet<Long> immutableFullyContainedRangeSet = ImmutableRangeSet.copyOf(fullyContainedRangeSet);
 
@@ -135,9 +129,6 @@ public class PixelColumn implements TimeInterval {
             }
         }
 
-        AggregatedDataPoint leftPartial;
-        AggregatedDataPoint rightPartial;
-
         if (leftSubRange != null) {
             Range<Long> finalLeftSubRange = leftSubRange;
             leftPartial = left.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getTo() >= finalLeftSubRange.upperEndpoint())
@@ -151,18 +142,33 @@ public class PixelColumn implements TimeInterval {
             Range<Long> finalRightSubRange = rightSubRange;
             rightPartial = right.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getFrom() <= finalRightSubRange.lowerEndpoint())
                     .min(Comparator.comparingLong(aggregatedDataPoint -> aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom()))
-                    .orElseThrow(() -> {
-                        LOG.error("Pixel Column: {}", this.getIntervalString());
-                        LOG.error("Right: {}", right);
-                        LOG.error("Right Sub Range: {}", finalRightSubRange);
-                        all.stream().forEach(aggregatedDataPoint -> {
-                            LOG.error("Agg Interval: {} Data Point: {}", aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom(), aggregatedDataPoint.getIntervalString());
-                        });
-                        return new IllegalStateException("Could not determine the right partially contained group.");
-                    });
+                    .orElseThrow(() ->
+                            new IllegalStateException("Could not determine the right partially contained group."));
+
         } else {
             rightPartial = null;
         }
+
+    }
+
+    /**
+     * Computes the maximum inner pixel range for each measure. For this we consider both the fully contained and the partially contained groups.
+     * @param viewPortStats
+     * @return the maximum inner column pixel range for each measure or null if there are gaps in the fully contained ranges or no fully contained ranges at all.
+     */
+
+    public List<Range<Integer>> computeMaxInnerPixelRange(Stats viewPortStats) {
+        Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
+
+        if (fullyContainedDisjointRanges.size() > 1) {
+            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
+            return null;
+        } else if (fullyContainedDisjointRanges.size() == 0) {
+            LOG.debug("There is no fully contained range in this pixel column.");
+            return null;
+        }
+
+        determinePartialContained();
 
         return measures.stream().map(m -> {
             int minPixelId = getPixelId(m, statsAggregator.getMinValue(m), viewPortStats);
@@ -179,14 +185,15 @@ public class PixelColumn implements TimeInterval {
         }).collect(Collectors.toList());
     }
 
+
     /**
      * Returns a closed range of pixel IDs that the line segment intersects within this pixel column.
      *
-     * @param measure     The measure for which to calculate the pixel IDs.
-     * @param t1          The first timestamp of the line segment.
-     * @param v1          The value at the first timestamp of the line segment.
-     * @param t2          The second timestamp of the line segment.
-     * @param v2          The value at the second timestamp of the line segment.
+     * @param measure       The measure for which to calculate the pixel IDs.
+     * @param t1            The first timestamp of the line segment.
+     * @param v1            The value at the first timestamp of the line segment.
+     * @param t2            The second timestamp of the line segment.
+     * @param v2            The value at the second timestamp of the line segment.
      * @param viewPortStats The stats for the entire view port.
      * @return A Range object representing the range of pixel IDs that the line segment intersects within the pixel column.
      */
@@ -214,13 +221,15 @@ public class PixelColumn implements TimeInterval {
     }
 
     /**
-     * Returns the range of inner-column pixel IDs for this pixel column for the give measure
+     * Returns the range of inner-column pixel IDs that can be correctly determined for this pixel column for the give measure.
+     * This range is determined by the min and max values over the fully contained groups in this pixel column.
+     *
      * @param measure
      * @param viewPortStats The stats for the entire view port.
      * @return A Range object representing the range of inner-column pixel IDs
      */
     public Range<Integer> getActualInnerColumnPixelRange(int measure, Stats viewPortStats) {
-        return Range.closed(getPixelId(measure, statsAggregator.getMinValue(measure), viewPortStats), getPixelId(measure, statsAggregator.getMaxValue(measure), viewPortStats));
+        return Range.closed(getPixelId(measure, fullyContainedStatsAggregator.getMinValue(measure), viewPortStats), getPixelId(measure, fullyContainedStatsAggregator.getMaxValue(measure), viewPortStats));
     }
 
 
@@ -239,6 +248,13 @@ public class PixelColumn implements TimeInterval {
         return statsAggregator;
     }
 
+    public AggregatedDataPoint getLeftPartial() {
+        return leftPartial;
+    }
+
+    public AggregatedDataPoint getRightPartial() {
+        return rightPartial;
+    }
 
     @Override
     public String toString() {
