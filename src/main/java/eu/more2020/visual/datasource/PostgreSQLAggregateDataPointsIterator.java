@@ -24,13 +24,14 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     private final long to;
 
     private final long aggregateInterval;
-
+    private final int noOfGroups;
     public PostgreSQLAggregateDataPointsIterator(long from, long to, List<Integer> measures, ResultSet resultSet, int noOfGroups){
         this.measures = measures;
         this.resultSet = resultSet;
         this.aggregateInterval = (to - from) / noOfGroups;
         this.from = from;
         this.to = to;
+        this.noOfGroups = noOfGroups;
     }
 
     @Override
@@ -66,10 +67,10 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        long lastTimestamp = hasNext() ? from + (k + 1) * aggregateInterval : to;
+        long lastTimestamp = (k != noOfGroups - 1) ? from + (k + 1) * aggregateInterval : to;
         statsAggregator.setFrom(firstTimestamp);
         statsAggregator.setTo(lastTimestamp);
-//        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), aggregateInterval);
+        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), aggregateInterval);
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 

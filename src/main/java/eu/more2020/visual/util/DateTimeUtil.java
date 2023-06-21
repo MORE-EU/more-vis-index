@@ -172,11 +172,9 @@ public class DateTimeUtil {
     }
 
     public static int indexInInterval(final long startTime, final long endTime, final long intervals, final long time) {
-        long intervalLength = (endTime - startTime) / intervals;
+        long intervalLength = (long) ((endTime - startTime) / intervals);
         return (int) ((time - startTime ) / intervalLength);
     }
-
-
     /**
      * Returns the optimal M4 sampling interval in a specific range.
      * @param from The start timestamp to find the M4 sampling interval for (in timestamps)

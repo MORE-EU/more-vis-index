@@ -93,7 +93,7 @@ public class TTI {
         List<AggregatedDataPoint> missingDataPointList = null;
         AggregatedDataPoints missingDataPoints = null;
 
-        int aggFactor = 2;
+        int aggFactor = 10;
         if (missingIntervals.size() >= 1) {
             LOG.info("Fetching missing data from data source");
             Stopwatch stopwatch = Stopwatch.createStarted();

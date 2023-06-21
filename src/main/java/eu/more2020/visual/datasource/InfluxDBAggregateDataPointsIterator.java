@@ -4,6 +4,7 @@ import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.apache.parquet.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,23 +80,23 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         while (hasNext() && currentGroupTimestamp == groupTimestamp) {
             FluxRecord record = currentRecords.get(current);
             int measure = measures.get(measureNames.indexOf(record.getField()));
+            currentGroupTimestamp = record.getTime().toEpochMilli();
+            if (currentGroupTimestamp != groupTimestamp) {
+                break;
+            }
             if(record.getValue() != null) { // check for empty value
                 double value = (double) record.getValue();
-                currentGroupTimestamp = record.getTime().toEpochMilli();
-                if (currentGroupTimestamp != groupTimestamp) {
-                    break;
-                }
                 statsAggregator.accept(value, measure);
             }
             current++;
         }
-        if(current == currentSize - 1){
+        if(current == currentSize ){
             currentGroupTimestamp = endTimestamp;
         }
         statsAggregator.setFrom(groupTimestamp);
         statsAggregator.setTo(currentGroupTimestamp);
         AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
-//        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp));
+        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp));
         groupTimestamp = currentGroupTimestamp;
         i++;
         return aggregatedDataPoint;

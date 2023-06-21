@@ -112,11 +112,11 @@ public class InfluxDBQuery extends DataSourceQuery {
 
     @Override
     public String minMaxQuerySkeleton() {
-        String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+        String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         String s =
                 "aggregate = (tables=<-, agg, name) => tables" +
                         "\n" +
-                        "|> aggregateWindow(every:" + aggregateInterval + "ms, offset: %s, fn: agg, timeSrc:\"_start\")" +
+                        "|> aggregateWindow(every:" + aggregateInterval + "ms, createEmpty:true, offset: %s, fn: agg, timeSrc:\"_start\")" +
                         "\n";
 
         int i = 0;
@@ -142,7 +142,7 @@ public class InfluxDBQuery extends DataSourceQuery {
 
     @Override
     public String m4MultiQuerySkeleton() {
-        String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+        String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", tables=<-) =>\n" +
                 "  tables\n" +
                 "    |> window(every:every, offset: %s, createEmpty:true)\n" +

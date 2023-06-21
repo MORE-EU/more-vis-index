@@ -54,6 +54,7 @@ public class TimeSeriesSpanFactory {
                     changed = true;
                     break;
                 }
+                if(aggregatedDataPoint.getCount() == 0) continue;
                 int i = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), intervals, aggregatedDataPoint.getTimestamp());
                 timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
             }
