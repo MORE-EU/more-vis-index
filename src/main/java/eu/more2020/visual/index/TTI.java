@@ -81,7 +81,6 @@ public class TTI {
             }
         }
         MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
-
         maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
         List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
         missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
@@ -140,12 +139,19 @@ public class TTI {
         }
         resultData.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(resultData);
-
+        List<List<Integer>> errors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
         Map<Integer, Double> error = new HashMap<>();
-        for (
-                Integer measure : measures) {
-            error.put(measure, 0d);
+        for (int m : measures) error.put(m, 0.0);
+        for (List<Integer> pixelColumnErrors : errors) {
+            int i = 0;
+            for (int m : measures) {
+                final Double data = error.get(m);
+                final int val =  pixelColumnErrors == null ? 0 : pixelColumnErrors.get(i);
+                error.put(m, data + val);
+                i++;
+            }
         }
+        for (int m : measures) error.put(m, error.get(m) / (viewPort.getHeight() * viewPort.getWidth()));
         queryResults.setError(error);
         queryResults.setQueryTime(queryTime);
         return queryResults;
