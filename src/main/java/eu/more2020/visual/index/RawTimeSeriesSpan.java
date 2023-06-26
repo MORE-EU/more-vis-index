@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * A {@link DataPoints} implementation that stores  a series of consecutive
  * raw data points.
  */
-public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
+public class RawTimeSeriesSpan implements TimeSeriesSpan {
 
     int[] measures;
 
@@ -29,6 +29,9 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
      * The timestamps of the raw datapoints.
      */
     private long[] timestamps;
+
+    public RawTimeSeriesSpan() {
+    }
 
     /**
      * @param dataPoints
@@ -74,8 +77,18 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
         return new TimeRange(getFrom(), getTo());
     }
 
+    @Override
+    public long getAggregateInterval() {
+        return -1;
+    }
+
     public Iterator<DataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp) {
         return new RawTimeSeriesSpanIterator(queryStartTimestamp, queryEndTimestamp);
+    }
+
+    @Override
+    public int[] getCounts() {
+        return new int[0];
     }
 
 
@@ -84,7 +97,6 @@ public class RawTimeSeriesSpan implements DataPoints, TimeInterval {
         // Use the first and last timestamps as the range for the iterator
         return new RawTimeSeriesSpanIterator(timestamps[0], timestamps[timestamps.length - 1] + 1);
     }
-
 
     @Override
     public long getFrom() {

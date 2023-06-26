@@ -165,8 +165,9 @@ public class PixelColumn implements TimeInterval {
      */
 
     public List<Range<Integer>> computeMaxInnerPixelRange(Stats viewPortStats) {
+        // TODO: Dont forget to handle the case where data are missing. For now return 0
+        if(statsAggregator.getCount() == 0) return null;
         Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
-
         if (fullyContainedDisjointRanges.size() > 1) {
 //            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
             return null;

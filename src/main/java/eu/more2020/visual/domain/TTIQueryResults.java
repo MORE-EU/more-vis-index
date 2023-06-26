@@ -3,7 +3,6 @@ package eu.more2020.visual.domain;
 import eu.more2020.visual.index.TimeSeriesSpan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 

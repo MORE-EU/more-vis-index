@@ -70,7 +70,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
         long lastTimestamp = (k != noOfGroups - 1) ? from + (k + 1) * aggregateInterval : to;
         statsAggregator.setFrom(firstTimestamp);
         statsAggregator.setTo(lastTimestamp);
-        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), aggregateInterval);
+//        LOG.debug("Created aggregate Datapoint {} - {} with Agg {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), aggregateInterval);
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 

@@ -337,7 +337,7 @@ public class DateTimeUtil {
             long t = range.getTo();
             long new_from = findBinRange(f, from, to, numberOfGroups)[0];
             long new_to = findBinRange(t, from, to, numberOfGroups)[1];
-            newRanges.add(new TimeRange(new_from, new_to));
+            newRanges.add(new TimeRange(Math.max(from, new_from), Math.min(to, new_to)));
         }
         return newRanges;
     }

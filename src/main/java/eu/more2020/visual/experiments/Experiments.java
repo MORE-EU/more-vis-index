@@ -219,7 +219,7 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "Results size", "IO Count",
+        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "aggFactor", "Results size", "IO Count",
                 "Time (sec)", "Processing Time", "Query Time", "Memory", "Error");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
@@ -239,6 +239,7 @@ public class Experiments<T> {
             csvWriter.addValue(query.getFrom());
             csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
+            csvWriter.addValue(queryResults.getAggFactor());
             csvWriter.addValue(0);
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(time);
@@ -338,7 +339,6 @@ public class Experiments<T> {
             csvWriter.addValue(queryResults.getData().get(this.measures.get(0)).size());
             csvWriter.addValue(time);
             csvWriter.writeValuesToRow();
-            System.out.println();
             stopwatch.reset();
         }
         csvWriter.flush();
@@ -438,7 +438,6 @@ public class Experiments<T> {
     private void initOutput() throws IOException {
         Path outFolderPath = Paths.get(outFolder);
         Path timeQueriesPath = Paths.get(outFolder, "timeQueries");
-        recreateDir(timeQueriesPath.toString());
         Path typePath = Paths.get(outFolder, "timeQueries", type);
         Path tablePath = Paths.get(outFolder, "timeQueries", type, table);
         Path metadataPath = Paths.get(outFolder, "metadata");

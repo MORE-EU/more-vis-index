@@ -164,7 +164,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
             throw new IllegalArgumentException("Cannot combine stats with different measures");
         }
         count += other.getCount();
-        if(count != 0) {
+        if(other.getCount() != 0) {
             for (int m : measures) {
                 int i = getMeasureIndex(m);
                 sums[i] += other.getSum(m);

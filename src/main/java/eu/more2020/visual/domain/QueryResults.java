@@ -32,6 +32,8 @@ public class QueryResults implements Serializable {
 
     private double queryTime = 0;
 
+    private int aggFactor;
+
     public List<LocalDateTime> getTimeRange() {
         return this.timeRange;
     }
@@ -76,6 +78,13 @@ public class QueryResults implements Serializable {
         this.error = error;
     }
 
+    public void setAggFactor(int aggFactor) {
+        this.aggFactor = aggFactor;
+    }
+
+    public int getAggFactor() {
+        return aggFactor;
+    }
 
     public void toCsv(String path) {
         File file = new File(path);

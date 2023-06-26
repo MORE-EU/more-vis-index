@@ -96,7 +96,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         statsAggregator.setFrom(groupTimestamp);
         statsAggregator.setTo(currentGroupTimestamp);
         AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
-        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp));
+//        LOG.debug("Created aggregate Datapoint {} - {} ", DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp));
         groupTimestamp = currentGroupTimestamp;
         i++;
         return aggregatedDataPoint;
