@@ -47,6 +47,12 @@ public class PixelColumn implements TimeInterval {
         this.viewPort = viewPort;
     }
 
+    public void addDataPoint(DataPoint dp){
+        statsAggregator.accept(dp);
+        fullyContainedRangeSet.add(TimeInterval.toGuavaRange(new TimeRange(from, dp.getTimestamp())));
+        fullyContainedStatsAggregator.accept(dp);
+    }
+
     public void addAggregatedDataPoint(AggregatedDataPoint dp) {
         if (dp.getFrom() <= from) {
             left.add(ImmutableAggregatedDataPoint.fromAggregatedDataPoint(dp));
@@ -67,7 +73,6 @@ public class PixelColumn implements TimeInterval {
                     fullyContainedStatsAggregator.accept(stats.getMaxDataPoint(measure), measure);
                 }
         }
-
 
         // todo: here, in case we add data from time series span, we add the same min-max point twice. This is not a problem, but it's not optimal.
         if (stats.getCount() > 0)
@@ -133,11 +138,14 @@ public class PixelColumn implements TimeInterval {
         if (leftSubRange != null) {
             Range<Long> finalLeftSubRange = leftSubRange;
             if(left.size() == 0) leftPartial = null;
-            else leftPartial = left.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getTo() >= finalLeftSubRange.upperEndpoint())
-                    .min(Comparator.comparingLong(aggregatedDataPoint -> aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom()))
-                    .orElseThrow(() ->
-                            new IllegalStateException("Could not determine the left partially contained group " +
-                                    DateTimeUtil.format(getFrom()) + " - "  + DateTimeUtil.format(getTo())));
+            else {
+                leftPartial = left.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getTo() >= finalLeftSubRange.upperEndpoint())
+                        .min(Comparator.comparingLong(aggregatedDataPoint -> aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom()))
+                        .orElseGet(() ->  null);
+//                        .orElseThrow(() ->
+//                                new IllegalStateException("Could not determine the left partially contained group " +
+//                                        DateTimeUtil.format(getFrom()) + " - " + DateTimeUtil.format(getTo())));
+            }
         } else {
             leftPartial = null;
         }
@@ -147,10 +155,10 @@ public class PixelColumn implements TimeInterval {
             else
                 rightPartial = right.stream().filter(aggregatedDataPoint -> aggregatedDataPoint.getFrom() <= finalRightSubRange.lowerEndpoint())
                     .min(Comparator.comparingLong(aggregatedDataPoint -> aggregatedDataPoint.getTo() - aggregatedDataPoint.getFrom()))
-                    .orElseThrow(() ->
-                            new IllegalStateException("Could not determine the right partially contained group " +
-                                    DateTimeUtil.format(getFrom()) + " - "  + DateTimeUtil.format(getTo())));
-
+                    .orElseGet(() ->  null);
+//                    .orElseThrow(() ->
+//                            new IllegalStateException("Could not determine the right partially contained group " +
+//                                    DateTimeUtil.format(getFrom()) + " - "  + DateTimeUtil.format(getTo())));
         } else {
             rightPartial = null;
         }
@@ -181,11 +189,11 @@ public class PixelColumn implements TimeInterval {
         return measures.stream().map(m -> {
             int minPixelId = getPixelId(m, statsAggregator.getMinValue(m), viewPortStats);
             int maxPixelId = getPixelId(m, statsAggregator.getMaxValue(m), viewPortStats);
-            if (leftPartial != null) {
+            if (leftPartial != null && leftPartial.getCount() > 0) {
                 minPixelId = Math.min(minPixelId, getPixelId(m, leftPartial.getStats().getMinValue(m), viewPortStats));
                 maxPixelId = Math.max(maxPixelId, getPixelId(m, leftPartial.getStats().getMaxValue(m), viewPortStats));
             }
-            if (rightPartial != null) {
+            if (rightPartial != null && rightPartial.getCount() > 0) {
                 minPixelId = Math.min(minPixelId, getPixelId(m, rightPartial.getStats().getMinValue(m), viewPortStats));
                 maxPixelId = Math.max(maxPixelId, getPixelId(m, rightPartial.getStats().getMaxValue(m), viewPortStats));
             }

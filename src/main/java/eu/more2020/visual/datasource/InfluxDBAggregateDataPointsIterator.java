@@ -90,7 +90,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
             }
             current++;
         }
-        if(current == currentSize ){
+        if(current == currentSize){
             currentGroupTimestamp = endTimestamp;
         }
         statsAggregator.setFrom(groupTimestamp);

@@ -74,6 +74,10 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     @Override
+    public QueryResults executeM4LikeMultiQuery(DataSourceQuery q) throws SQLException {
+        return collect(executeM4LikeMultiInfluxQuery((InfluxDBQuery) q));
+    }
+    @Override
     public QueryResults executeM4OLAPQuery(DataSourceQuery q) {
         return collect(executeM4OLAPQuery((InfluxDBQuery) q));
     }
@@ -82,6 +86,10 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     public QueryResults executeRawQuery(DataSourceQuery q) {
         return collect(executeRawInfluxQuery((InfluxDBQuery) q));
     }
+
+    @Override
+    public QueryResults executeRawMultiQuery(DataSourceQuery q) { return collect(executeRawMultiInfluxQuery((InfluxDBQuery) q));}
+
 
     @Override
     public QueryResults executeMinMaxQuery(DataSourceQuery q) {return collect(executeMinMaxInfluxQuery((InfluxDBQuery) q));}
@@ -316,6 +324,19 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return execute(flux);
     }
 
+    public List<FluxTable> executeM4LikeMultiInfluxQuery(InfluxDBQuery q) {
+        List<String> args = new ArrayList<>();
+        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
+        for (int i = 0; i < q.getRanges().size(); i++) {
+            for (int j = 0; j < 2; j++) {
+                args.add(bucket);
+                args.add(table);
+            }
+        }
+        String flux = String.format(q.m4LikeMultiQuerySkeleton(), args.toArray());
+        return execute(flux);
+    }
+
     public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
         args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
@@ -339,6 +360,12 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return execute(flux);
     }
 
+    public List<FluxTable> executeRawMultiInfluxQuery(InfluxDBQuery q){
+        String flux = String.format(q.rawMultiQuerySkeleton(),
+                bucket, q.getFromDate(), q.getToDate(), table);
+        return execute(flux);
+    }
+
     private QueryResults collect(List<FluxTable> tables) {
         QueryResults queryResults = new QueryResults();
         HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
@@ -351,7 +378,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                                 Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));
             }
         }
-        data.forEach((k, v) -> v.sort(compareLists));
+        data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(data);
         return queryResults;
     }

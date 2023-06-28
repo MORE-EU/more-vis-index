@@ -78,6 +78,8 @@ public abstract class DataSourceQuery implements TimeInterval {
 
     public abstract String m4QuerySkeleton();
 
+    public abstract String m4LikeMultiQuerySkeleton();
+
     public abstract String m4MultiQuerySkeleton();
 
     public abstract String minMaxQuerySkeleton();
@@ -90,4 +92,5 @@ public abstract class DataSourceQuery implements TimeInterval {
         return ranges;
     }
 
+    public abstract String rawMultiQuerySkeleton();
 }

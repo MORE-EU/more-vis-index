@@ -15,9 +15,13 @@ public interface QueryExecutor {
 
     QueryResults executeM4MultiQuery(DataSourceQuery q) throws SQLException;
 
+    QueryResults executeM4LikeMultiQuery(DataSourceQuery q) throws SQLException;
+
     QueryResults executeM4OLAPQuery(DataSourceQuery q) throws SQLException;
 
     QueryResults executeRawQuery(DataSourceQuery q) throws SQLException;
+
+    QueryResults executeRawMultiQuery(DataSourceQuery q);
 
     QueryResults executeMinMaxQuery(DataSourceQuery q) throws SQLException;
 

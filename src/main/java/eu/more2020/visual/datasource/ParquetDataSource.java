@@ -3,6 +3,7 @@ package eu.more2020.visual.datasource;
 import com.google.common.collect.Iterators;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.ParquetDataset;
+import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.domain.parquet.ParquetDataPoint;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,12 +27,17 @@ public class ParquetDataSource implements DataSource {
     }
 
     @Override
+    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<Integer> measures) {
+        return null;
+    }
+
+    @Override
     public DataPoints getAllDataPoints(List<Integer> measures) {
         return new ParquetDataSource.ParquetDataPoints(parquetDataset.getTimeRange().getFrom(), parquetDataset.getTimeRange().getTo(), measures);
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges, QueryMethod queryMethod,
                                                         List<Integer> measures, int numberOfGroups) {
         return null;
     }

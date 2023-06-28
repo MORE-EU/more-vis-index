@@ -316,6 +316,7 @@ public class DateTimeUtil {
         return new long[] {bin_start, bin_end};
     }
 
+    // TODO: not to handle here but in general, if intervals are too fragmented the postgres query is slow. We can fix this quick by adding an epsilon variable below where we compact two or more ranges if they have a difference of theta or less
     public static List<TimeInterval> correctIntervals(long from, long to, int numberOfGroups, List<TimeInterval> ranges) {
         if(ranges.size() == 0) return ranges;
         List<TimeInterval> newRanges = new ArrayList<>();
@@ -339,7 +340,20 @@ public class DateTimeUtil {
             long new_to = findBinRange(t, from, to, numberOfGroups)[1];
             newRanges.add(new TimeRange(Math.max(from, new_from), Math.min(to, new_to)));
         }
-        return newRanges;
+        groupedRanges = new ArrayList<>();
+        currentGroup = newRanges.get(0);
+        for(TimeInterval currentRange : newRanges){
+            if (currentGroup.getTo() == currentRange.getFrom()) {
+                // Extend the current group
+                currentGroup = new TimeRange(currentGroup.getFrom(), currentRange.getTo());
+                groupedRanges.set(groupedRanges.size() - 1, currentGroup);
+            } else {
+                // Start a new group
+                currentGroup = currentRange;
+                groupedRanges.add(currentGroup);
+            }
+        }
+        return groupedRanges;
     }
 
 

@@ -39,7 +39,6 @@ public class InfluxDBAggregateDataPointsIteratorM4 implements Iterator<Aggregate
         this.numberOfGroups = numberOfGroups;
         this.current = 0;
         if (!records.isEmpty()) {
-            //TODO: Change this back
             groupTimestamp = ((Instant) records.get(current).getValues().get("_start")).toEpochMilli();
             endTimestamp = ((Instant) records.get(current).getValues().get("_stop")).toEpochMilli();
             currentGroupTimestamp = groupTimestamp;

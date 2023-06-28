@@ -1,6 +1,8 @@
 package eu.more2020.visual.datasource;
 
 import eu.more2020.visual.domain.*;
+import eu.more2020.visual.domain.Query.Query;
+import eu.more2020.visual.domain.Query.QueryMethod;
 
 import java.util.List;
 
@@ -10,7 +12,7 @@ import java.util.List;
 public interface DataSource {
 
 
-    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals,
+    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals, QueryMethod queryMethod,
                                                  List<Integer> measures, int numberOfGroups);
 
     /**
@@ -23,6 +25,9 @@ public interface DataSource {
      * @param measures       The measure values to include in every data point
      */
     public DataPoints getDataPoints(long from, long to, List<Integer> measures);
+
+    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<Integer> measures);
+
 
     /**
      * Returns a {@link DataPoints} instance to access all the data points in the time series.

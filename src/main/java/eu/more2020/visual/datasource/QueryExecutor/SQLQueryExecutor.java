@@ -65,6 +65,11 @@ public class SQLQueryExecutor implements QueryExecutor {
     }
 
     @Override
+    public QueryResults executeM4LikeMultiQuery(DataSourceQuery q) throws SQLException {
+        return collect(executeM4MultiSqlQuery((SQLQuery) q));
+    }
+
+    @Override
     public QueryResults executeM4OLAPQuery(DataSourceQuery q) throws SQLException {
         return collect(executeM4OLAPSqlQuery((SQLQuery) q));
     }
@@ -72,6 +77,11 @@ public class SQLQueryExecutor implements QueryExecutor {
     @Override
     public QueryResults executeRawQuery(DataSourceQuery q) throws SQLException {
         return collect(executeRawSqlQuery((SQLQuery) q));
+    }
+
+    @Override
+    public QueryResults executeRawMultiQuery(DataSourceQuery q) {
+        return null;
     }
 
     @Override
@@ -133,6 +143,15 @@ public class SQLQueryExecutor implements QueryExecutor {
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
+        preparedStatement.setString("tableName", schema + "." + table);
+        String query = preparedStatement.getPreparedStatement().toString()
+                .replace("'", "");
+        return execute(query);
+    }
+
+    public ResultSet executeRawMultiSqlQuery(SQLQuery q) throws SQLException{
+        String sql = q.rawMultiQuerySkeleton();
+        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");

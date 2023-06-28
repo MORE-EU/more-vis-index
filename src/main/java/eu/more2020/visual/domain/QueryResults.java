@@ -34,6 +34,8 @@ public class QueryResults implements Serializable {
 
     private int aggFactor;
 
+    private boolean flag;
+
     public List<LocalDateTime> getTimeRange() {
         return this.timeRange;
     }
@@ -175,6 +177,14 @@ public class QueryResults implements Serializable {
 
     public void setQueryTime(double queryTime) {
         this.queryTime = queryTime;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
     }
 
     @Override

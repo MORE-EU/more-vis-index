@@ -66,7 +66,7 @@ public class RawTTI {
         overlappingIntervals.addAll(currentDifference[0].asRanges().stream()
                 .map(diff -> {
                     DataPoints dataPoints = dataSource.getDataPoints(diff.lowerEndpoint(), diff.upperEndpoint(), measures);
-                    RawTimeSeriesSpan span = new RawTimeSeriesSpan();
+                    RawTimeSeriesSpan span = new RawTimeSeriesSpan(diff.lowerEndpoint(), diff.upperEndpoint(), measures);
                     span.build(dataPoints);
                     ioCount[0] += span.getCount();
                     if(span.getCount() > 0) intervalTree.insert(span);

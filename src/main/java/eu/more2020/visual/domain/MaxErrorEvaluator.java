@@ -20,6 +20,8 @@ public class MaxErrorEvaluator {
 
     private List<TimeInterval> missingRanges;
 
+
+
     public MaxErrorEvaluator(List<Integer> measures, ViewPort viewPort, List<PixelColumn> pixelColumns) {
         this.measures = measures;
         this.viewPort = viewPort;
@@ -124,7 +126,6 @@ public class MaxErrorEvaluator {
             }
             maxPixelErrorsPerColumnAndMeasure.add(maxPixelErrorsPerMeasure);
         }
-
         return maxPixelErrorsPerColumnAndMeasure;
     }
 

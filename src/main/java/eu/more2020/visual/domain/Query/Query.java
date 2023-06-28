@@ -81,4 +81,6 @@ public class Query implements TimeInterval {
     public float getAccuracy() {
         return accuracy;
     }
+
+
 }

@@ -4,6 +4,8 @@ import eu.more2020.visual.domain.DataPoint;
 import eu.more2020.visual.domain.DataPoints;
 import eu.more2020.visual.domain.TimeInterval;
 import eu.more2020.visual.domain.TimeRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
  * raw data points.
  */
 public class RawTimeSeriesSpan implements TimeSeriesSpan {
+    private static final Logger LOG = LoggerFactory.getLogger(RawTimeSeriesSpan.class);
 
     int[] measures;
 
@@ -30,15 +33,23 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
      */
     private long[] timestamps;
 
-    public RawTimeSeriesSpan() {
+    // The start time value of the span
+    private long from;
+
+    // The end time value of the span
+    // Keep in mind that the end time is not included in the span,
+    private long to;
+
+    public RawTimeSeriesSpan(long from, long to, List<Integer> measures) {
+        this.from = from;
+        this.to = to;
+        this.measures = measures.stream().mapToInt(Integer::intValue).toArray();;
     }
 
     /**
      * @param dataPoints
      */
     public void build(DataPoints dataPoints) {
-        measures = dataPoints.getMeasures().stream().mapToInt(Integer::intValue).toArray();
-
         ArrayList<Double> valuesList = new ArrayList<>();
         ArrayList<Long> timestampsList = new ArrayList<>();
         for (DataPoint dataPoint : dataPoints) {
@@ -51,6 +62,21 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         values = valuesList.stream().mapToDouble(Double::doubleValue).toArray();
         timestamps = timestampsList.stream().mapToLong(Long::longValue).toArray();
     }
+
+    public void build(List<DataPoint> dataPoints) {
+        ArrayList<Double> valuesList = new ArrayList<>();
+        ArrayList<Long> timestampsList = new ArrayList<>();
+        for (DataPoint dataPoint : dataPoints) {
+            timestampsList.add(dataPoint.getTimestamp());
+            for (double value : dataPoint.getValues()) {
+                valuesList.add(value);
+            }
+            count ++;
+        }
+        values = valuesList.stream().mapToDouble(Double::doubleValue).toArray();
+        timestamps = timestampsList.stream().mapToLong(Long::longValue).toArray();
+    }
+
 
 
     /**
@@ -95,17 +121,17 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
     @Override
     public Iterator<DataPoint> iterator() {
         // Use the first and last timestamps as the range for the iterator
-        return new RawTimeSeriesSpanIterator(timestamps[0], timestamps[timestamps.length - 1] + 1);
+        return new RawTimeSeriesSpanIterator(from, to);
     }
 
     @Override
     public long getFrom() {
-        return timestamps[0];
+        return from;
     }
 
     @Override
     public long getTo() {
-        return timestamps[timestamps.length - 1];
+        return to;
     }
 
     @Override

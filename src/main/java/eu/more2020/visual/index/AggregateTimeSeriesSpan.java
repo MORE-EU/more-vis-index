@@ -49,11 +49,11 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
      */
     private long aggregateInterval;
 
-    private void initialize(long from, long to, int size, List<Integer> measures) {
-        this.size = size;
+    private void initialize(long from, long to, long aggregateInterval, List<Integer> measures) {
+        this.size = (int) ((to - from) / aggregateInterval);
         this.from = from;
         this.to = to;
-        this.aggregateInterval = (to - from) / size;
+        this.aggregateInterval = aggregateInterval;
         LOG.debug("Initializing time series span [{},{}) with size {} and aggregate interval {}", from, to, size, aggregateInterval);
         this.measures = measures;
         this.counts = new int[size];
@@ -61,8 +61,8 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
     }
 
 
-    public AggregateTimeSeriesSpan(long from, long to, List<Integer> measures, int size) {
-        initialize(from, to, size, measures);
+    public AggregateTimeSeriesSpan(long from, long to, List<Integer> measures, long aggregateInterval) {
+        initialize(from, to, aggregateInterval, measures);
     }
 
     protected void addAggregatedDataPoint(int i, AggregatedDataPoint aggregatedDataPoint) {

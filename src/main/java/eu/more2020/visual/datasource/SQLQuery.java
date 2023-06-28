@@ -15,6 +15,10 @@ public class SQLQuery extends DataSourceQuery {
         super(from, to, null, measures, numberOfGroups);
     }
 
+    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures){
+        super(from, to, ranges, measures,  null);
+    }
+
     public SQLQuery(long from, long to, List<Integer> measures){
         super(from, to, null, measures,  null);
     }
@@ -70,14 +74,13 @@ public class SQLQuery extends DataSourceQuery {
                 "ORDER BY k, min_epoch";
     }
 
-
-//    @Override
-//    public String m4QuerySkeleton() {
-//        return qM4Skeleton() +
-//                "SELECT id, epoch, value, k FROM Q_M " +
-//                "ORDER BY k, epoch";
-//    }
-//
+    @Override
+    public String m4LikeMultiQuerySkeleton() {
+        return qMultiM4Skeleton() +
+                "SELECT id, MIN(epoch) AS min_epoch, MAX(epoch) AS max_epoch, value, k FROM Q_M " +
+                "GROUP BY id, k, value " +
+                "ORDER BY k, min_epoch";
+    }
 
     @Override
     public String m4MultiQuerySkeleton() {
@@ -118,6 +121,14 @@ public class SQLQuery extends DataSourceQuery {
                 "ORDER BY epoch, id";
     }
 
+    @Override
+    public String rawMultiQuerySkeleton() {
+        return "SELECT id, epoch, value FROM :tableName \n" +
+                "WHERE " +
+                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
+                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
+                "ORDER BY epoch, id";
+    }
 
 
 }
