@@ -7,6 +7,7 @@ influxDBResults/*
 sqlResults/*
 ttiResults/*
 rawResults/*
+minmax/*
 src/main/java/eu/more2020/visual/.DS_Store
 src/main/java/eu/more2020/.DS_Store
 src/main/java/eu/.DS_Store
@@ -23,3 +24,5 @@ ttiResults4.html
 output/*
 scripts/output/*
 plots/*
+.ipynb_checkpoints/*
+.DS_Store

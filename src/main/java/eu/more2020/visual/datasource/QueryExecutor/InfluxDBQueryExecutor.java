@@ -105,7 +105,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(BEBEZE.class)
                         .build();
                 for (BEBEZE data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -115,7 +115,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(INTEL_LAB.class)
                         .build();
                 for (INTEL_LAB data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -125,7 +125,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SOCCER.class)
                         .build();
                 for (SOCCER data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -135,7 +135,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(MANUFACTURING.class)
                         .build();
                 for (MANUFACTURING data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -145,7 +145,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(INTEL_LAB_EXP.class)
                         .build();
                 for (INTEL_LAB_EXP data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -155,7 +155,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SOCCER_EXP.class)
                         .build();
                 for (SOCCER_EXP data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -165,7 +165,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(MANUFACTURING_EXP.class)
                         .build();
                 for (MANUFACTURING_EXP data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -175,7 +175,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC1M.class)
                         .build();
                 for (SYNTHETIC1M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -185,7 +185,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC2M.class)
                         .build();
                 for (SYNTHETIC2M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -195,7 +195,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC4M.class)
                         .build();
                 for (SYNTHETIC4M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -205,7 +205,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC8M.class)
                         .build();
                 for (SYNTHETIC8M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -215,7 +215,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC16M.class)
                         .build();
                 for (SYNTHETIC16M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -225,7 +225,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC32M.class)
                         .build();
                 for (SYNTHETIC32M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -235,7 +235,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC64M.class)
                         .build();
                 for (SYNTHETIC64M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -245,7 +245,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC128M.class)
                         .build();
                 for (SYNTHETIC128M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -255,7 +255,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC256M.class)
                         .build();
                 for (SYNTHETIC256M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -265,7 +265,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC512M.class)
                         .build();
                 for (SYNTHETIC512M data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }
@@ -275,7 +275,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                         .withType(SYNTHETIC1B.class)
                         .build();
                 for (SYNTHETIC1B data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.S, data);
+                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
                 }
                 break;
             }

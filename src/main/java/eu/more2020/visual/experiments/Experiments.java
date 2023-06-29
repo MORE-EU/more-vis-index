@@ -179,26 +179,24 @@ public class Experiments<T> {
         }
     }
 
-    private void initializePostgreSQL() throws IOException, SQLException {
-        AbstractDataset dataset = createDataset();
+    private void initializePostgreSQL() throws  SQLException {
         PostgreSQLConnection postgreSQLConnection = new PostgreSQLConnection(config);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getName());
+        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
         sqlQueryExecutor.drop();
         sqlQueryExecutor.initialize(path);
     }
 
-    private void initializeInfluxDB() throws IOException, SQLException {
-        AbstractDataset dataset = createDataset();
+    private void initializeInfluxDB() throws IOException {
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(),
-                dataset.getName(), dataset.getHeader());
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema,
+                table, null);
         influxDBQueryExecutor.drop();
         influxDBQueryExecutor.initialize(path);
     }
 
     private void initialize() throws IOException, SQLException {
-        Preconditions.checkNotNull(mode, "You must define the execution mode (tti, raw, postgres, influx).");
-        switch (mode) {
+        Preconditions.checkNotNull(type, "You must define the execution type (postgres, influx).");
+        switch (type) {
             case "postgres":
                 initializePostgreSQL();
             case "influx":
@@ -477,35 +475,41 @@ public class Experiments<T> {
 
     private AbstractDataset createDataset() throws IOException, SQLException {
         String p = "";
+        AbstractDataset dataset = null;
         switch (type) {
             case "csv":
                 p = String.valueOf(Paths.get("metadata", "csv-" + table));
-                if (new File(p).exists()) return (CsvDataset) SerializationUtilities.loadSerializedObject(p);
-                CsvDataset csvDataset = new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
-                SerializationUtilities.storeSerializedObject(csvDataset, p);
-                return csvDataset;
+                if (new File(p).exists()) dataset = (CsvDataset) SerializationUtilities.loadSerializedObject(p);
+                else {
+                    dataset = new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
+                    SerializationUtilities.storeSerializedObject(dataset, p);
+                }
             case "parquet":
                 p = String.valueOf(Paths.get("metadata", "parquet-" + table));
-                if (new File(p).exists()) return (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
-                ParquetDataset parquetDataset = new ParquetDataset(path, "0", "test", timeCol, timeFormat);
-                SerializationUtilities.storeSerializedObject(parquetDataset, p);
-                return parquetDataset;
+                if (new File(p).exists()) dataset = (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
+                else {
+                    dataset = new ParquetDataset(path, "0", "test", timeCol, timeFormat);
+                    SerializationUtilities.storeSerializedObject(dataset, p);
+                }
             case "postgres":
                 p = String.valueOf(Paths.get("metadata", "postgres-" + table));
-                if (new File(p).exists()) return (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
-                PostgreSQLDataset postgreSQLDataset = new PostgreSQLDataset(config, schema, table, timeFormat);
-                SerializationUtilities.storeSerializedObject(postgreSQLDataset, p);
-                return postgreSQLDataset;
+                if (new File(p).exists()) dataset = (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
+                else{
+                    dataset = new PostgreSQLDataset(config, schema, table, timeFormat);
+                    SerializationUtilities.storeSerializedObject(dataset, p);
+                }
             case "influx":
                 p = String.valueOf(Paths.get("metadata", "influx-" + table));
-                if (new File(p).exists()) return (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
-                InfluxDBDataset influxDBDataset = new InfluxDBDataset(config, schema, table, timeFormat);
-                SerializationUtilities.storeSerializedObject(influxDBDataset, p);
-                return influxDBDataset;
+                if (new File(p).exists()) dataset = (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
+                else {
+                    dataset = new InfluxDBDataset(config, schema, table, timeFormat);
+                    SerializationUtilities.storeSerializedObject(dataset, p);
+                }
             default:
                 break;
         }
-        return null;
+        LOG.info("Initialized Dataset: {}, range {}, sampling interval {}", dataset.getName(), dataset.getTimeRange(), dataset.getSamplingInterval());
+        return dataset;
     }
 
 }

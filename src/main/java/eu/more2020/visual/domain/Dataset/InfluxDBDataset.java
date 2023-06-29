@@ -31,7 +31,7 @@ public class InfluxDBDataset extends AbstractDataset {
         List<FluxTable> fluxTables;
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
         String firstQuery = "from(bucket:\"" + bucket + "\")\n" +
-                "  |> range(start: 0)\n" +
+                "  |> range(start: 1970-01-01T00:00:00.000Z, stop: 2150-01-01T00:00:00.999Z)\n" +
                 "  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n" +
                 "  |> limit(n: 2)\n" +
                 "  |> yield(name:\"first\")\n";
@@ -54,7 +54,7 @@ public class InfluxDBDataset extends AbstractDataset {
         }
 
         String lastQuery =  "from(bucket:\"" + bucket + "\")\n" +
-                "  |> range(start: 0, stop:2120-01-01T00:00:00Z)\n" +
+                "  |> range(start: 0, stop:2120-01-01T00:00:00.000Z)\n" +
                 "  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n" +
                 "  |> keep(columns: [\"_time\"])\n" +
                 "  |> last(column: \"_time\")\n";
