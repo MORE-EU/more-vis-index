@@ -55,7 +55,7 @@ public abstract class DataSourceQuery implements TimeInterval {
 
     @Override
     public String getFromDate(String format) {
-        return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return Instant.ofEpochMilli(from).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
     }
 
     @Override
@@ -65,7 +65,7 @@ public abstract class DataSourceQuery implements TimeInterval {
 
     @Override
     public String getToDate(String format) {
-        return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
     }
 
     public Integer getNumberOfGroups() {

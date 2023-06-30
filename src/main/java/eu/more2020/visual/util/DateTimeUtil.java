@@ -171,9 +171,9 @@ public class DateTimeUtil {
         return (int) Math.ceil(aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / (double) aggregateInterval.getInterval()) + 1;
     }
 
-    public static int indexInInterval(final long startTime, final long endTime, final long intervals, final long time) {
-        long intervalLength = (long) ((endTime - startTime) / intervals);
-        return (int) ((time - startTime ) / intervalLength);
+    public static int indexInInterval(final long startTime, final long endTime, final long aggregateInterval, final long time) {
+//        int intervalLength = (int) Math.floor((double)(endTime - startTime) / intervals);
+        return (int) ((time - startTime ) / aggregateInterval);
     }
     /**
      * Returns the optimal M4 sampling interval in a specific range.
@@ -305,25 +305,25 @@ public class DateTimeUtil {
         return new AggregateInterval(aggregateInterval, aggregateChronoUnit);
     }
 
-    private static long[] findBinRange(long x, long a, long b, long n){
-        long bin_width = (b - a) / n;
+    private static long[] findBinRange(long x, long a, long b, long bin_width){
+//        long bin_width = (b - a) / n;
         long bin_index = (x - a) / bin_width;
         long bin_start = a + bin_index * bin_width;
         long bin_end = bin_start + bin_width;
-        if (bin_index == n) {
+        if (bin_index == bin_width) {
             bin_end = b; // Set bin_end to the upper limit of the interval
         }
         return new long[] {bin_start, bin_end};
     }
 
-    // TODO: not to handle here but in general, if intervals are too fragmented the postgres query is slow. We can fix this quick by adding an epsilon variable below where we compact two or more ranges if they have a difference of theta or less
-    public static List<TimeInterval> correctIntervals(long from, long to, int numberOfGroups, List<TimeInterval> ranges) {
+    public static List<TimeInterval> correctIntervals(long from, long to, long pixelColumnInterval, List<TimeInterval> ranges) {
         if(ranges.size() == 0) return ranges;
         List<TimeInterval> newRanges = new ArrayList<>();
         List<TimeInterval> groupedRanges = new ArrayList<>();
         TimeInterval currentGroup = ranges.get(0);
         for(TimeInterval currentRange : ranges){
             if (currentGroup.getTo() == currentRange.getFrom()) {
+//            if (currentGroup.getTo() + (pixelColumnInterval * 2) >= currentRange.getFrom() && groupedRanges.size() > 0) {
                 // Extend the current group
                 currentGroup = new TimeRange(currentGroup.getFrom(), currentRange.getTo());
                 groupedRanges.set(groupedRanges.size() - 1, currentGroup);
@@ -333,26 +333,13 @@ public class DateTimeUtil {
                 groupedRanges.add(currentGroup);
             }
         }
-        for(TimeInterval range : groupedRanges) {
-            long f = range.getFrom();
-            long t = range.getTo();
-            long new_from = findBinRange(f, from, to, numberOfGroups)[0];
-            long new_to = findBinRange(t, from, to, numberOfGroups)[1];
-            newRanges.add(new TimeRange(Math.max(from, new_from), Math.min(to, new_to)));
-        }
-        groupedRanges = new ArrayList<>();
-        currentGroup = newRanges.get(0);
-        for(TimeInterval currentRange : newRanges){
-            if (currentGroup.getTo() == currentRange.getFrom()) {
-                // Extend the current group
-                currentGroup = new TimeRange(currentGroup.getFrom(), currentRange.getTo());
-                groupedRanges.set(groupedRanges.size() - 1, currentGroup);
-            } else {
-                // Start a new group
-                currentGroup = currentRange;
-                groupedRanges.add(currentGroup);
-            }
-        }
+//        for(TimeInterval range : groupedRanges) {
+//            long f = range.getFrom();
+//            long t = range.getTo();
+//            long new_from = findBinRange(f, from, to, pixelColumnInterval)[0];
+//            long new_to = findBinRange(t, from, to, pixelColumnInterval)[1];
+//            newRanges.add(new TimeRange(Math.max(from, new_from), Math.min(to, new_to)));
+//        }
         return groupedRanges;
     }
 

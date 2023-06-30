@@ -21,7 +21,7 @@ public class PostgreSQLDataPointsIterator implements Iterator<DataPoint> {
     @Override
     public boolean hasNext() {
         try {
-            return !resultSet.isLast();
+            return !(resultSet.isAfterLast() || resultSet.isLast());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -37,9 +37,11 @@ public class PostgreSQLDataPointsIterator implements Iterator<DataPoint> {
             while (i < measures.size() && resultSet.next()) {
                 datetime = resultSet.getLong(2);
                 Double val = resultSet.getObject(3) == null ? null : resultSet.getDouble(3);
-                if(val == null) continue;
+                if(val == null) {
+                    i++;
+                    continue;
+                }
                 values[i] = val;
-                ;
                 i ++;
             }
         } catch (SQLException e) {

@@ -36,8 +36,8 @@ public class PostgreSQLDataset extends AbstractDataset {
                 new PostgreSQLConnection(config);
         SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
         // Header query
-        String headerQuery = "SELECT DISTINCT(col) " +
-                "FROM " + schema  + "." + table + "\n";
+        String headerQuery = "SELECT * " +
+                "FROM information_schema.columns WHERE table_schema = '" + schema  + "' AND table_name = '" + table + "' ORDER BY ordinal_position\n";
         resultSet = sqlQueryExecutor.execute(headerQuery);
         List<String> header = new ArrayList<>();
         while(resultSet.next())

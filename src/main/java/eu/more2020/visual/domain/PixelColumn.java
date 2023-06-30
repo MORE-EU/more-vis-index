@@ -173,14 +173,18 @@ public class PixelColumn implements TimeInterval {
      */
 
     public List<Range<Integer>> computeMaxInnerPixelRange(Stats viewPortStats) {
-        // TODO: Dont forget to handle the case where data are missing. For now return 0
-        if(statsAggregator.getCount() == 0) return null;
+        // TODO: Handled the case of missing data by starting the aggregator at -1. On the first accept we set count = 0;
+        // TODO: Check if range.close(0, 0) is correct.
+        if(statsAggregator.getCount() == -1) return null;
+        if(statsAggregator.getCount() == 0) {
+            return measures.stream().map(m ->  Range.closed(0, 0)).collect(Collectors.toList());
+        }
         Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
         if (fullyContainedDisjointRanges.size() > 1) {
 //            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
             return null;
         } else if (fullyContainedDisjointRanges.size() == 0) {
-//            LOG.debug("There is no fully contained range in this pixel column.");
+            LOG.debug("There is no fully contained range in this pixel column.");
             return null;
         }
 
@@ -245,7 +249,7 @@ public class PixelColumn implements TimeInterval {
      * @return A Range object representing the range of inner-column pixel IDs
      */
     public Range<Integer> getActualInnerColumnPixelRange(int measure, Stats viewPortStats) {
-        if(fullyContainedStatsAggregator.getCount() == 0) return Range.closed(0, 0);
+        if(fullyContainedStatsAggregator.getCount() <= 0) return Range.closed(0, 0); // If not initialized or empty
         return Range.closed(getPixelId(measure, fullyContainedStatsAggregator.getMinValue(measure), viewPortStats), getPixelId(measure, fullyContainedStatsAggregator.getMaxValue(measure), viewPortStats));
     }
 

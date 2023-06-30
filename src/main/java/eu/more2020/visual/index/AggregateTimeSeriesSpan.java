@@ -50,7 +50,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
     private long aggregateInterval;
 
     private void initialize(long from, long to, long aggregateInterval, List<Integer> measures) {
-        this.size = (int) ((to - from) / aggregateInterval);
+        this.size = (int) Math.ceil((double)(to - from) / aggregateInterval);
         this.from = from;
         this.to = to;
         this.aggregateInterval = aggregateInterval;

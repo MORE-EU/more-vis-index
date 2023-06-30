@@ -85,6 +85,9 @@ public class Experiments<T> {
     @Parameter(names = "-endTime", converter = EpochConverter.class, variableArity = true, description = "End Time Epoch")
     Long endTime = 0L;
 
+    @Parameter(names = "-q", description = "Query percent")
+    Double q;
+
     @Parameter(names = "-filters", converter = FilterConverter.class, description = "Q0 Filters")
     private HashMap<Integer, Double[]> filters = new HashMap<>();
 
@@ -172,9 +175,6 @@ public class Experiments<T> {
             case "timeQueries":
                 timeQueries();
                 break;
-            /*case "plot":
-                plotQuery();
-                break;*/
             default:
         }
     }
@@ -484,6 +484,7 @@ public class Experiments<T> {
                     dataset = new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
                     SerializationUtilities.storeSerializedObject(dataset, p);
                 }
+                break;
             case "parquet":
                 p = String.valueOf(Paths.get("metadata", "parquet-" + table));
                 if (new File(p).exists()) dataset = (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
@@ -491,6 +492,7 @@ public class Experiments<T> {
                     dataset = new ParquetDataset(path, "0", "test", timeCol, timeFormat);
                     SerializationUtilities.storeSerializedObject(dataset, p);
                 }
+                break;
             case "postgres":
                 p = String.valueOf(Paths.get("metadata", "postgres-" + table));
                 if (new File(p).exists()) dataset = (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
@@ -498,6 +500,7 @@ public class Experiments<T> {
                     dataset = new PostgreSQLDataset(config, schema, table, timeFormat);
                     SerializationUtilities.storeSerializedObject(dataset, p);
                 }
+                break;
             case "influx":
                 p = String.valueOf(Paths.get("metadata", "influx-" + table));
                 if (new File(p).exists()) dataset = (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
@@ -505,10 +508,16 @@ public class Experiments<T> {
                     dataset = new InfluxDBDataset(config, schema, table, timeFormat);
                     SerializationUtilities.storeSerializedObject(dataset, p);
                 }
+                break;
             default:
                 break;
         }
         LOG.info("Initialized Dataset: {}, range {}, sampling interval {}", dataset.getName(), dataset.getTimeRange(), dataset.getSamplingInterval());
+        // If query percent given. Change start and end times based on it
+        if(q != null){
+            startTime = dataset.getTimeRange().getTo() - (long) (q * (dataset.getTimeRange().getTo() - dataset.getTimeRange().getFrom()));
+            endTime = (dataset.getTimeRange().getTo());
+        }
         return dataset;
     }
 

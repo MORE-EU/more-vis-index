@@ -39,14 +39,14 @@ public class InfluxDBQuery extends DataSourceQuery {
 
     @Override
     public String getFromDate() {
-        String fromDate = super.getFromDate();
-        return fromDate.replace(" ", "T") + "Z";
+        String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        return super.getFromDate(format);
     }
 
     @Override
     public String getToDate() {
-        String toDate = super.getToDate();
-        return toDate.replace(" ", "T") + "Z";
+        String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        return super.getToDate(format);
     }
 
     public long getAggregateInterval() {
@@ -59,7 +59,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "  tables\n" +
                 "    |> window(every:every, offset: %s, createEmpty:true)\n" +
                 "    |> fn(column:column)\n" +
-//                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
+                "    |> duplicate(column:timeSrc, as:timeDst)\n" +
                 "    |> group()" +
                 "\n" +
                 "data = () => from(bucket:\"%s\") \n" +

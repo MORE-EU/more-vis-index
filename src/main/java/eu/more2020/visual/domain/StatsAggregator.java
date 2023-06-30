@@ -52,7 +52,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
     }
 
     public void clear() {
-        count = 0;
+        count = -1;
         Arrays.fill(sums, 0d);
         Arrays.fill(minValues, Double.POSITIVE_INFINITY);
         Arrays.fill(minTimestamps, -1l);
@@ -70,6 +70,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
      */
     @Override
     public void accept(DataPoint dataPoint) {
+        if(count == -1) count ++;
         if (dataPoint instanceof AggregatedDataPoint) {
             accept((AggregatedDataPoint) dataPoint);
             return;
@@ -99,6 +100,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
     }
 
     public void accept(UnivariateDataPoint dataPoint, int measure) {
+        if(count == -1) count ++;
         ++count;
         double value = dataPoint.getValue();
         int i = getMeasureIndex(measure);
@@ -126,6 +128,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
 
 
     public void accept(AggregatedDataPoint dataPoint) {
+        if(count == -1) count ++;
         Stats stats = dataPoint.getStats();
         if (dataPoint.getCount() != 0) {
             count += dataPoint.getCount();

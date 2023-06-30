@@ -27,7 +27,7 @@ public class TTI {
 
     private int aggFactor;
 
-    private int DATA_REDUCTION_RATIO = 10;
+    private int DATA_REDUCTION_RATIO = 2;
 
     Comparator<UnivariateDataPoint> compareLists = (s1, s2) -> {
         if (s1 == null && s2 == null) return 0; //swapping has no point here
@@ -48,7 +48,12 @@ public class TTI {
         this.dataset = dataset;
         this.dataSource = DataSourceFactory.getDataSource(dataset);
         intervalTree = new IntervalTree<>();
-        aggFactor = 5;
+        aggFactor = 2;
+    }
+
+    void updateAggFactor(){
+        aggFactor = Math.min(2 * aggFactor, 8);
+//        aggFactor *= 2;
     }
 
     public QueryResults executeQueryM4(Query query) {
@@ -68,7 +73,7 @@ public class TTI {
             PixelColumn pixelColumn = new PixelColumn(pixelFrom, pixelTo, measures, viewPort);
             pixelColumns.add(pixelColumn);
         }
-        //LOG.debug("Created {} pixel columns: {}", viewPort.getWidth(), pixelColumns.stream().map(PixelColumn::getIntervalString).collect(Collectors.joining(", ")));
+//        LOG.debug("Created {} pixel columns: {}", viewPort.getWidth(), pixelColumns.stream().map(PixelColumn::getIntervalString).collect(Collectors.joining(", ")));
         // Query the interval tree for all spans that overlap the query interval.
         List<TimeSeriesSpan> overlappingSpans = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(intervalTree.overlappers(query), 0), false)
@@ -98,7 +103,8 @@ public class TTI {
         MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
         List<List<Integer>> pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
         List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
-        missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
+//        LOG.info("Unable to Determine Errors: " + missingIntervals);
+        missingIntervals = DateTimeUtil.correctIntervals(from, to, pixelColumnInterval, missingIntervals);
         // Find the part of the query interval that is not covered by the spans in the interval tree.
 
         Map<Integer, Double> error = new HashMap<>();
@@ -131,17 +137,18 @@ public class TTI {
                 PixelColumn pixelColumn = new PixelColumn(pixelFrom, pixelTo, measures, viewPort);
                 pixelColumns.add(pixelColumn);
             }
+            updateAggFactor();
             missingIntervals = new ArrayList<>();
             missingIntervals.add(new TimeRange(from, to));
-            missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
+            missingIntervals = DateTimeUtil.correctIntervals(from, to, pixelColumnInterval, missingIntervals);
             Query query1 = new Query(query.getFrom(), query.getTo(), query.getAccuracy(), QueryMethod.M4_MULTI,
                     query.getMeasures(), query.getViewPort(), query.getOpType());
             LOG.info("Cached data are below error bound. Fetching {}: ", missingIntervals);
-            getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query1, queryResults, 1);
+            getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query1, queryResults, aggFactor);
         }
         else {
             // Fetch the missing data from the data source.
-            LOG.info("Unable to Determine Errors: " + missingIntervals);
+//            LOG.info("Unable to Determine Errors: " + missingIntervals);
             getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query, queryResults, aggFactor);
         }
 
@@ -215,6 +222,8 @@ public class TTI {
                 // This way, each of the groups of the resulting spans will overlap at most two pixel columns.
                 .filter(span -> span.getAggregateInterval() <= pixelColumnInterval)
                 .collect(Collectors.toList());
+        //LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(TimeSeriesSpan::getIntervalString).collect(Collectors.joining(", ")));
+
         for (TimeSeriesSpan span : overlappingSpans) {
             if (span instanceof AggregateTimeSeriesSpan) {
                 Iterator<AggregatedDataPoint> iterator = ((AggregateTimeSeriesSpan) span).iterator(from, to);
@@ -237,7 +246,7 @@ public class TTI {
         MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
         List<List<Integer>> pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
         List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
-        missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
+        missingIntervals = DateTimeUtil.correctIntervals(from, to, pixelColumnInterval, missingIntervals);
 
         // Find the part of the query interval that is not covered by the spans in the interval tree.
         LOG.info("Unable to Determine Errors: " + missingIntervals);
@@ -262,6 +271,7 @@ public class TTI {
         boolean hasError = true;
         for (int m : measures) {
             double measureError = error.get(m) / (viewPort.getHeight() * viewPort.getWidth());
+            LOG.info("Measure has error: {}", measureError);
             hasError = measureError > 1 - query.getAccuracy();
             error.put(m, measureError);
         }
@@ -273,14 +283,16 @@ public class TTI {
                 PixelColumn pixelColumn = new PixelColumn(pixelFrom, pixelTo, measures, viewPort);
                 pixelColumns.add(pixelColumn);
             }
+            updateAggFactor();
             missingIntervals = new ArrayList<>();
             missingIntervals.add(new TimeRange(from, to));
-            missingIntervals = DateTimeUtil.correctIntervals(from, to, viewPort.getWidth(), missingIntervals);
-//            aggFactor = 1 + aggFactor;
+            missingIntervals = DateTimeUtil.correctIntervals(from, to, pixelColumnInterval, missingIntervals);
+            LOG.info("Cached data are below error bound. Fetching {}: ", missingIntervals);
             LOG.info("Fetching missing data from data source");
             Query query1 = new Query(query.getFrom(), query.getTo(), query.getAccuracy(), QueryMethod.M4_MULTI,
                     query.getMeasures(), query.getViewPort(), query.getOpType());
             getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query1, queryResults, 1);
+            measures.forEach(m -> error.put(m, 0.0)); // set max error to 0
         }
 
         Map<Integer, List<UnivariateDataPoint>> resultData = new HashMap<>();
@@ -314,8 +326,10 @@ public class TTI {
         if (missingIntervals.size() >= 1) {
             // Create time series spans from the missing data and insert them into the interval tree.
             long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
+            long numberOfAggDataPoints = 4L * aggFactor * viewPort.getWidth();
+            long numberOfRawDataPoints = (to - from) / dataset.getSamplingInterval().toMillis();
             List<TimeSeriesSpan> timeSeriesSpans = null;
-            if(aggregateInterval < dataset.getSamplingInterval().toMillis() * DATA_REDUCTION_RATIO){ // get raw data
+            if(numberOfAggDataPoints > (numberOfRawDataPoints / DATA_REDUCTION_RATIO)){ // get raw data
                 List<DataPoint> missingDataPointList = null;
                 DataPoints missingDataPoints = null;
                 LOG.info("Fetching missing data from data source");

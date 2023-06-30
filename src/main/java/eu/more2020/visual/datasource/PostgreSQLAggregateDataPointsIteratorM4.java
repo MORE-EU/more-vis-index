@@ -4,6 +4,7 @@ import eu.more2020.visual.domain.AggregatedDataPoint;
 import eu.more2020.visual.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.domain.StatsAggregator;
 import eu.more2020.visual.domain.UnivariateDataPoint;
+import eu.more2020.visual.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

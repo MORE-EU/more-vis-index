@@ -37,17 +37,23 @@ public class TimeSeriesSpanFactory {
         return spans;
     }
 
-
+    /**
+     * Read from iterators and create time series spans.
+     * All spans take account of the residual interval left from a not exact division with the aggregate interval.
+     * @param aggregatedDataPointsList
+     * @param measures
+     * @param ranges
+     * @param aggregateInterval
+     * @return
+     */
     public static List<TimeSeriesSpan> createAggregate(List<AggregatedDataPoint> aggregatedDataPointsList, List<Integer> measures,
                                               List<TimeInterval> ranges, long aggregateInterval){
         List<TimeSeriesSpan> spans = new ArrayList<>();
         Iterator<AggregatedDataPoint> it = aggregatedDataPointsList.iterator();
         boolean changed = false;
         AggregatedDataPoint aggregatedDataPoint = null;
-
         for (TimeInterval range : ranges) {
             AggregateTimeSeriesSpan timeSeriesSpan = new AggregateTimeSeriesSpan(range.getFrom(), range.getTo(),  measures, aggregateInterval);
-            int intervals = timeSeriesSpan.getSize();
             while(it.hasNext()){
                 if(!changed) aggregatedDataPoint = it.next();
                 else changed = false;
@@ -55,10 +61,9 @@ public class TimeSeriesSpanFactory {
                     changed = true;
                     break;
                 }
-                if(aggregatedDataPoint.getCount() == 0) continue;
-                //LOG.info("Adding {} between {}-{} with agg {}", aggregatedDataPoint.getTimestamp(), range.getFrom(), range.getTo(), spanSize);
-                int i = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), intervals, aggregatedDataPoint.getTimestamp());
-                if(i == timeSeriesSpan.getSize()) continue;
+//                if(aggregatedDataPoint.getCount() == 0) continue;
+                int i = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), aggregateInterval, aggregatedDataPoint.getTimestamp());
+//                LOG.debug("Adding {} between {}-{} with agggrate interval {} at position {}", aggregatedDataPoint.getTimestamp(), range.getFrom(), range.getTo(), aggregateInterval, i);
                 timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
             }
             spans.add(timeSeriesSpan);
