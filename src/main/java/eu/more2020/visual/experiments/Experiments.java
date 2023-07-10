@@ -88,6 +88,9 @@ public class Experiments<T> {
     @Parameter(names = "-q", description = "Query percent")
     Double q;
 
+    @Parameter(names = "-p", description = "Prefetching factor")
+    Double p;
+
     @Parameter(names = "-filters", converter = FilterConverter.class, description = "Q0 Filters")
     private HashMap<Integer, Double[]> filters = new HashMap<>();
 
@@ -213,7 +216,7 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
-        TTI tti = new TTI(dataset);
+        TTI tti = new TTI(dataset, p);
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
@@ -261,7 +264,7 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
-        TTI tti = new TTI(dataset);
+        TTI tti = new TTI(dataset, p);
         QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
@@ -272,7 +275,7 @@ public class Experiments<T> {
             Query query = (Query) sequence.get(i);
             QueryResults queryResults;
             double time = 0;
-            LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
+            LOG.info("Executing query " + i + " " + query.getOpType() + " " + query.getFromDate() + " - " + query.getToDate());
             queryResults = tti.executeQueryMinMax(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             long memorySize = tti.calculateDeepMemorySize();
@@ -401,14 +404,12 @@ public class Experiments<T> {
                 FileUtil.build(path.toString());
             }
             else {
-                Path path1 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "ttiM4" + "Results");
-                Path path2 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "ttiMinMax" + "Results");
+                Path path1 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "ttiMinMax" + "Results");
+                Path path2 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "m4" + "Results");
                 Path path3 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "raw" + "Results");
-                Path path4 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "m4" + "Results");
                 FileUtil.build(path1.toString());
                 FileUtil.build(path2.toString());
                 FileUtil.build(path3.toString());
-                FileUtil.build(path4.toString());
             }
         }
         for(int i = 0; i < runs; i ++) {
@@ -419,6 +420,9 @@ public class Experiments<T> {
                 case "ttiMinMax":
                     timeQueriesTTIMinMax(i);
                     break;
+                case "tti":
+                    timeQueriesTTIMinMax(i);
+                    break;
                 case "raw":
                     timeQueriesRawTTI(i);
                     break;
@@ -426,10 +430,9 @@ public class Experiments<T> {
                     timeQueriesM4(i);
                     break;
                 case "all":
-                    timeQueriesTTIM4(i);
                     timeQueriesTTIMinMax(i);
                     timeQueriesM4(i);
-//                    timeQueriesRawTTI(i);
+                    //timeQueriesRawTTI(i);
                     break;
                 default:
                     System.exit(0);

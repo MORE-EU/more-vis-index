@@ -306,7 +306,6 @@ public class DateTimeUtil {
     }
 
     private static long[] findBinRange(long x, long a, long b, long bin_width){
-//        long bin_width = (b - a) / n;
         long bin_index = (x - a) / bin_width;
         long bin_start = a + bin_index * bin_width;
         long bin_end = bin_start + bin_width;
@@ -316,14 +315,18 @@ public class DateTimeUtil {
         return new long[] {bin_start, bin_end};
     }
 
-    public static List<TimeInterval> correctIntervals(long from, long to, long pixelColumnInterval, List<TimeInterval> ranges) {
+    /**
+     *
+     * @param pixelColumnInterval interval of the pixel columns
+     * @param ranges missing ranges to group
+     * @return
+     */
+    public static List<TimeInterval> groupIntervals(long pixelColumnInterval, List<TimeInterval> ranges) {
         if(ranges.size() == 0) return ranges;
-        List<TimeInterval> newRanges = new ArrayList<>();
         List<TimeInterval> groupedRanges = new ArrayList<>();
         TimeInterval currentGroup = ranges.get(0);
         for(TimeInterval currentRange : ranges){
-            if (currentGroup.getTo() == currentRange.getFrom()) {
-//            if (currentGroup.getTo() + (pixelColumnInterval * 2) >= currentRange.getFrom() && groupedRanges.size() > 0) {
+            if (currentGroup.getTo() + (pixelColumnInterval * 2) >= currentRange.getFrom() && groupedRanges.size() > 0) {
                 // Extend the current group
                 currentGroup = new TimeRange(currentGroup.getFrom(), currentRange.getTo());
                 groupedRanges.set(groupedRanges.size() - 1, currentGroup);
@@ -333,15 +336,17 @@ public class DateTimeUtil {
                 groupedRanges.add(currentGroup);
             }
         }
-//        for(TimeInterval range : groupedRanges) {
-//            long f = range.getFrom();
-//            long t = range.getTo();
-//            long new_from = findBinRange(f, from, to, pixelColumnInterval)[0];
-//            long new_to = findBinRange(t, from, to, pixelColumnInterval)[1];
-//            newRanges.add(new TimeRange(Math.max(from, new_from), Math.min(to, new_to)));
-//        }
         return groupedRanges;
     }
 
-
+    public static List<TimeInterval> correctIntervals(long from, long to, long pixelColumnInterval, List<TimeInterval> ranges) {
+        if (ranges.size() == 0) return ranges;
+        List<TimeInterval> correctRanges = new ArrayList<>();
+        for (TimeInterval currentRange : ranges) {
+            long correctFrom = findBinRange(currentRange.getFrom(), from, to, pixelColumnInterval)[0];
+            long correctTo = findBinRange(currentRange.getTo(), from, to, pixelColumnInterval)[0];
+            correctRanges.add(new TimeRange(correctFrom, correctTo));
+        }
+        return  correctRanges;
+    }
 }

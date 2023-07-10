@@ -42,7 +42,7 @@ public class SYNTHETIC256M {
         @Override
         public Instant convert(String s) {
             try {
-                return Instant.ofEpochMilli(QueryUtils.convertToEpoch(s, "yyyy-MM-dd[ HH:mm:ss]"));
+                return Instant.ofEpochMilli(QueryUtils.convertToEpoch(s, "yyyy-MM-dd[ HH:mm:ss.SSS]"));
             } catch (ParseException e) {
                 e.printStackTrace();
             }

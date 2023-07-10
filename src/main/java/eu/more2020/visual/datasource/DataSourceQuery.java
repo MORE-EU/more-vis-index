@@ -93,4 +93,7 @@ public abstract class DataSourceQuery implements TimeInterval {
     }
 
     public abstract String rawMultiQuerySkeleton();
+
 }
+
+

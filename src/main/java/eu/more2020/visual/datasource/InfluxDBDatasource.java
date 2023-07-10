@@ -73,7 +73,10 @@ public class InfluxDBDatasource implements DataSource {
                         dataset.getName(), dataset.getHeader());
                 List<FluxTable> fluxTables;
                 if(influxDBQuery.getRanges().size() == 1){
-                    fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
+                    InfluxDBQuery influxDBQueryRaw = new InfluxDBQuery(influxDBQuery.getRanges().get(0).getFrom(),
+                            influxDBQuery.getRanges().get(0).getTo(), influxDBQuery.getRanges(), influxDBQuery.getMeasures(),
+                            influxDBQuery.getMeasureNames());
+                    fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQueryRaw);
                 }
                 else{
                     fluxTables = influxDBQueryExecutor.executeRawMultiInfluxQuery(influxDBQuery);

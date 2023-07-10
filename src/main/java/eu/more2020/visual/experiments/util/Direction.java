@@ -15,8 +15,8 @@ public enum Direction {
 
 
         //SYNTH
-        directionPairs.add(new Pair<>(L, 0.9d));
-        directionPairs.add(new Pair<>(R, 0.1d));
+        directionPairs.add(new Pair<>(L, 0.7d));
+        directionPairs.add(new Pair<>(R, 0.3d));
 
         EnumeratedDistribution<Direction> distribution = new EnumeratedDistribution<>(directionPairs);
         distribution.reseedRandomGenerator(0);

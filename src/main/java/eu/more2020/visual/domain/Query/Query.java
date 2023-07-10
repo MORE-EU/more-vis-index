@@ -82,5 +82,11 @@ public class Query implements TimeInterval {
         return accuracy;
     }
 
+    public void setQueryMethod(QueryMethod queryMethod) {
+        this.queryMethod = queryMethod;
+    }
 
+    public void setOpType(UserOpType opType) {
+        this.opType = opType;
+    }
 }

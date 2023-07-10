@@ -63,7 +63,7 @@ public class TimeSeriesSpanFactory {
                 }
 //                if(aggregatedDataPoint.getCount() == 0) continue;
                 int i = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), aggregateInterval, aggregatedDataPoint.getTimestamp());
-//                LOG.debug("Adding {} between {}-{} with agggrate interval {} at position {}", aggregatedDataPoint.getTimestamp(), range.getFrom(), range.getTo(), aggregateInterval, i);
+//                LOG.debug("Adding {} between {}-{} with aggregate interval {} at position {}", aggregatedDataPoint.getTimestamp(), range.getFrom(), range.getTo(), aggregateInterval, i);
                 timeSeriesSpan.addAggregatedDataPoint(i, aggregatedDataPoint);
             }
             spans.add(timeSeriesSpan);

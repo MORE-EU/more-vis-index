@@ -181,7 +181,7 @@ public class PixelColumn implements TimeInterval {
         }
         Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
         if (fullyContainedDisjointRanges.size() > 1) {
-//            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
+            LOG.debug("There are gaps in the fully contained ranges of this pixel column.");
             return null;
         } else if (fullyContainedDisjointRanges.size() == 0) {
             LOG.debug("There is no fully contained range in this pixel column.");

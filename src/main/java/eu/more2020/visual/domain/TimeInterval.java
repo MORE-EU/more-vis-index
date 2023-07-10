@@ -75,6 +75,7 @@ public interface TimeInterval extends Comparable<TimeInterval> {
         return (getFrom() <= (other.getFrom()) && this.getTo() >= (other.getTo()));
     }
 
+
     default double percentage(TimeInterval other) {
         return 1.0 - ((float) (Math.max(other.getTo() - getTo(), 0) + Math.max(getFrom() - other.getFrom(), 0))) / (other.getTo() - other.getFrom());
     }

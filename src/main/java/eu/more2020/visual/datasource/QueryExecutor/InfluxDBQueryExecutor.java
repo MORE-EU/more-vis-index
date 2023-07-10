@@ -361,8 +361,15 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
     public List<FluxTable> executeRawMultiInfluxQuery(InfluxDBQuery q){
+        List<String> args = new ArrayList<>();
+        for (int i = 0; i < q.getRanges().size(); i++) {
+            for (int j = 0; j < 2; j++) {
+                args.add(bucket);
+                args.add(table);
+            }
+        }
         String flux = String.format(q.rawMultiQuerySkeleton(),
-                bucket, q.getFromDate(), q.getToDate(), table);
+                args.toArray());
         return execute(flux);
     }
 

@@ -230,7 +230,7 @@ public class InfluxDBQuery extends DataSourceQuery {
         s += "union(\n" +
                 "    tables: [\n";
         for(i = 0; i < ranges.size(); i ++){
-            s +=    "data_" + i + "\n";
+            s +=    "data_" + i + "(),\n";
         }
         s+= "])" +
                 "\n" + "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n" +
