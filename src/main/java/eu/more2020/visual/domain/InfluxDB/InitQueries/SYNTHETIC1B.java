@@ -14,7 +14,7 @@ import java.time.Instant;
 public class SYNTHETIC1B {
 
     @Column(timestamp = true)
-    @CsvCustomBindByName(column="datetime", converter = EpochConverter.class)
+    @CsvCustomBindByName(column="date", converter = EpochConverter.class)
     private Instant datetime;
 
     @Column

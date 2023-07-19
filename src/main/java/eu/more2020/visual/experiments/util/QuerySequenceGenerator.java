@@ -51,6 +51,7 @@ public class QuerySequenceGenerator {
         Direction[] directions = Direction.getRandomDirections(count);
 //        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
         double[] shifts = new Random(seed).doubles(count, minShift, maxShift).toArray();
+        double[] zooms = new Random(seed).doubles(count, 1, zoomFactor).toArray();
 
         Random opRand = new Random(seed);
         List<UserOpType> ops = new ArrayList<>();
@@ -68,6 +69,7 @@ public class QuerySequenceGenerator {
         queries.add(q0);
         Query q = q0;
         for (int i = 0; i < count - 1; i++) {
+            zoomFactor = (float) zooms[i];
             opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
             if (zoomFactor > 1 && opType.equals(ZI)) {

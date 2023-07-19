@@ -101,6 +101,12 @@ public class Experiments<T> {
     @Parameter(names = "-a")
     private float accuracy;
 
+    @Parameter(names = "-agg")
+    private int aggFactor;
+
+    @Parameter(names = "-reduction")
+    private int reductionFactor;
+
     @Parameter(names = "-out", description = "The output folder")
     private String outFolder;
 
@@ -216,7 +222,7 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
-        TTI tti = new TTI(dataset, p);
+        TTI tti = new TTI(dataset, p, aggFactor, reductionFactor);
         QueryMethod queryMethod = QueryMethod.M4_MULTI;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
@@ -264,12 +270,12 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
-        TTI tti = new TTI(dataset, p);
+        TTI tti = new TTI(dataset, p, aggFactor, reductionFactor);
         QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "aggFactor", "Results size", "IO Count",
-                "Time (sec)", "Processing Time", "Query Time", "Memory", "Error", "flag");
+                "Time (sec)", "Progressive Time (sec)", "Processing Time (sec)", "Query Time (sec)", "Memory", "Error", "flag");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);
@@ -292,6 +298,7 @@ public class Experiments<T> {
             csvWriter.addValue(0);
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(time);
+            csvWriter.addValue(queryResults.getProgressiveQueryTime());
             csvWriter.addValue(time - queryResults.getQueryTime());
             csvWriter.addValue(queryResults.getQueryTime());
             csvWriter.addValue(memorySize);
@@ -315,7 +322,7 @@ public class Experiments<T> {
         QueryMethod queryMethod = QueryMethod.RAW;
         Query q0 = new Query(startTime, endTime, accuracy, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
-        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "Results size", "IO Count", "Time (sec)", "Memory");
+        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "Results size", "IO Count",  "Time (sec)", "Memory");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);

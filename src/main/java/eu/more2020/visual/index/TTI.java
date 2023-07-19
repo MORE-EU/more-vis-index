@@ -32,7 +32,7 @@ public class TTI {
 
     private int aggFactor;
 
-    private final int DATA_REDUCTION_RATIO = 4;
+    private int dataReductionRatio = 4;
 
     private final double prefetchingFactor;
     Comparator<UnivariateDataPoint> compareLists = (s1, s2) -> {
@@ -50,16 +50,17 @@ public class TTI {
      *
      * @param dataset
      */
-    public TTI(AbstractDataset dataset, double prefetchingFactor) {
+    public TTI(AbstractDataset dataset, double prefetchingFactor, int aggFactor, int dataReductionRatio) {
         this.dataset = dataset;
         this.dataSource = DataSourceFactory.getDataSource(dataset);
         this.prefetchingFactor = prefetchingFactor;
         intervalTree = new IntervalTree<>();
-        aggFactor = 2;
+        this.dataReductionRatio = dataReductionRatio;
+        this.aggFactor = aggFactor;
     }
 
     void updateAggFactor(){
-        aggFactor = Math.min(2 * aggFactor, 8);
+        aggFactor *= 2;
     }
 
     public QueryResults executeQueryM4(Query query) {
@@ -110,7 +111,7 @@ public class TTI {
                 throw new IllegalArgumentException("Time Series Span Read Error");
             }
         }
-        LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(span -> "" + span.getAggregateInterval()).collect(Collectors.joining(", ")));
+        LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(span -> "" + span.getAggregateInterval() + " (" +query.percentage(span) + ")").collect(Collectors.joining(", ")));
         MaxErrorEvaluator maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
         List<List<Integer>> pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
         List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
@@ -158,7 +159,7 @@ public class TTI {
         }
         else {
             // Fetch the missing data from the data source.
-//            LOG.info("Unable to Determine Errors: " + missingIntervals);
+//          LOG.info("Unable to Determine Errors: " + missingIntervals);
             getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query, queryResults, aggFactor);
             // Recalculate error
             maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
@@ -214,6 +215,8 @@ public class TTI {
         ViewPort viewPort = query.getViewPort();
         long pixelColumnInterval = (to - from) / viewPort.getWidth();
         double queryTime = 0;
+        boolean gotData = false;
+
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         stopwatch.start();
         LOG.debug("Pixel column interval: " + pixelColumnInterval + " ms");
@@ -234,7 +237,7 @@ public class TTI {
                 // This way, each of the groups of the resulting spans will overlap at most two pixel columns.
                 .filter(span -> pixelColumnInterval >= 2 * span.getAggregateInterval())
                 .collect(Collectors.toList());
-        LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(span -> "" + span.getAggregateInterval()).collect(Collectors.joining(", ")));
+        LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(span -> span.getAggregateInterval() + " (" + span.percentage(query) + ")").collect(Collectors.joining(", ")));
 
         for (TimeSeriesSpan span : overlappingSpans) {
             if (span instanceof AggregateTimeSeriesSpan) {
@@ -282,10 +285,28 @@ public class TTI {
         }
         List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
         missingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, missingIntervals);
+        if(!missingIntervals.isEmpty()) gotData = true;
         LOG.info("Unable to Determine Errors: " + missingIntervals);
+        double highestScore = Double.MIN_VALUE;
+        double highestCoverage = Double.MIN_VALUE;
+        for (TimeSeriesSpan overlappingSpan : overlappingSpans) {
+            long size = overlappingSpan.getAggregateInterval();
+            double coveragePercentage = overlappingSpan.percentage(query);
+            double score = size * coveragePercentage;
+            if (score > highestScore) {
+                highestScore = score;
+                highestCoverage = coveragePercentage;
+                aggFactor = (int) (pixelColumnInterval / size);
+            }
+        }
+//        if(highestScore < 4 * (1 - highestCoverage)) {
+//            aggFactor = 4;
+//        }
+        aggFactor = Math.min(aggFactor, 10);
         if(hasError){
             updateAggFactor();
         }
+        LOG.debug("Agg factor = {}", aggFactor);
         // Fetch the missing data from the data source.
         getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query, queryResults, aggFactor);
 
@@ -319,12 +340,15 @@ public class TTI {
                 PixelColumn pixelColumn = new PixelColumn(pixelFrom, pixelTo, measures, viewPort);
                 pixelColumns.add(pixelColumn);
             }
+            gotData = true;
             missingIntervals = new ArrayList<>();
             missingIntervals.add(new TimeRange(from, to));
             LOG.info("Cached data are above error bound. Fetching {}: ", missingIntervals);
             LOG.info("Fetching missing data from data source");
             query.setQueryMethod(QueryMethod.M4_MULTI);
+            long timeStart = System.currentTimeMillis();
             getMissing(from, to, measures, viewPort, missingIntervals, pixelColumns, query, queryResults, 1);
+            queryResults.setProgressiveQueryTime((System.currentTimeMillis() - timeStart) / 1000F);
             Map<Integer, Double> finalError = error;
             measures.forEach(m -> finalError.put(m, 0.0)); // set max error to 0
         }
@@ -345,7 +369,7 @@ public class TTI {
         }
         queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
         stopwatch.stop();
-        if(prefetchingFactor != 0 && hasError)
+        if(prefetchingFactor != 0 && gotData)
             prefetch(from, to, measures, pixelColumnInterval, query);
         resultData.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(resultData);
@@ -368,7 +392,6 @@ public class TTI {
                                         long pixelColumnInterval, Query query){
         List<TimeInterval> prefetchingIntervals = new ArrayList<>();
         ViewPort viewPort = query.getViewPort();
-
         // For the prefetching we add pixel columns to the left and right depending to the prefetching factor.
         // We create a new viewport based on the new width that results from prefetching. The new viewport has more columns but the same interval.
         long[] prefetchingInterval = extendInterval(from, to, query.getViewPort().getWidth(), prefetchingFactor);
@@ -393,7 +416,6 @@ public class TTI {
 //                .collect(Collectors.toList());
         prefetchingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, prefetchingIntervals);
         LOG.info("Prefetching: {}", prefetchingIntervals.stream().map(p -> p.getIntervalString()).collect(Collectors.joining(", ")));
-        updateAggFactor();
         if (prefetchingIntervals.size() >= 1) {
             // Create time series spans from the missing data and insert them into the interval tree.
             long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
@@ -402,7 +424,7 @@ public class TTI {
 
             List<TimeSeriesSpan> timeSeriesSpans = null;
 
-            if(numberOfAggDataPoints > (numberOfRawDataPoints / DATA_REDUCTION_RATIO)){ // get raw data
+            if(numberOfAggDataPoints > (numberOfRawDataPoints / dataReductionRatio)){ // get raw data
                 List<DataPoint> missingDataPointList = null;
                 DataPoints missingDataPoints = null;
                 LOG.info("Prefetching {} missing raw data from data source", numberOfRawDataPoints);
@@ -434,13 +456,12 @@ public class TTI {
 
         if (missingIntervals.size() >= 1) {
             // Create time series spans from the missing data and insert them into the interval tree.
-            long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
-            long numberOfAggDataPoints = 4L * aggFactor * viewPort.getWidth();
+            long numberOfAggDataPoints = 4L * viewPort.getWidth();
             long numberOfRawDataPoints = missingIntervals.stream().mapToLong(m -> (m.getTo() - m.getFrom()) / dataset.getSamplingInterval().toMillis()).sum();
 
             List<TimeSeriesSpan> timeSeriesSpans = null;
 
-            if(numberOfAggDataPoints > (numberOfRawDataPoints / DATA_REDUCTION_RATIO)){ // get raw data
+            if(numberOfAggDataPoints > (numberOfRawDataPoints / dataReductionRatio)){ // get raw data
                 List<DataPoint> missingDataPointList = null;
                 DataPoints missingDataPoints = null;
                 LOG.info("Fetching {} missing raw data from data source", numberOfRawDataPoints);
@@ -469,6 +490,7 @@ public class TTI {
                         addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
                 });
                 LOG.debug("Added fetched data points to pixel columns");
+                long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
                 timeSeriesSpans = TimeSeriesSpanFactory.createAggregate(missingDataPointList, measures, missingIntervals, aggregateInterval);
             }
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));

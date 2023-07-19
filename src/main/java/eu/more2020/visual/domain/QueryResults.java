@@ -32,6 +32,8 @@ public class QueryResults implements Serializable {
 
     private double queryTime = 0;
 
+    private double progressiveQueryTime = 0;
+
     private int aggFactor;
 
     private boolean flag;
@@ -185,6 +187,14 @@ public class QueryResults implements Serializable {
 
     public void setFlag(boolean flag) {
         this.flag = flag;
+    }
+
+    public double getProgressiveQueryTime() {
+        return progressiveQueryTime;
+    }
+
+    public void setProgressiveQueryTime(double progressiveQueryTime) {
+        this.progressiveQueryTime = progressiveQueryTime;
     }
 
     @Override

@@ -326,7 +326,7 @@ public class DateTimeUtil {
         List<TimeInterval> groupedRanges = new ArrayList<>();
         TimeInterval currentGroup = ranges.get(0);
         for(TimeInterval currentRange : ranges){
-            if (currentGroup.getTo() + (pixelColumnInterval * 2) >= currentRange.getFrom() && groupedRanges.size() > 0) {
+            if (currentGroup.getTo() + (pixelColumnInterval * 10) >= currentRange.getFrom() && groupedRanges.size() > 0) {
                 // Extend the current group
                 currentGroup = new TimeRange(currentGroup.getFrom(), currentRange.getTo());
                 groupedRanges.set(groupedRanges.size() - 1, currentGroup);
