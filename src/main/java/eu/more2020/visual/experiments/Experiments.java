@@ -36,10 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.temporal.ChronoField;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -522,7 +519,8 @@ public class Experiments<T> {
             default:
                 break;
         }
-        LOG.info("Initialized Dataset: {}, range {}, sampling interval {}", dataset.getName(), dataset.getTimeRange(), dataset.getSamplingInterval());
+        LOG.info("Initialized Dataset: {}, range {}, header {}, sampling interval {}", dataset.getName(),
+                dataset.getTimeRange(), Arrays.asList(dataset.getHeader()), dataset.getSamplingInterval());
         // If query percent given. Change start and end times based on it
         if(q != null){
             startTime = dataset.getTimeRange().getTo() - (long) (q * (dataset.getTimeRange().getTo() - dataset.getTimeRange().getFrom()));

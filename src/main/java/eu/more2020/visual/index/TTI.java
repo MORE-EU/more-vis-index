@@ -299,9 +299,6 @@ public class TTI {
                 aggFactor = (int) (pixelColumnInterval / size);
             }
         }
-//        if(highestScore < 4 * (1 - highestCoverage)) {
-//            aggFactor = 4;
-//        }
         aggFactor = Math.min(aggFactor, 10);
         if(hasError){
             updateAggFactor();

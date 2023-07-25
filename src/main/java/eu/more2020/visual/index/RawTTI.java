@@ -10,6 +10,7 @@ import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class RawTTI {
 
     @SuppressWarnings("UnstableApiUsage")
     public QueryResults executeQuery(Query query) {
+
         List<Integer> measures = query.getMeasures() == null ? dataset.getMeasures() : query.getMeasures();
 
         QueryResults queryResults = new QueryResults();
@@ -74,10 +76,13 @@ public class RawTTI {
                 })
                 .filter(s -> s.getCount() > 0)
                 .collect(Collectors.toList()));
-        MultiSpanIterator multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
+        long pixelColumnInterval = (query.getTo() - query.getFrom()) / query.getViewPort().getWidth();
 
+        MultiSpanIterator<DataPoint> multiSpanIterator = new MultiSpanIterator(overlappingIntervals.iterator());
         Map<Integer, List<UnivariateDataPoint>> data = measures.stream()
                 .collect(Collectors.toMap(Function.identity(), ArrayList::new));
+        TimeAggregator timeAggregator = new TimeAggregator(multiSpanIterator,
+                query.getMeasures(), new AggregateInterval(pixelColumnInterval, ChronoUnit.MILLIS));
 
         while(multiSpanIterator.hasNext()){
             DataPoint next = (DataPoint) multiSpanIterator.next();
@@ -87,6 +92,7 @@ public class RawTTI {
             int i = 0;
             for (int m : measures) {
                 List<UnivariateDataPoint> measureData = data.get(m);
+
                 measureData.add(new UnivariateDataPoint(timestamp, values[i]));
                 i++;
             }

@@ -4,7 +4,11 @@ import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import eu.more2020.visual.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.datasource.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.domain.InfluxDB.InitQueries.MANUFACTURING_EXP;
 import eu.more2020.visual.domain.TimeRange;
+import eu.more2020.visual.index.TTI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -12,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class InfluxDBDataset extends AbstractDataset {
+    private static final Logger LOG = LoggerFactory.getLogger(TTI.class);
 
     private final String influxDBCfg;
     private final String bucket;
@@ -38,7 +43,7 @@ public class InfluxDBDataset extends AbstractDataset {
         InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(bucket, measurement);
         fluxTables = influxDBQueryExecutor.execute(firstQuery);
 
-        Set<String> header = new HashSet<>();
+        Set<String> header = new LinkedHashSet<>();
         long from = Long.MAX_VALUE;
         long second = 0L;
 
@@ -52,6 +57,8 @@ public class InfluxDBDataset extends AbstractDataset {
                 i++;
             }
         }
+
+
 
         String lastQuery =  "from(bucket:\"" + bucket + "\")\n" +
                 "  |> range(start: 0, stop:2120-01-01T00:00:00.000Z)\n" +

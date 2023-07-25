@@ -2,7 +2,10 @@
 target/*
 testoutput/*
 more-vis-index.iml
-out.csv
+output*
+raw-0.1/*
+m4-0.1/*
+metadata/*
 influxDBResults/*
 sqlResults/*
 ttiResults/*

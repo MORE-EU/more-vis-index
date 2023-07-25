@@ -6,6 +6,7 @@ import eu.more2020.visual.util.DateTimeUtil;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 
@@ -28,9 +29,8 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     /**
      * The data source iterator
      */
-    protected final DataPoints sourceDataPoints;
 
-    protected final Iterator<DataPoint> sourceDataPointsIterator;
+    protected final MultiSpanIterator<DataPoint> sourceDataPointsIterator;
 
     protected final AggregateInterval aggInterval;
 
@@ -54,14 +54,13 @@ public class TimeAggregator implements Iterator<AggregatedDataPoint>, Aggregated
     /**
      * Constructs a {@link TimeAggregator}
      *
-     * @param sourceDataPoints The source data points.
      * @param aggInterval      The aggregation interval.
      */
-    public TimeAggregator(final DataPoints sourceDataPoints, final AggregateInterval aggInterval) {
-        this.sourceDataPoints = sourceDataPoints;
-        sourceDataPointsIterator = sourceDataPoints.iterator();
+    public TimeAggregator(final MultiSpanIterator<DataPoint> sourceDataPointsIterator,
+                          List<Integer> measures, final AggregateInterval aggInterval) {
+        this.sourceDataPointsIterator = sourceDataPointsIterator;
         this.aggInterval = aggInterval;
-        statsAggregator = new StatsAggregator(sourceDataPoints.getMeasures());
+        statsAggregator = new StatsAggregator(measures);
     }
 
 
