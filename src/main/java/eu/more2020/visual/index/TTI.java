@@ -12,6 +12,7 @@ import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
 import eu.more2020.visual.domain.Query.QueryMethod;
 import eu.more2020.visual.util.DateTimeUtil;
+import org.ehcache.sizeof.SizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,7 +197,6 @@ public class TTI {
             }
             resultData.put(measure, dataPoints);
         }
-
 
         resultData.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(resultData);
@@ -529,11 +529,14 @@ public class TTI {
      * @return The deep memory size in bytes.
      */
     public long calculateDeepMemorySize() {
-        long size = 0L;
-        for (TimeSeriesSpan span : intervalTree) {
-            size += span.calculateDeepMemorySize();
-        }
-        return size;
+        SizeOf sizeOf = SizeOf.newInstance();
+
+//        long size = 0L;
+//        for (TimeSeriesSpan span : intervalTree) {
+//            size += span.calculateDeepMemorySize();
+//        }
+//        return size;
+        return sizeOf.deepSizeOf(intervalTree);
     }
 
 }

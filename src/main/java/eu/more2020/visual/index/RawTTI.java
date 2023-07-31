@@ -9,6 +9,7 @@ import eu.more2020.visual.datasource.DataSourceFactory;
 import eu.more2020.visual.domain.*;
 import eu.more2020.visual.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.domain.Query.Query;
+import org.ehcache.sizeof.SizeOf;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -109,10 +110,12 @@ public class RawTTI {
      * @return The deep memory size in bytes.
      */
     public long calculateDeepMemorySize() {
-        long size = 0L;
-        for(RawTimeSeriesSpan span : intervalTree){
-            size += span.calculateDeepMemorySize();
-        }
-        return size;
+        SizeOf sizeOf = SizeOf.newInstance();
+//        long size = 0L;
+//        for (RawTimeSeriesSpan span : intervalTree) {
+//            size += span.calculateDeepMemorySize();
+//        }
+//        return size;
+        return sizeOf.deepSizeOf(intervalTree);
     }
 }

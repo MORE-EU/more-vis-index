@@ -1,0 +1,52 @@
+Picked up _JAVA_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmx14G -XX:+UseCompressedOops -XX:ThreadPriorityPolicy=1
+OpenJDK 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/ch/qos/logback/logback-classic/1.2.11/logback-classic-1.2.11.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/org/slf4j/slf4j-log4j12/1.7.30/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+12:36:45,415 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+12:36:45,416 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/MORE/Code/more-vis-index/target/classes/logback.xml]
+12:36:45,554 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - debug attribute not set
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+12:36:45,561 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+12:36:45,563 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [CONSOLE]
+12:36:45,652 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - This appender no longer admits a layout as a sub-component, set an encoder instead.
+12:36:45,652 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - To ensure compatibility, wrapping your layout in LayoutWrappingEncoder.
+12:36:45,652 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - See also http://logback.qos.ch/codes.html#layoutInsteadOfEncoder for details
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.parquet] to ERROR
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.hadoop] to ERROR
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.util.io.ParquetReader] to INFO
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.util.io.CsvReader.CsvRandomAccessReader] to INFO
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.experiments.Experiments] to INFO
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.experiments.util.QuerySequenceGenerator] to INFO
+12:36:45,654 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [com.mitchellbosecke.pebble] to ERROR
+12:36:45,655 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.datasource.QueryExecutor] to INFO
+12:36:45,655 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.TTI] to DEBUG
+12:36:45,655 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.AggregateTimeSeriesSpan] to ERROR
+12:36:45,655 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.TimeSeriesSpanFactory] to ERROR
+12:36:45,655 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to DEBUG
+12:36:45,655 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [CONSOLE] to Logger[ROOT]
+12:36:45,655 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+12:36:45,657 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@4218d6a3 - Registering current configuration as safe fallback point
+
+metadata/influx-soccer_exp
+java.io.InvalidClassException: eu.more2020.visual.domain.Dataset.InfluxDBDataset; local class incompatible: stream classdesc serialVersionUID = -3429726281340255319, local class serialVersionUID = 4893951821867607557
+	at java.base/java.io.ObjectStreamClass.initNonProxy(ObjectStreamClass.java:689)
+	at java.base/java.io.ObjectInputStream.readNonProxyDesc(ObjectInputStream.java:2012)
+	at java.base/java.io.ObjectInputStream.readClassDesc(ObjectInputStream.java:1862)
+	at java.base/java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2169)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1679)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:493)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:451)
+	at eu.more2020.visual.util.io.SerializationUtilities.loadSerializedObject(SerializationUtilities.java:20)
+	at eu.more2020.visual.experiments.Experiments.createDataset(Experiments.java:513)
+	at eu.more2020.visual.experiments.Experiments.timeQueriesM4(Experiments.java:359)
+	at eu.more2020.visual.experiments.Experiments.timeQueries(Experiments.java:434)
+	at eu.more2020.visual.experiments.Experiments.run(Experiments.java:182)
+	at eu.more2020.visual.experiments.Experiments.main(Experiments.java:159)
+Exception in thread "main" java.lang.NullPointerException
+	at eu.more2020.visual.experiments.Experiments.createDataset(Experiments.java:522)
+	at eu.more2020.visual.experiments.Experiments.timeQueriesM4(Experiments.java:359)
+	at eu.more2020.visual.experiments.Experiments.timeQueries(Experiments.java:434)
+	at eu.more2020.visual.experiments.Experiments.run(Experiments.java:182)
+	at eu.more2020.visual.experiments.Experiments.main(Experiments.java:159)
