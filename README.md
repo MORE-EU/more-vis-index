@@ -1,2 +1,1 @@
-# more-vis-index
- More Visual Aware Index
+# More Visualization-aware Timeseries Min-Max Caching with Error Bound Guarantees
