@@ -28,22 +28,44 @@ java -jar target/experiments.jar -c timeQueries -seqCount 50 -type <influx, post
 ### Parameters:
 
 -c *The command to run, <timeQueries, initialize>*
+
 -seqCount *No. of queries*
+
 -type *Database, <influx, postgres>*
+
+
 -mode *Algorithm to run <ttiMinMax, m4, raw>
+
 -measures *Measure ids, e.g 1,2,3*
+
 -timeCol *Name of time column (for initialization)*
+
 -out *Output Folder*
+
 -schema *Schema on the DB (On Influx it defines the bucket)
+
 -table *Table Name*
+
 -zoomFactor *Factor by which to zoom in and out%*
+
 -viewPort *Width, height of the viewport of visualization*
+
 -runs *No. of times to run the experiment*
+
 -minShift *Minimum pan shift*
+
 -maxShift *Maximum pan shift*
+
 -timeFormat *Time format of the Time Column*
+
 -a *Accuracy Threshold*
+
 -q *Query Selectivity*
+
 -p *Prefetching Toggle*
+
 -agg *Initial Aggregation Factor*
+
 -reduction *Data Reduction Factor*
+
+
