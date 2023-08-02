@@ -6,7 +6,10 @@ Supplemental material detailing the theorems and proofs used in the paper can be
 ## Datasets
 Data used for the experiments can be found [here](https://imisathena-my.sharepoint.com/:f:/g/personal/bstam_athenarc_gr/EqNFfVTRJ_9KresHs-QGyQ8BYJZVOQNty_mRCIwpru7s-Q?e=PoAxgl).
 
-In this folder, there are 2 sub-folders. One for the real datasets used in the experiments and one for the synthetic. Each contains a notebook, named expand_data.ipynb and create_synth.ipynb respectively. Recquired libraries to run both notebooks are: numpy, pandas and datetime.
+In this folder, there are 2 sub-folders. One for the real datasets used in the experiments and one for the synthetic. Each contains a notebook, named expand_data.ipynb and create_synth.ipynb respectively.
+
+Required libraries to run both notebooks are: numpy, pandas and datetime.
+
 By running the expand_data.ipynb, the original datasets will be expanded 50 times, and 3 datasets with the same name and the suffix "_exp" will be created.
 Running create_synth.ipynb, will create 11 synthetic timeseries datasets generated from random walks, with the names synthetic_{1m-1b}.csv.
 
