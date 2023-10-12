@@ -17,6 +17,8 @@
         <javac.version>11</javac.version>
         <javac.source>11</javac.source>
         <javac.target>11</javac.target>
+        <arrow.version>11.0.0</arrow.version>
+        <protobuf.version>3.24.3</protobuf.version>
     </properties>
     <dependencies>
         <dependency>
@@ -24,6 +26,11 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.11</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -119,15 +126,16 @@
             <version>5.7.1</version>
         </dependency>
         <dependency>
-            <groupId>tech.tablesaw</groupId>
-            <artifactId>tablesaw-core</artifactId>
-            <version>0.43.1</version>
+            <groupId>org.apache.arrow</groupId>
+            <artifactId>flight-sql-jdbc-driver</artifactId>
+            <version>${arrow.version}</version>
         </dependency>
         <dependency>
-            <groupId>tech.tablesaw</groupId>
-            <artifactId>tablesaw-jsplot</artifactId>
-            <version>0.43.1</version>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -157,7 +165,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>eu.more2020.visual.experiments.Experiments</mainClass>
+                                    <mainClass>eu.more2020.visual.index.experiments.Experiments</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>

@@ -7,7 +7,7 @@ aggFactor=$4
 reductionRatio=$5
 type=$6
 
-tables=("manufacturing_exp")
+tables=("bebeze")
 #tables=("synthetic1m" "synthetic2m" "synthetic4m" "synthetic8m" "synthetic16m" "synthetic32m" "synthetic64m" "synthetic128m" "synthetic256m" "synthetic512m" "synthetic1b")
 #tables=("intel_lab" "manufacturing" "soccer")
 modes=("raw")
