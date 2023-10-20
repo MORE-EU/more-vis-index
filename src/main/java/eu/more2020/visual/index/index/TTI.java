@@ -434,19 +434,6 @@ public class TTI {
         Query prefetchingQuery = new Query(prefetchingFrom, prefetchingTo, query.getAccuracy(), query.getFilter(), query.getQueryMethod(), query.getMeasures(),
                 new ViewPort(prefetchingWidth, query.getViewPort().getHeight()), query.getOpType());
         prefetchingIntervals.add(new TimeRange(prefetchingFrom, prefetchingTo));
-//        List<TimeSeriesSpan> overlappingSpans = StreamSupport.stream(
-//                        Spliterators.spliteratorUnknownSize(intervalTree.overlappers(prefetchingQuery), 0), false)
-//                // Filter out spans with aggregate interval larger than the pixel column interval.
-//                // This way, each of the groups of the resulting spans will overlap at most two pixel columns.
-//                .filter(span -> pixelColumnInterval >= 2 * span.getAggregateInterval())
-//                .collect(Collectors.toList());
-//        ImmutableRangeSet<Long> currentDifference = ImmutableRangeSet.of(Range.closedOpen(prefetchingFrom, prefetchingTo));
-//        for (TimeSeriesSpan span : overlappingSpans) {
-//            currentDifference = currentDifference.difference(ImmutableRangeSet.of(Range.closedOpen(span.getFrom(), span.getTo())));
-//        }
-//        prefetchingIntervals =  currentDifference.asRanges().stream()
-//                .map(r -> new TimeRange(r.lowerEndpoint(), r.upperEndpoint()))
-//                .collect(Collectors.toList());
         prefetchingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, prefetchingIntervals);
         LOG.info("Prefetching: {}", prefetchingIntervals.stream().map(p -> p.getIntervalString()).collect(Collectors.joining(", ")));
         if (prefetchingIntervals.size() >= 1) {
@@ -566,12 +553,6 @@ public class TTI {
      */
     public long calculateDeepMemorySize() {
         SizeOf sizeOf = SizeOf.newInstance();
-
-//        long size = 0L;
-//        for (TimeSeriesSpan span : intervalTree) {
-//            size += span.calculateDeepMemorySize();
-//        }
-//        return size;
         return sizeOf.deepSizeOf(intervalTree);
     }
 

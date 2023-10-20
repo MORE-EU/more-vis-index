@@ -499,22 +499,6 @@ public class Experiments<T> {
         String p = "";
         AbstractDataset dataset = null;
         switch (type) {
-            case "csv":
-                p = String.valueOf(Paths.get("metadata", "csv-" + table));
-                if (new File(p).exists()) dataset = (CsvDataset) SerializationUtilities.loadSerializedObject(p);
-                else {
-                    dataset = new CsvDataset(path, "0", "test", timeCol, hasHeader, timeFormat, delimiter);
-                    SerializationUtilities.storeSerializedObject(dataset, p);
-                }
-                break;
-            case "parquet":
-                p = String.valueOf(Paths.get("metadata", "parquet-" + table));
-                if (new File(p).exists()) dataset = (ParquetDataset) SerializationUtilities.loadSerializedObject(p);
-                else {
-                    dataset = new ParquetDataset(path, "0", "test", timeCol, timeFormat);
-                    SerializationUtilities.storeSerializedObject(dataset, p);
-                }
-                break;
             case "postgres":
                 p = String.valueOf(Paths.get("metadata", "postgres-" + table));
                 if (new File(p).exists()) dataset = (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);

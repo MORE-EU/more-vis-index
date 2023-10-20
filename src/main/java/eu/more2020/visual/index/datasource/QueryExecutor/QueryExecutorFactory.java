@@ -9,12 +9,7 @@ import eu.more2020.visual.index.domain.Dataset.*;
 public class QueryExecutorFactory {
 
     public static QueryExecutor getQueryExecutor(AbstractDataset dataset) {
-        if (dataset instanceof CsvDataset) {
-            return null;
-        }
-        else if(dataset instanceof ParquetDataset){
-            return null;
-        }else if(dataset instanceof PostgreSQLDataset) {
+        if(dataset instanceof PostgreSQLDataset) {
             JDBCConnection postgreSQLConnection = new JDBCConnection(((PostgreSQLDataset) dataset).getConfig());
             return postgreSQLConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable());
         }

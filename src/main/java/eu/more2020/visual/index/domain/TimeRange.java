@@ -2,6 +2,7 @@ package eu.more2020.visual.index.domain;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -9,8 +10,10 @@ import java.util.Objects;
 
 public class TimeRange implements Serializable, TimeInterval {
 
-    private final long from;
-    private final long to;
+    private long from;
+    private long to;
+
+    public TimeRange() {}
 
     public TimeRange(final long from, final long to) {
         this.from = from;
@@ -47,6 +50,31 @@ public class TimeRange implements Serializable, TimeInterval {
         return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
     }
 
+    public boolean contains(TimeInterval other) {
+        return (from <= other.getFrom() && to >= other.getTo());
+    }
+
+    public boolean intersects(TimeInterval other) {
+        return (from < other.getTo() && to > other.getFrom());
+    }
+
+    public boolean encloses(TimeInterval other) {
+        return (this.from < other.getFrom() && to > other.getTo());
+    }
+
+    public TimeRange span(TimeInterval other) {
+        long fromCmp = from - other.getFrom();
+        long toCmp = to - other.getTo();
+        if (fromCmp <= 0 && toCmp >= 0) {
+            return this;
+        } else if (fromCmp >= 0 && toCmp <= 0) {
+            return new TimeRange(other.getFrom(), other.getTo());
+        } else {
+            long newFrom = (fromCmp <= 0) ? from : other.getFrom();
+            long newTo = (toCmp >= 0) ? to : other.getTo();
+            return new TimeRange(newFrom, newTo);
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
