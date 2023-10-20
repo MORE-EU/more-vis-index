@@ -11,8 +11,8 @@
     </appender>
     <logger name="org.apache.parquet" level="ERROR"/>
     <logger name="org.apache.hadoop" level="ERROR"/>
-    <logger name="eu.more2020.visual.index.util.io.ParquetReader" level="INFO"/>
-    <logger name="eu.more2020.visual.index.util.io.CsvReader.CsvRandomAccessReader" level="INFO"/>
+    <logger name="eu.more2020.visual.middleware.util.io.ParquetReader" level="INFO"/>
+    <logger name="eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader" level="INFO"/>
     <root>
         <level>INFO</level>
         <appender-ref ref="CONSOLE"/>

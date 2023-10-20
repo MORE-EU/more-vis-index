@@ -11,15 +11,15 @@
     </appender>
     <logger name="org.apache.parquet" level="ERROR"/>
     <logger name="org.apache.hadoop" level="ERROR"/>
-    <logger name="eu.more2020.visual.index.util.io.ParquetReader" level="INFO"/>
-    <logger name="eu.more2020.visual.index.util.io.CsvReader.CsvRandomAccessReader" level="INFO"/>
-    <logger name="eu.more2020.visual.index.experiments.Experiments" level="INFO"/>
-    <logger name="eu.more2020.visual.index.experiments.util.QuerySequenceGenerator" level="INFO"/>
+    <logger name="eu.more2020.visual.middleware.util.io.ParquetReader" level="INFO"/>
+    <logger name="eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader" level="INFO"/>
+    <logger name="eu.more2020.visual.middleware.experiments.Experiments" level="INFO"/>
+    <logger name="eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator" level="INFO"/>
     <logger name="com.mitchellbosecke.pebble" level="ERROR"/>
     <logger name ="eu.more2020.visual.datasource.QueryExecutor" level="INFO"/>
-    <logger name ="eu.more2020.visual.index.index.TTI" level="DEBUG"/>
-    <logger name ="eu.more2020.visual.index.index.AggregateTimeSeriesSpan" level="ERROR"/>
-    <logger name ="eu.more2020.visual.index.index.TimeSeriesSpanFactory" level="ERROR"/>
+    <logger name ="eu.more2020.visual.middleware.cache.TTI" level="DEBUG"/>
+    <logger name ="eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan" level="ERROR"/>
+    <logger name ="eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory" level="ERROR"/>
     <root>
         <level>INFO</level>
         <appender-ref ref="CONSOLE"/>

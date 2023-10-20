@@ -15,22 +15,22 @@ SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorSta
 20:54:33,405 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - See also http://logback.qos.ch/codes.html#layoutInsteadOfEncoder for details
 20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.parquet] to ERROR
 20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.hadoop] to ERROR
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.util.io.ParquetReader] to INFO
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.util.io.CsvReader.CsvRandomAccessReader] to INFO
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.experiments.Experiments] to INFO
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.experiments.util.QuerySequenceGenerator] to INFO
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.ParquetReader] to INFO
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader] to INFO
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.Experiments] to INFO
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator] to INFO
 20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [com.mitchellbosecke.pebble] to ERROR
 20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.datasource.QueryExecutor] to INFO
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.index.TTI] to DEBUG
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.index.AggregateTimeSeriesSpan] to ERROR
-20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.index.index.TimeSeriesSpanFactory] to ERROR
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.TTI] to DEBUG
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan] to ERROR
+20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory] to ERROR
 20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to DEBUG
 20:54:33,406 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [CONSOLE] to Logger[ROOT]
 20:54:33,406 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
 20:54:33,407 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@2f4948e4 - Registering current configuration as safe fallback point
 
 metadata/modelarDB-BEBEZE_2
-java.io.InvalidClassException: eu.more2020.visual.index.domain.TimeRange; local class incompatible: stream classdesc serialVersionUID = -8688666605820916449, local class serialVersionUID = 6437888804401662912
+java.io.InvalidClassException: eu.more2020.visual.middleware.domain.TimeRange; local class incompatible: stream classdesc serialVersionUID = -8688666605820916449, local class serialVersionUID = 6437888804401662912
 	at java.base/java.io.ObjectStreamClass.initNonProxy(ObjectStreamClass.java:689)
 	at java.base/java.io.ObjectInputStream.readNonProxyDesc(ObjectInputStream.java:2012)
 	at java.base/java.io.ObjectInputStream.readClassDesc(ObjectInputStream.java:1862)
@@ -42,15 +42,15 @@ java.io.InvalidClassException: eu.more2020.visual.index.domain.TimeRange; local 
 	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1679)
 	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:493)
 	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:451)
-	at eu.more2020.visual.index.util.io.SerializationUtilities.loadSerializedObject(SerializationUtilities.java:20)
-	at eu.more2020.visual.index.experiments.Experiments.createDataset(Experiments.java:512)
-	at eu.more2020.visual.index.experiments.Experiments.timeQueriesTTIMinMax(Experiments.java:281)
-	at eu.more2020.visual.index.experiments.Experiments.timeQueries(Experiments.java:440)
-	at eu.more2020.visual.index.experiments.Experiments.run(Experiments.java:194)
-	at eu.more2020.visual.index.experiments.Experiments.main(Experiments.java:168)
+	at eu.more2020.visual.middleware.util.io.SerializationUtilities.loadSerializedObject(SerializationUtilities.java:20)
+	at eu.more2020.visual.middleware.experiments.Experiments.createDataset(Experiments.java:512)
+	at eu.more2020.visual.middleware.experiments.Experiments.timeQueriesTTIMinMax(Experiments.java:281)
+	at eu.more2020.visual.middleware.experiments.Experiments.timeQueries(Experiments.java:440)
+	at eu.more2020.visual.middleware.experiments.Experiments.run(Experiments.java:194)
+	at eu.more2020.visual.middleware.experiments.Experiments.main(Experiments.java:168)
 Exception in thread "main" java.lang.NullPointerException
-	at eu.more2020.visual.index.experiments.Experiments.createDataset(Experiments.java:529)
-	at eu.more2020.visual.index.experiments.Experiments.timeQueriesTTIMinMax(Experiments.java:281)
-	at eu.more2020.visual.index.experiments.Experiments.timeQueries(Experiments.java:440)
-	at eu.more2020.visual.index.experiments.Experiments.run(Experiments.java:194)
-	at eu.more2020.visual.index.experiments.Experiments.main(Experiments.java:168)
+	at eu.more2020.visual.middleware.experiments.Experiments.createDataset(Experiments.java:529)
+	at eu.more2020.visual.middleware.experiments.Experiments.timeQueriesTTIMinMax(Experiments.java:281)
+	at eu.more2020.visual.middleware.experiments.Experiments.timeQueries(Experiments.java:440)
+	at eu.more2020.visual.middleware.experiments.Experiments.run(Experiments.java:194)
+	at eu.more2020.visual.middleware.experiments.Experiments.main(Experiments.java:168)
