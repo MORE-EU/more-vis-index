@@ -449,7 +449,7 @@ public class Experiments<T> {
                 case "all":
                     timeQueriesTTIMinMax(i);
                     timeQueriesM4(i);
-                    //timeQueriesRawTTI(i);
+                    timeQueriesRawTTI(i);
                     break;
                 default:
                     System.exit(0);
