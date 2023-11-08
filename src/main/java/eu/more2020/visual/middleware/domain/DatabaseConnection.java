@@ -11,4 +11,6 @@ public interface DatabaseConnection {
     public QueryExecutor getQueryExecutor();
 
     public QueryExecutor getQueryExecutor(AbstractDataset dataset);
+
+    public void closeConnection();
 }

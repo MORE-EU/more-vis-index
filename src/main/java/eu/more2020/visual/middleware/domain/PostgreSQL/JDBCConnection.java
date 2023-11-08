@@ -73,4 +73,13 @@ public class JDBCConnection implements DatabaseConnection {
         return this.createQueryExecutor(dataset);
     }
 
+    @Override
+    public void closeConnection() {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            LOG.error(e.getClass().getName()+": "+e.getMessage());
+        }
+    }
+
 }

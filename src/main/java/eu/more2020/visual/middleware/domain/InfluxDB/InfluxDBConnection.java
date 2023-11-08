@@ -81,7 +81,14 @@ public class InfluxDBConnection implements DatabaseConnection {
         return this.createQueryExecutor(dataset);
     }
 
-
+    @Override
+    public void closeConnection() {
+        try {
+            client.close();
+        } catch (Exception e) {
+            LOG.error(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
 
 
 }
