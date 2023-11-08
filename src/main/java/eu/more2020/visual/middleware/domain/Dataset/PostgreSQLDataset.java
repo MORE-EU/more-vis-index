@@ -39,7 +39,7 @@ public class PostgreSQLDataset extends AbstractDataset {
         this.schema = schema;
         this.timeFormat = timeFormat;
         setTimeCol(timeCol);
-        this.fillPostgreSQLDatasetInfo(new JDBCConnection(config).getSqlQueryExecutor());
+        this.fillPostgreSQLDatasetInfo(new JDBCConnection(config).getQueryExecutor());
     }
 
     private void fillPostgreSQLDatasetInfo(SQLQueryExecutor sqlQueryExecutor) throws SQLException {

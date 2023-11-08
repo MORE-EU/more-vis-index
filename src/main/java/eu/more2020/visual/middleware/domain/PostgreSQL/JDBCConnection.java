@@ -1,6 +1,7 @@
 package eu.more2020.visual.middleware.domain.PostgreSQL;
 
 import eu.more2020.visual.middleware.datasource.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.middleware.domain.DatabaseConnection;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-public class JDBCConnection {
+public class JDBCConnection implements DatabaseConnection {
     private static final Logger LOG = LoggerFactory.getLogger(JDBCConnection.class);
 
     String config;
@@ -32,17 +33,16 @@ public class JDBCConnection {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.connect();
     }
 
     public JDBCConnection(String host, String user, String password){
         this.host = host;
         this.user = user;
         this.password = password;
-        this.connect();
     }
 
-    private void connect() {
+    @Override
+    public void connect() {
         connection = null;
         try {
             connection = DriverManager
@@ -63,12 +63,13 @@ public class JDBCConnection {
         return new SQLQueryExecutor(connection);
     }
 
-
-    public SQLQueryExecutor getSqlQueryExecutor() {
+    @Override
+    public SQLQueryExecutor getQueryExecutor() {
         return this.createQueryExecutor();
     }
 
-    public SQLQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
+    @Override
+    public SQLQueryExecutor getQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
 

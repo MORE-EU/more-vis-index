@@ -203,14 +203,14 @@ public class Experiments<T> {
 
     private void initializePostgreSQL() throws  SQLException {
         JDBCConnection postgreSQLConnection = new JDBCConnection(config);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor();
+        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getQueryExecutor();
         sqlQueryExecutor.drop();
         sqlQueryExecutor.initialize(path);
     }
 
     private void initializeInfluxDB() throws IOException {
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor();
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getQueryExecutor();
         influxDBQueryExecutor.drop();
         influxDBQueryExecutor.initialize(path);
     }
@@ -549,7 +549,7 @@ public class Experiments<T> {
             case "postgres":
                 JDBCConnection postgreSQLConnection =
                         new JDBCConnection(config);
-                queryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset);
+                queryExecutor = postgreSQLConnection.getQueryExecutor(dataset);
                 break;
             case "modelar":
                 ModelarDBConnection modelarDBConnection =
@@ -559,7 +559,7 @@ public class Experiments<T> {
             case "influx":
                 InfluxDBConnection influxDBConnection =
                         new InfluxDBConnection(config);
-                queryExecutor = influxDBConnection.getSqlQueryExecutor(dataset);
+                queryExecutor = influxDBConnection.getQueryExecutor(dataset);
             default:
                 break;
         }

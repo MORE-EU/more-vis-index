@@ -39,7 +39,7 @@ public class InfluxDBDataset extends AbstractDataset {
         this.measurement = measurement;
         this.timeFormat = timeFormat;
         setTimeCol(timeCol);
-        this.fillInfluxDBDatasetInfo(new InfluxDBConnection(influxDBCfg).getSqlQueryExecutor());
+        this.fillInfluxDBDatasetInfo(new InfluxDBConnection(influxDBCfg).getQueryExecutor());
     }
 
     private void fillInfluxDBDatasetInfo(InfluxDBQueryExecutor influxDBQueryExecutor) {

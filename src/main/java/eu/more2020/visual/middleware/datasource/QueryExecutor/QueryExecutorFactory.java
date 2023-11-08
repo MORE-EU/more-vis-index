@@ -10,11 +10,11 @@ public class QueryExecutorFactory {
     public static QueryExecutor getQueryExecutor(AbstractDataset dataset) {
         if(dataset instanceof PostgreSQLDataset) {
             JDBCConnection postgreSQLConnection = new JDBCConnection(((PostgreSQLDataset) dataset).getConfig());
-            return postgreSQLConnection.getSqlQueryExecutor(dataset);
+            return postgreSQLConnection.getQueryExecutor(dataset);
         }
         else if(dataset instanceof InfluxDBDataset) {
             InfluxDBConnection influxDBConnection = new InfluxDBConnection(((InfluxDBDataset) dataset).getConfig());
-            return influxDBConnection.getSqlQueryExecutor(dataset);
+            return influxDBConnection.getQueryExecutor(dataset);
         }
         else if(dataset instanceof ModelarDBDataset) {
             ModelarDBConnection modelarDBConnection = new ModelarDBConnection(((ModelarDBDataset) dataset).getConfig());

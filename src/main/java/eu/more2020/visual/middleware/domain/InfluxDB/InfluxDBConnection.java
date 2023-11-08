@@ -4,6 +4,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.middleware.domain.DatabaseConnection;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-public class InfluxDBConnection {
+public class InfluxDBConnection implements DatabaseConnection {
 
     private static final Logger LOG = LoggerFactory.getLogger(InfluxDBConnection.class);
     private String config;
@@ -36,17 +37,16 @@ public class InfluxDBConnection {
         catch (Exception e) {
             LOG.error(e.getClass().getName() + ": " + e.getMessage());
         }
-        this.connect();
     }
 
     public InfluxDBConnection(String url, String org, String token) {
         this.url = url;
         this.org = org;
         this.token = token;
-        this.connect();
     }
 
-    private void connect() {
+    @Override
+    public void connect() {
         OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder()
                 .readTimeout(10, TimeUnit.MINUTES)
                 .writeTimeout(30, TimeUnit.MINUTES)
@@ -71,11 +71,13 @@ public class InfluxDBConnection {
         return new InfluxDBQueryExecutor(client);
     }
 
-    public InfluxDBQueryExecutor getSqlQueryExecutor() {
+    @Override
+    public InfluxDBQueryExecutor getQueryExecutor() {
         return this.createQueryExecutor();
     }
 
-    public InfluxDBQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
+    @Override
+    public InfluxDBQueryExecutor getQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
 
