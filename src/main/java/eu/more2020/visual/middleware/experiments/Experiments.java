@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
+import eu.more2020.visual.middleware.cache.MinMaxCache;
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
 import eu.more2020.visual.middleware.datasource.ModelarDBQuery;
@@ -16,6 +17,7 @@ import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutorFacto
 import eu.more2020.visual.middleware.datasource.QueryExecutor.SQLQueryExecutor;
 import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.Dataset.*;
+import eu.more2020.visual.middleware.domain.ModelarDB.ModelarDBConnection;
 import eu.more2020.visual.middleware.domain.PostgreSQL.JDBCConnection;
 import eu.more2020.visual.middleware.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.middleware.domain.Query.Query;
@@ -23,7 +25,7 @@ import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
-import eu.more2020.visual.middleware.cache.MinMaxCache;
+import eu.more2020.visual.middleware.cache._MinMaxCache;
 import eu.more2020.visual.middleware.cache.RawCache;
 import eu.more2020.visual.middleware.util.io.SerializationUtilities;
 import org.apache.commons.io.FileUtils;
@@ -142,6 +144,10 @@ public class Experiments<T> {
     @Parameter(names = "--measureMem",  description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
+
+    @Parameter(names = "-org", description = "The organization for InfluxDB")
+    public String org;
+
     @Parameter(names = "--groupBy", converter = OLAPConverter.class, description = "Measure index memory after every query in the sequence")
     private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
 
@@ -197,15 +203,14 @@ public class Experiments<T> {
 
     private void initializePostgreSQL() throws  SQLException {
         JDBCConnection postgreSQLConnection = new JDBCConnection(config);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
+        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor();
         sqlQueryExecutor.drop();
         sqlQueryExecutor.initialize(path);
     }
 
     private void initializeInfluxDB() throws IOException {
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(schema,
-                table, null);
+        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor();
         influxDBQueryExecutor.drop();
         influxDBQueryExecutor.initialize(path);
     }
@@ -277,7 +282,8 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
-        MinMaxCache minMaxCache = new MinMaxCache(dataset, p, aggFactor, reductionFactor);
+        QueryExecutor queryExecutor = createQueryExecutor(dataset);
+        MinMaxCache minMaxCache = new MinMaxCache(queryExecutor, dataset, p, aggFactor, reductionFactor);
         QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Query q0 = new Query(startTime, endTime, accuracy, null, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
@@ -289,7 +295,7 @@ public class Experiments<T> {
             QueryResults queryResults;
             double time = 0;
             LOG.info("Executing query " + i + " " + query.getOpType() + " " + query.getFromDate() + " - " + query.getToDate());
-            queryResults = minMaxCache.executeQueryMinMax(query);
+            queryResults = minMaxCache.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
             long memorySize = minMaxCache.calculateDeepMemorySize();
             if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
@@ -325,7 +331,8 @@ public class Experiments<T> {
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
-        RawCache rawCache = new RawCache(dataset);
+        QueryExecutor queryExecutor = createQueryExecutor(dataset);
+        RawCache rawCache = new RawCache(queryExecutor, dataset);
         QueryMethod queryMethod = QueryMethod.RAW;
         Query q0 = new Query(startTime, endTime, accuracy, null, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
@@ -517,7 +524,7 @@ public class Experiments<T> {
                 p = String.valueOf(Paths.get("metadata", "influx-" + table));
                 if (new File(p).exists()) dataset = (InfluxDBDataset) SerializationUtilities.loadSerializedObject(p);
                 else {
-                    dataset = new InfluxDBDataset(config, schema, table, timeFormat, timeCol);
+                    dataset = new InfluxDBDataset(config, table, schema, table, timeFormat, timeCol);
                     SerializationUtilities.storeSerializedObject(dataset, p);
                 }
                 break;
@@ -532,6 +539,31 @@ public class Experiments<T> {
             endTime = (dataset.getTimeRange().getTo());
         }
         return dataset;
+    }
+
+
+    private QueryExecutor createQueryExecutor(AbstractDataset dataset) throws IOException, SQLException {
+        String p = "";
+        QueryExecutor queryExecutor = null;
+        switch (type) {
+            case "postgres":
+                JDBCConnection postgreSQLConnection =
+                        new JDBCConnection(config);
+                queryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset);
+                break;
+            case "modelar":
+                ModelarDBConnection modelarDBConnection =
+                        new ModelarDBConnection(config);
+                queryExecutor = modelarDBConnection.getSqlQueryExecutor(dataset);
+                break;
+            case "influx":
+                InfluxDBConnection influxDBConnection =
+                        new InfluxDBConnection(config);
+                queryExecutor = influxDBConnection.getSqlQueryExecutor(dataset);
+            default:
+                break;
+        }
+        return queryExecutor;
     }
 
 }

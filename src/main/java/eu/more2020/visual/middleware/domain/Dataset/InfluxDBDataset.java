@@ -13,30 +13,42 @@ import java.util.stream.Collectors;
 
 public class InfluxDBDataset extends AbstractDataset {
 
-    private final String influxDBCfg;
+    private String influxDBCfg;
+    private String org;
     private final String bucket;
     private final String measurement;
     private final String timeFormat;
 
+    public InfluxDBDataset(InfluxDBQueryExecutor influxDBQueryExecutor, String id, String org, String bucket,
+                           String measurement, String timeFormat, String timeCol) {
+        super(id);
+        this.org = org;
+        this.bucket = bucket;
+        this.measurement = measurement;
+        this.timeFormat = timeFormat;
+        setTimeCol(timeCol);
+        this.fillInfluxDBDatasetInfo(influxDBQueryExecutor);
+    }
 
-    public InfluxDBDataset(String influxDBCfg, String bucket, String measurement, String timeFormat, String timeCol) {
+
+    public InfluxDBDataset(String influxDBCfg, String id, String bucket,
+                           String measurement, String timeFormat, String timeCol) {
+        super(id);
         this.influxDBCfg = influxDBCfg;
         this.bucket = bucket;
         this.measurement = measurement;
         this.timeFormat = timeFormat;
         setTimeCol(timeCol);
-        this.fillInfluxDBDatasetInfo();
+        this.fillInfluxDBDatasetInfo(new InfluxDBConnection(influxDBCfg).getSqlQueryExecutor());
     }
 
-    private void fillInfluxDBDatasetInfo() {
+    private void fillInfluxDBDatasetInfo(InfluxDBQueryExecutor influxDBQueryExecutor) {
         List<FluxTable> fluxTables;
-        InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
         String firstQuery = "from(bucket:\"" + bucket + "\")\n" +
                 "  |> range(start: 1970-01-01T00:00:00.000Z, stop: 2150-01-01T00:00:00.999Z)\n" +
                 "  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n" +
                 "  |> limit(n: 2)\n" +
                 "  |> yield(name:\"first\")\n";
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(bucket, measurement);
         fluxTables = influxDBQueryExecutor.execute(firstQuery);
 
         Set<String> header = new LinkedHashSet<>();
@@ -67,13 +79,27 @@ public class InfluxDBDataset extends AbstractDataset {
         setSamplingInterval(Duration.of(second - from, ChronoUnit.MILLIS));
         setTimeRange(new TimeRange(from, to));
         setHeader(header.toArray(new String[0]));
-
     }
 
     @Override
     public String getTimeFormat() {
         return timeFormat;
     }
+
+    public String getOrg() {
+        return org;
+    }
+
+    @Override
+    public String getSchema() {
+        return bucket;
+    }
+
+    @Override
+    public String getTable() {
+        return measurement;
+    }
+
 
     @Override
     public List<Integer> getMeasures() {
@@ -89,4 +115,15 @@ public class InfluxDBDataset extends AbstractDataset {
         return influxDBCfg;
     }
 
+    @Override
+    public String toString() {
+        return "InfluxDBDataset{" +
+                "fileInfoList=" + fileInfoList +
+                ", influxDBCfg='" + influxDBCfg + '\'' +
+                ", org='" + org + '\'' +
+                ", bucket='" + bucket + '\'' +
+                ", measurement='" + measurement + '\'' +
+                ", timeFormat='" + timeFormat + '\'' +
+                '}';
+    }
 }

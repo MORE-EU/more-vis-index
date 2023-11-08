@@ -1,11 +1,14 @@
 package eu.more2020.visual.middleware.datasource.QueryExecutor;
 
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
+import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
+import eu.more2020.visual.middleware.domain.Dataset.PostgreSQLDataset;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.QueryResults;
 import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
 import eu.more2020.visual.middleware.experiments.util.NamedPreparedStatement;
+import org.apache.commons.math3.analysis.function.Abs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +25,22 @@ public class SQLQueryExecutor implements QueryExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(SQLQueryExecutor.class);
 
+    PostgreSQLDataset dataset;
     Connection connection;
     String table;
     String schema;
     private final String dropFolder = "postgres-drop-queries";
     private final String initFolder = "postgres-init-queries";
 
-    public SQLQueryExecutor(Connection connection, String schema, String table) {
+
+    public SQLQueryExecutor(Connection connection) {
         this.connection = connection;
-        this.schema = schema;
-        this.table = table;
+    }
+    public SQLQueryExecutor(Connection connection, AbstractDataset dataset) {
+        this.connection = connection;
+        this.dataset = (PostgreSQLDataset) dataset;
+        this.schema = dataset.getSchema();
+        this.table = dataset.getTable();
     }
 
     @Override

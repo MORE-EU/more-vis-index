@@ -11,6 +11,8 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
+import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
+import eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.middleware.domain.InfluxDB.InitQueries.*;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
@@ -30,20 +32,23 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(InfluxDBQueryExecutor.class);
 
-    String[] header;
     InfluxDBClient influxDBClient;
+    InfluxDBDataset dataset;
+
     String table;
     String bucket;
     String org;
 
-
-    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, String org,
-                                 String bucket, String table, String[] header) {
+    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient){
         this.influxDBClient = influxDBClient;
-        this.org = org;
-        this.table = table;
-        this.bucket = bucket;
-        this.header = header;
+    }
+
+    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, AbstractDataset dataset) {
+        this.influxDBClient = influxDBClient;
+        this.dataset = (InfluxDBDataset) dataset;
+        this.table = dataset.getTable();
+        this.bucket = dataset.getSchema();
+        this.org = ((InfluxDBDataset) dataset).getOrg();
     }
 
     @Override
@@ -379,7 +384,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         for (FluxTable fluxTable : tables) {
             List<FluxRecord> records = fluxTable.getRecords();
             for (FluxRecord fluxRecord : records) {
-                Integer fieldId = Arrays.asList(header).indexOf(fluxRecord.getField());
+                Integer fieldId = Arrays.asList(dataset.getHeader()).indexOf(fluxRecord.getField());
                 data.computeIfAbsent(fieldId, k -> new ArrayList<>()).add(
                         new UnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
                                 Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));

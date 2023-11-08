@@ -106,10 +106,11 @@ public class InfluxDBQuery extends DataSourceQuery {
         s += "union(\n" +
                 "    tables: [\n";
         for(i = 0; i < ranges.size(); i ++){
-            s +=    "data_" + i + "() |> aggregate(agg: max, name: \"max\"),\n" +
-                    "data_" + i + "() |> aggregate(agg: min, name: \"min\"),\n";
+            s +=    "data_" + i + "() |> aggregate(agg: max, name: \"max\") |> group(columns: [\"_stop\"]),\n" +
+                    "data_" + i + "() |> aggregate(agg: min, name: \"min\") |> group(columns: [\"_stop\"]),\n";
         }
         s+= "])" +
+//                "|> group(columns: [])" +
                 "\n" + "|> sort(columns: [\"_time\"], desc: false)\n";
         return s;
     }

@@ -5,7 +5,6 @@ import com.google.common.collect.Iterators;
 import com.influxdb.query.FluxTable;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset;
-import eu.more2020.visual.middleware.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +20,12 @@ import java.util.stream.Collectors;
 
 public class InfluxDBDatasource implements DataSource {
 
-    InfluxDBConnection influxDBConnection;
+    InfluxDBQueryExecutor influxDBQueryExecutor;
     InfluxDBDataset dataset;
 
-    public InfluxDBDatasource(InfluxDBDataset dataset) {
+    public InfluxDBDatasource(InfluxDBQueryExecutor influxDBQueryExecutor, InfluxDBDataset dataset) {
         this.dataset = dataset;
-        this.influxDBConnection = new InfluxDBConnection(dataset.getConfig());
+        this.influxDBQueryExecutor = influxDBQueryExecutor;
     }
 
     @Override
@@ -69,8 +68,6 @@ public class InfluxDBDatasource implements DataSource {
         @Override
         public Iterator<DataPoint> iterator() {
             try {
-                InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(),
-                        dataset.getTable(), dataset.getHeader());
                 List<FluxTable> fluxTables;
                 if(influxDBQuery.getRanges().size() == 1){
                     InfluxDBQuery influxDBQueryRaw = new InfluxDBQuery(influxDBQuery.getRanges().get(0).getFrom(),
@@ -140,7 +137,6 @@ public class InfluxDBDatasource implements DataSource {
         @NotNull
         @Override
         public Iterator<AggregatedDataPoint> iterator() {
-            InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor(dataset.getSchema(), dataset.getTable(), dataset.getHeader());
             if(queryMethod == QueryMethod.M4_MULTI){
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4MultiInfluxQuery(influxDBQuery);
                 if(fluxTables.size() == 0) return Collections.emptyIterator();

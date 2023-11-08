@@ -23,10 +23,9 @@ public class ModelarDBDatasource implements DataSource{
     ModelarDBQueryExecutor queryExecutor;
     ModelarDBDataset dataset;
 
-    public ModelarDBDatasource(ModelarDBDataset dataset) {
+    public ModelarDBDatasource(ModelarDBQueryExecutor queryExecutor, ModelarDBDataset dataset) {
         this.dataset = dataset;
-        ModelarDBConnection modelarDBConnection = new ModelarDBConnection("83.212.75.52", 31000);
-        this.queryExecutor = modelarDBConnection.getSqlQueryExecutor(dataset);
+        this.queryExecutor = queryExecutor;
     }
 
     @Override

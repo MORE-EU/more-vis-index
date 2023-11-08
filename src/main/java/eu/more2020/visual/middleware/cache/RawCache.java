@@ -6,6 +6,7 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import eu.more2020.visual.middleware.datasource.DataSource;
 import eu.more2020.visual.middleware.datasource.DataSourceFactory;
+import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutor;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Query.Query;
@@ -32,9 +33,9 @@ public class RawCache {
      *
      * @param dataset
      */
-    public RawCache(AbstractDataset dataset) {
+    public RawCache(QueryExecutor queryExecutor, AbstractDataset dataset) {
         this.dataset = dataset;
-        this.dataSource = DataSourceFactory.getDataSource(dataset);
+        this.dataSource = DataSourceFactory.getDataSource(queryExecutor, dataset);
         intervalTree = new IntervalTree<>();
     }
 

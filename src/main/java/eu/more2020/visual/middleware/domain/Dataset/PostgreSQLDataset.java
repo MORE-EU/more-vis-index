@@ -15,10 +15,21 @@ import java.util.stream.Collectors;
 
 public class PostgreSQLDataset extends AbstractDataset {
 
-    private final String config;
+    private String config;
     private final String schema;
     private final String table;
     private final String timeFormat;
+
+    public PostgreSQLDataset(SQLQueryExecutor sqlQueryExecutor, String schema, String table,
+                             String timeFormat, String timeCol) throws SQLException {
+        super();
+        this.table = table;
+        this.schema = schema;
+        this.timeFormat = timeFormat;
+        setTimeCol(timeCol);
+        this.fillPostgreSQLDatasetInfo(sqlQueryExecutor);
+    }
+
 
     public PostgreSQLDataset(String config, String schema, String table,
                              String timeFormat, String timeCol) throws SQLException {
@@ -28,14 +39,11 @@ public class PostgreSQLDataset extends AbstractDataset {
         this.schema = schema;
         this.timeFormat = timeFormat;
         setTimeCol(timeCol);
-        this.fillPostgreSQLDatasetInfo();
+        this.fillPostgreSQLDatasetInfo(new JDBCConnection(config).getSqlQueryExecutor());
     }
 
-    private void fillPostgreSQLDatasetInfo() throws SQLException {
+    private void fillPostgreSQLDatasetInfo(SQLQueryExecutor sqlQueryExecutor) throws SQLException {
         ResultSet resultSet;
-        JDBCConnection postgreSQLConnection =
-                new JDBCConnection(config);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor(schema, table);
         // Header query
         String headerQuery = "SELECT * " +
                 "FROM information_schema.columns WHERE table_schema = '" + schema  + "' AND table_name = '" + table + "' ORDER BY ordinal_position\n";

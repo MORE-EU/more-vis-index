@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.more2020.visual.middleware.experiments.util.UserOpType.*;
 
@@ -63,8 +64,8 @@ public class QuerySequenceGenerator {
             if (!list1.contains(randomElement)) {
                 // If it's not in list1, add it and exit the loop
                 list1.add(randomElement);
-                System.out.println("Added element: " + randomElement);
-                return;
+                LOG.debug("Added element: " + randomElement);
+                break;
             }
         }
     }
@@ -78,11 +79,17 @@ public class QuerySequenceGenerator {
         Random opRand = new Random(seed);
         List<UserOpType> ops = new ArrayList<>();
 
-        int pans = 39;
-        int zoom_in = 20;
-        int zoom_out = 30;
-        int resize = 1;
-        int measure_change = 10;
+//        int pans = 39;
+//        int zoom_in = 20;
+//        int zoom_out = 30;
+//        int resize = 1;
+//        int measure_change = 10;
+
+        int pans = 50;
+        int zoom_in = 0;
+        int zoom_out = 0;
+        int resize = 0;
+        int measure_change = 50;
 
         for (int i = 0; i < pans; i++) ops.add(P);
         for (int i = 0; i < zoom_in; i++) ops.add(ZI);
@@ -99,7 +106,7 @@ public class QuerySequenceGenerator {
             opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
             ViewPort viewPort = q.getViewPort();
-            List<Integer> measures = q.getMeasures();
+            List<Integer> measures = q.getMeasures().stream().map(Integer::new).collect(Collectors.toList());
             if (zoomFactor > 1 && opType.equals(ZI)) {
                 timeRange = zoomIn(q);
             } else if (zoomFactor > 1 && opType.equals(ZO)) {
@@ -109,7 +116,7 @@ public class QuerySequenceGenerator {
             } else if(opType.equals(R)){
                 viewPort = new ViewPort((int) (RESIZE_FACTOR * viewPort.getWidth()),
                         (int) (RESIZE_FACTOR * viewPort.getHeight()));
-            } else {
+            } else if(opType.equals(MC)){
                 addRandomElementToList(measures, dataset.getMeasures());
             }
             if(timeRange == null) timeRange = new TimeRange(q.getFrom(), q.getTo());
@@ -118,8 +125,7 @@ public class QuerySequenceGenerator {
                 timeRange = zoomIn(q);
             }
             q = new Query(timeRange.getFrom(), timeRange.getTo(), q0.getAccuracy(), null,
-                    q0.getQueryMethod(), q0.getMeasures(),
-                    viewPort, opType);
+                    q0.getQueryMethod(), measures, viewPort, opType);
             queries.add(q);
         }
         return queries;

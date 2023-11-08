@@ -5,6 +5,7 @@ import com.influxdb.query.FluxTable;
 import eu.more2020.visual.middleware.domain.AggregatedDataPoint;
 import eu.more2020.visual.middleware.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.middleware.domain.NonTimestampedStatsAggregator;
+import eu.more2020.visual.middleware.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,7 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         NonTimestampedStatsAggregator statsAggregator = new NonTimestampedStatsAggregator(measures);
         while (hasNext() && currentGroupTimestamp == groupTimestamp) {
             FluxRecord record = currentRecords.get(current);
+//            LOG.info(String.valueOf(record.getField()));
             int measure = measures.get(measureNames.indexOf(record.getField()));
             currentGroupTimestamp = record.getTime().toEpochMilli();
             if (currentGroupTimestamp != groupTimestamp) {

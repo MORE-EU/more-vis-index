@@ -62,12 +62,11 @@ public class PixelColumn implements TimeInterval {
         }
 
         Stats stats = dp.getStats();
-
-
         if (this.encloses(dp)) {
             fullyContainedRangeSet.add(TimeInterval.toGuavaRange(dp));
             if (stats.getCount() > 0)
                 for (int measure : measures) {
+                    if(!dp.getStats().getMeasures().contains(measure)) continue; // check if aggregate datapoint has this measure
                     fullyContainedStatsAggregator.accept(stats.getMinDataPoint(measure), measure);
                     fullyContainedStatsAggregator.accept(stats.getMaxDataPoint(measure), measure);
                 }
@@ -76,6 +75,7 @@ public class PixelColumn implements TimeInterval {
         // todo: here, in case we add data from time series span, we add the same min-max point twice. This is not a problem, but it's not optimal.
         if (stats.getCount() > 0)
             for (int measure : measures) {
+                if(!dp.getStats().getMeasures().contains(measure)) continue; // check if aggregate datapoint has this measure
                 if (this.contains(stats.getMinTimestamp(measure))) {
                     statsAggregator.accept(dp.getStats().getMinDataPoint(measure), measure);
                 }
@@ -193,10 +193,12 @@ public class PixelColumn implements TimeInterval {
             int minPixelId = getPixelId(m, statsAggregator.getMinValue(m), viewPortStats);
             int maxPixelId = getPixelId(m, statsAggregator.getMaxValue(m), viewPortStats);
             if (leftPartial != null && leftPartial.getCount() > 0) {
+                if(!leftPartial.getStats().getMeasures().contains(m)) return null;
                 minPixelId = Math.min(minPixelId, getPixelId(m, leftPartial.getStats().getMinValue(m), viewPortStats));
                 maxPixelId = Math.max(maxPixelId, getPixelId(m, leftPartial.getStats().getMaxValue(m), viewPortStats));
             }
             if (rightPartial != null && rightPartial.getCount() > 0) {
+                if(!rightPartial.getStats().getMeasures().contains(m)) return null;
                 minPixelId = Math.min(minPixelId, getPixelId(m, rightPartial.getStats().getMinValue(m), viewPortStats));
                 maxPixelId = Math.max(maxPixelId, getPixelId(m, rightPartial.getStats().getMaxValue(m), viewPortStats));
             }
@@ -263,6 +265,9 @@ public class PixelColumn implements TimeInterval {
         return to;
     }
 
+    public TimeInterval getRange(){
+        return new TimeRange(from, to);
+    }
 
     public Stats getStats() {
         return statsAggregator;
