@@ -401,4 +401,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return queryApi.query(query);
     }
 
+    @Override
+    public ArrayList<String> getDbTables() {
+        return null;
+    }
+
 }

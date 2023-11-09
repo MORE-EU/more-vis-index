@@ -234,5 +234,22 @@ public class SQLQueryExecutor implements QueryExecutor {
     public String getSchema() {
         return schema;
     }
+
+    @Override
+    public ArrayList<String> getDbTables() throws SQLException {
+        DatabaseMetaData databaseMetaData = null;
+        ArrayList<String> tables = new ArrayList<String>();
+        try {
+            databaseMetaData = connection.getMetaData();
+            ResultSet resultSet = databaseMetaData.getTables(null, null, null, new String[]{"TABLE"});
+            while(resultSet.next()) { 
+                String tableName = resultSet.getString("TABLE_NAME"); 
+                tables.add(tableName);
+            }
+            return tables;
+        } catch (Exception e) {
+            throw e;
+        }   
+    }
 }
 

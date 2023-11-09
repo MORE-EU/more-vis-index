@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class JDBCConnection implements DatabaseConnection {
@@ -42,7 +44,7 @@ public class JDBCConnection implements DatabaseConnection {
     }
 
     @Override
-    public void connect() {
+    public void connect() throws URISyntaxException, SQLException{
         connection = null;
         try {
             connection = DriverManager
@@ -51,6 +53,7 @@ public class JDBCConnection implements DatabaseConnection {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error(e.getClass().getName()+": "+e.getMessage());
+            throw e;
         }
     }
 
@@ -74,11 +77,12 @@ public class JDBCConnection implements DatabaseConnection {
     }
 
     @Override
-    public void closeConnection() {
+    public void closeConnection() throws SQLException{
         try {
             connection.close();
         } catch (Exception e) {
             LOG.error(e.getClass().getName()+": "+e.getMessage());
+            throw e;
         }
     }
 

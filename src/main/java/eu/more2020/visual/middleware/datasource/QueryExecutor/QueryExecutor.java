@@ -6,6 +6,7 @@ import eu.more2020.visual.middleware.domain.QueryResults;
 
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public interface QueryExecutor {
 
@@ -26,4 +27,6 @@ public interface QueryExecutor {
     QueryResults executeMinMaxQuery(DataSourceQuery q) throws SQLException;
 
     void initialize(String path) throws SQLException, FileNotFoundException;
+
+    ArrayList<String> getDbTables() throws SQLException;
 }
