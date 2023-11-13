@@ -1,12 +1,10 @@
 package eu.more2020.visual.middleware.util;
 
-import eu.more2020.visual.middleware.domain.AggregateInterval;
-import eu.more2020.visual.middleware.domain.TimeInterval;
-import eu.more2020.visual.middleware.domain.TimeRange;
-import eu.more2020.visual.middleware.domain.ViewPort;
+import eu.more2020.visual.middleware.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Time;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -337,6 +335,54 @@ public class DateTimeUtil {
             }
         }
         return groupedRanges;
+    }
+
+    /**
+     *
+     * @param pixelColumnInterval interval of the pixel columns
+     * @param ranges missing multivariate ranges to group. Each range contains a list of measures that it's missing.
+     * @return
+     */
+    public static List<MultivariateTimeInterval> groupMultiIntervals(long pixelColumnInterval, List<MultivariateTimeInterval> ranges) {
+        if (ranges.size() == 0) return ranges;
+
+        List<MultivariateTimeInterval> groupedRanges = new ArrayList<>();
+        MultivariateTimeInterval currentGroup = ranges.get(0);
+
+        for (int i = 1; i < ranges.size(); i++) {
+            MultivariateTimeInterval currentRange = ranges.get(i);
+
+            if (haveSameMeasures(currentGroup, currentRange) && areContiguous(pixelColumnInterval, currentGroup.getInterval(), currentRange.getInterval())) {
+                // Extend the current group
+                currentGroup = mergeIntervals(currentGroup, currentRange);
+            } else {
+                // Start a new group
+                groupedRanges.add(currentGroup);
+                currentGroup = currentRange;
+            }
+        }
+
+        // Add the last group
+        groupedRanges.add(currentGroup);
+
+        return groupedRanges;
+    }
+
+    private static boolean haveSameMeasures(MultivariateTimeInterval interval1, MultivariateTimeInterval interval2) {
+        List<Integer> measures1 = interval1.getMeasures();
+        List<Integer> measures2 = interval2.getMeasures();
+        return measures1 != null && measures2 != null && measures1.equals(measures2);
+    }
+
+    private static boolean areContiguous(long pixelColumnInterval, TimeInterval interval1, TimeInterval interval2) {
+        return interval1.getTo() + (pixelColumnInterval * 10) >= interval2.getFrom();
+    }
+
+    private static MultivariateTimeInterval mergeIntervals(MultivariateTimeInterval interval1, MultivariateTimeInterval interval2) {
+        return new MultivariateTimeInterval(
+                new TimeRange(interval1.getInterval().getFrom(), interval2.getInterval().getTo()),
+                interval1.getMeasures()
+        );
     }
 
     public static List<TimeInterval> correctIntervals(long from, long to, long pixelColumnInterval, List<TimeInterval> ranges) {

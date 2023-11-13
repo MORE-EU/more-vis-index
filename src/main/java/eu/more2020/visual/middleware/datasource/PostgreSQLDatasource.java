@@ -28,6 +28,11 @@ public class PostgreSQLDatasource implements DataSource{
     }
 
     @Override
+    public AggregatedDataPoints getMultiAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals, QueryMethod queryMethod, List<List<Integer>> measures, int numberOfGroups) {
+        return null;
+    }
+
+    @Override
     public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges, QueryMethod queryMethod,
                                                         List<Integer> measures, int numberOfGroups) {
         return new SQLAggregatedDataPoints(from, to, ranges, queryMethod, measures, numberOfGroups);
@@ -43,6 +48,11 @@ public class PostgreSQLDatasource implements DataSource{
     @Override
     public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<Integer> measures) {
         return new PostgreSQLDatasource.SQLDataPoints(from, to, timeIntervals, measures);
+    }
+
+    @Override
+    public DataPoints getMultiDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<List<Integer>> measures) {
+        return null;
     }
 
     @Override

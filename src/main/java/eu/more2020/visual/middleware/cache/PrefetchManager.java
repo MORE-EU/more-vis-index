@@ -39,19 +39,19 @@ public class PrefetchManager {
                                         long pixelColumnInterval, Query query, int aggFactor){
         if(prefetchingFactor == 0) return new ArrayList<>();
         List<TimeInterval> prefetchingIntervals = new ArrayList<>();
-        ViewPort viewPort = query.getViewPort();
-        // For the prefetching we add pixel columns to the left and right depending to the prefetching factor.
-        // We create a new viewport based on the new width that results from prefetching. The new viewport has more columns but the same interval.
-        long[] prefetchingInterval = extendInterval(from, to, query.getViewPort().getWidth(), prefetchingFactor);
-        long prefetchingFrom = prefetchingInterval[0];
-        long prefetchingTo = prefetchingInterval[1];
-        prefetchingIntervals.add(new TimeRange(prefetchingFrom, prefetchingTo));
-        prefetchingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, prefetchingIntervals);
-
-        LOG.info("Prefetching: {}", prefetchingIntervals.stream().map(p -> p.getIntervalString()).collect(Collectors.joining(", ")));
-        List<TimeSeriesSpan> missingPrefetchingIntervals = dataProcessor.getMissing(from, to, measures, viewPort, prefetchingIntervals, query, aggFactor);
-        cacheManager.addToCache(missingPrefetchingIntervals);
-        LOG.info("Inserted new time series spans into interval tree");
+//        ViewPort viewPort = query.getViewPort();
+//        // For the prefetching we add pixel columns to the left and right depending to the prefetching factor.
+//        // We create a new viewport based on the new width that results from prefetching. The new viewport has more columns but the same interval.
+//        long[] prefetchingInterval = extendInterval(from, to, query.getViewPort().getWidth(), prefetchingFactor);
+//        long prefetchingFrom = prefetchingInterval[0];
+//        long prefetchingTo = prefetchingInterval[1];
+//        prefetchingIntervals.add(new TimeRange(prefetchingFrom, prefetchingTo));
+//        prefetchingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, prefetchingIntervals);
+//
+//        LOG.info("Prefetching: {}", prefetchingIntervals.stream().map(p -> p.getIntervalString()).collect(Collectors.joining(", ")));
+//        List<TimeSeriesSpan> missingPrefetchingIntervals = dataProcessor.getMissing(from, to, measures, viewPort, prefetchingIntervals, query, aggFactor);
+//        cacheManager.addToCache(missingPrefetchingIntervals);
+//        LOG.info("Inserted new time series spans into interval tree");
         return prefetchingIntervals;
     }
 }

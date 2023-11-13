@@ -1,5 +1,6 @@
 package eu.more2020.visual.middleware.datasource;
 
+import eu.more2020.visual.middleware.domain.MultivariateTimeInterval;
 import eu.more2020.visual.middleware.domain.TimeInterval;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class ModelarDBQuery extends DataSourceQuery {
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures,  List<String> measureNames){
+    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames){
         super(from, to, ranges, measures,  null);
         this.measureNames = measureNames;
     }

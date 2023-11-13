@@ -172,12 +172,11 @@ public class PixelColumn implements TimeInterval {
      */
 
     public List<Range<Integer>> computeMaxInnerPixelRange(Stats viewPortStats) {
-        // TODO: Handled the case of missing data by starting the aggregator at -1. On the first accept we set count = 0;
-        // TODO: Check if range.close(0, 0) is correct.
-        if(statsAggregator.getCount() == -1) return null;
-        if(statsAggregator.getCount() == 0) {
-            return measures.stream().map(m ->  Range.closed(0, 0)).collect(Collectors.toList());
-        }
+        // TODO: In the multivariate use case we removed this check. Make sure it is not needed
+//        if(statsAggregator.getCount() == -1) return null;
+//        if(statsAggregator.getCount() == 0) {
+//            return measures.stream().map(m ->  Range.closed(0, 0)).collect(Collectors.toList());
+//        }
         Set<Range<Long>> fullyContainedDisjointRanges = fullyContainedRangeSet.asRanges();
         if (fullyContainedDisjointRanges.size() > 1) {
             LOG.debug("There are gaps in the fully contained ranges of this pixel column.");

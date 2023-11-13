@@ -56,11 +56,14 @@ public class CacheQueryExecutor {
         List<TimeSeriesSpan> overlappingSpans = cacheManager.getFromCache(query, pixelColumnInterval);
         //LOG.debug("Created {} pixel columns: {}", viewPort.getWidth(), pixelColumns.stream().map(PixelColumn::getIntervalString).collect(Collectors.joining(", ")));
 
-        LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(span -> span.getAggregateInterval() + " (" + span.percentage(query) + ")").collect(Collectors.joining(", ")));
+        LOG.debug("Overlapping intervals {}", overlappingSpans.stream().map(span -> span.getAggregateInterval() + " (" + span.getMeasures() + ")").collect(Collectors.joining(", ")));
 
         dataProcessor.processDatapoints(from, to, query, viewPort, pixelColumns, overlappingSpans);
         errorCalculator.calculateValidColumnsErrors(query, pixelColumns, viewPort, pixelColumnInterval);
-        List<TimeInterval> missingIntervals = errorCalculator.getMissingIntervals();
+        List<MultivariateTimeInterval> missingMultiIntervals = errorCalculator.getMissingIntervals();
+        List<TimeInterval> missingIntervals = missingMultiIntervals.stream().map(MultivariateTimeInterval::getInterval).collect(Collectors.toList());
+        List<List<Integer>> missingMeasures = missingMultiIntervals.stream().map(MultivariateTimeInterval::getMeasures).collect(Collectors.toList());
+        LOG.info(String.valueOf(missingMultiIntervals));
         if(!missingIntervals.isEmpty()) gotData = true;
         double highestScore = Double.MIN_VALUE;
         double highestCoverage = Double.MIN_VALUE;
@@ -81,7 +84,7 @@ public class CacheQueryExecutor {
         LOG.debug("Agg factor = {}", aggFactor);
         // Fetch the missing data from the data source.
         List<TimeSeriesSpan> missingTimeSeriesSpans =
-                dataProcessor.getMissingAndAddToPixelColumns(from, to, measures, viewPort, missingIntervals, query, queryResults, aggFactor, pixelColumns);
+                dataProcessor.getMissingAndAddToPixelColumns(from, to, missingMeasures, viewPort, missingIntervals, query, queryResults, aggFactor, pixelColumns);
         // Add them all to the cache.
         cacheManager.addToCache(missingTimeSeriesSpans);
 
@@ -96,14 +99,18 @@ public class CacheQueryExecutor {
                 pixelColumns.add(pixelColumn);
             }
             gotData = true;
+            // Initialize ranges and measures to get all errored data.
             missingIntervals = new ArrayList<>();
             missingIntervals.add(new TimeRange(from, to));
+            missingMeasures = new ArrayList<>();
+            missingMeasures.add(measures);
+
             LOG.info("Cached data are above error bound. Fetching {}: ", missingIntervals);
             LOG.info("Fetching missing data from data source");
             query.setQueryMethod(QueryMethod.M4_MULTI);
             long timeStart = System.currentTimeMillis();
             missingTimeSeriesSpans =
-                    dataProcessor.getMissingAndAddToPixelColumns(from, to, measures, viewPort, missingIntervals, query, queryResults, 1, pixelColumns);
+                    dataProcessor.getMissingAndAddToPixelColumns(from, to, missingMeasures, viewPort, missingIntervals, query, queryResults, 1, pixelColumns);
             cacheManager.addToCache(missingTimeSeriesSpans);
             queryResults.setProgressiveQueryTime((System.currentTimeMillis() - timeStart) / 1000F);
             measures.forEach(m -> finalError.put(m, 0.0)); // set max error to 0
@@ -121,9 +128,9 @@ public class CacheQueryExecutor {
 
             for (PixelColumn pixelColumn : pixelColumns) {
                 Stats pixelColumnStats = pixelColumn.getStats();
-                if (pixelColumnStats.getCount() <= 0) {
-                    continue;
-                }
+//                if (pixelColumnStats.getCount(measure) <= 0) {
+//                    continue;
+//                }
                 // filter
                 if(query.getFilter() == null || query.getFilter().isEmpty()){
                     dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getFirstTimestamp(measure), pixelColumnStats.getFirstValue(measure)));

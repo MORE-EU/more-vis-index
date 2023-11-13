@@ -5,10 +5,10 @@ import eu.more2020.visual.middleware.domain.TimeInterval;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InfluxDBQuery extends DataSourceQuery {
-    private final List<String> measureNames;
+public class InfluxDBQueryMulti extends DataSourceQueryMulti {
+    private final List<List<String>> measureNames;
 //
-    public InfluxDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames, Integer numberOfGroups) {
+    public InfluxDBQueryMulti(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, List<List<String>> measureNames, Integer numberOfGroups) {
         super(from, to, ranges, measures, numberOfGroups);
         this.measureNames = measureNames;
         if (numberOfGroups == null) {
@@ -18,22 +18,22 @@ public class InfluxDBQuery extends DataSourceQuery {
         }
     }
 
-    public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames, Integer numberOfGroups) {
+    public InfluxDBQueryMulti(long from, long to, List<List<Integer>> measures, List<List<String>> measureNames, Integer numberOfGroups) {
         this(from, to, null, measures, measureNames, numberOfGroups);
     }
 
-    public InfluxDBQuery(long from, long to, List<Integer> measures, List<String> measureNames) {
+    public InfluxDBQueryMulti(long from, long to, List<List<Integer>> measures, List<List<String>> measureNames) {
         this(from, to, null, measures, measureNames, null);
     }
 
-    public InfluxDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames) {
+    public InfluxDBQueryMulti(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, List<List<String>> measureNames) {
         this(from, to, ranges, measures, measureNames, null);
     }
 
     private final long aggregateInterval;
 
 
-    public final List<String> getMeasureNames() {
+    public final List<List<String>> getMeasureNames() {
         return measureNames;
     }
 
@@ -66,7 +66,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "|> range(start:%s, stop:%s) \n" +
                 "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                 "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                measureNames.get(0).stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                 " \n" +
                 "aggregate = (tables=<-, agg, name) =>\n" +
                 "    tables\n" +
@@ -99,7 +99,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                     "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
                     "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                    measureNames.get(i).stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                     " \n";
             i++;
         }
@@ -135,7 +135,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                     "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
                     "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                    measureNames.get(i).stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                     " \n";
             i++;
         }
@@ -170,7 +170,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                     "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
                     "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                    measureNames.get(i).stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                     " \n";
             i++;
         }
@@ -207,10 +207,10 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "|> range(start:%s, stop:%s) " +
                 "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
                 "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
+                measureNames.get(0).stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
                 "\")\n" +
-                "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n" +
-                "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
+                "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n");
+//                "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
     }
 
     @Override
@@ -224,7 +224,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                     "|> range(start:" + r.getFromDate(format) + ", stop:" + r.getToDate(format) + ")\n" +
                     "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
                     "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-                    measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
+                    measureNames.get(i).stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) + "\")" +
                     " \n";
             i++;
         }
@@ -234,17 +234,9 @@ public class InfluxDBQuery extends DataSourceQuery {
             s +=    "data_" + i + "(),\n";
         }
         s+= "])" +
-                "\n" + "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n" +
-                "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")";
+                "\n" + "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n" ;
+//                "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")";
         return s;
-//        return ("from(bucket:\"%s\") " +
-//                "|> range(start:%s, stop:%s) " +
-//                "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") " +
-//                "|> filter(fn: (r) => r[\"_field\"] ==\"" +
-//                measureNames.stream().map(Object::toString).collect(Collectors.joining("\" or r[\"_field\"] == \"")) +
-//                "\")\n" +
-//                "|> keep(columns: [\"_measurement\", \"_time\", \"_field\", \"_value\"])\n" +
-//                "|>pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
     }
 
 }

@@ -25,7 +25,6 @@ import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
-import eu.more2020.visual.middleware.cache._MinMaxCache;
 import eu.more2020.visual.middleware.cache.RawCache;
 import eu.more2020.visual.middleware.util.io.SerializationUtilities;
 import org.apache.commons.io.FileUtils;

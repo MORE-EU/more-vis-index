@@ -1,6 +1,5 @@
 package eu.more2020.visual.middleware.datasource;
 
-import eu.more2020.visual.middleware.domain.MultivariateTimeInterval;
 import eu.more2020.visual.middleware.domain.TimeInterval;
 
 import java.time.Instant;
@@ -11,18 +10,18 @@ import java.util.List;
 /**
  * Represents a time series data source query
  */
-public abstract class DataSourceQuery implements TimeInterval {
+public abstract class DataSourceQueryMulti implements TimeInterval {
 
     final long from;
     final long to;
 
     final List<TimeInterval> ranges;
-    final List<Integer> measures;
+    final List<List<Integer>> measures;
 
     final Integer numberOfGroups;
 
     /**
-     * Creates a new instance of {@link DataSourceQuery}
+     * Creates a new instance of {@link DataSourceQueryMulti}
      *
      * @param from           The start time of the time interval that was requested
      * @param to             The end time of the time interval that was requested
@@ -30,7 +29,7 @@ public abstract class DataSourceQuery implements TimeInterval {
      * @param measures       The measure values to include in every data point
      * @param numberOfGroups The number of groups to aggregate the data points into
      */
-    public DataSourceQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, Integer numberOfGroups) {
+    public DataSourceQueryMulti(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, Integer numberOfGroups) {
         this.from = from;
         this.to = to;
         this.ranges = ranges;
@@ -72,7 +71,7 @@ public abstract class DataSourceQuery implements TimeInterval {
         return numberOfGroups;
     }
 
-    public List<Integer> getMeasures() {
+    public List<List<Integer>> getMeasures() {
         return measures;
     }
 
