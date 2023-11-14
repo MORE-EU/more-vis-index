@@ -143,6 +143,12 @@ public class CacheQueryExecutor {
                         dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getMaxTimestamp(measure), pixelColumnStats.getMaxValue(measure)));
                         dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getLastTimestamp(measure), pixelColumnStats.getLastValue(measure)));
                     }
+                    else{
+                        dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getFirstTimestamp(measure), null));
+                        dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getMinTimestamp(measure), null));
+                        dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getMaxTimestamp(measure), null));
+                        dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getLastTimestamp(measure), null));
+                    }
                 }
                 // compute statistics
                 count += 1;

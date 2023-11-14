@@ -10,9 +10,9 @@ public class UnivariateDataPoint {
 
     private final long timestamp;
 
-    private final double value;
+    private final Double value;
 
-    public UnivariateDataPoint(final long timestamp, final double value) {
+    public UnivariateDataPoint(final long timestamp, final Double value) {
         this.timestamp = timestamp;
         this.value = value;
     }
@@ -28,7 +28,7 @@ public class UnivariateDataPoint {
     /**
      * Returns a single measure value for the {@code timestamp)
      */
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 

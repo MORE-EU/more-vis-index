@@ -20,5 +20,5 @@ plots/*
 .DS_Store
 ssims*/*
 diffs*
-
+.vscode
 *.ipynb
