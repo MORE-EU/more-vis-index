@@ -1,7 +1,8 @@
-package eu.more2020.visual.middleware.datasource;
+package eu.more2020.visual.middleware.datasource.ModelarDB;
 
 import cfjd.org.apache.arrow.vector.table.Row;
 import cfjd.org.apache.arrow.vector.table.Table;
+import eu.more2020.visual.middleware.datasource.DataSource;
 import eu.more2020.visual.middleware.domain.AggregatedDataPoint;
 import eu.more2020.visual.middleware.domain.ImmutableAggregatedDataPoint;
 import eu.more2020.visual.middleware.domain.NonTimestampedStatsAggregator;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public class ModelarDBAggregateDataPointsIterator implements Iterator<AggregatedDataPoint> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ModelarDBAggregateDataPointsIterator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
     private final FlightStream flightStream;
     private final List<Integer> measures;

@@ -1,10 +1,10 @@
 CREATE SCHEMA IF NOT EXISTS more;
 
 CREATE TABLE more.manufacturing_exp_tmp(
-                                       timestamp        TIMESTAMP NOT NULL
-    ,value_1      FLOAT
-    ,value_2      FLOAT
-    ,value_3    FLOAT
+    timestamp TIMESTAMP NOT NULL
+    ,value_1  FLOAT
+    ,value_2  FLOAT
+    ,value_3  FLOAT
     ,value_4 FLOAT
     ,value_5 FLOAT
     ,value_6 FLOAT
@@ -17,11 +17,12 @@ COPY more.manufacturing_exp_tmp(timestamp,value_1,value_2,value_3,value_4,value_
     CSV HEADER;
 
 CREATE TABLE more.manufacturing_exp(
-                                   epoch BIGINT NOT NULL
+     epoch BIGINT NOT NULL
     ,timestamp   TIMESTAMP NOT NULL
     ,value      FLOAT
     ,id         INT NOT NULL
     ,col VARCHAR NOT NULL
+    ,PRIMARY KEY(id, timestamp)
 );
 
 INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)

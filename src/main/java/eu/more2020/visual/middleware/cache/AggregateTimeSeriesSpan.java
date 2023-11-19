@@ -173,7 +173,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
     public String toString() {
         return "{[" + getFromDate() + "(" + getFrom() + ")" +
                 ", " + getToDate() + "(" + getTo() + ")" +
-                "), size=" + size + ", aggregateInterval=" + aggregateInterval + "}";
+                "), size=" + size + ", measures =" + measures + "aggregateInterval=" + aggregateInterval + "}";
     }
 
     private int getMeasureIndex(int measure) {
@@ -266,6 +266,11 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
 
                 @Override
                 public int getCount() {
+                    return counts[index];
+                }
+
+                @Override
+                public int getCount(int measure) {
                     return counts[index];
                 }
 

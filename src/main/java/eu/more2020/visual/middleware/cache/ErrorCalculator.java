@@ -19,6 +19,7 @@ public class ErrorCalculator {
     private boolean hasError = true;
     private long pixelColumnInterval;
     private List<List<Integer>> pixelColumnErrors;
+
     public Map<Integer, Double> calculateValidColumnsErrors(Query query, List<PixelColumn> pixelColumns, ViewPort viewPort, long pixelColumnInterval) {
         // Calculate errors using processed data
         List<Integer> measures = query.getMeasures();
@@ -66,15 +67,14 @@ public class ErrorCalculator {
         maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
         this.pixelColumnInterval = pixelColumnInterval;
         pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
-        // Find the part of the query interval that is not covered by the spans in the interval tree.
         Map<Integer, Double> error = new HashMap<>();
         for (int m : measures) error.put(m, 0.0);
         for (List<Integer> pixelColumnError : pixelColumnErrors) {
+            if(pixelColumnError == null) continue; // No data was found for this pixel column
             int i = 0;
             for (int m : measures) {
                 final Double data = error.get(m);
                 final Integer val = pixelColumnError.get(i);
-                if(val == null) break;// no measure data
                 error.put(m, data + val);
                 i++;
             }

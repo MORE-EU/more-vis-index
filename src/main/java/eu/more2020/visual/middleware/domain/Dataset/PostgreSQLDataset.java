@@ -16,28 +16,20 @@ import java.util.stream.Collectors;
 public class PostgreSQLDataset extends AbstractDataset {
 
     private String config;
-    private final String schema;
-    private final String table;
-    private final String timeFormat;
 
-    public PostgreSQLDataset(SQLQueryExecutor sqlQueryExecutor, String schema, String table,
-                             String timeFormat, String timeCol) throws SQLException {
-        super();
-        this.table = table;
-        this.schema = schema;
-        this.timeFormat = timeFormat;
+    public PostgreSQLDataset(SQLQueryExecutor sqlQueryExecutor, String id, String schema, String table,
+                             String timeFormat, String timeCol, String idCol, String valueCol) throws SQLException {
+        super(id, table, schema, timeFormat, timeCol, idCol, valueCol);
         setTimeCol(timeCol);
         this.fillPostgreSQLDatasetInfo(sqlQueryExecutor);
     }
 
 
-    public PostgreSQLDataset(String config, String schema, String table,
-                             String timeFormat, String timeCol) throws SQLException {
-        super();
+    public PostgreSQLDataset(String config, String id, String schema, String table,
+                             String timeFormat, String timeCol, String idCol, String valueCol) throws SQLException {
+        super(id, table, schema, timeFormat, timeCol, idCol, valueCol);
+
         this.config = config;
-        this.table = table;
-        this.schema = schema;
-        this.timeFormat = timeFormat;
         setTimeCol(timeCol);
         this.fillPostgreSQLDatasetInfo(new JDBCConnection(config).getSqlQueryExecutor());
     }
@@ -45,17 +37,18 @@ public class PostgreSQLDataset extends AbstractDataset {
     private void fillPostgreSQLDatasetInfo(SQLQueryExecutor sqlQueryExecutor) throws SQLException {
         ResultSet resultSet;
         // Header query
-        String headerQuery = "SELECT * " +
-                "FROM information_schema.columns WHERE table_schema = '" + schema  + "' AND table_name = '" + table + "' ORDER BY ordinal_position\n";
+        String headerQuery = "SELECT DISTINCT(" + getIdCol() + ") FROM " + getSchema() + "." + getTable();
+
         resultSet = sqlQueryExecutor.execute(headerQuery);
         List<String> header = new ArrayList<>();
-        while(resultSet.next())
+        while(resultSet.next()) {
             header.add(resultSet.getString(1));
+        }
         setHeader(header.toArray(new String[0]));
 
         // First date and sampling frequency query
         String firstQuery = "SELECT epoch\n" +
-                "FROM " + schema  + "." + table + " \n" +
+                "FROM " + getSchema()  + "." + getTable() + " \n" +
                 "WHERE id = " + getMeasures().get(0) + " \n" +
                 "ORDER BY epoch ASC\n" +
                 "LIMIT 2;";
@@ -68,7 +61,7 @@ public class PostgreSQLDataset extends AbstractDataset {
         setSamplingInterval(Duration.of(second - from, ChronoUnit.MILLIS));
         // Last date query
         String lastQuery = "SELECT epoch\n" +
-                "FROM " + schema  + "." + table + "\n" +
+                "FROM " + getSchema()  + "." + getTable() + "\n" +
                 "ORDER BY epoch DESC\n" +
                 "LIMIT 1;";
         resultSet = sqlQueryExecutor.execute(lastQuery);
@@ -77,10 +70,6 @@ public class PostgreSQLDataset extends AbstractDataset {
         setTimeRange(new TimeRange(from, to));
     }
 
-    @Override
-    public String getTimeFormat() {
-        return timeFormat;
-    }
 
     @Override
     public List<Integer> getMeasures() {

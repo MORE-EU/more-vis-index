@@ -50,11 +50,34 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
         maxValues[i] = Math.max(maxValues[i], value);
     }
 
+    /**
+     * Combines the state of a {@code Stats} instance into this
+     * StatsAggregator.
+     *
+     * @param other another {@code Stats}
+     * Handles the case of different measures
+     */
+    public void combine(Stats other) {
+        if(other.getCount() != 0) {
+            for (int m : other.getMeasures()) {
+                int i = getMeasureIndex(m);
+                sums[i] += other.getSum(m);
+                minValues[i] = Math.min(minValues[i], other.getMinValue(m));
+                maxValues[i] = Math.max(maxValues[i], other.getMaxValue(m));
+            }
+            count += other.getCount();
+        }
+    }
+
     public List<Integer> getMeasures() {
         return measures;
     }
 
     public int getCount() {
+        return count;
+    }
+
+    public int getCount(int measure) {
         return count;
     }
 

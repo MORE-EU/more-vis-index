@@ -48,12 +48,12 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         firstTimestamps = new long[length];
         lastValues = new double[length];
         lastTimestamps = new long[length];
-        count = -1;
+        count = 0;
         clear();
     }
 
     public void clear() {
-        count = -1;
+        count = 0;
         Arrays.fill(sums, 0d);
         Arrays.fill(minValues, Double.POSITIVE_INFINITY);
         Arrays.fill(minTimestamps, -1l);
@@ -77,6 +77,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         }
         for (int measure : measures) {
             int i = getMeasureIndex(measure);
+            if(i == - 1) continue; // check if datapoint has this measure
             double value = dataPoint.getValues()[i];
             sums[i] += value;
             minValues[i] = Math.min(minValues[i], value);
@@ -131,6 +132,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         if (dataPoint.getCount() != 0) {
             for (int m : measures) {
                 int i = getMeasureIndex(m);
+                if(i == - 1) continue; // check if datapoint has this measure
                 sums[i] += stats.getSum(m);
                 minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
                 if (minValues[i] == stats.getMinValue(m)) {
@@ -197,6 +199,11 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
 
     @Override
     public int getCount() {
+        return count;
+    }
+
+    @Override
+    public int getCount(int measure) {
         return count;
     }
 

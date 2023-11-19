@@ -43,10 +43,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         switch (method) {
             case M4:
                 return executeM4Query(q);
-            case M4_MULTI:
-                return executeM4MultiQuery(q);
-            case M4OLAP:
-                return executeM4OLAPQuery(q);
             case RAW:
                 return executeRawQuery(q);
             case MIN_MAX:
@@ -61,29 +57,10 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         return collect(executeM4ModelarDBQuery((ModelarDBQuery) q));
     }
 
-    @Override
-    public QueryResults executeM4MultiQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4MultiModelarDBQuery((ModelarDBQuery) q));
-    }
-
-    @Override
-    public QueryResults executeM4LikeMultiQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4MultiModelarDBQuery((ModelarDBQuery) q));
-    }
-
-    @Override
-    public QueryResults executeM4OLAPQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4OLAPModelarDBQuery((ModelarDBQuery) q));
-    }
 
     @Override
     public QueryResults executeRawQuery(DataSourceQuery q) throws SQLException {
         return collect(executeRawModelarDBQuery((ModelarDBQuery) q));
-    }
-
-    @Override
-    public QueryResults executeRawMultiQuery(DataSourceQuery q) {
-        return null;
     }
 
     @Override
@@ -110,21 +87,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         }
     };
 
-    public FlightStream executeM4OLAPModelarDBQuery(ModelarDBQuery q) throws SQLException {
-        String sql = q.m4WithOLAPQuerySkeleton();
-        PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
-        preparedStatement.setString("timeCol", dataset.getTimeCol());
-        preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setString("valueCol", dataset.getValueCol());
-        preparedStatement.setString("tableName", dataset.getTable());
-
-        String query = preparedStatement.getSql();
-
-        return execute(query);
-    }
 
     public FlightStream executeRawModelarDBQuery(ModelarDBQuery q) throws SQLException{
         String sql = q.rawQuerySkeleton();
@@ -139,19 +101,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
 
         return execute(query);
     }
-
-    public FlightStream executeRawMultiModelarDBQuery(ModelarDBQuery q) throws SQLException{
-        LOG.debug("Executing {} with {}, ", q, dataset);
-        String sql = q.rawMultiQuerySkeleton();
-        PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
-        preparedStatement.setString("timeCol", dataset.getTimeCol());
-        preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setString("valueCol", dataset.getValueCol());
-        preparedStatement.setString("tableName", dataset.getTable());
-        String query = preparedStatement.getSql();
-        return execute(query);
-    }
-
     public FlightStream executeM4ModelarDBQuery(ModelarDBQuery q) throws SQLException {
         String sql = q.m4QuerySkeleton();
         PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
@@ -167,20 +116,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         return execute(query);
     }
 
-    public FlightStream executeM4MultiModelarDBQuery(ModelarDBQuery q) throws SQLException {
-        String sql = q.m4MultiQuerySkeleton();
-        PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
-        preparedStatement.setString("timeCol", dataset.getTimeCol());
-        preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setString("valueCol", dataset.getValueCol());
-        preparedStatement.setString("tableName", dataset.getTable());
-        String query = preparedStatement.getSql();
-
-        return execute(query);
-    }
 
     public FlightStream executeMinMaxModelarDBQuery(ModelarDBQuery q) throws SQLException {
         LOG.debug("Executing {} with {}, ", q, dataset);

@@ -1,134 +1,114 @@
 package eu.more2020.visual.middleware.datasource;
 
 import eu.more2020.visual.middleware.domain.TimeInterval;
+import eu.more2020.visual.middleware.domain.TimeRange;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class SQLQuery extends DataSourceQuery {
 
-    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, int numberOfGroups) {
+    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, int numberOfGroups) {
         super(from, to, ranges, measures, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<Integer> measures, int numberOfGroups) {
-        super(from, to, null, measures, numberOfGroups);
+    public SQLQuery(long from, long to, List<List<Integer>> measures, int numberOfGroups) {
+        super(from, to, new ArrayList<>(List.of(new TimeRange(from, to))), measures, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures){
-        super(from, to, ranges, measures,  null);
+    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures){
+        super(from, to, ranges, measures,null);
     }
 
-    public SQLQuery(long from, long to, List<Integer> measures){
+    public SQLQuery(long from, long to, List<List<Integer>> measures){
         super(from, to, null, measures,  null);
     }
 
 
-    private String qM4Skeleton(){
-        return "WITH Q_M AS (SELECT Q.id, epoch, value, k FROM :tableName as Q \n" +
+    private String calculateFilter(TimeInterval range, int measure) {
+        return  " (:timeCol >= " + range.getFrom() + " AND :timeCol < " + range.getTo() + " AND :idCol = " + measure + ") \n" ;
+    }
+
+    private String rawSkeleton(TimeInterval range, int measure, int i){
+        return "SELECT :idCol , :timeCol , :valueCol ," + i + " as u_id FROM :tableName \n" +
+                "WHERE " +
+                calculateFilter(range, measure);
+    }
+
+    private String rawQuerySkeletonCreator() {
+        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
+            TimeInterval range = ranges.get(idx);
+            List<Integer> measureOfRange = measures.get(idx);
+            return measureOfRange.stream().map(m -> rawSkeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
+        }).collect(Collectors.joining(" UNION ALL "));
+    }
+
+    private String m4Skeleton(TimeInterval range, int measure, int i ){
+       return "SELECT Q.:idCol , :timeCol , :valueCol , k, " + i + " as u_id \n" +
+                "FROM :tableName as Q \n" +
                 "JOIN " +
-                "(SELECT id, floor( \n" +
+                "(SELECT :idCol , floor( \n" +
                 "(epoch - :from ) / ((:to - :from ) / :width )) as k, \n" +
-                "min(value) as v_min, max(value) as v_max, \n"  +
-                "min(epoch) as t_min, max(epoch) as t_max \n"  +
+                "min(:valueCol ) as v_min, max(:valueCol ) as v_max, \n"  +
+                "min(:timeCol ) as t_min, max(:timeCol ) as t_max \n"  +
                 "FROM :tableName \n" +
-                "WHERE epoch >= :from AND epoch <= :to \n" +
-                "AND id IN (" + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") \n" +
-                "GROUP BY id, k ) as QA \n"+
-                "ON k = floor((epoch - :from ) / ((:to - :from ) / :width )) \n" +
+                "WHERE \n" +
+                calculateFilter(range, measure) +
+                "GROUP BY :idCol , k ) as QA \n"+
+                "ON k = floor((:timeCol - :from ) / ((:to - :from ) / :width )) \n" +
                 "AND QA.id = Q.id \n" +
-                "AND (value = v_min OR value = v_max OR \n" +
-                "epoch = t_min OR epoch = t_max) \n" +
-                "WHERE epoch  >= :from AND epoch <= :to \n" +
-                "AND Q.id IN (" + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ")) \n";
+                "AND (:valueCol = v_min OR :valueCol = v_max OR \n" +
+                ":timeCol = t_min OR :timeCol = t_max) \n" +
+                "WHERE \n"  +
+                "(:timeCol >= " + range.getFrom() + " AND :timeCol < " + range.getTo() + " AND QA." + ":idCol = " + measure + ") \n" ;
     }
 
-    private String qMultiM4Skeleton(){
-        return "WITH Q_M AS (SELECT Q.id, epoch, value, k FROM :tableName as Q \n" +
-                "JOIN " +
-                "(SELECT id, floor( \n" +
-                "(epoch - :from ) / ((:to - :from )/ :width )) as k, \n" +
-                "min(value) as v_min, max(value) as v_max, \n"  +
-                "min(epoch) as t_min, max(epoch) as t_max \n"  +
-                "FROM :tableName \n" +
-                "WHERE " +
-                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
-                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
-                "GROUP BY id, k ) as QA \n"+
-                "ON k = floor((epoch - :from ) / ((:to - :from ) / :width )) \n" +
-                "AND QA.id = Q.id \n" +
-                "AND (value = v_min OR value = v_max OR \n" +
-                "epoch = t_min OR epoch = t_max) \n" +
-                "WHERE " +
-                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND Q.id IN ("
-                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) +
-                ")\n";
+    private String m4QuerySkeletonCreator() {
+        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
+            TimeInterval range = ranges.get(idx);
+            List<Integer> measureOfRange = measures.get(idx);
+            return measureOfRange.stream().map(m -> m4Skeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
+        }).collect(Collectors.joining(" UNION ALL "));
     }
 
-
-    @Override
-    public String m4QuerySkeleton() {
-        return qM4Skeleton() +
-                "SELECT id, min(epoch) as min_epoch, max(epoch) as max_epoch, value, k FROM Q_M " +
-                "GROUP BY id, value, k " +
-                "ORDER BY k, min_epoch";
-    }
-
-    @Override
-    public String m4LikeMultiQuerySkeleton() {
-        return qMultiM4Skeleton() +
-                "SELECT id, MIN(epoch) AS min_epoch, MAX(epoch) AS max_epoch, value, k FROM Q_M " +
-                "GROUP BY id, k, value " +
-                "ORDER BY k, min_epoch";
-    }
-
-    @Override
-    public String m4MultiQuerySkeleton() {
-        return qMultiM4Skeleton() +
-                "SELECT id, MIN(epoch) AS min_epoch, MAX(epoch) AS max_epoch, value, k FROM Q_M " +
-                "GROUP BY id, k, value " +
-                "ORDER BY k, min_epoch";
-    }
-
-    @Override
-    public String minMaxQuerySkeleton() {
-        return "SELECT id, floor( \n" +
+    private String minMaxSkeleton(TimeInterval range, int measure, int i ) {
+        return "SELECT :idCol , floor( \n" +
                 "(epoch - :from ) / ((:to - :from ) / :width )) as k, \n" +
-                "min(value) as v_min, max(value) as v_max \n"  +
+                "min(:valueCol ) as v_min, max(:valueCol ) as v_max, "  + i + " as u_id \n" +
                 "FROM :tableName \n" +
                 "WHERE " +
-                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
-                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) + " " +
-                "GROUP BY id, k " +
-                "ORDER BY k, id";
+                calculateFilter(range, measure) +
+                "GROUP BY :idCol , k \n";
     }
 
-    @Override
-    public String m4WithOLAPQuerySkeleton() {
-        return qM4Skeleton() +
-                "SELECT id, epoch, value, avg  FROM Q_M \n" +
-                "JOIN \n" +
-                "(SELECT avg(value), extract(dow from ts) as dow FROM Q_M GROUP BY dow) as Q_G\n" +
-                "ON extract(dow from Q_M.ts) = Q_G.dow " +
-                "ORDER BY id";
+    private String minMaxQuerySkeletonCreator() {
+        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
+            TimeInterval range = ranges.get(idx);
+            List<Integer> measureOfRange = measures.get(idx);
+            return measureOfRange.stream().map(m -> minMaxSkeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
+        }).collect(Collectors.joining(" UNION ALL "));
     }
 
     @Override
     public String rawQuerySkeleton() {
-        return "SELECT id, epoch, value FROM :tableName \n" +
-                "WHERE epoch  >= :from AND epoch <= :to \n" +
-                "AND id IN (" + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") \n" +
-                "ORDER BY epoch, id";
+        return rawQuerySkeletonCreator() +
+                "ORDER BY u_id, :timeCol , :idCol \n";
     }
 
     @Override
-    public String rawMultiQuerySkeleton() {
-        return "SELECT id, epoch, value FROM :tableName \n" +
-                "WHERE " +
-                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
-                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
-                "ORDER BY epoch, id";
+    public String m4QuerySkeleton() {
+        return "WITH Q_M AS (" + m4QuerySkeletonCreator() + ") \n" +
+                "SELECT :idCol , MIN(epoch) AS min_time , MAX(epoch) AS max_time, :valueCol , k, u_id FROM Q_M \n" +
+                "GROUP BY :idCol , k , :valueCol , u_id \n" +
+                "ORDER BY k, :idCol , u_id";
     }
 
+    @Override
+    public String minMaxQuerySkeleton() {
+        return minMaxQuerySkeletonCreator() +
+                " ORDER BY u_id, k, :idCol ";
+    }
 
 }

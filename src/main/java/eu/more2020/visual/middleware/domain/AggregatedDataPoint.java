@@ -21,5 +21,4 @@ public interface AggregatedDataPoint extends DataPoint, TimeInterval {
         return "{from: " + getFrom() + ", to: " + getTo() + ", stats: " + getStats() + "}";
     }
 
-
 }

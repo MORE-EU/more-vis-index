@@ -23,6 +23,7 @@ import eu.more2020.visual.middleware.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.middleware.domain.Query.Query;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
+import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
 import eu.more2020.visual.middleware.cache.RawCache;
@@ -226,56 +227,8 @@ public class Experiments<T> {
         }
     }
 
-    private void timeQueriesTTIM4(int run) throws IOException, SQLException {
-//        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "ttiM4Results").toString();
-//        File outFile = Paths.get(resultsPath, "results.csv").toFile();
-//        CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
-//        CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
-//        Stopwatch stopwatch = Stopwatch.createUnstarted();
-//        AbstractDataset dataset = createDataset();
-//        TTI tti = new TTI(dataset, p, aggFactor, reductionFactor);
-//        QueryMethod queryMethod = QueryMethod.M4_MULTI;
-//        Query q0 = new Query(startTime, endTime, accuracy, null, queryMethod, measures, viewPort, null);
-//        List<Query> sequence = generateQuerySequence(q0, dataset);
-//        csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "aggFactor", "Results size", "IO Count",
-//                "Time (sec)", "Processing Time", "Query Time", "Memory", "Error", "flag");
-//        for (int i = 0; i < sequence.size(); i += 1) {
-//            stopwatch.start();
-//            Query query = (Query) sequence.get(i);
-//            QueryResults queryResults;
-//            double time = 0;
-//            LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
-//            queryResults = tti.executeQueryM4(query);
-//            time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
-//            long memorySize = tti.calculateDeepMemorySize();
-//            if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
-//            csvWriter.addValue(table);
-//            csvWriter.addValue(i);
-//            csvWriter.addValue(query.getOpType());
-//            csvWriter.addValue(viewPort.getWidth());
-//            csvWriter.addValue(viewPort.getHeight());
-//            csvWriter.addValue(query.getFrom());
-//            csvWriter.addValue(query.getTo());
-//            csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
-//            csvWriter.addValue(queryResults.getAggFactor());
-//            csvWriter.addValue(0);
-//            csvWriter.addValue(queryResults.getIoCount());
-//            csvWriter.addValue(time);
-//            csvWriter.addValue(time - queryResults.getQueryTime());
-//            csvWriter.addValue(queryResults.getQueryTime());
-//            csvWriter.addValue(memorySize);
-//            csvWriter.addValue(queryResults.getError());
-//            csvWriter.addValue(queryResults.isFlag());
-//            csvWriter.writeValuesToRow();
-//            System.out.println();
-//            stopwatch.reset();
-//        }
-//        csvWriter.flush();
-    }
-
-
-    private void timeQueriesTTIMinMax(int run) throws IOException, SQLException {
-        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "ttiMinMaxResults").toString();
+    private void timeQueriesMinMaxCache(int run) throws IOException, SQLException {
+        String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "minMaxResults").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
         CsvWriter csvWriter = new CsvWriter(new FileWriter(outFile, false), csvWriterSettings);
@@ -323,7 +276,7 @@ public class Experiments<T> {
         csvWriter.flush();
     }
 
-    private void timeQueriesRawTTI(int run) throws IOException, SQLException {
+    private void timeQueriesRawCache(int run) throws IOException, SQLException {
         String resultsPath = Paths.get(outFolder, "timeQueries", type, table, "run_" + run, "rawResults").toString();
         File outFile = Paths.get(resultsPath, "results.csv").toFile();
         CsvWriterSettings csvWriterSettings = new CsvWriterSettings();
@@ -331,7 +284,7 @@ public class Experiments<T> {
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         AbstractDataset dataset = createDataset();
         QueryExecutor queryExecutor = createQueryExecutor(dataset);
-        RawCache rawCache = new RawCache(queryExecutor, dataset);
+        MinMaxCache rawCache = new MinMaxCache(queryExecutor, dataset, p, aggFactor, Integer.MAX_VALUE); // If aggregationFactor is larger then the cache will always request raw data.
         QueryMethod queryMethod = QueryMethod.RAW;
         Query q0 = new Query(startTime, endTime, accuracy, null, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
@@ -384,17 +337,21 @@ public class Experiments<T> {
             QueryResults queryResults;
             double time = 0;
             LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
-            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+            List<String> measureNames = query.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+            List<List<Integer>> datasourceMeasures = new ArrayList<>();
+            List<List<String>> datasourceMeasureNames = new ArrayList<>();
+            datasourceMeasures.add(query.getMeasures());
+            datasourceMeasureNames.add(measureNames);
             DataSourceQuery dataSourceQuery = null;
             switch (type) {
                 case "postgres":
-                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), query.getMeasures(), query.getViewPort().getWidth());
+                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), datasourceMeasures, query.getViewPort().getWidth());
                     break;
                 case "modelar":
-                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), query.getMeasures(), measureNames, query.getViewPort().getWidth());
+                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), datasourceMeasures, datasourceMeasureNames, query.getViewPort().getWidth());
                     break;
                 case "influx":
-                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), query.getMeasures(), measureNames, query.getViewPort().getWidth());
+                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), datasourceMeasures, datasourceMeasureNames, query.getViewPort().getWidth());
                     break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
@@ -427,7 +384,7 @@ public class Experiments<T> {
                 FileUtil.build(path.toString());
             }
             else {
-                Path path1 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "ttiMinMax" + "Results");
+                Path path1 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "minMax" + "Results");
                 Path path2 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "m4" + "Results");
                 Path path3 = Paths.get(outFolder, "timeQueries", type, table, "run_" + i, "raw" + "Results");
                 FileUtil.build(path1.toString());
@@ -437,25 +394,19 @@ public class Experiments<T> {
         }
         for(int i = 0; i < runs; i ++) {
             switch (mode) {
-                case "ttiM4":
-                    timeQueriesTTIM4(i);
-                    break;
-                case "ttiMinMax":
-                    timeQueriesTTIMinMax(i);
-                    break;
-                case "tti":
-                    timeQueriesTTIMinMax(i);
+                case "minMax":
+                    timeQueriesMinMaxCache(i);
                     break;
                 case "raw":
-                    timeQueriesRawTTI(i);
+                    timeQueriesRawCache(i);
                     break;
                 case "m4":
                     timeQueriesM4(i);
                     break;
                 case "all":
-                    timeQueriesTTIMinMax(i);
+                    timeQueriesMinMaxCache(i);
                     timeQueriesM4(i);
-                    timeQueriesRawTTI(i);
+                    timeQueriesRawCache(i);
                     break;
                 default:
                     System.exit(0);
@@ -507,7 +458,7 @@ public class Experiments<T> {
                 p = String.valueOf(Paths.get("metadata", "postgres-" + table));
                 if (new File(p).exists()) dataset = (PostgreSQLDataset) SerializationUtilities.loadSerializedObject(p);
                 else{
-                    dataset = new PostgreSQLDataset(config, schema, table, timeFormat, timeCol);
+                    dataset = new PostgreSQLDataset(config, table, schema, table, timeFormat, timeCol, idCol, valueCol);
                     SerializationUtilities.storeSerializedObject(dataset, p);
                 }
                 break;

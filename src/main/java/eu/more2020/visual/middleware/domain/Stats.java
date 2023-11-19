@@ -10,6 +10,8 @@ public interface Stats {
 
     public int getCount();
 
+    public int getCount(int measure);
+
     public double getSum(int measure);
 
     public double getMinValue(int measure);
@@ -57,6 +59,18 @@ public interface Stats {
         return this.getMeasures() != null && other.getMeasures() != null &&
                 this.getMeasures().size() == other.getMeasures().size() &&
                 this.getMeasures().stream().allMatch(measure -> other.getMeasures().contains(measure));
+    }
+
+    /**
+     * Checks if the measures of this Stats and another Stats are the same.
+     *
+     * @param measures another measures list
+     * @return boolean - returns true if measures are the same, else false
+     */
+    default boolean measuresEqual(List<Integer> measures) {
+        return this.getMeasures() != null && measures != null &&
+                this.getMeasures().size() == measures.size() &&
+                measures.containsAll(this.getMeasures());
     }
 
     default String getString(int measure) {

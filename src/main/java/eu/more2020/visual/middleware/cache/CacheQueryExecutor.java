@@ -107,7 +107,7 @@ public class CacheQueryExecutor {
 
             LOG.info("Cached data are above error bound. Fetching {}: ", missingIntervals);
             LOG.info("Fetching missing data from data source");
-            query.setQueryMethod(QueryMethod.M4_MULTI);
+            query.setQueryMethod(QueryMethod.M4);
             long timeStart = System.currentTimeMillis();
             missingTimeSeriesSpans =
                     dataProcessor.getMissingAndAddToPixelColumns(from, to, missingMeasures, viewPort, missingIntervals, query, queryResults, 1, pixelColumns);
@@ -128,9 +128,9 @@ public class CacheQueryExecutor {
 
             for (PixelColumn pixelColumn : pixelColumns) {
                 Stats pixelColumnStats = pixelColumn.getStats();
-//                if (pixelColumnStats.getCount(measure) <= 0) {
-//                    continue;
-//                }
+                if (pixelColumnStats.getCount(measure) <= 0) {
+                    continue;
+                }
                 // filter
                 if(query.getFilter() == null || query.getFilter().isEmpty()){
                     dataPoints.add(new UnivariateDataPoint(pixelColumnStats.getFirstTimestamp(measure), pixelColumnStats.getFirstValue(measure)));
@@ -157,7 +157,8 @@ public class CacheQueryExecutor {
                 if(min > pixelColumnStats.getMinValue(measure)) min = pixelColumnStats.getMinValue(measure);
                 sum += pixelColumnStats.getMaxValue(measure) + pixelColumnStats.getMinValue(measure);
             }
-            DoubleSummaryStatistics measureStats = new DoubleSummaryStatistics(count, min, max, sum);
+            DoubleSummaryStatistics measureStats = new
+                    DoubleSummaryStatistics(count, min, max, sum);
             measureStatsMap.put(measure, measureStats);
             resultData.put(measure, dataPoints);
         }

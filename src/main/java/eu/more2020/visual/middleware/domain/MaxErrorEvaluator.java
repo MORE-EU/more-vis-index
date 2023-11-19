@@ -14,7 +14,7 @@ import java.util.List;
  * Class that computes the maximum number of pixel errors.
  */
 public class MaxErrorEvaluator {
-    private static final Logger LOG = LoggerFactory.getLogger(MinMaxCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MaxErrorEvaluator.class);
 
     private final List<Integer> measures;
     private final ViewPort viewPort;
@@ -38,10 +38,11 @@ public class MaxErrorEvaluator {
         // and determine the y-axis scale.
         StatsAggregator viewPortStatsAggregator = new StatsAggregator(measures);
         pixelColumns.forEach(pixelColumn -> viewPortStatsAggregator.combine(pixelColumn.getStats()));
-
+        LOG.debug("Viewport stats: {}", viewPortStatsAggregator);
         for (int i = 0; i < pixelColumns.size(); i++) {
             PixelColumn currentPixelColumn = pixelColumns.get(i);
             List<Range<Integer>> maxInnerColumnPixelRanges = currentPixelColumn.computeMaxInnerPixelRange(viewPortStatsAggregator);
+
             if (maxInnerColumnPixelRanges == null) {
                 maxPixelErrorsPerColumnAndMeasure.add(null);
                 missingRanges.add(new MultivariateTimeInterval(currentPixelColumn.getRange(), measures)); // add all measures as missing for this range
@@ -54,7 +55,7 @@ public class MaxErrorEvaluator {
                 RangeSet<Integer> pixelErrorRangeSet = TreeRangeSet.create();
 
                 // If error is null then add to list
-                if(maxInnerColumnPixelRanges.get(measureIdx) ==  null){
+                if(maxInnerColumnPixelRanges.get(measureIdx) == null){
                     maxPixelErrorsPerMeasure.add(null);
                     missingMeasures.add(measure);
                     continue;

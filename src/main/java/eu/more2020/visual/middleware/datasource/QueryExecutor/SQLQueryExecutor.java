@@ -1,14 +1,13 @@
 package eu.more2020.visual.middleware.datasource.QueryExecutor;
 
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
+import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.PostgreSQLDataset;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
-import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.QueryResults;
 import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
 import eu.more2020.visual.middleware.experiments.util.NamedPreparedStatement;
-import org.apache.commons.math3.analysis.function.Abs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +47,6 @@ public class SQLQueryExecutor implements QueryExecutor {
         switch (method) {
             case M4:
                 return executeM4Query(q);
-            case M4_MULTI:
-                return executeM4MultiQuery(q);
-            case M4OLAP:
-                return executeM4OLAPQuery(q);
             case RAW:
                 return executeRawQuery(q);
             case MIN_MAX:
@@ -67,28 +62,8 @@ public class SQLQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public QueryResults executeM4MultiQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4MultiSqlQuery((SQLQuery) q));
-    }
-
-    @Override
-    public QueryResults executeM4LikeMultiQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4MultiSqlQuery((SQLQuery) q));
-    }
-
-    @Override
-    public QueryResults executeM4OLAPQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4OLAPSqlQuery((SQLQuery) q));
-    }
-
-    @Override
     public QueryResults executeRawQuery(DataSourceQuery q) throws SQLException {
         return collect(executeRawSqlQuery((SQLQuery) q));
-    }
-
-    @Override
-    public QueryResults executeRawMultiQuery(DataSourceQuery q) {
-        return null;
     }
 
     @Override
@@ -134,36 +109,19 @@ public class SQLQueryExecutor implements QueryExecutor {
         }
     };
 
-    public ResultSet executeM4OLAPSqlQuery(SQLQuery q) throws SQLException {
-        String sql = q.m4WithOLAPQuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setString("tableName", schema + "." + table);
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "");
-        return execute(query);
-    }
 
     public ResultSet executeRawSqlQuery(SQLQuery q) throws SQLException{
         String sql = q.rawQuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
         preparedStatement.setString("tableName", schema + "." + table);
+        preparedStatement.setString("timeCol", dataset.getTimeCol());
+        preparedStatement.setString("valueCol", dataset.getValueCol());
+        preparedStatement.setString("idCol", dataset.getIdCol());
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
         return execute(query);
     }
 
-    public ResultSet executeRawMultiSqlQuery(SQLQuery q) throws SQLException{
-        String sql = q.rawMultiQuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setString("tableName", schema + "." + table);
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "");
-        return execute(query);
-    }
 
     public ResultSet executeM4SqlQuery(SQLQuery q) throws SQLException {
         String sql = q.m4QuerySkeleton();
@@ -171,29 +129,24 @@ public class SQLQueryExecutor implements QueryExecutor {
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
         preparedStatement.setInt("width", q.getNumberOfGroups());
-        preparedStatement.setString("tableName", schema + "." + table);
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "");
-       return execute(query);
-    }
-
-    public ResultSet executeM4MultiSqlQuery(SQLQuery q) throws SQLException {
-        String sql = q.m4MultiQuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
+        preparedStatement.setString("timeCol", dataset.getTimeCol());
+        preparedStatement.setString("valueCol", dataset.getValueCol());
+        preparedStatement.setString("idCol", dataset.getIdCol());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
         return execute(query);
     }
 
+
     public ResultSet executeMinMaxSqlQuery(SQLQuery q) throws SQLException {
         String sql = q.minMaxQuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
+        preparedStatement.setString("timeCol", dataset.getTimeCol());
+        preparedStatement.setString("valueCol", dataset.getValueCol());
+        preparedStatement.setString("idCol", dataset.getIdCol());
         preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()

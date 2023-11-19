@@ -51,7 +51,7 @@ public class QuerySequenceGenerator {
 
 
     public void addRandomElementToList(List<Integer> list1, List<Integer> list2) {
-        Random random = new Random();
+        Random random = new Random(seed);
 
         while (true) {
             // Generate a random index to select an element from list2
@@ -79,17 +79,11 @@ public class QuerySequenceGenerator {
         Random opRand = new Random(seed);
         List<UserOpType> ops = new ArrayList<>();
 
-//        int pans = 39;
-//        int zoom_in = 20;
-//        int zoom_out = 30;
-//        int resize = 1;
-//        int measure_change = 10;
-
-        int pans = 50;
-        int zoom_in = 0;
-        int zoom_out = 0;
-        int resize = 0;
-        int measure_change = 50;
+        int pans = 39;
+        int zoom_in = 20;
+        int zoom_out = 30;
+        int resize = 1;
+        int measure_change = 10;
 
         for (int i = 0; i < pans; i++) ops.add(P);
         for (int i = 0; i < zoom_in; i++) ops.add(ZI);
@@ -116,7 +110,7 @@ public class QuerySequenceGenerator {
             } else if(opType.equals(R)){
                 viewPort = new ViewPort((int) (RESIZE_FACTOR * viewPort.getWidth()),
                         (int) (RESIZE_FACTOR * viewPort.getHeight()));
-            } else if(opType.equals(MC)){
+            } else if(opType.equals(MC) && measures.size() != dataset.getMeasures().size()){
                 addRandomElementToList(measures, dataset.getMeasures());
             }
             if(timeRange == null) timeRange = new TimeRange(q.getFrom(), q.getTo());

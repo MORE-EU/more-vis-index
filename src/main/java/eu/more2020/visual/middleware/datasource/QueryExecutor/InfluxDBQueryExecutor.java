@@ -11,7 +11,6 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
-import eu.more2020.visual.middleware.datasource.InfluxDBQueryMulti;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.middleware.domain.InfluxDB.InitQueries.*;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -57,8 +55,6 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         switch (method) {
             case M4:
                 return executeM4Query(q);
-            case M4OLAP:
-                return executeM4OLAPQuery(q);
             case RAW:
                 return executeRawQuery(q);
             case MIN_MAX:
@@ -73,29 +69,10 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return collect(executeM4InfluxQuery((InfluxDBQuery) q));
     }
 
-
-    @Override
-    public QueryResults executeM4MultiQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4MultiInfluxQuery((InfluxDBQuery) q));
-    }
-
-    @Override
-    public QueryResults executeM4LikeMultiQuery(DataSourceQuery q) throws SQLException {
-        return collect(executeM4LikeMultiInfluxQuery((InfluxDBQuery) q));
-    }
-    @Override
-    public QueryResults executeM4OLAPQuery(DataSourceQuery q) {
-        return collect(executeM4OLAPQuery((InfluxDBQuery) q));
-    }
-
     @Override
     public QueryResults executeRawQuery(DataSourceQuery q) {
         return collect(executeRawInfluxQuery((InfluxDBQuery) q));
     }
-
-    @Override
-    public QueryResults executeRawMultiQuery(DataSourceQuery q) { return collect(executeRawMultiInfluxQuery((InfluxDBQuery) q));}
-
 
     @Override
     public QueryResults executeMinMaxQuery(DataSourceQuery q) {return collect(executeMinMaxInfluxQuery((InfluxDBQuery) q));}
@@ -310,14 +287,8 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         }
     };
 
+
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
-        String flux = String.format(q.m4QuerySkeleton(),
-                (q.getFrom() % q.getAggregateInterval() + "ms"),
-                bucket, q.getFromDate(), q.getToDate(), table);
-        return execute(flux);
-    }
-
-    public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
         args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
         for (int i = 0; i < q.getRanges().size(); i++) {
@@ -326,34 +297,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 args.add(table);
             }
         }
-        String flux = String.format(q.m4MultiQuerySkeleton(), args.toArray());
-        return execute(flux);
-    }
-
-
-    public List<FluxTable> executeM4MultiInfluxQuery(InfluxDBQueryMulti q) {
-        List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 4; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
-        }
-        String flux = String.format(q.m4MultiQuerySkeleton(), args.toArray());
-        return execute(flux);
-    }
-
-    public List<FluxTable> executeM4LikeMultiInfluxQuery(InfluxDBQuery q) {
-        List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 2; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
-        }
-        String flux = String.format(q.m4LikeMultiQuerySkeleton(), args.toArray());
+        String flux = String.format(q.m4QuerySkeleton(), args.toArray());
         return execute(flux);
     }
 
@@ -372,37 +316,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
 
-    public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQueryMulti q) {
-        List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 2; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
-        }
-        String flux = String.format(q.minMaxQuerySkeleton(), args.toArray());
-        return execute(flux);
-    }
-
-
-    public List<FluxTable> executeM4OLAPQuery(InfluxDBQuery q) {
-        return null;
-    }
-
-    public List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q) {
-        String flux = String.format(q.rawQuerySkeleton(),
-                bucket, q.getFromDate(), q.getToDate(), table);
-        return execute(flux);
-    }
-
-    public List<FluxTable> executeRawInfluxQuery(InfluxDBQueryMulti q) {
-        String flux = String.format(q.rawQuerySkeleton(),
-                bucket, q.getFromDate(), q.getToDate(), table);
-        return execute(flux);
-    }
-
-    public List<FluxTable> executeRawMultiInfluxQuery(InfluxDBQuery q){
+    public List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q){
         List<String> args = new ArrayList<>();
         for (int i = 0; i < q.getRanges().size(); i++) {
             for (int j = 0; j < 2; j++) {
@@ -410,24 +324,11 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 args.add(table);
             }
         }
-        String flux = String.format(q.rawMultiQuerySkeleton(),
+        String flux = String.format(q.rawQuerySkeleton(),
                 args.toArray());
         return execute(flux);
     }
 
-
-    public List<FluxTable> executeRawMultiInfluxQuery(InfluxDBQueryMulti q){
-        List<String> args = new ArrayList<>();
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 2; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
-        }
-        String flux = String.format(q.rawMultiQuerySkeleton(),
-                args.toArray());
-        return execute(flux);
-    }
 
     private QueryResults collect(List<FluxTable> tables) {
         QueryResults queryResults = new QueryResults();
