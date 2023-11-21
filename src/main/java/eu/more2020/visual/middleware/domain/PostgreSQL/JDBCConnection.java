@@ -45,6 +45,7 @@ public class JDBCConnection {
     private void connect() {
         connection = null;
         try {
+            Class.forName("org.postgresql.Driver");
             connection = DriverManager
                     .getConnection(host, user, password);
             LOG.info("Initialized JDBC connection {}", host);

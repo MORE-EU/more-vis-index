@@ -11,10 +11,8 @@ import eu.more2020.visual.middleware.cache.MinMaxCache;
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
 import eu.more2020.visual.middleware.datasource.ModelarDBQuery;
-import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutor;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutorFactory;
-import eu.more2020.visual.middleware.datasource.QueryExecutor.SQLQueryExecutor;
 import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.Dataset.*;
 import eu.more2020.visual.middleware.domain.ModelarDB.ModelarDBConnection;
@@ -26,7 +24,6 @@ import eu.more2020.visual.middleware.domain.QueryResults;
 import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
-import eu.more2020.visual.middleware.cache.RawCache;
 import eu.more2020.visual.middleware.util.io.SerializationUtilities;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -201,30 +198,12 @@ public class Experiments<T> {
         }
     }
 
-    private void initializePostgreSQL() throws  SQLException {
-        JDBCConnection postgreSQLConnection = new JDBCConnection(config);
-        SQLQueryExecutor sqlQueryExecutor = postgreSQLConnection.getSqlQueryExecutor();
-        sqlQueryExecutor.drop();
-        sqlQueryExecutor.initialize(path);
-    }
-
-    private void initializeInfluxDB() throws IOException {
-        InfluxDBConnection influxDBConnection = new InfluxDBConnection(config);
-        InfluxDBQueryExecutor influxDBQueryExecutor = influxDBConnection.getSqlQueryExecutor();
-        influxDBQueryExecutor.drop();
-        influxDBQueryExecutor.initialize(path);
-    }
 
     private void initialize() throws IOException, SQLException {
-        Preconditions.checkNotNull(type, "You must define the execution type (postgres, influx).");
-        switch (type) {
-            case "postgres":
-                initializePostgreSQL();
-            case "influx":
-                initializeInfluxDB();
-            default:
-                System.exit(0);
-        }
+        AbstractDataset dataset = createDataset();
+        QueryExecutor queryExecutor = createQueryExecutor(dataset);
+        queryExecutor.drop();
+        queryExecutor.initialize(path);
     }
 
     private void timeQueriesMinMaxCache(int run) throws IOException, SQLException {
@@ -488,6 +467,7 @@ public class Experiments<T> {
             startTime = dataset.getTimeRange().getTo() - (long) (q * (dataset.getTimeRange().getTo() - dataset.getTimeRange().getFrom()));
             endTime = (dataset.getTimeRange().getTo());
         }
+        dataset.setTimeRange(new TimeRange(dataset.getTimeRange().getFrom(), 1330146920000L));
         return dataset;
     }
 

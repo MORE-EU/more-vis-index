@@ -22,7 +22,7 @@ CREATE TABLE more.manufacturing_exp(
     ,value      FLOAT
     ,id         INT NOT NULL
     ,col VARCHAR NOT NULL
-    ,PRIMARY KEY(id, timestamp)
+    ,PRIMARY KEY(id, epoch)
 );
 
 INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
@@ -49,4 +49,4 @@ SELECT date_part('epoch', timestamp) * 1000, timestamp, value_7, 6, 'value_7' FR
 
 DROP TABLE more.manufacturing_exp_tmp;
 
-CREATE INDEX manufacturing_exp_index ON more.manufacturing_exp(epoch, id);
+-- CREATE INDEX manufacturing_exp_index ON more.manufacturing_exp(epoch, id);

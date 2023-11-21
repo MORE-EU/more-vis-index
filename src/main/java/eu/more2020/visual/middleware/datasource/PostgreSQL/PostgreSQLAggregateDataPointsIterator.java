@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PostgreSQLAggregateDataPointsIterator implements Iterator<AggregatedDataPoint> {
 
@@ -39,7 +40,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     @Override
     public boolean hasNext() {
         try {
-            return !(resultSet.isLast() || resultSet.isAfterLast());
+            return !(resultSet.isAfterLast());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -47,29 +48,32 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     }
 
     /*
-    Creates aggregate datapoints by using the k group index of the query.
-    unionGroup represents a missing timeInterval group.
+       For each grouping k that comes from the query.
+       Get the values, put them in a list.
+       Then pass through the list to initialize the corresponding aggregator.
+       A unionGroup is a subQuery based on the UNION of the query.
      */
     @Override
     public AggregatedDataPoint next() {
         int currentUnionGroup = unionGroup;
         int currentGroup = k;
         List<Integer> currentMeasures = new ArrayList<>();
-        List<Double> currentValues = new ArrayList<>();
+        List<Double> currentMinValues = new ArrayList<>();
+        List<Double> currentMaxValues = new ArrayList<>();
+
         try {
-            while(currentGroup == k && currentUnionGroup == unionGroup) {
+            while(currentGroup == k && currentUnionGroup == unionGroup && hasNext()) {
                 int measure = resultSet.getInt(1);
                 Double v_min = resultSet.getObject(3) == null ? null : resultSet.getDouble(3);
                 Double v_max = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
 
                 currentMeasures.add(measure);
-                currentValues.add(v_min);
-                currentValues.add(v_max);
+                currentMinValues.add(v_min);
+                currentMaxValues.add(v_max);
 
                 currentGroup = k;
                 currentUnionGroup = unionGroup;
-
-                resultSet.next();
+                if(!resultSet.next()) break;
                 k = resultSet.getInt(2);
                 unionGroup = resultSet.getInt(5); // signifies the union id
             }
@@ -81,12 +85,18 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
         long lastTimestamp = (currentGroup != noOfGroups) ? from + (currentGroup + 1) * aggregateInterval : to;
 
         for (int i = 0; i < currentMeasures.size(); i ++){
-            Double value = currentValues.get(i);
-            if(value != null) statsAggregator.accept(value, currentMeasures.get(i));
+            Double valueMin = currentMinValues.get(i);
+            Double valueMax = currentMaxValues.get(i);
+            if(valueMin != null) statsAggregator.accept(valueMin, currentMeasures.get(i));
+            if(valueMax != null) statsAggregator.accept(valueMax, currentMeasures.get(i));
+
         }
         statsAggregator.setFrom(firstTimestamp);
         statsAggregator.setTo(lastTimestamp);
-        LOG.debug("Created aggregate Datapoint {} - {} with measures {} with Agg {} at place {} ", DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), statsAggregator.getMeasures(), aggregateInterval, currentGroup);
+        LOG.debug("Created aggregate Datapoint {} - {} with measures {}  with firsts: {}, lasts: {},  with mins: {} and maxs: {} ",
+                DateTimeUtil.format(firstTimestamp), DateTimeUtil.format(lastTimestamp), statsAggregator.getMeasures(),
+                statsAggregator.getMeasures().stream().map(statsAggregator::getMinValue).collect(Collectors.toList()),
+                statsAggregator.getMeasures().stream().map(statsAggregator::getMaxValue).collect(Collectors.toList()));
         return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
     }
 }

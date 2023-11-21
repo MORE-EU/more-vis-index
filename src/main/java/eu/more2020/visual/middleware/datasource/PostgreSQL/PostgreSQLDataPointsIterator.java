@@ -23,7 +23,7 @@ public class PostgreSQLDataPointsIterator implements Iterator<DataPoint> {
     @Override
     public boolean hasNext() {
         try {
-            return !(resultSet.isAfterLast() || resultSet.isLast());
+            return !(resultSet.isAfterLast());
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,2411 @@
+Picked up _JAVA_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmx14G -XX:+UseCompressedOops -XX:ThreadPriorityPolicy=1
+OpenJDK 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/ch/qos/logback/logback-classic/1.2.11/logback-classic-1.2.11.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/org/slf4j/slf4j-log4j12/1.7.30/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+17:18:00,092 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+17:18:00,092 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/MORE/Code/more-vis-index/target/classes/logback.xml]
+17:18:00,136 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - debug attribute not set
+17:18:00,139 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+17:18:00,140 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [CONSOLE]
+17:18:00,164 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - This appender no longer admits a layout as a sub-component, set an encoder instead.
+17:18:00,164 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - To ensure compatibility, wrapping your layout in LayoutWrappingEncoder.
+17:18:00,164 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - See also http://logback.qos.ch/codes.html#layoutInsteadOfEncoder for details
+17:18:00,164 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.parquet] to ERROR
+17:18:00,164 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.hadoop] to ERROR
+17:18:00,164 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.ParquetReader] to INFO
+17:18:00,164 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader] to INFO
+17:18:00,164 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.Experiments] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [com.mitchellbosecke.pebble] to ERROR
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.datasource.QueryExecutor] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.PixelColumn] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.datasource.DataSource] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.MaxErrorEvaluator] to INFO
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to DEBUG
+17:18:00,165 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [CONSOLE] to Logger[ROOT]
+17:18:00,165 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+17:18:00,166 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@10683d9d - Registering current configuration as safe fallback point
+
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+17:18:00.225 [main] INFO  e.m.v.m.experiments.Experiments - Initialized Dataset: manufacturing_exp, range [2012-02-22 21:42:11(1329946931000), 2012-02-25 05:15:30(1330146930990)), header [value_1, value_2, value_3, value_4, value_5, value_6, value_7], sampling interval PT0.01S
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by retrofit2.Platform (file:/Users/vasilisstamatopoulos/.m2/repository/com/squareup/retrofit2/retrofit/2.9.0/retrofit-2.9.0.jar) to constructor java.lang.invoke.MethodHandles$Lookup(java.lang.Class,int)
+WARNING: Please consider reporting this to the maintainers of retrofit2.Platform
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+17:18:00.416 [main] INFO  e.m.v.m.d.I.InfluxDBConnection - Initialized InfluxDB connection
+log4j:WARN No appenders could be found for logger (eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+17:18:00.447 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 0 null 2012-02-24 23:15:20 - 2012-02-25 05:15:20
+17:18:00.448 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330125320000, to=1330146920000, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=null, accuracy=0.99}
+17:18:00.456 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 21600 ms
+17:18:00.460 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 
+17:18:00.464 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [0]
+17:18:00.464 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:00.466 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 23:15:20(1330125320000), 2012-02-25 05:15:20(1330146920000)), measures=[2]}]
+17:18:00.466 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 23:15:20(1330125320000), 2012-02-25 05:15:20(1330146920000)), measures=[2]}]
+17:18:00.467 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:00.470 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:00.485 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:5400ms, createEmpty:true, offset: 3800ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:15:20.000Z, stop:2012-02-25T05:15:20.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:00.779 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:00.788 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:00.817 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0034983333333333333
+
+17:18:00.830 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 1 ZI 2012-02-25 00:29:57 - 2012-02-25 03:59:40
+17:18:00.830 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330129797120, to=1330142380032, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:00.831 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 12582 ms
+17:18:00.832 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:18:00.843 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:18:00.843 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024245
+17:18:00.843 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:00.843 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:00.843 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:00.848 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024245
+17:18:00.848 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-25 00:29:57(1330129797120), 2012-02-25 03:59:40(1330142380032))]: 
+17:18:00.848 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:00.848 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:00.851 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 378ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:12582ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-25T00:29:57.120Z, stop:2012-02-25T03:59:40.032Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:01.015 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:01.016 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:01.021 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 2 ZO 2012-02-24 23:17:51 - 2012-02-25 05:11:45
+17:18:01.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330125471744, to=1330146705408, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:01.021 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 21233 ms
+17:18:01.022 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:18:01.029 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:18:01.029 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020633333333333333
+17:18:01.029 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:01.029 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:01.029 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:01.034 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020633333333333333
+17:18:01.034 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 23:17:51(1330125471744), 2012-02-25 05:11:45(1330146705408))]: 
+17:18:01.035 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.035 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.035 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 5329ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:21233ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:17:51.744Z, stop:2012-02-25T05:11:45.408Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:01.190 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:01.190 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:01.194 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 3 ZI 2012-02-24 23:59:22 - 2012-02-25 04:30:15
+17:18:01.194 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330127962112, to=1330144215040, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:01.194 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 16252 ms
+17:18:01.195 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:18:01.203 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:18:01.203 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.022418333333333332
+17:18:01.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:01.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:01.204 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:01.208 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.022418333333333332
+17:18:01.208 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 23:59:22(1330127962112), 2012-02-25 04:30:15(1330144215040))]: 
+17:18:01.208 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.208 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.208 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 5452ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:16252ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:59:22.112Z, stop:2012-02-25T04:30:15.040Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:01.362 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:01.363 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:01.368 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 4 ZO 2012-02-24 23:22:13 - 2012-02-25 05:07:23
+17:18:01.368 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330125733888, to=1330146443264, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:01.368 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 20709 ms
+17:18:01.368 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:18:01.375 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:18:01.376 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018715
+17:18:01.376 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:01.376 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:01.376 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:01.381 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018715
+17:18:01.381 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 23:22:13(1330125733888), 2012-02-25 05:07:23(1330146443264))]: 
+17:18:01.381 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.381 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.381 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 484ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:20709ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:22:13.888Z, stop:2012-02-25T05:07:23.264Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:01.520 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:01.521 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:01.524 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 5 ZO 2012-02-24 21:26:27 - 2012-02-25 05:15:20
+17:18:01.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330118787072, to=1330146920000, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:01.524 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:18:01.525 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2]), 12582 ([2])
+17:18:01.531 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [768]
+17:18:01.531 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020909288194444445
+17:18:01.531 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 21:26:27(1330118787072), 2012-02-24 23:15:13(1330125313696)), measures=[2]}]
+17:18:01.531 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 21:26:27(1330118787072), 2012-02-24 23:15:13(1330125313696)), measures=[2]}]
+17:18:01.531 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:01.531 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.532 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:7033ms, createEmpty:true, offset: 3598ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T21:26:27.072Z, stop:2012-02-24T23:15:13.696Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:01.598 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:01.598 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:01.604 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017011666666666668
+17:18:01.604 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 21:26:27(1330118787072), 2012-02-25 05:15:20(1330146920000))]: 
+17:18:01.604 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.604 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.604 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 17664ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:28132ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T21:26:27.072Z, stop:2012-02-25T05:15:20.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:01.770 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:01.771 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:01.774 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 6 P 2012-02-24 14:22:49 - 2012-02-24 22:11:42
+17:18:01.774 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330093369847, to=1330121502775, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:01.774 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:18:01.774 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 7033 ([2])
+17:18:01.775 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [97]
+17:18:01.775 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027920962199312716
+17:18:01.775 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 14:22:49(1330093369847), 2012-02-24 21:26:13(1330118773043)), measures=[2]}]
+17:18:01.775 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 14:22:49(1330093369847), 2012-02-24 21:26:13(1330118773043)), measures=[2]}]
+17:18:01.775 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 8
+17:18:01.775 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:01.775 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:3516ms, createEmpty:true, offset: 3275ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T14:22:49.847Z, stop:2012-02-24T21:26:13.043Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:02.106 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:02.110 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:02.118 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017323333333333333
+17:18:02.118 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 14:22:49(1330093369847), 2012-02-24 22:11:42(1330121502775))]: 
+17:18:02.118 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:02.118 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:02.118 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 3635ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:28132ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T14:22:49.847Z, stop:2012-02-24T22:11:42.775Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:02.335 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:02.336 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:02.343 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 7 P 2012-02-24 11:29:37 - 2012-02-24 19:18:30
+17:18:02.343 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330082977146, to=1330111110074, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:02.343 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:18:02.343 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 3516 ([2])
+17:18:02.351 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [631]
+17:18:02.351 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01393026941362916
+17:18:02.351 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 11:29:37(1330082977146), 2012-02-24 14:22:37(1330093357854)), measures=[2]}]
+17:18:02.351 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 11:29:37(1330082977146), 2012-02-24 14:22:37(1330093357854)), measures=[2]}]
+17:18:02.351 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 16
+17:18:02.351 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:02.352 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:1758ms, createEmpty:true, offset: 354ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T11:29:37.146Z, stop:2012-02-24T14:22:37.854Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:02.605 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:02.609 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:02.616 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011756666666666667
+17:18:02.617 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 11:29:37(1330082977146), 2012-02-24 19:18:30(1330111110074))]: 
+17:18:02.617 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:02.617 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:02.617 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 19774ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:28132ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T11:29:37.146Z, stop:2012-02-24T19:18:30.074Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:02.860 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:02.861 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:02.865 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 8 P 2012-02-24 09:19:59 - 2012-02-24 17:08:52
+17:18:02.865 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330075199171, to=1330103332099, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:02.865 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:18:02.865 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 1758 ([2]), 3516 ([2])
+17:18:02.873 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [724]
+17:18:02.873 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011514732965009208
+17:18:02.873 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 09:19:59(1330075199171), 2012-02-24 11:29:23(1330082963603)), measures=[2]}]
+17:18:02.873 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 09:19:59(1330075199171), 2012-02-24 11:29:23(1330082963603)), measures=[2]}]
+17:18:02.873 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 16
+17:18:02.873 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:02.874 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:1758ms, createEmpty:true, offset: 1529ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T09:19:59.171Z, stop:2012-02-24T11:29:23.603Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:03.078 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:03.081 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:03.088 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010085
+17:18:03.088 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 09:19:59(1330075199171), 2012-02-24 17:08:52(1330103332099))]: 
+17:18:03.088 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:03.088 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:03.088 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 6231ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:28132ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T09:19:59.171Z, stop:2012-02-24T17:08:52.099Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:03.340 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:03.341 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:03.344 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 9 P 2012-02-24 05:42:20 - 2012-02-24 13:31:13
+17:18:03.345 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330062140150, to=1330090273078, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:03.345 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:18:03.345 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 1758 ([2]), 1758 ([2])
+17:18:03.351 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:03.352 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [535]
+17:18:03.352 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00870404984423676
+17:18:03.353 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 09:19:53(1330075193398)), measures=[2]}, MultivariateTimeInterval{interval=[2012-02-24 11:29:17(1330082957830), 2012-02-24 11:29:45(1330082985962)), measures=[2]}]
+17:18:03.353 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 09:19:53(1330075193398)), measures=[2]}, MultivariateTimeInterval{interval=[2012-02-24 11:29:17(1330082957830), 2012-02-24 11:29:45(1330082985962)), measures=[2]}]
+17:18:03.353 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:18:03.353 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:03.353 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2813ms, createEmpty:true, offset: 125ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T05:42:20.150Z, stop:2012-02-24T09:19:53.398Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-24T11:29:17.830Z, stop:2012-02-24T11:29:45.962Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:03.594 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:03.597 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:03.604 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008183333333333334
+
+17:18:03.607 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 10 MC 2012-02-24 05:42:20 - 2012-02-24 13:31:13
+17:18:03.607 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330062140150, to=1330090273078, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=MC, accuracy=0.99}
+17:18:03.607 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:18:03.607 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 1758 ([2]), 2813 ([2]), 1758 ([2])
+17:18:03.620 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 0]
+17:18:03.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008183333333333334
+17:18:03.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:03.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 13:31:12(1330090272150)), measures=[1]}]
+17:18:03.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 13:31:12(1330090272150)), measures=[1]}]
+17:18:03.620 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:18:03.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:03.620 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2813ms, createEmpty:true, offset: 125ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T05:42:20.150Z, stop:2012-02-24T13:31:12.150Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_2") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:04.108 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:04.114 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:04.126 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008181666666666667
+17:18:04.126 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009295
+
+17:18:04.133 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 11 ZO 2012-02-24 02:06:27 - 2012-02-24 17:06:29
+17:18:04.133 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330049187840, to=1330103189504, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:04.133 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 54001 ms
+17:18:04.133 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 2813 ([1]), 1758 ([2]), 2813 ([2]), 1758 ([2]), 3516 ([2])
+17:18:04.154 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [761, 522]
+17:18:04.154 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.007122207621550592
+17:18:04.154 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008505747126436782
+17:18:04.154 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 02:06:27(1330049187840), 2012-02-24 05:41:34(1330062094079)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 13:31:22(1330090282601), 2012-02-24 17:06:28(1330103188840)), measures=[1]}]
+17:18:04.154 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 02:06:27(1330049187840), 2012-02-24 05:41:34(1330062094079)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 13:31:22(1330090282601), 2012-02-24 17:06:28(1330103188840)), measures=[1]}]
+17:18:04.154 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:18:04.154 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:04.155 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:5400ms, createEmpty:true, offset: 840ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T02:06:27.840Z, stop:2012-02-24T05:41:34.079Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-24T13:31:22.601Z, stop:2012-02-24T17:06:28.840Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_2") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:04.581 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:04.584 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:04.593 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00777
+17:18:04.593 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009963333333333333
+
+17:18:04.598 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 12 P 2012-02-24 08:39:49 - 2012-02-24 23:39:51
+17:18:04.598 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330072789509, to=1330126791173, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:04.598 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 54001 ms
+17:18:04.598 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 2813 ([1]), 1758 ([2]), 2813 ([2]), 1758 ([2]), 5400 ([1]), 3516 ([2]), 7033 ([2]), 5400 ([2]), 21233 ([2]), 20709 ([2])
+17:18:04.619 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:04.620 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:04.620 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [998, 563]
+17:18:04.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011519706078824314
+17:18:04.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011403197158081704
+17:18:04.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 17:06:32(1330103192072), 2012-02-24 21:25:44(1330118744360)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 21:25:44(1330118744360), 2012-02-24 21:26:38(1330118798361)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 21:26:38(1330118798361), 2012-02-24 23:14:38(1330125278481)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 23:14:38(1330125278481), 2012-02-24 23:15:32(1330125332482)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 23:15:32(1330125332482), 2012-02-24 23:39:50(1330126790509)), measures=[1]}]
+17:18:04.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 17:06:32(1330103192072), 2012-02-24 21:25:44(1330118744360)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 21:25:44(1330118744360), 2012-02-24 21:26:38(1330118798361)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 21:26:38(1330118798361), 2012-02-24 23:14:38(1330125278481)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 23:14:38(1330125278481), 2012-02-24 23:15:32(1330125332482)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 23:15:32(1330125332482), 2012-02-24 23:39:50(1330126790509)), measures=[1]}]
+17:18:04.620 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 20
+17:18:04.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:04.621 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2700ms, createEmpty:true, offset: 1809ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T17:06:32.072Z, stop:2012-02-24T21:25:44.360Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_2") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-24T21:25:44.360Z, stop:2012-02-24T21:26:38.361Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2") 
+data_2 = () => from(bucket:"more") 
+|> range(start:2012-02-24T21:26:38.361Z, stop:2012-02-24T23:14:38.481Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_2") 
+data_3 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:14:38.481Z, stop:2012-02-24T23:15:32.482Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2") 
+data_4 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:15:32.482Z, stop:2012-02-24T23:39:50.509Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_2") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_2() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_2() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_3() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_3() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_4() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_4() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:04.987 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:04.992 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:05.004 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011475
+17:18:05.004 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00945
+
+17:18:05.010 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 13 ZO 2012-02-24 03:03:15 - 2012-02-25 05:15:20
+17:18:05.010 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330052595712, to=1330146920000, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:05.010 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 94324 ms
+17:18:05.010 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 16252 ([2]), 12582 ([2])
+17:18:05.053 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 787]
+17:18:05.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03264333333333334
+17:18:05.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008449809402795426
+17:18:05.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 23:40:28(1330126828700), 2012-02-25 05:15:19(1330146919712)), measures=[1]}]
+17:18:05.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 23:40:28(1330126828700), 2012-02-25 05:15:19(1330146919712)), measures=[1]}]
+17:18:05.053 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 3
+17:18:05.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:05.053 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:31441ms, createEmpty:true, offset: 11146ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T23:40:28.700Z, stop:2012-02-25T05:15:19.712Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_2") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:05.119 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:05.119 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:05.129 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032625
+17:18:05.129 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.014488333333333334
+17:18:05.129 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:20(1330146920000))]: 
+17:18:05.129 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:05.129 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:05.129 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 58704ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:94324ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T03:03:15.712Z, stop:2012-02-25T05:15:20.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:06.184 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:06.185 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:06.190 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 14 MC 2012-02-24 03:03:15 - 2012-02-25 05:15:20
+17:18:06.190 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330052595712, to=1330146920000, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=MC, accuracy=0.99}
+17:18:06.190 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 94324 ms
+17:18:06.191 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:18:06.235 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 0]
+17:18:06.235 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032625
+17:18:06.235 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01843
+17:18:06.235 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:06.235 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:19(1330146919712)), measures=[5]}]
+17:18:06.235 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:19(1330146919712)), measures=[5]}]
+17:18:06.235 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 3
+17:18:06.235 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:06.235 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:31441ms, createEmpty:true, offset: 11146ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T03:03:15.712Z, stop:2012-02-25T05:15:19.712Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:06.645 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:06.647 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:06.658 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032625
+17:18:06.659 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01843
+17:18:06.659 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.019558333333333334
+17:18:06.659 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:20(1330146920000))]: 
+17:18:06.659 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:06.659 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:06.659 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 58704ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:94324ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T03:03:15.712Z, stop:2012-02-25T05:15:20.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:08.101 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:08.102 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:08.110 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 15 ZO 2012-02-24 00:43:27 - 2012-02-25 05:15:20
+17:18:08.111 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330044207104, to=1330146920000, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:08.111 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 102712 ms
+17:18:08.111 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:18:08.163 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [952, 952, 919]
+17:18:08.164 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.030456932773109242
+17:18:08.164 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016890756302521008
+17:18:08.164 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01657961552412042
+17:18:08.164 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 00:43:27(1330044207104), 2012-02-24 02:05:37(1330049137280)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:05:37(1330049137280), 2012-02-24 03:02:06(1330052526776)), measures=[5]}]
+17:18:08.164 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 00:43:27(1330044207104), 2012-02-24 02:05:37(1330049137280)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:05:37(1330049137280), 2012-02-24 03:02:06(1330052526776)), measures=[5]}]
+17:18:08.164 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:08.164 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:08.164 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:17118ms, createEmpty:true, offset: 254ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T00:43:27.104Z, stop:2012-02-24T02:05:37.280Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-24T02:05:37.280Z, stop:2012-02-24T03:02:06.776Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:08.321 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:08.322 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:08.333 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.030045
+17:18:08.333 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017143333333333333
+17:18:08.333 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015243333333333333
+17:18:08.333 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 00:43:27(1330044207104), 2012-02-25 05:15:20(1330146920000))]: 
+17:18:08.333 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:08.334 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:08.334 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 19408ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:102712ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T00:43:27.104Z, stop:2012-02-25T05:15:20.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:09.937 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:09.939 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:09.946 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 16 ZI 2012-02-24 06:02:23 - 2012-02-24 23:57:11
+17:18:09.946 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330063343616, to=1330127831040, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:09.946 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 64487 ms
+17:18:09.946 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 31441 ([5]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1])
+17:18:09.987 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:18:09.987 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03914666666666667
+17:18:09.987 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008215
+17:18:09.987 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033701666666666664
+17:18:09.987 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:09.987 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:09.987 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:09.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03914666666666667
+17:18:09.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008215
+17:18:09.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033701666666666664
+17:18:09.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 06:02:23(1330063343616), 2012-02-24 23:57:11(1330127831040))]: 
+17:18:09.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:09.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:09.997 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 9438ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:64487ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T06:02:23.616Z, stop:2012-02-24T23:57:11.040Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:11.037 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:11.038 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:11.047 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 17 ZI 2012-02-24 07:36:19 - 2012-02-24 22:23:14
+17:18:11.047 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330068979712, to=1330122194944, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:11.047 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 53215 ms
+17:18:11.047 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 2813 ([1]), 1758 ([2]), 2813 ([2]), 1758 ([2]), 5400 ([1]), 3516 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 2700 ([1])
+17:18:11.079 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 0]
+17:18:11.079 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008181666666666667
+17:18:11.079 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009665
+17:18:11.079 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:11.079 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 07:36:19(1330068979712), 2012-02-24 22:23:14(1330122194712)), measures=[5]}]
+17:18:11.079 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 07:36:19(1330068979712), 2012-02-24 22:23:14(1330122194712)), measures=[5]}]
+17:18:11.079 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:18:11.079 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:11.080 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:5321ms, createEmpty:true, offset: 132ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T07:36:19.712Z, stop:2012-02-24T22:23:14.712Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:11.621 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:11.628 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:11.637 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008181666666666667
+17:18:11.637 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009665
+17:18:11.637 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.006183333333333333
+
+17:18:11.644 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 18 ZO 2012-02-24 01:29:19 - 2012-02-25 04:30:15
+17:18:11.644 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330046959616, to=1330144215040, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:11.644 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 97255 ms
+17:18:11.645 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 17118 ([2, 1, 5]), 17118 ([5]), 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:18:11.700 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:18:11.701 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03315166666666667
+17:18:11.701 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015853333333333334
+17:18:11.701 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013328333333333333
+17:18:11.701 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:11.701 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:11.701 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:11.711 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03315166666666667
+17:18:11.711 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015853333333333334
+17:18:11.711 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013328333333333333
+17:18:11.711 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 01:29:19(1330046959616), 2012-02-25 04:30:15(1330144215040))]: 
+17:18:11.712 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:11.712 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:11.712 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 28256ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:97255ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T01:29:19.616Z, stop:2012-02-25T04:30:15.040Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:13.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:13.204 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:13.211 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 19 ZI 2012-02-24 03:29:28 - 2012-02-25 02:30:06
+17:18:13.211 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330054168576, to=1330137006080, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:13.211 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 82837 ms
+17:18:13.211 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:18:13.266 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:18:13.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033895
+17:18:13.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016895
+17:18:13.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018993333333333334
+17:18:13.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:13.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:13.267 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:13.278 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033895
+17:18:13.279 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016895
+17:18:13.279 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018993333333333334
+17:18:13.279 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:29:28(1330054168576), 2012-02-25 02:30:06(1330137006080))]: 
+17:18:13.279 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:13.279 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:13.279 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 19379ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:82837ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T03:29:28.576Z, stop:2012-02-25T02:30:06.080Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:14.550 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:14.552 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:14.559 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 20 P 2012-02-23 13:57:53 - 2012-02-24 12:58:30
+17:18:14.559 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330005473382, to=1330088310886, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:14.559 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 82837 ms
+17:18:14.559 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 17118 ([2, 1, 5]), 17118 ([5]), 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2])
+17:18:14.585 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [533, 533, 533]
+17:18:14.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.026047529706066292
+17:18:14.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.012792370231394621
+17:18:14.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.021263289555972485
+17:18:14.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 13:57:53(1330005473382), 2012-02-24 00:42:38(1330044158261)), measures=[2, 1, 5]}]
+17:18:14.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 13:57:53(1330005473382), 2012-02-24 00:42:38(1330044158261)), measures=[2, 1, 5]}]
+17:18:14.585 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:14.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:14.585 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:20709ms, createEmpty:true, offset: 17850ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T13:57:53.382Z, stop:2012-02-24T00:42:38.261Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:15.664 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:15.666 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:15.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.040106666666666665
+17:18:15.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032343333333333335
+17:18:15.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011333333333333334
+17:18:15.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 13:57:53(1330005473382), 2012-02-24 12:58:30(1330088310886))]: 
+17:18:15.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:15.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:15.674 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 32341ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:82837ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T13:57:53.382Z, stop:2012-02-24T12:58:30.886Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:17.629 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:17.631 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:17.638 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 21 ZI 2012-02-23 18:53:55 - 2012-02-24 08:00:21
+17:18:17.638 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330023235584, to=1330070421504, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:17.638 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 47185 ms
+17:18:17.639 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 5400 ([2, 1]), 2813 ([2]), 2813 ([1]), 5321 ([5])
+17:18:17.652 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 651]
+17:18:17.652 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03650984317650984
+17:18:17.652 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.034946613279946616
+17:18:17.652 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0031746031746031746
+17:18:17.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 02:05:40(1330049140149), 2012-02-24 02:06:27(1330049187334)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 03:02:17(1330052537469), 2012-02-24 07:35:57(1330068957849)), measures=[5]}]
+17:18:17.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 02:05:40(1330049140149), 2012-02-24 02:06:27(1330049187334)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 03:02:17(1330052537469), 2012-02-24 07:35:57(1330068957849)), measures=[5]}]
+17:18:17.653 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 2
+17:18:17.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:17.653 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:23592ms, createEmpty:true, offset: 6600ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T02:05:40.149Z, stop:2012-02-24T02:06:27.334Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-24T03:02:17.469Z, stop:2012-02-24T07:35:57.849Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:17.793 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:17.794 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:17.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03648333333333333
+17:18:17.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.034916666666666665
+17:18:17.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013693333333333333
+17:18:17.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 18:53:55(1330023235584), 2012-02-24 08:00:21(1330070421504))]: 
+17:18:17.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:17.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:17.803 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 11624ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:47185ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T18:53:55.584Z, stop:2012-02-24T08:00:21.504Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:19.256 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:19.258 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:19.265 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 22 ZO 2012-02-23 15:08:55 - 2012-02-24 11:45:21
+17:18:19.265 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330009735168, to=1330083921920, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:19.265 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 74186 ms
+17:18:19.265 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2])
+17:18:19.286 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:19.291 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:18:19.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03571404738071405
+17:18:19.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.031598264931598265
+17:18:19.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010568902235568903
+17:18:19.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 00:42:37(1330044157472), 2012-02-24 00:43:51(1330044231658)), measures=[2, 1, 5]}]
+17:18:19.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 00:42:37(1330044157472), 2012-02-24 00:43:51(1330044231658)), measures=[2, 1, 5]}]
+17:18:19.291 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:19.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 7418 missing raw data from data source
+17:18:19.295 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-24T00:42:37.472Z, stop:2012-02-24T00:43:51.658Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:19.467 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:19.471 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:19.477 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-24 00:43:51 - 2012-02-24 00:43:51
+17:18:19.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03568
+17:18:19.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03156833333333333
+17:18:19.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010558333333333333
+17:18:19.485 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 15:08:55(1330009735168), 2012-02-24 11:45:21(1330083921920))]: 
+17:18:19.485 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:19.485 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:19.485 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 11356ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:74186ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T15:08:55.168Z, stop:2012-02-24T11:45:21.920Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:21.307 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:21.308 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:21.314 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 23 P 2012-02-24 03:06:36 - 2012-02-24 23:43:03
+17:18:21.314 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330052796486, to=1330126983238, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:21.314 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 74186 ms
+17:18:21.315 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1])
+17:18:21.356 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:21.365 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:18:21.365 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03585418752085419
+17:18:21.365 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.007991324657991324
+17:18:21.365 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02636136136136136
+17:18:21.365 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 05:41:09(1330062069736), 2012-02-24 05:42:23(1330062143922)), measures=[2, 1, 5]}]
+17:18:21.365 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 05:41:09(1330062069736), 2012-02-24 05:42:23(1330062143922)), measures=[2, 1, 5]}]
+17:18:21.365 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:21.365 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 7418 missing raw data from data source
+17:18:21.365 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-24T05:41:09.736Z, stop:2012-02-24T05:42:23.922Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:21.538 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:21.541 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:21.544 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-24 05:42:23 - 2012-02-24 05:42:23
+17:18:21.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03582
+17:18:21.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.007985
+17:18:21.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.026336666666666668
+17:18:21.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:06:36(1330052796486), 2012-02-24 23:43:03(1330126983238))]: 
+17:18:21.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:21.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:21.555 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 44794ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:74186ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-24T03:06:36.486Z, stop:2012-02-24T23:43:03.238Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:22.846 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:22.847 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:22.853 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 24 P 2012-02-23 11:35:51 - 2012-02-24 08:12:18
+17:18:22.853 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329996951857, to=1330071138609, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:22.853 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 74186 ms
+17:18:22.853 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), -1 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), -1 ([2, 1, 5]), 2813 ([2]), 2813 ([1]), 5321 ([5])
+17:18:22.873 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:22.876 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [884, 884, 884]
+17:18:22.876 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.044790723981900454
+17:18:22.876 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04354260935143288
+17:18:22.876 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010501508295625944
+17:18:22.876 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 11:35:51(1329996951857), 2012-02-23 13:58:03(1330005483247)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:06:18(1330049178801), 2012-02-24 02:07:32(1330049252987)), measures=[2, 1, 5]}]
+17:18:22.876 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 11:35:51(1329996951857), 2012-02-23 13:58:03(1330005483247)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:06:18(1330049178801), 2012-02-24 02:07:32(1330049252987)), measures=[2, 1, 5]}]
+17:18:22.876 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:22.876 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:22.876 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:12364ms, createEmpty:true, offset: 541ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T11:35:51.857Z, stop:2012-02-23T13:58:03.247Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-24T02:06:18.801Z, stop:2012-02-24T02:07:32.987Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:23.313 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:23.314 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:23.321 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.040521666666666664
+17:18:23.321 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03938333333333333
+17:18:23.321 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009283333333333333
+
+17:18:23.327 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 25 ZI 2012-02-23 11:54:29 - 2012-02-24 07:51:37
+17:18:23.327 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329998069760, to=1330069897216, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:23.327 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 71827 ms
+17:18:23.327 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 12364 ([2, 1, 5]), 20709 ([2, 1, 5]), -1 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 12364 ([2, 1, 5]), 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), -1 ([2, 1, 5]), 2813 ([2]), 2813 ([1]), 5321 ([5])
+17:18:23.348 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:18:23.348 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.038641666666666664
+17:18:23.348 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03735
+17:18:23.348 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010461666666666666
+17:18:23.348 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:23.348 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:23.348 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:23.355 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.038641666666666664
+17:18:23.355 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03735
+17:18:23.355 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010461666666666666
+17:18:23.355 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 11:54:29(1329998069760), 2012-02-24 07:51:37(1330069897216))]: 
+17:18:23.355 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:23.355 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:23.355 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 64438ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:71827ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T11:54:29.760Z, stop:2012-02-24T07:51:37.216Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:25.304 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:25.306 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:25.311 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 26 ZI 2012-02-23 14:31:46 - 2012-02-24 05:14:20
+17:18:25.311 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330007506944, to=1330060460032, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:25.311 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 52953 ms
+17:18:25.312 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), -1 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 12364 ([2, 1, 5]), 5400 ([2, 1]), 23592 ([5])
+17:18:25.323 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:25.325 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:18:25.325 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.052210543877210545
+17:18:25.325 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05009175842509176
+17:18:25.325 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0028578578578578578
+17:18:25.325 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 02:06:20(1330049180955), 2012-02-24 02:07:13(1330049233908)), measures=[2, 1, 5]}]
+17:18:25.325 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 02:06:20(1330049180955), 2012-02-24 02:07:13(1330049233908)), measures=[2, 1, 5]}]
+17:18:25.325 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 2
+17:18:25.325 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 5295 missing raw data from data source
+17:18:25.325 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-24T02:06:20.955Z, stop:2012-02-24T02:07:13.908Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:25.462 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:25.463 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:25.466 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-24 02:07:13 - 2012-02-24 02:07:13
+17:18:25.472 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05216
+17:18:25.472 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.050043333333333335
+17:18:25.472 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.002855
+
+17:18:25.480 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 27 P 2012-02-23 02:29:52 - 2012-02-23 17:12:25
+17:18:25.480 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329964192423, to=1330017145511, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:25.480 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 52953 ms
+17:18:25.480 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 12364 ([2, 1, 5]), 20709 ([2, 1, 5])
+17:18:25.484 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [382, 382, 382]
+17:18:25.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.050767888307155326
+17:18:25.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04956369982547993
+17:18:25.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06981675392670157
+17:18:25.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 02:29:52(1329964192423), 2012-02-23 11:35:17(1329996917377)), measures=[2, 1, 5]}]
+17:18:25.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 02:29:52(1329964192423), 2012-02-23 11:35:17(1329996917377)), measures=[2, 1, 5]}]
+17:18:25.484 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:25.484 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:25.485 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:13238ms, createEmpty:true, offset: 10389ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T02:29:52.423Z, stop:2012-02-23T11:35:17.377Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:26.639 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:26.642 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:26.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03639
+17:18:26.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03594833333333333
+17:18:26.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.050938333333333335
+17:18:26.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 02:29:52(1329964192423), 2012-02-23 17:12:25(1330017145511))]: 
+17:18:26.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:26.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:26.649 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 33415ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:52953ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T02:29:52.423Z, stop:2012-02-23T17:12:25.511Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:28.419 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:28.420 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:28.426 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 28 ZI 2012-02-23 04:41:57 - 2012-02-23 15:02:21
+17:18:28.426 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329972117504, to=1330009341952, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:28.426 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 37224 ms
+17:18:28.427 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 13238 ([2, 1, 5]), 12364 ([2, 1, 5])
+17:18:28.435 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [897, 897, 897]
+17:18:28.435 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033818283166109256
+17:18:28.435 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03353957636566332
+17:18:28.435 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0670958751393534
+17:18:28.435 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 13:58:27(1330005507432), 2012-02-23 15:02:21(1330009341504)), measures=[2, 1, 5]}]
+17:18:28.435 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 13:58:27(1330005507432), 2012-02-23 15:02:21(1330009341504)), measures=[2, 1, 5]}]
+17:18:28.435 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:28.435 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:28.435 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:9306ms, createEmpty:true, offset: 9204ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T13:58:27.432Z, stop:2012-02-23T15:02:21.504Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:28.606 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:28.607 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:28.614 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.030655
+17:18:28.614 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.029783333333333332
+17:18:28.614 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06035666666666667
+17:18:28.614 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 04:41:57(1329972117504), 2012-02-23 15:02:21(1330009341952))]: 
+17:18:28.614 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:28.614 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:28.614 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 27816ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:37224ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T04:41:57.504Z, stop:2012-02-23T15:02:21.952Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:30.004 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:30.006 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:30.013 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 29 ZO 2012-02-22 23:40:29 - 2012-02-23 20:03:49
+17:18:30.013 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329954029568, to=1330027429888, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:30.013 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 73400 ms
+17:18:30.013 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 13238 ([2, 1, 5]), 12364 ([2, 1, 5]), 20709 ([2, 1, 5]), 9306 ([2, 1, 5])
+17:18:30.022 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:30.022 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:30.024 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [860, 860, 860]
+17:18:30.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.038742248062015504
+17:18:30.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0386531007751938
+17:18:30.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03935658914728682
+17:18:30.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-22 23:40:29(1329954029568), 2012-02-23 02:29:18(1329964158768)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-23 11:34:55(1329996895168), 2012-02-23 11:36:08(1329996968568)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-23 13:58:02(1330005482968), 2012-02-23 13:59:16(1330005556368)), measures=[2, 1, 5]}]
+17:18:30.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-22 23:40:29(1329954029568), 2012-02-23 02:29:18(1329964158768)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-23 11:34:55(1329996895168), 2012-02-23 11:36:08(1329996968568)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-23 13:58:02(1330005482968), 2012-02-23 13:59:16(1330005556368)), measures=[2, 1, 5]}]
+17:18:30.024 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:30.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:30.024 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:12233ms, createEmpty:true, offset: 7418ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:40:29.568Z, stop:2012-02-23T02:29:18.768Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-23T11:34:55.168Z, stop:2012-02-23T11:36:08.568Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+data_2 = () => from(bucket:"more") 
+|> range(start:2012-02-23T13:58:02.968Z, stop:2012-02-23T13:59:16.368Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_2() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_2() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:30.496 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:30.497 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:30.504 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.034305
+17:18:30.504 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03426166666666667
+17:18:30.504 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.037715
+17:18:30.504 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 23:40:29(1329954029568), 2012-02-23 20:03:49(1330027429888))]: 
+17:18:30.504 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:30.504 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:30.504 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 51968ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:73400ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:40:29.568Z, stop:2012-02-23T20:03:49.888Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:32.795 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:32.796 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:32.803 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 30 ZI 2012-02-23 03:56:04 - 2012-02-23 15:48:14
+17:18:32.803 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329969364992, to=1330012094464, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:32.803 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 42729 ms
+17:18:32.803 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 13238 ([2, 1, 5]), 12233 ([2, 1, 5]), 12364 ([2, 1, 5]), 20709 ([2, 1, 5]), 12233 ([2, 1, 5]), 9306 ([2, 1, 5])
+17:18:32.812 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:32.814 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:18:32.814 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04090256923590257
+17:18:32.814 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04035368702035369
+17:18:32.814 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05944110777444111
+17:18:32.814 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 11:36:07(1329996967926), 2012-02-23 11:36:50(1329997010655)), measures=[2, 1, 5]}]
+17:18:32.814 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 11:36:07(1329996967926), 2012-02-23 11:36:50(1329997010655)), measures=[2, 1, 5]}]
+17:18:32.814 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:32.814 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 4272 missing raw data from data source
+17:18:32.814 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-23T11:36:07.926Z, stop:2012-02-23T11:36:50.655Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:32.935 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:32.936 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:32.938 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-23 11:36:50 - 2012-02-23 11:36:50
+17:18:32.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.040863333333333335
+17:18:32.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.040315
+17:18:32.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05938333333333334
+17:18:32.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 03:56:04(1329969364992), 2012-02-23 15:48:14(1330012094464))]: 
+17:18:32.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:32.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:32.944 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 13356ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:42729ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T03:56:04.992Z, stop:2012-02-23T15:48:14.464Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:34.513 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:34.515 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:34.521 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 31 P 2012-02-22 22:13:28 - 2012-02-23 10:05:37
+17:18:34.521 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329948808102, to=1329991537574, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:34.521 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 42729 ms
+17:18:34.521 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 12233 ([2, 1, 5]), 13238 ([2, 1, 5])
+17:18:34.530 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [878, 878, 878]
+17:18:34.530 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.028306757782839788
+17:18:34.530 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027541761579347002
+17:18:34.530 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06148443432042521
+17:18:34.530 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-22 22:13:28(1329948808102), 2012-02-22 23:40:21(1329954021040)), measures=[2, 1, 5]}]
+17:18:34.530 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-22 22:13:28(1329948808102), 2012-02-22 23:40:21(1329954021040)), measures=[2, 1, 5]}]
+17:18:34.530 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:34.530 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:34.530 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:7121ms, createEmpty:true, offset: 7051ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T22:13:28.102Z, stop:2012-02-22T23:40:21.040Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:34.832 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:34.832 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:34.839 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.025413333333333333
+17:18:34.839 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024741666666666665
+17:18:34.839 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.057651666666666664
+17:18:34.839 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 22:13:28(1329948808102), 2012-02-23 10:05:37(1329991537574))]: 
+17:18:34.839 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:34.839 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:34.839 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 9115ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:42729ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T22:13:28.102Z, stop:2012-02-23T10:05:37.574Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:36.567 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:36.568 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:36.575 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 32 ZI 2012-02-22 23:33:56 - 2012-02-23 08:44:26
+17:18:36.576 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329953636352, to=1329986666496, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:36.576 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 33030 ms
+17:18:36.576 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 7121 ([2, 1, 5]), 12233 ([2, 1, 5]), 13238 ([2, 1, 5])
+17:18:36.585 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:18:36.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.028143333333333333
+17:18:36.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02738
+17:18:36.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.07884166666666667
+17:18:36.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:36.585 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:36.585 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:36.591 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.028143333333333333
+17:18:36.591 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02738
+17:18:36.591 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.07884166666666667
+17:18:36.591 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 23:33:56(1329953636352), 2012-02-23 08:44:26(1329986666496))]: 
+17:18:36.591 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:36.591 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:36.591 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 25752ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:33030ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:33:56.352Z, stop:2012-02-23T08:44:26.496Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:38.000 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:38.002 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:38.024 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 33 ZI 2012-02-23 01:47:11 - 2012-02-23 06:31:11
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329961631744, to=1329978671104, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:38.024 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 17039 ms
+17:18:38.024 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 
+17:18:38.024 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [0, 0, 0]
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 01:47:11(1329961631744), 2012-02-23 06:31:10(1329978670744)), measures=[2, 1, 5]}]
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 01:47:11(1329961631744), 2012-02-23 06:31:10(1329978670744)), measures=[2, 1, 5]}]
+17:18:38.024 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:38.024 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:38.024 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:4259ms, createEmpty:true, offset: 673ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T01:47:11.744Z, stop:2012-02-23T06:31:10.744Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:39.118 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:39.122 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:39.130 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016245
+17:18:39.130 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015741666666666668
+17:18:39.130 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.041306666666666665
+17:18:39.130 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 01:47:11(1329961631744), 2012-02-23 06:31:11(1329978671104))]: 
+17:18:39.130 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:39.130 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:39.130 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 2836ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:17039ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T01:47:11.744Z, stop:2012-02-23T06:31:11.104Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:40.052 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:40.053 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:40.060 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 34 ZO 2012-02-22 23:51:24 - 2012-02-23 08:26:57
+17:18:40.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329954684928, to=1329985617920, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:40.060 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 30932 ms
+17:18:40.060 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 12233 ([2, 1, 5]), 4259 ([2, 1, 5]), 13238 ([2, 1, 5])
+17:18:40.074 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:18:40.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020788333333333332
+17:18:40.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020148333333333334
+17:18:40.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06423166666666667
+17:18:40.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:40.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:40.074 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:40.081 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020788333333333332
+17:18:40.081 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020148333333333334
+17:18:40.081 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06423166666666667
+17:18:40.081 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 23:51:24(1329954684928), 2012-02-23 08:26:57(1329985617920))]: 
+17:18:40.081 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:40.081 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:40.081 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 232ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:30932ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:51:24.928Z, stop:2012-02-23T08:26:57.920Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:41.337 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:41.339 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:41.346 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 35 ZI 2012-02-23 01:31:54 - 2012-02-23 06:46:28
+17:18:41.346 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329960714240, to=1329979588608, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:41.346 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 18874 ms
+17:18:41.346 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 4259 ([2, 1, 5])
+17:18:41.357 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [904, 904, 904]
+17:18:41.357 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015247050147492626
+17:18:41.357 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.014752949852507375
+17:18:41.357 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03902654867256637
+17:18:41.357 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 01:31:54(1329960714240), 2012-02-23 01:47:00(1329961620192)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-23 06:31:22(1329978682288), 2012-02-23 06:46:28(1329979588240)), measures=[2, 1, 5]}]
+17:18:41.357 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 01:31:54(1329960714240), 2012-02-23 01:47:00(1329961620192)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-23 06:31:22(1329978682288), 2012-02-23 06:46:28(1329979588240)), measures=[2, 1, 5]}]
+17:18:41.357 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 8
+17:18:41.357 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:41.358 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2359ms, createEmpty:true, offset: 46ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T01:31:54.240Z, stop:2012-02-23T01:47:00.192Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-23T06:31:22.288Z, stop:2012-02-23T06:46:28.240Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:41.515 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:41.516 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:41.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.014038333333333333
+17:18:41.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01353
+17:18:41.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.038015
+17:18:41.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 01:31:54(1329960714240), 2012-02-23 06:46:28(1329979588608))]: 
+17:18:41.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:41.524 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:41.524 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 968ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:18874ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T01:31:54.240Z, stop:2012-02-23T06:46:28.608Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:42.501 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:42.503 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:42.509 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 36 P 2012-02-22 23:35:35 - 2012-02-23 04:50:09
+17:18:42.509 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329953735398, to=1329972609766, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:42.509 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 18874 ms
+17:18:42.509 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 7121 ([2, 1, 5]), 2359 ([2, 1, 5]), 4259 ([2, 1, 5])
+17:18:42.517 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [647, 647, 647]
+17:18:42.517 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010543534260690365
+17:18:42.517 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009835136527563113
+17:18:42.517 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.052277176713034515
+17:18:42.517 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-22 23:40:37(1329954037382), 2012-02-23 01:31:39(1329960699904)), measures=[2, 1, 5]}]
+17:18:42.517 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-22 23:40:37(1329954037382), 2012-02-23 01:31:39(1329960699904)), measures=[2, 1, 5]}]
+17:18:42.517 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 8
+17:18:42.517 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:42.517 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2359ms, createEmpty:true, offset: 1485ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:40:37.382Z, stop:2012-02-23T01:31:39.904Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:43.073 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:43.076 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:43.083 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00949
+17:18:43.083 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008958333333333334
+17:18:43.083 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.045465
+17:18:43.083 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 23:35:35(1329953735398), 2012-02-23 04:50:09(1329972609766))]: 
+17:18:43.083 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:43.083 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:43.083 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 5506ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:18874ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:35:35.398Z, stop:2012-02-23T04:50:09.766Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:44.039 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:44.041 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:44.047 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 37 ZI 2012-02-23 00:17:37 - 2012-02-23 04:09:11
+17:18:44.047 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329956257792, to=1329970151424, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:44.047 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 13893 ms
+17:18:44.048 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2359 ([2, 1, 5]), 2359 ([2, 1, 5]), 4259 ([2, 1, 5])
+17:18:44.060 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:18:44.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009562896229562896
+17:18:44.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008770437103770437
+17:18:44.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06657490824157491
+17:18:44.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 01:47:00(1329961620490), 2012-02-23 01:47:14(1329961634383)), measures=[2, 1, 5]}]
+17:18:44.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 01:47:00(1329961620490), 2012-02-23 01:47:14(1329961634383)), measures=[2, 1, 5]}]
+17:18:44.060 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:44.060 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 1389 missing raw data from data source
+17:18:44.060 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-23T01:47:00.490Z, stop:2012-02-23T01:47:14.383Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:44.121 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:44.121 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:44.122 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-23 01:47:14 - 2012-02-23 01:47:14
+17:18:44.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009555
+17:18:44.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008763333333333333
+17:18:44.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06651
+17:18:44.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 00:17:37(1329956257792), 2012-02-23 04:09:11(1329970151424))]: 
+17:18:44.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:44.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:44.129 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 12790ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:13893ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T00:17:37.792Z, stop:2012-02-23T04:09:11.424Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:44.952 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:44.954 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:44.962 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 38 MC 2012-02-23 00:17:37 - 2012-02-23 04:09:11
+17:18:44.962 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329956257792, to=1329970151424, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=MC, accuracy=0.99}
+17:18:44.962 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 13893 ms
+17:18:44.962 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2359 ([2, 1, 5]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5])
+17:18:44.975 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000, 0]
+17:18:44.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009555
+17:18:44.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008763333333333333
+17:18:44.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06651
+17:18:44.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:18:44.976 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 00:17:37(1329956257792), 2012-02-23 04:09:10(1329970150792)), measures=[6]}]
+17:18:44.976 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 00:17:37(1329956257792), 2012-02-23 04:09:10(1329970150792)), measures=[6]}]
+17:18:44.976 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 3
+17:18:44.976 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:44.976 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:4631ms, createEmpty:true, offset: 3528ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T00:17:37.792Z, stop:2012-02-23T04:09:10.792Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:45.257 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:45.259 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:45.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0046633333333333336
+17:18:45.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.004301666666666666
+17:18:45.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020141666666666665
+17:18:45.266 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009056666666666666
+
+17:18:45.275 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 39 P 2012-02-22 22:31:36 - 2012-02-23 02:23:10
+17:18:45.275 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329949896457, to=1329963790089, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:45.275 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 13893 ms
+17:18:45.275 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2359 ([2, 1, 5]), 4631 ([6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5])
+17:18:45.287 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [702, 702, 702, 543]
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01218423551756885
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010887939221272555
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05155508072174739
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017645794966236954
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-22 22:31:36(1329949896457), 2012-02-22 23:40:36(1329954036571)), measures=[2, 1, 5, 6]}, MultivariateTimeInterval{interval=[2012-02-22 23:40:36(1329954036571), 2012-02-23 00:17:25(1329956245558)), measures=[6]}]
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-22 22:31:36(1329949896457), 2012-02-22 23:40:36(1329954036571)), measures=[2, 1, 5, 6]}, MultivariateTimeInterval{interval=[2012-02-22 23:40:36(1329954036571), 2012-02-23 00:17:25(1329956245558)), measures=[6]}]
+17:18:45.287 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:45.287 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:45.288 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2315ms, createEmpty:true, offset: 2032ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T22:31:36.457Z, stop:2012-02-22T23:40:36.571Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:40:36.571Z, stop:2012-02-23T00:17:25.558Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:45.785 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:45.788 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:45.797 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010465
+17:18:45.797 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009335
+17:18:45.797 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04344666666666667
+17:18:45.797 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01686
+17:18:45.798 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 22:31:36(1329949896457), 2012-02-23 02:23:10(1329963790089))]: 
+17:18:45.798 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:45.798 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:45.798 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 556ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:13893ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T22:31:36.457Z, stop:2012-02-23T02:23:10.089Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:46.863 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:46.865 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:46.874 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 40 ZO 2012-02-22 21:42:11 - 2012-02-23 03:16:45
+17:18:46.874 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329946931000, to=1329967005696, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:46.874 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 20074 ms
+17:18:46.874 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 7121 ([2, 1, 5]), 2315 ([2, 1, 5, 6]), 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5])
+17:18:46.896 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [907, 907, 907, 853]
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010124954061006983
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009200661521499448
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03867511944138184
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027284095349745994
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-22 21:42:11(1329946931000), 2012-02-22 22:13:17(1329948797882)), measures=[2, 1, 5, 6]}, MultivariateTimeInterval{interval=[2012-02-22 22:13:17(1329948797882), 2012-02-22 22:31:21(1329949881878)), measures=[6]}]
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-22 21:42:11(1329946931000), 2012-02-22 22:13:17(1329948797882)), measures=[2, 1, 5, 6]}, MultivariateTimeInterval{interval=[2012-02-22 22:13:17(1329948797882), 2012-02-22 22:31:21(1329949881878)), measures=[6]}]
+17:18:46.896 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 8
+17:18:46.896 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:46.896 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2509ms, createEmpty:true, offset: 1338ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T21:42:11.000Z, stop:2012-02-22T22:13:17.882Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-22T22:13:17.882Z, stop:2012-02-22T22:31:21.878Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:47.125 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:47.127 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:47.136 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009788333333333333
+17:18:47.136 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008956666666666667
+17:18:47.136 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03534333333333333
+17:18:47.136 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024695
+17:18:47.136 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 21:42:11(1329946931000), 2012-02-23 03:16:45(1329967005696))]: 
+17:18:47.137 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:47.137 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:47.137 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 7238ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:20074ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T21:42:11.000Z, stop:2012-02-23T03:16:45.696Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:48.401 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:48.402 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:48.410 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 41 ZO 2012-02-22 21:42:11 - 2012-02-23 04:33:13
+17:18:48.410 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329946931000, to=1329971593216, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:48.410 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 24662 ms
+17:18:48.410 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2509 ([2, 1, 5, 6]), 2509 ([6]), 7121 ([2, 1, 5]), 2315 ([2, 1, 5, 6]), 12233 ([2, 1, 5]), 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5])
+17:18:48.433 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:48.437 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999, 941]
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009954954954954956
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009386052719386053
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.039162495829162494
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02808182784272051
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 01:31:32(1329960692396), 2012-02-23 01:31:57(1329960717058)), measures=[2, 1, 5, 6]}, MultivariateTimeInterval{interval=[2012-02-23 04:09:22(1329970162604), 2012-02-23 04:33:13(1329971593000)), measures=[6]}]
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 01:31:32(1329960692396), 2012-02-23 01:31:57(1329960717058)), measures=[2, 1, 5, 6]}, MultivariateTimeInterval{interval=[2012-02-23 04:09:22(1329970162604), 2012-02-23 04:33:13(1329971593000)), measures=[6]}]
+17:18:48.437 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:48.437 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:48.437 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:6165ms, createEmpty:true, offset: 290ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T01:31:32.396Z, stop:2012-02-23T01:31:57.058Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-23T04:09:22.604Z, stop:2012-02-23T04:33:13.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:48.490 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:48.490 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:48.502 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009945
+17:18:48.502 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009375
+17:18:48.502 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0391
+17:18:48.502 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02675
+17:18:48.503 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 21:42:11(1329946931000), 2012-02-23 04:33:13(1329971593216))]: 
+17:18:48.503 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:48.503 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:48.503 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 21522ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:24662ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T21:42:11.000Z, stop:2012-02-23T04:33:13.216Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:50.154 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:50.156 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:50.165 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 42 ZO 2012-02-22 21:42:11 - 2012-02-23 07:23:36
+17:18:50.165 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329946931000, to=1329981816832, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:50.165 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 34885 ms
+17:18:50.165 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2509 ([2, 1, 5, 6]), 2509 ([6]), 7121 ([2, 1, 5]), 2315 ([2, 1, 5, 6]), 13893 ([2, 1, 5, 6]), 12233 ([2, 1, 5]), 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 13893 ([2, 1, 5]), 6165 ([2, 1, 5, 6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5]), 17039 ([2, 1, 5]), 13238 ([2, 1, 5]), 6165 ([6]), 2359 ([2, 1, 5])
+17:18:50.204 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000, 707]
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.019818333333333334
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01992
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04720333333333333
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.045167373880245165
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 04:33:14(1329971594695), 2012-02-23 07:23:36(1329981816000)), measures=[6]}]
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 04:33:14(1329971594695), 2012-02-23 07:23:36(1329981816000)), measures=[6]}]
+17:18:50.204 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:50.204 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:50.205 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:8721ms, createEmpty:true, offset: 3719ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T04:33:14.695Z, stop:2012-02-23T07:23:36.000Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:50.371 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:50.372 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:50.386 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.019808333333333334
+17:18:50.386 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.019916666666666666
+17:18:50.386 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.047205
+17:18:50.386 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.006521666666666667
+
+17:18:50.396 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 43 ZI 2012-02-22 22:19:39 - 2012-02-23 06:46:28
+17:18:50.396 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329949179904, to=1329979588608, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:50.396 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 30408 ms
+17:18:50.397 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2509 ([6]), 7121 ([2, 1, 5]), 2315 ([2, 1, 5, 6]), 13893 ([2, 1, 5, 6]), 12233 ([2, 1, 5]), 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 13893 ([2, 1, 5]), 6165 ([2, 1, 5, 6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5]), 13238 ([2, 1, 5]), 6165 ([6]), 8721 ([6]), 2359 ([2, 1, 5])
+17:18:50.421 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:50.434 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999, 999]
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01821654988321655
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018051384718051386
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04551217884551218
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.007585919252585919
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-22 22:31:19(1329949879288), 2012-02-22 22:31:49(1329949909696)), measures=[2, 1, 5, 6]}]
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-22 22:31:19(1329949879288), 2012-02-22 22:31:49(1329949909696)), measures=[2, 1, 5, 6]}]
+17:18:50.434 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 2
+17:18:50.434 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 3040 missing raw data from data source
+17:18:50.434 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-22T22:31:19.288Z, stop:2012-02-22T22:31:49.696Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:50.531 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:50.532 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:50.533 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-22 22:31:49 - 2012-02-22 22:31:49
+17:18:50.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0182
+17:18:50.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018035
+17:18:50.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04546833333333333
+17:18:50.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00758
+
+17:18:50.555 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 44 ZI 2012-02-23 00:15:26 - 2012-02-23 04:50:41
+17:18:50.555 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329956126720, to=1329972641792, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:50.555 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 16515 ms
+17:18:50.555 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 6165 ([2, 1, 5, 6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5]), 6165 ([6])
+17:18:50.574 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000, 937]
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00962
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009116666666666667
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.058023333333333336
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.025809320526503025
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 04:33:21(1329971601275), 2012-02-23 04:50:41(1329972641720)), measures=[6]}]
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 04:33:21(1329971601275), 2012-02-23 04:50:41(1329972641720)), measures=[6]}]
+17:18:50.574 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:18:50.574 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:50.574 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2752ms, createEmpty:true, offset: 1088ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T04:33:21.275Z, stop:2012-02-23T04:50:41.720Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:50.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:50.620 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009621666666666667
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009118333333333334
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05778833333333333
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024216666666666668
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 00:15:26(1329956126720), 2012-02-23 04:50:41(1329972641792))]: 
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:50.630 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:50.630 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 5840ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:16515ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T00:15:26.720Z, stop:2012-02-23T04:50:41.792Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:51.908 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:51.910 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:51.919 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 45 ZO 2012-02-22 23:12:05 - 2012-02-23 05:54:02
+17:18:51.919 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329952325632, to=1329976442880, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:18:51.919 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 24117 ms
+17:18:51.919 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 7121 ([2, 1, 5]), 2315 ([2, 1, 5, 6]), 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 6165 ([2, 1, 5, 6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5]), 6165 ([6]), 8721 ([6]), 2752 ([6])
+17:18:51.944 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000, 1000]
+17:18:51.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01226
+17:18:51.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.012013333333333334
+17:18:51.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03163333333333333
+17:18:51.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010391666666666667
+17:18:51.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:51.944 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:51.944 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01226
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.012013333333333334
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03163333333333333
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010391666666666667
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 23:12:05(1329952325632), 2012-02-23 05:54:02(1329976442880))]: 
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:51.954 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:51.954 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 5884ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:24117ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:12:05.632Z, stop:2012-02-23T05:54:02.880Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:53.729 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:53.731 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:53.742 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 46 ZI 2012-02-22 23:55:47 - 2012-02-23 05:10:21
+17:18:53.742 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329954947072, to=1329973821440, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:53.742 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 18874 ms
+17:18:53.743 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2315 ([6]), 2359 ([2, 1, 5]), 4631 ([6]), 6165 ([2, 1, 5, 6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5]), 6165 ([6]), 8721 ([6]), 2752 ([6])
+17:18:53.763 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000, 1000]
+17:18:53.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010668333333333333
+17:18:53.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010275
+17:18:53.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04708166666666667
+17:18:53.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02880833333333333
+17:18:53.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:18:53.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:18:53.763 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 8
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010668333333333333
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010275
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04708166666666667
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02880833333333333
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-22 23:55:47(1329954947072), 2012-02-23 05:10:21(1329973821440))]: 
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:53.773 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:53.773 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+customAggregateWindow = (every, fn, column="_value", timeSrc="_time", timeDst="_time", tables=<-) =>
+  tables
+    |> window(every:every, offset: 9244ms, createEmpty:true)
+    |> fn(column:column)
+    |> group()
+aggregate = (tables=<-, agg, name) => tables
+|> customAggregateWindow(every:18874ms, fn: agg)
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-22T23:55:47.072Z, stop:2012-02-23T05:10:21.440Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: first, name: "first"),
+data_0() |> aggregate(agg: max, name: "max"),
+data_0() |> aggregate(agg: min, name: "min"),
+data_0() |> aggregate(agg: last, name: "last"),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:55.057 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:55.059 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:18:55.068 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 47 P 2012-02-23 00:57:40 - 2012-02-23 06:12:15
+17:18:55.068 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329958660948, to=1329977535316, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:55.068 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 18874 ms
+17:18:55.068 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2359 ([2, 1, 5]), 4631 ([6]), 6165 ([2, 1, 5, 6]), 2359 ([2, 1, 5]), -1 ([2, 1, 5]), 4259 ([2, 1, 5]), 6165 ([6]), 8721 ([6]), 2752 ([6])
+17:18:55.083 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:18:55.086 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999, 999]
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01378878878878879
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013249916583249916
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04046212879546213
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.005196863530196863
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 04:33:09(1329971589638), 2012-02-23 04:33:28(1329971608512)), measures=[2, 1, 5, 6]}]
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 04:33:09(1329971589638), 2012-02-23 04:33:28(1329971608512)), measures=[2, 1, 5, 6]}]
+17:18:55.086 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:55.086 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 1887 missing raw data from data source
+17:18:55.086 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more") 
+|> range(start:2012-02-23T04:33:09.638Z, stop:2012-02-23T04:33:28.512Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6" or r["_field"] == "value_7") 
+|>pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+17:18:55.165 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:55.166 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:55.166 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-23 04:33:28 - 2012-02-23 04:33:28
+17:18:55.176 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013776666666666666
+17:18:55.176 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013238333333333333
+17:18:55.176 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04042333333333333
+17:18:55.176 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0051916666666666665
+
+17:18:55.185 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 48 P 2012-02-23 01:54:20 - 2012-02-23 07:08:54
+17:18:55.185 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329962060111, to=1329980934479, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:18:55.185 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 18874 ms
+17:18:55.185 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 4631 ([6]), 4259 ([2, 1, 5]), 6165 ([6]), -1 ([2, 1, 5, 6]), 8721 ([6]), 2752 ([6]), 2359 ([2, 1, 5])
+17:18:55.202 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [929, 929, 929, 929]
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.014436670254754216
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.014015069967707213
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04343559382848942
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.005034086831718694
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 06:46:34(1329979594057), 2012-02-23 07:08:54(1329980934111)), measures=[2, 1, 5]}]
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 06:46:34(1329979594057), 2012-02-23 07:08:54(1329980934111)), measures=[2, 1, 5]}]
+17:18:55.202 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 2
+17:18:55.202 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:55.202 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:9437ms, createEmpty:true, offset: 6785ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T06:46:34.057Z, stop:2012-02-23T07:08:54.111Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_3" or r["_field"] == "value_2" or r["_field"] == "value_6") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:55.291 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:55.291 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:55.302 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013558333333333334
+17:18:55.302 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013163333333333334
+17:18:55.302 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04047
+17:18:55.302 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.004795
+
+17:18:55.311 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 49 ZI 2012-02-23 03:05:50 - 2012-02-23 05:56:13
+17:18:55.311 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329966350336, to=1329976573952, measures=[2, 1, 5, 6], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:18:55.311 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 10223 ms
+17:18:55.311 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 4631 ([6]), 4259 ([2, 1, 5]), -1 ([2, 1, 5, 6]), 2752 ([6])
+17:18:55.324 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000, 476]
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.028006666666666666
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027266666666666668
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.10376333333333333
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03380952380952381
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 04:09:13(1329970153292), 2012-02-23 04:33:04(1329971584512)), measures=[6]}, MultivariateTimeInterval{interval=[2012-02-23 04:50:47(1329972647704), 2012-02-23 05:56:13(1329976573336)), measures=[6]}]
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 04:09:13(1329970153292), 2012-02-23 04:33:04(1329971584512)), measures=[6]}, MultivariateTimeInterval{interval=[2012-02-23 04:50:47(1329972647704), 2012-02-23 05:56:13(1329976573336)), measures=[6]}]
+17:18:55.324 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:18:55.324 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:18:55.324 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+aggregate = (tables=<-, agg, name) => tables
+|> aggregateWindow(every:2555ms, createEmpty:true, offset: 211ms, fn: agg, timeSrc:"_start")
+data_0 = () => from(bucket:"more") 
+|> range(start:2012-02-23T04:09:13.292Z, stop:2012-02-23T04:33:04.512Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+data_1 = () => from(bucket:"more") 
+|> range(start:2012-02-23T04:50:47.704Z, stop:2012-02-23T05:56:13.336Z)
+|> filter(fn: (r) => r["_measurement"] == "manufacturing_exp") 
+|> filter(fn: (r) => r["_field"] =="value_7") 
+union(
+    tables: [
+data_0() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_0() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: max, name: "max") |> group(columns: ["_stop"]),
+data_1() |> aggregate(agg: min, name: "min") |> group(columns: ["_stop"]),
+])
+|> sort(columns: ["_time"], desc: false)
+
+17:18:55.469 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:18:55.470 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:18:55.480 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027941666666666667
+17:18:55.480 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027206666666666667
+17:18:55.480 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.10348666666666667
+17:18:55.480 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0035566666666666667
+

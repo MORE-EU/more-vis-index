@@ -7,7 +7,7 @@ aggFactor=$4
 reductionRatio=$5
 type=$6
 
-tables=("bebeze")
+tables=("manufacturing_exp")
 modes=("m4")
 
 for table in "${tables[@]}"

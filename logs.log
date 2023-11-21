@@ -4,730 +4,1759 @@ SLF4J: Class path contains multiple SLF4J bindings.
 SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/ch/qos/logback/logback-classic/1.2.11/logback-classic-1.2.11.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/org/slf4j/slf4j-log4j12/1.7.30/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
-12:19:14,823 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
-12:19:14,824 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/MORE/Code/more-vis-index/target/classes/logback.xml]
-12:19:14,862 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - debug attribute not set
+17:19:21,768 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+17:19:21,768 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/MORE/Code/more-vis-index/target/classes/logback.xml]
+17:19:21,814 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - debug attribute not set
+17:19:21,817 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+17:19:21,818 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [CONSOLE]
+17:19:21,842 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - This appender no longer admits a layout as a sub-component, set an encoder instead.
+17:19:21,842 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - To ensure compatibility, wrapping your layout in LayoutWrappingEncoder.
+17:19:21,842 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - See also http://logback.qos.ch/codes.html#layoutInsteadOfEncoder for details
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.parquet] to ERROR
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.hadoop] to ERROR
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.ParquetReader] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.Experiments] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [com.mitchellbosecke.pebble] to ERROR
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.datasource.QueryExecutor] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory] to INFO
 SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
-12:19:14,865 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
-12:19:14,866 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [CONSOLE]
-12:19:14,887 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - This appender no longer admits a layout as a sub-component, set an encoder instead.
-12:19:14,887 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - To ensure compatibility, wrapping your layout in LayoutWrappingEncoder.
-12:19:14,887 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - See also http://logback.qos.ch/codes.html#layoutInsteadOfEncoder for details
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.parquet] to ERROR
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.hadoop] to ERROR
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.ParquetReader] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.Experiments] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [com.mitchellbosecke.pebble] to ERROR
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.datasource.QueryExecutor] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.PixelColumn] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.datasource.DataSource] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.MaxErrorEvaluator] to INFO
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to DEBUG
-12:19:14,888 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [CONSOLE] to Logger[ROOT]
-12:19:14,888 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
-12:19:14,889 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@10683d9d - Registering current configuration as safe fallback point
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.PixelColumn] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.datasource.DataSource] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.MaxErrorEvaluator] to INFO
+17:19:21,842 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to DEBUG
+17:19:21,842 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [CONSOLE] to Logger[ROOT]
+17:19:21,843 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+17:19:21,843 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@10683d9d - Registering current configuration as safe fallback point
 
-12:19:14.936 [main] INFO  e.m.v.m.experiments.Experiments - Initialized Dataset: manufacturing_exp, range [2012-02-22 21:42:11(1329946931652), 2012-02-25 05:15:31(1330146931642)), header [0, 1, 2, 3, 4, 5, 6], sampling interval PT0.01S
-12:19:15.279 [main] INFO  e.m.v.m.d.PostgreSQL.JDBCConnection - Initialized JDBC connection jdbc:postgresql://localhost:5432/more
+17:19:21.908 [main] INFO  e.m.v.m.experiments.Experiments - Initialized Dataset: manufacturing_exp, range [2012-02-22 21:42:11(1329946931652), 2012-02-25 05:15:31(1330146931642)), header [0, 1, 2, 3, 4, 5, 6], sampling interval PT0.01S
+17:19:22.201 [main] INFO  e.m.v.m.d.PostgreSQL.JDBCConnection - Initialized JDBC connection jdbc:postgresql://localhost:5432/more
 log4j:WARN No appenders could be found for logger (eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator).
 log4j:WARN Please initialize the log4j system properly.
 log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
-12:19:15.303 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 0 2012-02-25 04:42:11 - 2012-02-25 05:15:31
-12:19:15.318 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:22.233 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 0 null 2012-02-24 23:15:20 - 2012-02-25 05:15:20
+17:19:22.234 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330125320000, to=1330146920000, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=null, accuracy=0.99}
+17:19:22.242 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 21600 ms
+17:19:22.245 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 
+17:19:22.249 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [0]
+17:19:22.250 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:19:22.251 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 23:15:20(1330125320000), 2012-02-25 05:15:20(1330146920000)), measures=[2]}]
+17:19:22.252 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 23:15:20(1330125320000), 2012-02-25 05:15:20(1330146920000)), measures=[2]}]
+17:19:22.252 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:19:22.252 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:22.263 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330125320000 ) / ((1330146920000 - 1330125320000 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330125320000 AND epoch < 1330146920000 AND id = 2) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:19:24.829 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:24.841 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:19:24.869 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0034983333333333333
+
+17:19:24.880 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 1 ZI 2012-02-25 00:29:57 - 2012-02-25 03:59:40
+17:19:24.880 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330129797120, to=1330142380032, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:19:24.880 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 12582 ms
+17:19:24.882 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:19:24.892 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:19:24.892 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024245
+17:19:24.892 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:19:24.892 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:19:24.892 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:19:24.899 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.024245
+17:19:24.899 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-25 00:29:57(1330129797120), 2012-02-25 03:59:40(1330142380032))]: 
+17:19:24.899 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:24.899 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:24.903 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330144931643 ) / ((1330146931642 - 1330144931643 ) / 1000 )) as k, 
+(epoch - 1330129797120 ) / ((1330142380032 - 1330129797120 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330144931643 AND epoch < 1330146931642 AND id = 2) 
+ (epoch >= 1330129797120 AND epoch < 1330142380032 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330144931643 ) / ((1330146931642 - 1330144931643 ) / 1000 )) 
+ON k = floor((epoch - 1330129797120 ) / ((1330142380032 - 1330129797120 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330144931643 AND epoch < 1330146931642 AND QA.id = 2) 
+(epoch >= 1330129797120 AND epoch < 1330142380032 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:16.001 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 1 2012-02-25 04:49:54 - 2012-02-25 05:07:23
-12:19:16.002 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:25.717 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:25.718 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:25.727 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 2 ZO 2012-02-24 23:17:51 - 2012-02-25 05:11:45
+17:19:25.727 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330125471744, to=1330146705408, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:19:25.727 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 21233 ms
+17:19:25.728 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:19:25.739 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:19:25.739 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020633333333333333
+17:19:25.739 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:19:25.739 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:19:25.739 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:19:25.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020633333333333333
+17:19:25.746 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 23:17:51(1330125471744), 2012-02-25 05:11:45(1330146705408))]: 
+17:19:25.746 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:25.746 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:25.746 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330145394688 ) / ((1330146443264 - 1330145394688 ) / 1000 )) as k, 
+(epoch - 1330125471744 ) / ((1330146705408 - 1330125471744 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330145394688 AND epoch < 1330146443264 AND id = 2) 
+ (epoch >= 1330125471744 AND epoch < 1330146705408 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330145394688 ) / ((1330146443264 - 1330145394688 ) / 1000 )) 
+ON k = floor((epoch - 1330125471744 ) / ((1330146705408 - 1330125471744 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330145394688 AND epoch < 1330146443264 AND QA.id = 2) 
+(epoch >= 1330125471744 AND epoch < 1330146705408 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:16.523 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 2 2012-02-25 04:43:21 - 2012-02-25 05:13:56
-12:19:16.524 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:31.145 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:31.146 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:31.157 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 3 ZI 2012-02-24 23:59:22 - 2012-02-25 04:30:15
+17:19:31.157 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330127962112, to=1330144215040, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:19:31.157 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 16252 ms
+17:19:31.157 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:19:31.169 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:19:31.170 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.022418333333333332
+17:19:31.170 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:19:31.170 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:19:31.170 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:19:31.178 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.022418333333333332
+17:19:31.178 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 23:59:22(1330127962112), 2012-02-25 04:30:15(1330144215040))]: 
+17:19:31.178 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:31.178 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:31.179 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330145001472 ) / ((1330146836480 - 1330145001472 ) / 1000 )) as k, 
+(epoch - 1330127962112 ) / ((1330144215040 - 1330127962112 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330145001472 AND epoch < 1330146836480 AND id = 2) 
+ (epoch >= 1330127962112 AND epoch < 1330144215040 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330145001472 ) / ((1330146836480 - 1330145001472 ) / 1000 )) 
+ON k = floor((epoch - 1330127962112 ) / ((1330144215040 - 1330127962112 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330145001472 AND epoch < 1330146836480 AND QA.id = 2) 
+(epoch >= 1330127962112 AND epoch < 1330144215040 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:16.912 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 3 2012-02-25 04:47:43 - 2012-02-25 05:09:34
-12:19:16.913 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:32.125 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:32.126 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:32.134 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 4 ZO 2012-02-24 23:22:13 - 2012-02-25 05:07:23
+17:19:32.134 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330125733888, to=1330146443264, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:19:32.134 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 20709 ms
+17:19:32.135 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2])
+17:19:32.148 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000]
+17:19:32.149 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018715
+17:19:32.149 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:19:32.149 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:19:32.149 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:19:32.157 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018715
+17:19:32.157 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 23:22:13(1330125733888), 2012-02-25 05:07:23(1330146443264))]: 
+17:19:32.157 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:32.157 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:32.158 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330145263616 ) / ((1330146574336 - 1330145263616 ) / 1000 )) as k, 
+(epoch - 1330125733888 ) / ((1330146443264 - 1330125733888 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330145263616 AND epoch < 1330146574336 AND id = 2) 
+ (epoch >= 1330125733888 AND epoch < 1330146443264 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330145263616 ) / ((1330146574336 - 1330145263616 ) / 1000 )) 
+ON k = floor((epoch - 1330125733888 ) / ((1330146443264 - 1330125733888 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330145263616 AND epoch < 1330146574336 AND QA.id = 2) 
+(epoch >= 1330125733888 AND epoch < 1330146443264 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:17.260 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 4 2012-02-25 04:45:32 - 2012-02-25 05:11:45
-12:19:17.261 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:37.624 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:37.625 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:37.633 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 5 ZO 2012-02-24 21:26:27 - 2012-02-25 05:15:20
+17:19:37.633 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330118787072, to=1330146920000, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:19:37.633 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:19:37.634 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2]), 12582 ([2])
+17:19:37.648 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [768]
+17:19:37.648 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.020909288194444445
+17:19:37.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 21:26:27(1330118787072), 2012-02-24 23:15:13(1330125313696)), measures=[2]}]
+17:19:37.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 21:26:27(1330118787072), 2012-02-24 23:15:13(1330125313696)), measures=[2]}]
+17:19:37.649 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:19:37.649 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:37.649 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330118787072 ) / ((1330146920000 - 1330118787072 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330118787072 AND epoch < 1330125313696 AND id = 2) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:19:37.972 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:37.974 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:19:37.985 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017011666666666668
+17:19:37.986 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 21:26:27(1330118787072), 2012-02-25 05:15:20(1330146920000))]: 
+17:19:37.986 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:37.986 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:37.987 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330145132544 ) / ((1330146705408 - 1330145132544 ) / 1000 )) as k, 
+(epoch - 1330118787072 ) / ((1330146920000 - 1330118787072 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330145132544 AND epoch < 1330146705408 AND id = 2) 
+ (epoch >= 1330118787072 AND epoch < 1330146920000 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330145132544 ) / ((1330146705408 - 1330145132544 ) / 1000 )) 
+ON k = floor((epoch - 1330118787072 ) / ((1330146920000 - 1330118787072 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330145132544 AND epoch < 1330146705408 AND QA.id = 2) 
+(epoch >= 1330118787072 AND epoch < 1330146920000 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:17.634 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 5 2012-02-25 04:36:48 - 2012-02-25 05:15:31
-12:19:17.635 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:43.701 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:43.703 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:43.711 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 6 P 2012-02-24 14:22:49 - 2012-02-24 22:11:42
+17:19:43.711 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330093369847, to=1330121502775, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:19:43.711 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:19:43.712 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 7033 ([2])
+17:19:43.714 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [97]
+17:19:43.714 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.027920962199312716
+17:19:43.714 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 14:22:49(1330093369847), 2012-02-24 21:26:13(1330118773043)), measures=[2]}]
+17:19:43.714 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 14:22:49(1330093369847), 2012-02-24 21:26:13(1330118773043)), measures=[2]}]
+17:19:43.714 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 8
+17:19:43.714 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:43.714 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330093369847 ) / ((1330121502775 - 1330093369847 ) / 8000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330093369847 AND epoch < 1330118773043 AND id = 2) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:19:46.368 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:46.375 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:19:46.387 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017306666666666668
+17:19:46.388 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 14:22:49(1330093369847), 2012-02-24 22:11:42(1330121502775))]: 
+17:19:46.388 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:46.388 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:46.388 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330144608256 ) / ((1330146931642 - 1330144608256 ) / 1000 )) as k, 
+(epoch - 1330093369847 ) / ((1330121502775 - 1330093369847 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330144608256 AND epoch < 1330146931642 AND id = 2) 
+ (epoch >= 1330093369847 AND epoch < 1330121502775 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330144608256 ) / ((1330146931642 - 1330144608256 ) / 1000 )) 
+ON k = floor((epoch - 1330093369847 ) / ((1330121502775 - 1330093369847 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330144608256 AND epoch < 1330146931642 AND QA.id = 2) 
+(epoch >= 1330093369847 AND epoch < 1330121502775 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:18.040 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 6 2012-02-25 04:01:49 - 2012-02-25 04:40:32
-12:19:18.040 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:52.052 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:52.053 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:52.063 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 7 P 2012-02-24 11:29:37 - 2012-02-24 19:18:30
+17:19:52.063 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330082977146, to=1330111110074, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:19:52.063 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:19:52.063 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 3516 ([2])
+17:19:52.074 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [631]
+17:19:52.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01393026941362916
+17:19:52.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 11:29:37(1330082977146), 2012-02-24 14:22:37(1330093357854)), measures=[2]}]
+17:19:52.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 11:29:37(1330082977146), 2012-02-24 14:22:37(1330093357854)), measures=[2]}]
+17:19:52.074 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 16
+17:19:52.074 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:52.075 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330082977146 ) / ((1330111110074 - 1330082977146 ) / 16000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330082977146 AND epoch < 1330093357854 AND id = 2) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:19:52.579 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:52.587 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:19:52.599 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011711666666666667
+17:19:52.599 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 11:29:37(1330082977146), 2012-02-24 19:18:30(1330111110074))]: 
+17:19:52.599 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:52.599 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:52.600 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330142509150 ) / ((1330144832536 - 1330142509150 ) / 1000 )) as k, 
+(epoch - 1330082977146 ) / ((1330111110074 - 1330082977146 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330142509150 AND epoch < 1330144832536 AND id = 2) 
+ (epoch >= 1330082977146 AND epoch < 1330111110074 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330142509150 ) / ((1330144832536 - 1330142509150 ) / 1000 )) 
+ON k = floor((epoch - 1330082977146 ) / ((1330111110074 - 1330082977146 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330142509150 AND epoch < 1330144832536 AND QA.id = 2) 
+(epoch >= 1330082977146 AND epoch < 1330111110074 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:18.492 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 7 2012-02-25 03:47:30 - 2012-02-25 04:26:14
-12:19:18.493 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:19:58.400 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:58.402 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:19:58.409 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 8 P 2012-02-24 09:19:59 - 2012-02-24 17:08:52
+17:19:58.409 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330075199171, to=1330103332099, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:19:58.410 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:19:58.410 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 1758 ([2]), 3516 ([2])
+17:19:58.428 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [724]
+17:19:58.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011514732965009208
+17:19:58.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 09:19:59(1330075199171), 2012-02-24 11:29:23(1330082963603)), measures=[2]}]
+17:19:58.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 09:19:59(1330075199171), 2012-02-24 11:29:23(1330082963603)), measures=[2]}]
+17:19:58.429 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 16
+17:19:58.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:58.429 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330075199171 ) / ((1330103332099 - 1330075199171 ) / 16000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330075199171 AND epoch < 1330082963603 AND id = 2) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:19:58.905 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:19:58.911 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:19:58.924 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010083333333333333
+17:19:58.924 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 09:19:59(1330075199171), 2012-02-24 17:08:52(1330103332099))]: 
+17:19:58.924 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:58.924 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:19:58.925 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330141650859 ) / ((1330143974245 - 1330141650859 ) / 1000 )) as k, 
+(epoch - 1330075199171 ) / ((1330103332099 - 1330075199171 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330141650859 AND epoch < 1330143974245 AND id = 2) 
+ (epoch >= 1330075199171 AND epoch < 1330103332099 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330141650859 ) / ((1330143974245 - 1330141650859 ) / 1000 )) 
+ON k = floor((epoch - 1330075199171 ) / ((1330103332099 - 1330075199171 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330141650859 AND epoch < 1330143974245 AND QA.id = 2) 
+(epoch >= 1330075199171 AND epoch < 1330103332099 AND QA.id = 2) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:19.014 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 8 2012-02-25 03:36:48 - 2012-02-25 04:15:31
-12:19:19.014 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:20:04.710 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:04.711 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:20:04.717 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 9 P 2012-02-24 05:42:20 - 2012-02-24 13:31:13
+17:20:04.717 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330062140150, to=1330090273078, measures=[2], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:20:04.717 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:20:04.718 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 1758 ([2]), 1758 ([2])
+17:20:04.734 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:20:04.735 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [535]
+17:20:04.735 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.00870404984423676
+17:20:04.736 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 09:19:53(1330075193398)), measures=[2]}, MultivariateTimeInterval{interval=[2012-02-24 11:29:17(1330082957830), 2012-02-24 11:29:45(1330082985962)), measures=[2]}]
+17:20:04.736 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 09:19:53(1330075193398)), measures=[2]}, MultivariateTimeInterval{interval=[2012-02-24 11:29:17(1330082957830), 2012-02-24 11:29:45(1330082985962)), measures=[2]}]
+17:20:04.736 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:20:04.736 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:04.736 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330062140150 ) / ((1330090273078 - 1330062140150 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330062140150 AND epoch < 1330075193398 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330062140150 ) / ((1330090273078 - 1330062140150 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330082957830 AND epoch < 1330082985962 AND id = 2) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:20:05.363 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:05.368 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:20:05.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008208333333333333
+
+17:20:05.385 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 10 MC 2012-02-24 05:42:20 - 2012-02-24 13:31:13
+17:20:05.385 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330062140150, to=1330090273078, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=MC, accuracy=0.99}
+17:20:05.385 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 28132 ms
+17:20:05.386 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 1758 ([2]), 2813 ([2]), 1758 ([2])
+17:20:05.404 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 0]
+17:20:05.404 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008183333333333334
+17:20:05.404 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:20:05.405 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 13:31:12(1330090272150)), measures=[1]}]
+17:20:05.405 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 05:42:20(1330062140150), 2012-02-24 13:31:12(1330090272150)), measures=[1]}]
+17:20:05.405 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:20:05.405 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:05.405 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330062140150 ) / ((1330090273078 - 1330062140150 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330062140150 AND epoch < 1330090272150 AND id = 1) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:20:08.070 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:08.081 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:20:08.098 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008183333333333334
+17:20:08.098 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009298333333333334
+
+17:20:08.105 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 11 ZO 2012-02-24 02:06:27 - 2012-02-24 17:06:29
+17:20:08.105 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330049187840, to=1330103189504, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:20:08.105 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 54001 ms
+17:20:08.105 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 2813 ([1]), 1758 ([2]), 2813 ([2]), 1758 ([2]), 3516 ([2])
+17:20:08.128 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [761, 522]
+17:20:08.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.007122207621550592
+17:20:08.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008505747126436782
+17:20:08.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 02:06:27(1330049187840), 2012-02-24 05:41:34(1330062094079)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 13:31:22(1330090282601), 2012-02-24 17:06:28(1330103188840)), measures=[1]}]
+17:20:08.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 02:06:27(1330049187840), 2012-02-24 05:41:34(1330062094079)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 13:31:22(1330090282601), 2012-02-24 17:06:28(1330103188840)), measures=[1]}]
+17:20:08.128 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:20:08.128 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:08.131 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330049187840 ) / ((1330103189504 - 1330049187840 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049187840 AND epoch < 1330062094079 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330049187840 ) / ((1330103189504 - 1330049187840 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049187840 AND epoch < 1330062094079 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330049187840 ) / ((1330103189504 - 1330049187840 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330090282601 AND epoch < 1330103188840 AND id = 1) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:20:08.856 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:08.863 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:20:08.879 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0077083333333333335
+17:20:08.879 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009916666666666667
+
+17:20:08.889 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 12 P 2012-02-24 08:39:49 - 2012-02-24 23:39:51
+17:20:08.890 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330072789509, to=1330126791173, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:20:08.890 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 54001 ms
+17:20:08.890 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 2813 ([1]), 1758 ([2]), 2813 ([2]), 1758 ([2]), 5400 ([1]), 3516 ([2]), 7033 ([2]), 5400 ([2]), 21233 ([2]), 20709 ([2])
+17:20:08.917 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:20:08.918 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:20:08.918 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [998, 563]
+17:20:08.918 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011519706078824314
+17:20:08.918 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011403197158081704
+17:20:08.919 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 17:06:32(1330103192072), 2012-02-24 21:25:44(1330118744360)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 21:25:44(1330118744360), 2012-02-24 21:26:38(1330118798361)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 21:26:38(1330118798361), 2012-02-24 23:14:38(1330125278481)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 23:14:38(1330125278481), 2012-02-24 23:15:32(1330125332482)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 23:15:32(1330125332482), 2012-02-24 23:39:50(1330126790509)), measures=[1]}]
+17:20:08.919 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 17:06:32(1330103192072), 2012-02-24 21:25:44(1330118744360)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 21:25:44(1330118744360), 2012-02-24 21:26:38(1330118798361)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 21:26:38(1330118798361), 2012-02-24 23:14:38(1330125278481)), measures=[1]}, MultivariateTimeInterval{interval=[2012-02-24 23:14:38(1330125278481), 2012-02-24 23:15:32(1330125332482)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 23:15:32(1330125332482), 2012-02-24 23:39:50(1330126790509)), measures=[1]}]
+17:20:08.919 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 20
+17:20:08.919 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:08.919 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330103192072 AND epoch < 1330118744360 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330118744360 AND epoch < 1330118798361 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330118744360 AND epoch < 1330118798361 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 2 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330118798361 AND epoch < 1330125278481 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 3 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330125278481 AND epoch < 1330125332482 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 3 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330125278481 AND epoch < 1330125332482 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330072789509 ) / ((1330126791173 - 1330072789509 ) / 20000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 4 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330125332482 AND epoch < 1330126790509 AND id = 1) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:20:09.807 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:09.817 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:20:09.835 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011575
+17:20:09.835 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009486666666666666
+
+17:20:09.841 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 13 ZO 2012-02-24 03:03:15 - 2012-02-25 05:15:20
+17:20:09.841 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330052595712, to=1330146920000, measures=[2, 1], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:20:09.842 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 94324 ms
+17:20:09.842 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 16252 ([2]), 12582 ([2])
+17:20:09.890 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 787]
+17:20:09.890 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032645
+17:20:09.890 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008451927149512919
+17:20:09.890 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 23:40:28(1330126828700), 2012-02-25 05:15:19(1330146919712)), measures=[1]}]
+17:20:09.890 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 23:40:28(1330126828700), 2012-02-25 05:15:19(1330146919712)), measures=[1]}]
+17:20:09.890 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 3
+17:20:09.890 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:09.890 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 3000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330126828700 AND epoch < 1330146919712 AND id = 1) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:20:12.393 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:12.395 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:20:12.415 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032645
+17:20:12.415 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0145
+17:20:12.416 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:20(1330146920000))]: 
+17:20:12.416 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:12.416 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:12.416 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330141008508 ) / ((1330143331894 - 1330141008508 ) / 1000 )) as k, 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330141008508 AND epoch < 1330143331894 AND id = 2) 
+ (epoch >= 1330052595712 AND epoch < 1330146920000 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330141008508 ) / ((1330143331894 - 1330141008508 ) / 1000 )) 
+ON k = floor((epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330141008508 AND epoch < 1330143331894 AND QA.id = 2) 
-) 
-SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
-GROUP BY id , k , value , u_id 
-ORDER BY k, id , u_id
-12:19:19.614 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 9 2012-02-25 03:18:50 - 2012-02-25 03:57:33
-12:19:19.614 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
-WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
-FROM more.manufacturing_exp as Q 
-JOIN (SELECT id , floor( 
-(epoch - 1330139930016 ) / ((1330142253402 - 1330139930016 ) / 1000 )) as k, 
-min(value ) as v_min, max(value ) as v_max, 
-min(epoch ) as t_min, max(epoch ) as t_max 
-FROM more.manufacturing_exp 
-WHERE 
- (epoch >= 1330139930016 AND epoch < 1330142253402 AND id = 2) 
-GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139930016 ) / ((1330142253402 - 1330139930016 ) / 1000 )) 
-AND QA.id = Q.id 
-AND (value = v_min OR value = v_max OR 
-epoch = t_min OR epoch = t_max) 
-WHERE 
-(epoch >= 1330139930016 AND epoch < 1330142253402 AND QA.id = 2) 
-) 
-SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
-GROUP BY id , k , value , u_id 
-ORDER BY k, id , u_id
-12:19:20.268 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 10 2012-02-25 03:18:50 - 2012-02-25 03:57:33
-12:19:20.269 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
-WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
-FROM more.manufacturing_exp as Q 
-JOIN (SELECT id , floor( 
-(epoch - 1330139930016 ) / ((1330142253402 - 1330139930016 ) / 1000 )) as k, 
-min(value ) as v_min, max(value ) as v_max, 
-min(epoch ) as t_min, max(epoch ) as t_max 
-FROM more.manufacturing_exp 
-WHERE 
- (epoch >= 1330139930016 AND epoch < 1330142253402 AND id = 2) 
-GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139930016 ) / ((1330142253402 - 1330139930016 ) / 1000 )) 
-AND QA.id = Q.id 
-AND (value = v_min OR value = v_max OR 
-epoch = t_min OR epoch = t_max) 
-WHERE 
-(epoch >= 1330139930016 AND epoch < 1330142253402 AND QA.id = 2) 
+(epoch >= 1330052595712 AND epoch < 1330146920000 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139930016 ) / ((1330142253402 - 1330139930016 ) / 1000 )) as k, 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139930016 AND epoch < 1330142253402 AND id = 1) 
+ (epoch >= 1330052595712 AND epoch < 1330146920000 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139930016 ) / ((1330142253402 - 1330139930016 ) / 1000 )) 
+ON k = floor((epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139930016 AND epoch < 1330142253402 AND QA.id = 1) 
+(epoch >= 1330052595712 AND epoch < 1330146920000 AND QA.id = 1) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:21.237 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 11 2012-02-25 03:00:41 - 2012-02-25 04:14:57
-12:19:21.238 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:20:30.992 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:30.994 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:20:31.006 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 14 MC 2012-02-24 03:03:15 - 2012-02-25 05:15:20
+17:20:31.006 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330052595712, to=1330146920000, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=MC, accuracy=0.99}
+17:20:31.006 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 94324 ms
+17:20:31.006 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:20:31.072 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 0]
+17:20:31.072 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032626666666666665
+17:20:31.072 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018431666666666666
+17:20:31.072 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:20:31.072 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:19(1330146919712)), measures=[5]}]
+17:20:31.072 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:19(1330146919712)), measures=[5]}]
+17:20:31.072 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 3
+17:20:31.072 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:31.072 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 3000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330052595712 AND epoch < 1330146919712 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:20:34.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:20:34.384 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:20:34.406 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032626666666666665
+17:20:34.406 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018431666666666666
+17:20:34.406 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.019558333333333334
+17:20:34.407 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:03:15(1330052595712), 2012-02-25 05:15:20(1330146920000))]: 
+17:20:34.407 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:34.407 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:20:34.408 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138841088 ) / ((1330143297536 - 1330138841088 ) / 1000 )) as k, 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138841088 AND epoch < 1330143297536 AND id = 2) 
+ (epoch >= 1330052595712 AND epoch < 1330146920000 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138841088 ) / ((1330143297536 - 1330138841088 ) / 1000 )) 
+ON k = floor((epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138841088 AND epoch < 1330143297536 AND QA.id = 2) 
+(epoch >= 1330052595712 AND epoch < 1330146920000 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138841088 ) / ((1330143297536 - 1330138841088 ) / 1000 )) as k, 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138841088 AND epoch < 1330143297536 AND id = 1) 
+ (epoch >= 1330052595712 AND epoch < 1330146920000 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138841088 ) / ((1330143297536 - 1330138841088 ) / 1000 )) 
+ON k = floor((epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138841088 AND epoch < 1330143297536 AND QA.id = 1) 
+(epoch >= 1330052595712 AND epoch < 1330146920000 AND QA.id = 1) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1330052595712 AND epoch < 1330146920000 AND id = 5) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1330052595712 ) / ((1330146920000 - 1330052595712 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1330052595712 AND epoch < 1330146920000 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:22.107 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 12 2012-02-25 03:33:08 - 2012-02-25 04:47:25
-12:19:22.108 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:21:05.017 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:21:05.020 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:21:05.034 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 15 ZO 2012-02-24 00:43:27 - 2012-02-25 05:15:20
+17:21:05.034 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330044207104, to=1330146920000, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:21:05.034 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 102712 ms
+17:21:05.034 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:21:05.096 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [952, 952, 919]
+17:21:05.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.030456932773109242
+17:21:05.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016890756302521008
+17:21:05.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.01657961552412042
+17:21:05.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 00:43:27(1330044207104), 2012-02-24 02:05:37(1330049137280)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:05:37(1330049137280), 2012-02-24 03:02:06(1330052526776)), measures=[5]}]
+17:21:05.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 00:43:27(1330044207104), 2012-02-24 02:05:37(1330049137280)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:05:37(1330049137280), 2012-02-24 03:02:06(1330052526776)), measures=[5]}]
+17:21:05.096 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:21:05.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:21:05.097 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330044207104 AND epoch < 1330049137280 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330044207104 AND epoch < 1330049137280 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330044207104 AND epoch < 1330049137280 AND id = 5) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049137280 AND epoch < 1330052526776 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:21:05.620 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:21:05.621 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:21:05.643 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.030046666666666666
+17:21:05.643 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.017143333333333333
+17:21:05.643 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015243333333333333
+17:21:05.644 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 00:43:27(1330044207104), 2012-02-25 05:15:20(1330146920000))]: 
+17:21:05.644 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:21:05.644 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:21:05.645 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140788798 ) / ((1330145245246 - 1330140788798 ) / 1000 )) as k, 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140788798 AND epoch < 1330145245246 AND id = 2) 
+ (epoch >= 1330044207104 AND epoch < 1330146920000 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140788798 ) / ((1330145245246 - 1330140788798 ) / 1000 )) 
+ON k = floor((epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140788798 AND epoch < 1330145245246 AND QA.id = 2) 
+(epoch >= 1330044207104 AND epoch < 1330146920000 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140788798 ) / ((1330145245246 - 1330140788798 ) / 1000 )) as k, 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140788798 AND epoch < 1330145245246 AND id = 1) 
+ (epoch >= 1330044207104 AND epoch < 1330146920000 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140788798 ) / ((1330145245246 - 1330140788798 ) / 1000 )) 
+ON k = floor((epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140788798 AND epoch < 1330145245246 AND QA.id = 1) 
+(epoch >= 1330044207104 AND epoch < 1330146920000 AND QA.id = 1) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1330044207104 AND epoch < 1330146920000 AND id = 5) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1330044207104 ) / ((1330146920000 - 1330044207104 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1330044207104 AND epoch < 1330146920000 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:23.324 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 13 2012-02-25 03:05:03 - 2012-02-25 05:15:31
-12:19:23.324 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:21:36.292 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:21:36.294 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:21:36.313 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 16 ZI 2012-02-24 06:02:23 - 2012-02-24 23:57:11
+17:21:36.313 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330063343616, to=1330127831040, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:21:36.313 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 64487 ms
+17:21:36.314 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 31441 ([5]), 2813 ([2]), 2813 ([1]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1])
+17:21:36.370 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:21:36.370 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03914666666666667
+17:21:36.370 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008215
+17:21:36.370 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033701666666666664
+17:21:36.370 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:21:36.370 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:21:36.370 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:21:36.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03914666666666667
+17:21:36.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008215
+17:21:36.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033701666666666664
+17:21:36.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 06:02:23(1330063343616), 2012-02-24 23:57:11(1330127831040))]: 
+17:21:36.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:21:36.380 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:21:36.381 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) as k, 
+(epoch - 1330063343616 ) / ((1330127831040 - 1330063343616 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139103232 AND epoch < 1330146931642 AND id = 2) 
+ (epoch >= 1330063343616 AND epoch < 1330127831040 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) 
+ON k = floor((epoch - 1330063343616 ) / ((1330127831040 - 1330063343616 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139103232 AND epoch < 1330146931642 AND QA.id = 2) 
+(epoch >= 1330063343616 AND epoch < 1330127831040 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) as k, 
+(epoch - 1330063343616 ) / ((1330127831040 - 1330063343616 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139103232 AND epoch < 1330146931642 AND id = 1) 
+ (epoch >= 1330063343616 AND epoch < 1330127831040 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) 
+ON k = floor((epoch - 1330063343616 ) / ((1330127831040 - 1330063343616 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139103232 AND epoch < 1330146931642 AND QA.id = 1) 
+(epoch >= 1330063343616 AND epoch < 1330127831040 AND QA.id = 1) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1330063343616 ) / ((1330127831040 - 1330063343616 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1330063343616 AND epoch < 1330127831040 AND id = 5) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1330063343616 ) / ((1330127831040 - 1330063343616 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1330063343616 AND epoch < 1330127831040 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:24.538 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 14 2012-02-25 03:05:03 - 2012-02-25 05:15:31
-12:19:24.539 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:21:59.717 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:21:59.720 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:21:59.736 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 17 ZI 2012-02-24 07:36:19 - 2012-02-24 22:23:14
+17:21:59.736 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330068979712, to=1330122194944, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:21:59.736 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 53215 ms
+17:21:59.736 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 2813 ([2]), 2813 ([1]), 1758 ([2]), 2813 ([2]), 1758 ([2]), 5400 ([1]), 3516 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 2700 ([1])
+17:21:59.782 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 0]
+17:21:59.782 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008181666666666667
+17:21:59.782 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009665
+17:21:59.782 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: NaN
+17:21:59.782 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 07:36:19(1330068979712), 2012-02-24 22:23:14(1330122194712)), measures=[5]}]
+17:21:59.782 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 07:36:19(1330068979712), 2012-02-24 22:23:14(1330122194712)), measures=[5]}]
+17:21:59.782 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 10
+17:21:59.782 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:21:59.782 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330068979712 ) / ((1330122194944 - 1330068979712 ) / 10000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330068979712 AND epoch < 1330122194712 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:22:02.637 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:22:02.649 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:22:02.665 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008181666666666667
+17:22:02.665 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009665
+17:22:02.665 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.006183333333333333
+
+17:22:02.674 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 18 ZO 2012-02-24 01:29:19 - 2012-02-25 04:30:15
+17:22:02.674 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330046959616, to=1330144215040, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:22:02.674 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 97255 ms
+17:22:02.675 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 17118 ([2, 1, 5]), 17118 ([5]), 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:22:02.735 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:22:02.735 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03315166666666667
+17:22:02.735 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015853333333333334
+17:22:02.735 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013328333333333333
+17:22:02.735 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:22:02.735 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:22:02.735 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:22:02.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03315166666666667
+17:22:02.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.015853333333333334
+17:22:02.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013328333333333333
+17:22:02.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 01:29:19(1330046959616), 2012-02-25 04:30:15(1330144215040))]: 
+17:22:02.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:22:02.745 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:22:02.746 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) as k, 
+(epoch - 1330046959616 ) / ((1330144215040 - 1330046959616 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139103232 AND epoch < 1330146931642 AND id = 2) 
+ (epoch >= 1330046959616 AND epoch < 1330144215040 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) 
+ON k = floor((epoch - 1330046959616 ) / ((1330144215040 - 1330046959616 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139103232 AND epoch < 1330146931642 AND QA.id = 2) 
+(epoch >= 1330046959616 AND epoch < 1330144215040 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) as k, 
+(epoch - 1330046959616 ) / ((1330144215040 - 1330046959616 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139103232 AND epoch < 1330146931642 AND id = 1) 
+ (epoch >= 1330046959616 AND epoch < 1330144215040 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) 
+ON k = floor((epoch - 1330046959616 ) / ((1330144215040 - 1330046959616 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139103232 AND epoch < 1330146931642 AND QA.id = 1) 
+(epoch >= 1330046959616 AND epoch < 1330144215040 AND QA.id = 1) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) as k, 
+(epoch - 1330046959616 ) / ((1330144215040 - 1330046959616 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139103232 AND epoch < 1330146931642 AND id = 5) 
+ (epoch >= 1330046959616 AND epoch < 1330144215040 AND id = 5) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139103232 ) / ((1330146931642 - 1330139103232 ) / 1000 )) 
+ON k = floor((epoch - 1330046959616 ) / ((1330144215040 - 1330046959616 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139103232 AND epoch < 1330146931642 AND QA.id = 5) 
+(epoch >= 1330046959616 AND epoch < 1330144215040 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:26.311 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 15 2012-02-25 02:54:07 - 2012-02-25 05:15:31
-12:19:26.312 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:22:32.445 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:22:32.448 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:22:32.466 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 19 ZI 2012-02-24 03:29:28 - 2012-02-25 02:30:06
+17:22:32.466 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330054168576, to=1330137006080, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:22:32.466 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 82837 ms
+17:22:32.467 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1]), 16252 ([2]), 12582 ([2])
+17:22:32.534 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:22:32.534 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033898333333333336
+17:22:32.534 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016896666666666667
+17:22:32.534 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018993333333333334
+17:22:32.534 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:22:32.534 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:22:32.534 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:22:32.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033898333333333336
+17:22:32.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.016896666666666667
+17:22:32.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.018993333333333334
+17:22:32.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:29:28(1330054168576), 2012-02-25 02:30:06(1330137006080))]: 
+17:22:32.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:22:32.546 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:22:32.547 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138447872 ) / ((1330146931642 - 1330138447872 ) / 1000 )) as k, 
+(epoch - 1330054168576 ) / ((1330137006080 - 1330054168576 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138447872 AND epoch < 1330146931642 AND id = 2) 
+ (epoch >= 1330054168576 AND epoch < 1330137006080 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138447872 ) / ((1330146931642 - 1330138447872 ) / 1000 )) 
+ON k = floor((epoch - 1330054168576 ) / ((1330137006080 - 1330054168576 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138447872 AND epoch < 1330146931642 AND QA.id = 2) 
+(epoch >= 1330054168576 AND epoch < 1330137006080 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138447872 ) / ((1330146931642 - 1330138447872 ) / 1000 )) as k, 
+(epoch - 1330054168576 ) / ((1330137006080 - 1330054168576 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138447872 AND epoch < 1330146931642 AND id = 1) 
+ (epoch >= 1330054168576 AND epoch < 1330137006080 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138447872 ) / ((1330146931642 - 1330138447872 ) / 1000 )) 
+ON k = floor((epoch - 1330054168576 ) / ((1330137006080 - 1330054168576 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138447872 AND epoch < 1330146931642 AND QA.id = 1) 
+(epoch >= 1330054168576 AND epoch < 1330137006080 AND QA.id = 1) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138447872 ) / ((1330146931642 - 1330138447872 ) / 1000 )) as k, 
+(epoch - 1330054168576 ) / ((1330137006080 - 1330054168576 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138447872 AND epoch < 1330146931642 AND id = 5) 
+ (epoch >= 1330054168576 AND epoch < 1330137006080 AND id = 5) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138447872 ) / ((1330146931642 - 1330138447872 ) / 1000 )) 
+ON k = floor((epoch - 1330054168576 ) / ((1330137006080 - 1330054168576 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138447872 AND epoch < 1330146931642 AND QA.id = 5) 
+(epoch >= 1330054168576 AND epoch < 1330137006080 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:28.120 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 16 2012-02-25 03:20:20 - 2012-02-25 04:47:43
-12:19:28.121 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:22:59.704 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:22:59.707 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:22:59.730 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 20 P 2012-02-23 13:57:53 - 2012-02-24 12:58:30
+17:22:59.730 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330005473382, to=1330088310886, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:22:59.730 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 82837 ms
+17:22:59.731 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 17118 ([2, 1, 5]), 17118 ([5]), 5400 ([2, 1]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2])
+17:22:59.766 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [533, 533, 533]
+17:22:59.767 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.026047529706066292
+17:22:59.767 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.012789243277048156
+17:22:59.767 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.021263289555972485
+17:22:59.767 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 13:57:53(1330005473382), 2012-02-24 00:42:38(1330044158261)), measures=[2, 1, 5]}]
+17:22:59.767 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 13:57:53(1330005473382), 2012-02-24 00:42:38(1330044158261)), measures=[2, 1, 5]}]
+17:22:59.767 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:22:59.767 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:22:59.767 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330005473382 AND epoch < 1330044158261 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330005473382 AND epoch < 1330044158261 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330005473382 AND epoch < 1330044158261 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:23:08.030 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:23:08.035 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:23:08.052 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.040163333333333336
+17:23:08.052 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.032396666666666664
+17:23:08.052 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.011333333333333334
+17:23:08.052 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 13:57:53(1330005473382), 2012-02-24 12:58:30(1330088310886))]: 
+17:23:08.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:08.053 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:08.054 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140020736 ) / ((1330145263616 - 1330140020736 ) / 1000 )) as k, 
+(epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140020736 AND epoch < 1330145263616 AND id = 2) 
+ (epoch >= 1330005473382 AND epoch < 1330088310886 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140020736 ) / ((1330145263616 - 1330140020736 ) / 1000 )) 
+ON k = floor((epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140020736 AND epoch < 1330145263616 AND QA.id = 2) 
+(epoch >= 1330005473382 AND epoch < 1330088310886 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140020736 ) / ((1330145263616 - 1330140020736 ) / 1000 )) as k, 
+(epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140020736 AND epoch < 1330145263616 AND id = 1) 
+ (epoch >= 1330005473382 AND epoch < 1330088310886 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140020736 ) / ((1330145263616 - 1330140020736 ) / 1000 )) 
+ON k = floor((epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140020736 AND epoch < 1330145263616 AND QA.id = 1) 
+(epoch >= 1330005473382 AND epoch < 1330088310886 AND QA.id = 1) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140020736 ) / ((1330145263616 - 1330140020736 ) / 1000 )) as k, 
+(epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140020736 AND epoch < 1330145263616 AND id = 5) 
+ (epoch >= 1330005473382 AND epoch < 1330088310886 AND id = 5) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140020736 ) / ((1330145263616 - 1330140020736 ) / 1000 )) 
+ON k = floor((epoch - 1330005473382 ) / ((1330088310886 - 1330005473382 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140020736 AND epoch < 1330145263616 AND QA.id = 5) 
+(epoch >= 1330005473382 AND epoch < 1330088310886 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:29.339 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 17 2012-02-25 03:26:53 - 2012-02-25 04:41:10
-12:19:29.340 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:23:34.763 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:23:34.767 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:23:34.781 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 21 ZI 2012-02-23 18:53:55 - 2012-02-24 08:00:21
+17:23:34.781 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330023235584, to=1330070421504, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:23:34.781 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 47185 ms
+17:23:34.782 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 5400 ([2, 1]), 2813 ([2]), 2813 ([1]), 5321 ([5])
+17:23:34.805 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 651]
+17:23:34.805 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.036504838171504836
+17:23:34.805 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03494327660994328
+17:23:34.805 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0031746031746031746
+17:23:34.805 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 02:05:40(1330049140149), 2012-02-24 02:06:27(1330049187334)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 03:02:17(1330052537469), 2012-02-24 07:35:57(1330068957849)), measures=[5]}]
+17:23:34.805 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 02:05:40(1330049140149), 2012-02-24 02:06:27(1330049187334)), measures=[2, 1]}, MultivariateTimeInterval{interval=[2012-02-24 03:02:17(1330052537469), 2012-02-24 07:35:57(1330068957849)), measures=[5]}]
+17:23:34.805 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 2
+17:23:34.805 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:34.806 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 2000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049140149 AND epoch < 1330049187334 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 2000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049140149 AND epoch < 1330049187334 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 2000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330052537469 AND epoch < 1330068957849 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:23:35.412 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:23:35.413 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:23:35.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.036495
+17:23:35.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03492666666666667
+17:23:35.429 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.013693333333333333
+17:23:35.430 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 18:53:55(1330023235584), 2012-02-24 08:00:21(1330070421504))]: 
+17:23:35.430 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:35.430 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:35.431 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140413952 ) / ((1330144870400 - 1330140413952 ) / 1000 )) as k, 
+(epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140413952 AND epoch < 1330144870400 AND id = 2) 
+ (epoch >= 1330023235584 AND epoch < 1330070421504 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140413952 ) / ((1330144870400 - 1330140413952 ) / 1000 )) 
+ON k = floor((epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140413952 AND epoch < 1330144870400 AND QA.id = 2) 
+(epoch >= 1330023235584 AND epoch < 1330070421504 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140413952 ) / ((1330144870400 - 1330140413952 ) / 1000 )) as k, 
+(epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140413952 AND epoch < 1330144870400 AND id = 1) 
+ (epoch >= 1330023235584 AND epoch < 1330070421504 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140413952 ) / ((1330144870400 - 1330140413952 ) / 1000 )) 
+ON k = floor((epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140413952 AND epoch < 1330144870400 AND QA.id = 1) 
+(epoch >= 1330023235584 AND epoch < 1330070421504 AND QA.id = 1) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330140413952 ) / ((1330144870400 - 1330140413952 ) / 1000 )) as k, 
+(epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330140413952 AND epoch < 1330144870400 AND id = 5) 
+ (epoch >= 1330023235584 AND epoch < 1330070421504 AND id = 5) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330140413952 ) / ((1330144870400 - 1330140413952 ) / 1000 )) 
+ON k = floor((epoch - 1330023235584 ) / ((1330070421504 - 1330023235584 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330140413952 AND epoch < 1330144870400 AND QA.id = 5) 
+(epoch >= 1330023235584 AND epoch < 1330070421504 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:30.430 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 18 2012-02-25 02:56:18 - 2012-02-25 05:11:45
-12:19:30.431 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:23:56.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:23:56.926 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:23:56.937 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 22 ZO 2012-02-23 15:08:55 - 2012-02-24 11:45:21
+17:23:56.937 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330009735168, to=1330083921920, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZO, accuracy=0.99}
+17:23:56.937 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 74186 ms
+17:23:56.937 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2])
+17:23:56.969 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:23:56.975 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:23:56.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.035717384050717386
+17:23:56.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0316016016016016
+17:23:56.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010568902235568903
+17:23:56.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 00:42:37(1330044157472), 2012-02-24 00:43:51(1330044231658)), measures=[2, 1, 5]}]
+17:23:56.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 00:42:37(1330044157472), 2012-02-24 00:43:51(1330044231658)), measures=[2, 1, 5]}]
+17:23:56.975 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:23:56.975 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 7418 missing raw data from data source
+17:23:56.978 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330044157472 AND epoch < 1330044231658 AND id = 2) 
+ UNION ALL SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330044157472 AND epoch < 1330044231658 AND id = 1) 
+ UNION ALL SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330044157472 AND epoch < 1330044231658 AND id = 5) 
+ORDER BY u_id, epoch , id 
+
+17:23:57.118 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:23:57.123 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:23:57.131 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-24 00:43:51 - 2012-02-24 00:43:51
+17:23:57.140 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03457166666666667
+17:23:57.140 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03169166666666667
+17:23:57.140 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010558333333333333
+17:23:57.140 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 15:08:55(1330009735168), 2012-02-24 11:45:21(1330083921920))]: 
+17:23:57.140 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:57.140 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:23:57.141 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138578944 ) / ((1330146705408 - 1330138578944 ) / 1000 )) as k, 
+(epoch - 1330009735168 ) / ((1330083921920 - 1330009735168 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138578944 AND epoch < 1330146705408 AND id = 2) 
+ (epoch >= 1330009735168 AND epoch < 1330083921920 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138578944 ) / ((1330146705408 - 1330138578944 ) / 1000 )) 
+ON k = floor((epoch - 1330009735168 ) / ((1330083921920 - 1330009735168 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138578944 AND epoch < 1330146705408 AND QA.id = 2) 
+(epoch >= 1330009735168 AND epoch < 1330083921920 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138578944 ) / ((1330146705408 - 1330138578944 ) / 1000 )) as k, 
+(epoch - 1330009735168 ) / ((1330083921920 - 1330009735168 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138578944 AND epoch < 1330146705408 AND id = 1) 
+ (epoch >= 1330009735168 AND epoch < 1330083921920 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138578944 ) / ((1330146705408 - 1330138578944 ) / 1000 )) 
+ON k = floor((epoch - 1330009735168 ) / ((1330083921920 - 1330009735168 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138578944 AND epoch < 1330146705408 AND QA.id = 1) 
+(epoch >= 1330009735168 AND epoch < 1330083921920 AND QA.id = 1) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330138578944 ) / ((1330146705408 - 1330138578944 ) / 1000 )) as k, 
+(epoch - 1330009735168 ) / ((1330083921920 - 1330009735168 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330138578944 AND epoch < 1330146705408 AND id = 5) 
+ (epoch >= 1330009735168 AND epoch < 1330083921920 AND id = 5) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330138578944 ) / ((1330146705408 - 1330138578944 ) / 1000 )) 
+ON k = floor((epoch - 1330009735168 ) / ((1330083921920 - 1330009735168 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330138578944 AND epoch < 1330146705408 AND QA.id = 5) 
+(epoch >= 1330009735168 AND epoch < 1330083921920 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 
 ORDER BY k, id , u_id
-12:19:32.055 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 19 2012-02-25 03:07:14 - 2012-02-25 05:00:50
-12:19:32.056 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+17:24:22.411 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:24:22.414 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:24:22.427 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 23 P 2012-02-24 03:06:36 - 2012-02-24 23:43:03
+17:24:22.427 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330052796486, to=1330126983238, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:24:22.427 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 74186 ms
+17:24:22.427 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), 2813 ([2]), 2813 ([1]), 5321 ([5]), 1758 ([2]), 28132 ([2]), 2813 ([2]), 1758 ([2]), 28132 ([2]), 5400 ([1]), 3516 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 7033 ([2]), 28132 ([2]), 2700 ([1]), 2700 ([2, 1]), 5400 ([2]), 2700 ([1]), 21233 ([2]), 20709 ([2]), 31441 ([1])
+17:24:22.486 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:24:22.495 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:24:22.495 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03585418752085419
+17:24:22.495 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.007991324657991324
+17:24:22.495 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.02636136136136136
+17:24:22.496 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 05:41:09(1330062069736), 2012-02-24 05:42:23(1330062143922)), measures=[2, 1, 5]}]
+17:24:22.496 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 05:41:09(1330062069736), 2012-02-24 05:42:23(1330062143922)), measures=[2, 1, 5]}]
+17:24:22.496 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:24:22.496 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 7418 missing raw data from data source
+17:24:22.496 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330062069736 AND epoch < 1330062143922 AND id = 2) 
+ UNION ALL SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330062069736 AND epoch < 1330062143922 AND id = 1) 
+ UNION ALL SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330062069736 AND epoch < 1330062143922 AND id = 5) 
+ORDER BY u_id, epoch , id 
+
+17:24:22.633 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:24:22.637 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:24:22.641 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-24 05:42:23 - 2012-02-24 05:42:23
+17:24:22.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03369
+17:24:22.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.008126666666666667
+17:24:22.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.026336666666666668
+17:24:22.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-24 03:06:36(1330052796486), 2012-02-24 23:43:03(1330126983238))]: 
+17:24:22.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:24:22.653 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:24:22.653 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
 WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139234304 ) / ((1330146050048 - 1330139234304 ) / 1000 )) as k, 
+(epoch - 1330052796486 ) / ((1330126983238 - 1330052796486 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139234304 AND epoch < 1330146050048 AND id = 2) 
+ (epoch >= 1330052796486 AND epoch < 1330126983238 AND id = 2) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139234304 ) / ((1330146050048 - 1330139234304 ) / 1000 )) 
+ON k = floor((epoch - 1330052796486 ) / ((1330126983238 - 1330052796486 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139234304 AND epoch < 1330146050048 AND QA.id = 2) 
+(epoch >= 1330052796486 AND epoch < 1330126983238 AND QA.id = 2) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139234304 ) / ((1330146050048 - 1330139234304 ) / 1000 )) as k, 
+(epoch - 1330052796486 ) / ((1330126983238 - 1330052796486 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139234304 AND epoch < 1330146050048 AND id = 1) 
+ (epoch >= 1330052796486 AND epoch < 1330126983238 AND id = 1) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139234304 ) / ((1330146050048 - 1330139234304 ) / 1000 )) 
+ON k = floor((epoch - 1330052796486 ) / ((1330126983238 - 1330052796486 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139234304 AND epoch < 1330146050048 AND QA.id = 1) 
+(epoch >= 1330052796486 AND epoch < 1330126983238 AND QA.id = 1) 
  UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
 FROM more.manufacturing_exp as Q 
 JOIN (SELECT id , floor( 
-(epoch - 1330139234304 ) / ((1330146050048 - 1330139234304 ) / 1000 )) as k, 
+(epoch - 1330052796486 ) / ((1330126983238 - 1330052796486 ) / 1000 )) as k, 
 min(value ) as v_min, max(value ) as v_max, 
 min(epoch ) as t_min, max(epoch ) as t_max 
 FROM more.manufacturing_exp 
 WHERE 
- (epoch >= 1330139234304 AND epoch < 1330146050048 AND id = 5) 
+ (epoch >= 1330052796486 AND epoch < 1330126983238 AND id = 5) 
 GROUP BY id , k ) as QA 
-ON k = floor((epoch - 1330139234304 ) / ((1330146050048 - 1330139234304 ) / 1000 )) 
+ON k = floor((epoch - 1330052796486 ) / ((1330126983238 - 1330052796486 ) / 1000 )) 
 AND QA.id = Q.id 
 AND (value = v_min OR value = v_max OR 
 epoch = t_min OR epoch = t_max) 
 WHERE 
-(epoch >= 1330139234304 AND epoch < 1330146050048 AND QA.id = 5) 
+(epoch >= 1330052796486 AND epoch < 1330126983238 AND QA.id = 5) 
+) 
+SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
+GROUP BY id , k , value , u_id 
+ORDER BY k, id , u_id
+17:24:47.096 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:24:47.098 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:24:47.111 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 24 P 2012-02-23 11:35:51 - 2012-02-24 08:12:18
+17:24:47.111 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329996951857, to=1330071138609, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:24:47.111 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 74186 ms
+17:24:47.111 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), -1 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), -1 ([2, 1, 5]), 2813 ([2]), 2813 ([1]), 5321 ([5])
+17:24:47.142 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:24:47.146 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [884, 884, 884]
+17:24:47.146 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.041715686274509806
+17:24:47.146 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04354260935143288
+17:24:47.146 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010501508295625944
+17:24:47.146 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 11:35:51(1329996951857), 2012-02-23 13:58:03(1330005483247)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:06:18(1330049178801), 2012-02-24 02:07:32(1330049252987)), measures=[2, 1, 5]}]
+17:24:47.146 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 11:35:51(1329996951857), 2012-02-23 13:58:03(1330005483247)), measures=[2, 1, 5]}, MultivariateTimeInterval{interval=[2012-02-24 02:06:18(1330049178801), 2012-02-24 02:07:32(1330049252987)), measures=[2, 1, 5]}]
+17:24:47.146 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:24:47.146 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:24:47.146 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1329996951857 ) / ((1330071138609 - 1329996951857 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1329996951857 AND epoch < 1330005483247 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329996951857 ) / ((1330071138609 - 1329996951857 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1329996951857 AND epoch < 1330005483247 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329996951857 ) / ((1330071138609 - 1329996951857 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1329996951857 AND epoch < 1330005483247 AND id = 5) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329996951857 ) / ((1330071138609 - 1329996951857 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049178801 AND epoch < 1330049252987 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329996951857 ) / ((1330071138609 - 1329996951857 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049178801 AND epoch < 1330049252987 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329996951857 ) / ((1330071138609 - 1329996951857 ) / 6000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 1 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049178801 AND epoch < 1330049252987 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:24:47.850 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:24:47.852 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:24:47.862 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:24:47.867 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.037735
+17:24:47.867 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03938
+17:24:47.867 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.009283333333333333
+
+17:24:47.882 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 25 ZI 2012-02-23 11:54:29 - 2012-02-24 07:51:37
+17:24:47.882 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329998069760, to=1330069897216, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:24:47.882 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 71827 ms
+17:24:47.882 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 12364 ([2, 1, 5]), 20709 ([2, 1, 5]), -1 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 12364 ([2, 1, 5]), 5400 ([2, 1]), 23592 ([5]), 31441 ([5]), -1 ([2, 1, 5]), 2813 ([2]), 2813 ([1]), 5321 ([5])
+17:24:47.915 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [1000, 1000, 1000]
+17:24:47.915 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03589333333333333
+17:24:47.915 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03734333333333333
+17:24:47.915 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010461666666666666
+17:24:47.915 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: []
+17:24:47.915 [main] INFO  e.m.v.middleware.cache.MinMaxCache - []
+17:24:47.915 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 6
+17:24:47.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03589333333333333
+17:24:47.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03734333333333333
+17:24:47.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.010461666666666666
+17:24:47.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 11:54:29(1329998069760), 2012-02-24 07:51:37(1330069897216))]: 
+17:24:47.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:24:47.923 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:24:47.923 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329998069760 ) / ((1330069897216 - 1329998069760 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329998069760 AND epoch < 1330069897216 AND id = 2) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329998069760 ) / ((1330069897216 - 1329998069760 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329998069760 AND epoch < 1330069897216 AND QA.id = 2) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329998069760 ) / ((1330069897216 - 1329998069760 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329998069760 AND epoch < 1330069897216 AND id = 1) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329998069760 ) / ((1330069897216 - 1329998069760 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329998069760 AND epoch < 1330069897216 AND QA.id = 1) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329998069760 ) / ((1330069897216 - 1329998069760 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329998069760 AND epoch < 1330069897216 AND id = 5) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329998069760 ) / ((1330069897216 - 1329998069760 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329998069760 AND epoch < 1330069897216 AND QA.id = 5) 
+) 
+SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
+GROUP BY id , k , value , u_id 
+ORDER BY k, id , u_id
+17:25:12.594 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:25:12.597 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:25:12.608 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 26 ZI 2012-02-23 14:31:46 - 2012-02-24 05:14:20
+17:25:12.608 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1330007506944, to=1330060460032, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:25:12.608 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 52953 ms
+17:25:12.608 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 20709 ([2, 1, 5]), -1 ([2, 1, 5]), 17118 ([2, 1, 5]), 17118 ([5]), 23592 ([2, 1]), 12364 ([2, 1, 5]), 5400 ([2, 1]), 23592 ([5])
+17:25:12.626 [main] INFO  e.m.v.middleware.domain.PixelColumn - There are gaps in the fully contained ranges of this pixel column.
+17:25:12.628 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [999, 999, 999]
+17:25:12.628 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.050163496830163495
+17:25:12.628 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.050111778445111776
+17:25:12.628 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.0028578578578578578
+17:25:12.628 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-24 02:06:20(1330049180955), 2012-02-24 02:07:13(1330049233908)), measures=[2, 1, 5]}]
+17:25:12.628 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-24 02:06:20(1330049180955), 2012-02-24 02:07:13(1330049233908)), measures=[2, 1, 5]}]
+17:25:12.628 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 2
+17:25:12.628 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching 5295 missing raw data from data source
+17:25:12.628 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049180955 AND epoch < 1330049233908 AND id = 2) 
+ UNION ALL SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049180955 AND epoch < 1330049233908 AND id = 1) 
+ UNION ALL SELECT id , epoch , value ,0 as u_id FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330049180955 AND epoch < 1330049233908 AND id = 5) 
+ORDER BY u_id, epoch , id 
+
+17:25:12.734 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:25:12.737 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:25:12.740 [main] INFO  e.m.v.m.cache.TimeSeriesSpanFactory - Created raw time series span:2012-02-24 02:07:13 - 2012-02-24 02:07:13
+17:25:12.749 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.048695
+17:25:12.749 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05028166666666667
+17:25:12.749 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.002855
+
+17:25:12.756 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 27 P 2012-02-23 02:29:52 - 2012-02-23 17:12:25
+17:25:12.756 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329964192423, to=1330017145511, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=P, accuracy=0.99}
+17:25:12.756 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 52953 ms
+17:25:12.756 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 12364 ([2, 1, 5]), 20709 ([2, 1, 5])
+17:25:12.761 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [382, 382, 382]
+17:25:12.761 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.050767888307155326
+17:25:12.761 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.04956369982547993
+17:25:12.761 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06981675392670157
+17:25:12.761 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 02:29:52(1329964192423), 2012-02-23 11:35:17(1329996917377)), measures=[2, 1, 5]}]
+17:25:12.761 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 02:29:52(1329964192423), 2012-02-23 11:35:17(1329996917377)), measures=[2, 1, 5]}]
+17:25:12.761 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:25:12.761 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:25:12.761 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1329964192423 AND epoch < 1329996917377 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1329964192423 AND epoch < 1329996917377 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1329964192423 AND epoch < 1329996917377 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:25:20.951 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:25:20.956 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:25:20.970 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.036401666666666666
+17:25:20.970 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03596333333333333
+17:25:20.970 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.05098166666666667
+17:25:20.970 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 02:29:52(1329964192423), 2012-02-23 17:12:25(1330017145511))]: 
+17:25:20.970 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:25:20.970 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:25:20.970 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329964192423 AND epoch < 1330017145511 AND id = 2) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329964192423 AND epoch < 1330017145511 AND QA.id = 2) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329964192423 AND epoch < 1330017145511 AND id = 1) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329964192423 AND epoch < 1330017145511 AND QA.id = 1) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329964192423 AND epoch < 1330017145511 AND id = 5) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329964192423 ) / ((1330017145511 - 1329964192423 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329964192423 AND epoch < 1330017145511 AND QA.id = 5) 
+) 
+SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
+GROUP BY id , k , value , u_id 
+ORDER BY k, id , u_id
+17:25:42.997 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:25:42.999 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+
+17:25:43.009 [main] INFO  e.m.v.m.experiments.Experiments - Executing query 28 ZI 2012-02-23 04:41:57 - 2012-02-23 15:02:21
+17:25:43.009 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Executing Visual Query Query{from=1329972117504, to=1330009341952, measures=[2, 1, 5], viewPort={width=1000, height=600}, queryMethod=MIN_MAX, filter= null, opType=ZI, accuracy=0.99}
+17:25:43.009 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Pixel column interval: 37224 ms
+17:25:43.009 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Overlapping intervals 13238 ([2, 1, 5]), 12364 ([2, 1, 5])
+17:25:43.021 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Valid columns: [897, 897, 897]
+17:25:43.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.033818283166109256
+17:25:43.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.03353957636566332
+17:25:43.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.06708472686733556
+17:25:43.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Unable to Determine Errors: [MultivariateTimeInterval{interval=[2012-02-23 13:58:27(1330005507432), 2012-02-23 15:02:21(1330009341504)), measures=[2, 1, 5]}]
+17:25:43.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - [MultivariateTimeInterval{interval=[2012-02-23 13:58:27(1330005507432), 2012-02-23 15:02:21(1330009341504)), measures=[2, 1, 5]}]
+17:25:43.021 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Agg factor = 4
+17:25:43.021 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:25:43.021 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+SELECT id , floor( 
+(epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330005507432 AND epoch < 1330009341504 AND id = 2) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330005507432 AND epoch < 1330009341504 AND id = 1) 
+GROUP BY id , k 
+ UNION ALL SELECT id , floor( 
+(epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 4000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 0 as u_id 
+FROM more.manufacturing_exp 
+WHERE  (epoch >= 1330005507432 AND epoch < 1330009341504 AND id = 5) 
+GROUP BY id , k 
+ ORDER BY u_id, k, id 
+17:25:43.431 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetched missing data from data source
+17:25:43.432 [main] DEBUG e.m.v.middleware.cache.MinMaxCache - Added fetched data points to pixel columns
+17:25:43.440 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.030655
+17:25:43.441 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.029783333333333332
+17:25:43.441 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Measure has error: 0.060346666666666667
+17:25:43.441 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Cached data are above error bound. Fetching [[2012-02-23 04:41:57(1329972117504), 2012-02-23 15:02:21(1330009341952))]: 
+17:25:43.441 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:25:43.441 [main] INFO  e.m.v.middleware.cache.MinMaxCache - Fetching missing data from data source
+17:25:43.442 [main] INFO  e.m.v.m.d.Q.SQLQueryExecutor - Executing Query: 
+WITH Q_M AS (SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329972117504 AND epoch < 1330009341952 AND id = 2) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329972117504 AND epoch < 1330009341952 AND QA.id = 2) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329972117504 AND epoch < 1330009341952 AND id = 1) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329972117504 AND epoch < 1330009341952 AND QA.id = 1) 
+ UNION ALL SELECT Q.id , epoch , value , k, 0 as u_id 
+FROM more.manufacturing_exp as Q 
+JOIN (SELECT id , floor( 
+(epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 1000 )) as k, 
+min(value ) as v_min, max(value ) as v_max, 
+min(epoch ) as t_min, max(epoch ) as t_max 
+FROM more.manufacturing_exp 
+WHERE 
+ (epoch >= 1329972117504 AND epoch < 1330009341952 AND id = 5) 
+GROUP BY id , k ) as QA 
+ON k = floor((epoch - 1329972117504 ) / ((1330009341952 - 1329972117504 ) / 1000 )) 
+AND QA.id = Q.id 
+AND (value = v_min OR value = v_max OR 
+epoch = t_min OR epoch = t_max) 
+WHERE 
+(epoch >= 1329972117504 AND epoch < 1330009341952 AND QA.id = 5) 
 ) 
 SELECT id , MIN(epoch) AS min_time , MAX(epoch) AS max_time, value , k, u_id FROM Q_M 
 GROUP BY id , k , value , u_id 

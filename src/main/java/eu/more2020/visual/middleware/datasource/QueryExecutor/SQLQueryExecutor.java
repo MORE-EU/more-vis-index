@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.sql.*;
 
 import java.util.*;
@@ -87,8 +88,10 @@ public class SQLQueryExecutor implements QueryExecutor {
 
     @Override
     public void drop() throws SQLException {
+        String name = Paths.get(dropFolder, table + ".sql").toString();
+        LOG.info("Opgening {}", name);
         InputStream inputStream
-                = getClass().getClassLoader().getResourceAsStream(dropFolder + "/" + table + ".sql");
+                = getClass().getClassLoader().getResourceAsStream(name);
         String[] statements = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
