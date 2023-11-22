@@ -20,8 +20,6 @@ import java.util.stream.IntStream;
  */
 public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AggregateTimeSeriesSpan.class);
-
     List<Integer> measures;
 
     /**

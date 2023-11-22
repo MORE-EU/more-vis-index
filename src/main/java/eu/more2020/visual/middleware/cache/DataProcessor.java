@@ -53,18 +53,16 @@ public class DataProcessor {
     }
 
 
-    public List<TimeSeriesSpan> getMissing(long from, long to, List<List<Integer>> measures, ViewPort viewPort, List<TimeInterval> missingIntervals,
-                                                               Query query, int aggFactor) {
+    public List<TimeSeriesSpan> getMissing(long from, long to, long pixelColumnInterval,
+                                           List<List<Integer>> measures, ViewPort viewPort, List<TimeInterval> missingIntervals, Query query, int aggFactor) {
         List<TimeSeriesSpan> timeSeriesSpans = null;
         if (missingIntervals.size() >= 1) {
             // Create time series spans from the missing data and insert them into the interval tree.
-            long numberOfAggDataPoints = 4L * aggFactor * viewPort.getWidth();
-            long numberOfRawDataPoints = missingIntervals.stream().mapToLong(m -> (m.getTo() - m.getFrom()) / dataset.getSamplingInterval().toMillis()).sum();
 
-            if(numberOfAggDataPoints > (numberOfRawDataPoints / dataReductionRatio)){ // get raw data
+            if(pixelColumnInterval < (dataset.getSamplingInterval().toMillis() * dataReductionRatio)){ // get raw data
                 List<DataPoint> missingDataPointList = null;
                 DataPoints missingDataPoints = null;
-                LOG.info("Fetching {} missing raw data from data source", numberOfRawDataPoints);
+                LOG.info("Fetching missing raw data from data source");
                 missingDataPoints = dataSource.getDataPoints(from, to, missingIntervals, measures);
                 missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
                 LOG.info("Fetched missing data from data source");

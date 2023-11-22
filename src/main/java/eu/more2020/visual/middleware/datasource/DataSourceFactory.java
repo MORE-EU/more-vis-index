@@ -1,6 +1,6 @@
 package eu.more2020.visual.middleware.datasource;
 
-import eu.more2020.visual.middleware.datasource.ModelarDB.ModelarDBDatasource;
+import eu.more2020.visual.middleware.ModelarDBDatasource;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.ModelarDBQueryExecutor;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutor;

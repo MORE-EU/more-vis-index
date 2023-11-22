@@ -24,7 +24,7 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     private final long aggregateInterval;
     private final int noOfGroups;
     private int k;
-    private int unionGroup = 0;
+    private int unionGroup;
 
     public PostgreSQLAggregateDataPointsIterator(long from, long to, ResultSet resultSet, int noOfGroups) throws SQLException {
         this.resultSet = resultSet;

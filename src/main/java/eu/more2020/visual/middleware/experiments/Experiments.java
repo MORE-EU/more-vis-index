@@ -467,7 +467,6 @@ public class Experiments<T> {
             startTime = dataset.getTimeRange().getTo() - (long) (q * (dataset.getTimeRange().getTo() - dataset.getTimeRange().getFrom()));
             endTime = (dataset.getTimeRange().getTo());
         }
-        dataset.setTimeRange(new TimeRange(dataset.getTimeRange().getFrom(), 1330146920000L));
         return dataset;
     }
 

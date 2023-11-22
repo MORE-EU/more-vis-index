@@ -77,7 +77,7 @@ public class CacheQueryExecutor {
                 aggFactor = (int) (pixelColumnInterval / size);
             }
         }
-        aggFactor = Math.min(aggFactor, 10);
+//        aggFactor = Math.min(aggFactor, 10);
         if(errorCalculator.hasError()){
             updateAggFactor();
         }

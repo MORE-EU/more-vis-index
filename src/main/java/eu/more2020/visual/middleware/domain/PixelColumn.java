@@ -196,17 +196,11 @@ public class PixelColumn implements TimeInterval {
             LOG.debug("There is no fully contained range in this pixel column.");
             return null;
         }
-
-//        LOG.debug("Left: {}", left);
-//        LOG.debug("Right: {}", right);
         determinePartialContained();
-//        LOG.debug("Left PARTIAL: {}", leftPartial);
-//        LOG.debug("Right PARTIAL: {}", rightPartial);
-
         return measures.stream().map(m -> {
             // TODO: Currently checking if measure has been initialized by checking the minTimestamp.
             // While this is not wrong it is not so clear. We have to have different counts for each measure.
-            if(statsAggregator.getMinTimestamp(m) != -1) {
+            if(statsAggregator.getCount() > 0 && statsAggregator.getMinTimestamp(m) != -1) {
                 int minPixelId = getPixelId(m, statsAggregator.getMinValue(m), viewPortStats);
                 int maxPixelId = getPixelId(m, statsAggregator.getMaxValue(m), viewPortStats);
                 if (leftPartial != null && leftPartial.getCount() > 0 && leftPartial.getStats().getMeasures().contains(m)) {

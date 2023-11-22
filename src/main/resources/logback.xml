@@ -17,7 +17,6 @@
     <logger name="eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator" level="INFO"/>
     <logger name="com.mitchellbosecke.pebble" level="ERROR"/>
     <logger name ="eu.more2020.visual.datasource.QueryExecutor" level="INFO"/>
-    <logger name ="eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.domain.PixelColumn" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.datasource.DataSource" level="INFO"/>

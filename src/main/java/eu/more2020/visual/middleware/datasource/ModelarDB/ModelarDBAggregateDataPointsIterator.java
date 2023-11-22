@@ -19,7 +19,7 @@ public class ModelarDBAggregateDataPointsIterator implements Iterator<Aggregated
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
     private final FlightStream flightStream;
-    private final List<Integer> measures;
+    private final List<List<Integer>> measures;
     private final long from;
     private final long to;
 
@@ -33,7 +33,7 @@ public class ModelarDBAggregateDataPointsIterator implements Iterator<Aggregated
     private final String idCol;
 
 
-    public ModelarDBAggregateDataPointsIterator(long from, long to, List<Integer> measures,
+    public ModelarDBAggregateDataPointsIterator(long from, long to, List<List<Integer>> measures,
                                                 String timeCol,
                                                 String valueCol,
                                                 String idCol,
@@ -64,33 +64,39 @@ public class ModelarDBAggregateDataPointsIterator implements Iterator<Aggregated
             else return false;
         }
     }
-    
+
     @Override
     public AggregatedDataPoint next() {
-        NonTimestampedStatsAggregator statsAggregator = new NonTimestampedStatsAggregator(measures);
-        long firstTimestamp = from;
-        int k = 0;
-        int i = 0;
-        while(i < measures.size() && hasNext()){
-            int m = measures.get(i);
-            Row row = iterator.next();
-            String sensor = new String(row.getVarChar(idCol), StandardCharsets.UTF_8);
-            k = (int) row.getFloat8("k");
-            double v_min = row.getFloat4("v_min");
-            double v_max = row.getFloat4("v_max");
-            statsAggregator.accept(v_min, m);
-            statsAggregator.accept(v_max, m);
-//            LOG.debug("{} - {}", m, sensor);
-
-            i ++;
-        }
-        firstTimestamp = from + k * aggregateInterval;
-        long lastTimestamp = (k != noOfGroups - 1) ? from + (k + 1) * aggregateInterval : to;
-        statsAggregator.setFrom(firstTimestamp);
-        statsAggregator.setTo(lastTimestamp);
-//        LOG.debug("{}", measures.stream()
-//                .map(m -> m + " - " + statsAggregator.getMinValue(m)).collect(Collectors.toList()));
-        return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
+        return null;
     }
+
+//
+//    @Override
+//    public AggregatedDataPoint next() {
+//        NonTimestampedStatsAggregator statsAggregator = new NonTimestampedStatsAggregator(measures);
+//        long firstTimestamp = from;
+//        int k = 0;
+//        int i = 0;
+//        while(i < measures.size() && hasNext()){
+//            int m = measures.get(i);
+//            Row row = iterator.next();
+//            String sensor = new String(row.getVarChar(idCol), StandardCharsets.UTF_8);
+//            k = (int) row.getFloat8("k");
+//            double v_min = row.getFloat4("v_min");
+//            double v_max = row.getFloat4("v_max");
+//            statsAggregator.accept(v_min, m);
+//            statsAggregator.accept(v_max, m);
+////            LOG.debug("{} - {}", m, sensor);
+//
+//            i ++;
+//        }
+//        firstTimestamp = from + k * aggregateInterval;
+//        long lastTimestamp = (k != noOfGroups - 1) ? from + (k + 1) * aggregateInterval : to;
+//        statsAggregator.setFrom(firstTimestamp);
+//        statsAggregator.setTo(lastTimestamp);
+////        LOG.debug("{}", measures.stream()
+////                .map(m -> m + " - " + statsAggregator.getMinValue(m)).collect(Collectors.toList()));
+//        return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, statsAggregator);
+//    }
 
 }

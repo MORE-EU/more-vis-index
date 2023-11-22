@@ -17,13 +17,13 @@ public class ModelarDBDataPointsIterator implements Iterator<DataPoint> {
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
     private final FlightStream flightStream;
-    private final List<Integer> measures;
+    private final List<List<Integer>> measures;
     private final String timeCol;
     private final String valueCol;
     private final String idCol;
     private Iterator<Row> iterator;
 
-    public ModelarDBDataPointsIterator(List<Integer> measures,
+    public ModelarDBDataPointsIterator(List<List<Integer>> measures,
                                        String timeCol,
                                        String valueCol,
                                        String idCol,

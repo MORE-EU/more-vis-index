@@ -1,5 +1,4 @@
-  #!/bin/bash
-
+#!/bin/bash0,
 a=$1
 q=$2
 p=$3
@@ -7,7 +6,7 @@ aggFactor=$4
 reductionRatio=$5
 type=$6
 
-tables=("manufacturing_exp")
+tables=("intel_lab_exp" "soccer_exp")
 modes=("m4")
 
 for table in "${tables[@]}"
