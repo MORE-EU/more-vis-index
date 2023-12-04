@@ -30,6 +30,9 @@ public class ModelarDBDataset extends AbstractDataset {
         this.fillModelarDBDatasetInfo(modelarDBQueryExecutor);
     }
 
+    public ModelarDBDataset(String config, String table, String schema, String table1, String timeFormat) {
+    }
+
     private void fillModelarDBDatasetInfo(ModelarDBQueryExecutor modelarDBQueryExecutor)  {
         try {
             String timeCol = getTimeCol();

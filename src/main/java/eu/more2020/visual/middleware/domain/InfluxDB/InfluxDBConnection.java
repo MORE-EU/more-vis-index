@@ -37,12 +37,14 @@ public class InfluxDBConnection implements DatabaseConnection {
         catch (Exception e) {
             LOG.error(e.getClass().getName() + ": " + e.getMessage());
         }
+        connect();
     }
 
     public InfluxDBConnection(String url, String org, String token) {
         this.url = url;
         this.org = org;
         this.token = token;
+        connect();
     }
 
     @Override
@@ -90,5 +92,19 @@ public class InfluxDBConnection implements DatabaseConnection {
         }
     }
 
+    public InfluxDBClient getClient() {
+        return client;
+    }
 
+    public String getToken() {
+        return token;
+    }
+
+    public String getOrg() {
+        return org;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }

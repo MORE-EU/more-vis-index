@@ -204,7 +204,7 @@ public class Experiments<T> {
 
 
     private void initialize() throws IOException, SQLException {
-        AbstractDataset dataset = createDataset();
+        AbstractDataset dataset = createInitDataset();
         QueryExecutor queryExecutor = createQueryExecutor(dataset);
         queryExecutor.drop();
         queryExecutor.initialize(path);
@@ -436,6 +436,23 @@ public class Experiments<T> {
 //        recreateDir(outFolder);
     }
 
+    private AbstractDataset createInitDataset() {
+        AbstractDataset dataset = null;
+        switch (type) {
+            case "postgres":
+                dataset = new PostgreSQLDataset(config, table, schema, table, timeFormat);
+                break;
+            case "modelar":
+                dataset = new ModelarDBDataset(config, table, schema, table, timeFormat);
+            case "influx":
+                dataset = new InfluxDBDataset(config, table, schema, table, timeFormat);
+                break;
+            default:
+                break;
+        }
+        return dataset;
+    }
+
     private AbstractDataset createDataset() throws IOException, SQLException {
         String p = "";
         AbstractDataset dataset = null;
@@ -478,7 +495,7 @@ public class Experiments<T> {
     }
 
 
-    private QueryExecutor createQueryExecutor(AbstractDataset dataset) throws IOException, SQLException {
+    private QueryExecutor createQueryExecutor(AbstractDataset dataset) {
         String p = "";
         QueryExecutor queryExecutor = null;
         switch (type) {

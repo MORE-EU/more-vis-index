@@ -10,7 +10,6 @@ public interface DatabaseConnection {
 
     public void connect() throws URISyntaxException, SQLException;
 
-
     public QueryExecutor getQueryExecutor();
 
     public QueryExecutor getQueryExecutor(AbstractDataset dataset);

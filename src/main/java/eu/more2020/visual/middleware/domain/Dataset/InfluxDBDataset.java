@@ -14,10 +14,20 @@ import java.util.stream.Collectors;
 public class InfluxDBDataset extends AbstractDataset {
 
     private String influxDBCfg;
-    private String org;
+    private final String org;
     private final String bucket;
     private final String measurement;
     private final String timeFormat;
+
+    public InfluxDBDataset(String influxDBCfg, String id, String bucket, String measurement, String timeFormat) {
+        super(id);
+        this.influxDBCfg = influxDBCfg;
+        this.bucket = bucket;
+        this.measurement = measurement;
+        this.timeFormat = timeFormat;
+        InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
+        this.org = influxDBConnection.getOrg();
+    }
 
     public InfluxDBDataset(InfluxDBQueryExecutor influxDBQueryExecutor, String id, String org, String bucket,
                            String measurement, String timeFormat, String timeCol) {
@@ -30,7 +40,6 @@ public class InfluxDBDataset extends AbstractDataset {
         this.fillInfluxDBDatasetInfo(influxDBQueryExecutor);
     }
 
-
     public InfluxDBDataset(String influxDBCfg, String id, String bucket,
                            String measurement, String timeFormat, String timeCol) {
         super(id);
@@ -39,8 +48,11 @@ public class InfluxDBDataset extends AbstractDataset {
         this.measurement = measurement;
         this.timeFormat = timeFormat;
         setTimeCol(timeCol);
-        this.fillInfluxDBDatasetInfo(new InfluxDBConnection(influxDBCfg).getQueryExecutor());
+        InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
+        this.org = influxDBConnection.getOrg();
+        this.fillInfluxDBDatasetInfo(influxDBConnection.getQueryExecutor());
     }
+
 
     private void fillInfluxDBDatasetInfo(InfluxDBQueryExecutor influxDBQueryExecutor) {
         List<FluxTable> fluxTables;
