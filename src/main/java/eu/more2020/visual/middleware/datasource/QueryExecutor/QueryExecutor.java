@@ -18,4 +18,5 @@ public interface QueryExecutor {
     void initialize(String path) throws SQLException, FileNotFoundException;
     void drop() throws SQLException, FileNotFoundException;
 
+    ArrayList<String> getDbTables() throws SQLException;
 }

@@ -54,7 +54,6 @@ public class JDBCConnection implements DatabaseConnection {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error(e.getClass().getName()+": "+e.getMessage());
-            throw e;
         }
     }
 
