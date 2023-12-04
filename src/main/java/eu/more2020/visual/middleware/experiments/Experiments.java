@@ -118,6 +118,10 @@ public class Experiments<T> {
 
     @Parameter(names = "-seqCount", description = "Number of queries in the sequence")
     private Integer seqCount;
+
+    @Parameter(names = "-measureChange", description = "Number of times the measure changes")
+    private Integer measureChange;
+
     @Parameter(names = "-objCount", description = "Number of objects")
     private Integer objCount;
     @Parameter(names = "-minShift", description = "Min shift in the query sequence")
@@ -219,7 +223,8 @@ public class Experiments<T> {
         Query q0 = new Query(startTime, endTime, accuracy, null, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "aggFactor", "Results size", "IO Count",
-                "Time (sec)", "Progressive Time (sec)", "Processing Time (sec)", "Query Time (sec)", "Memory", "Error", "flag");
+                "Time (sec)", "Progressive Time (sec)", "Processing Time (sec)", "Query Time (sec)", "Memory", "Est. Raw Datapoints", "Data Reduction Ratio",
+                "Error", "flag");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
             Query query = (Query) sequence.get(i);
@@ -233,8 +238,8 @@ public class Experiments<T> {
             csvWriter.addValue(table);
             csvWriter.addValue(i);
             csvWriter.addValue(query.getOpType());
-            csvWriter.addValue(viewPort.getWidth());
-            csvWriter.addValue(viewPort.getHeight());
+            csvWriter.addValue(query.getViewPort().getWidth());
+            csvWriter.addValue(query.getViewPort().getHeight());
             csvWriter.addValue(query.getFrom());
             csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
@@ -246,6 +251,8 @@ public class Experiments<T> {
             csvWriter.addValue(time - queryResults.getQueryTime());
             csvWriter.addValue(queryResults.getQueryTime());
             csvWriter.addValue(memorySize);
+            csvWriter.addValue((query.getTo() - query.getFrom()) / dataset.getSamplingInterval().toMillis()); // raw data points
+            csvWriter.addValue((double) ((query.getTo() - query.getFrom()) / queryResults.getAggFactor() / query.getViewPort().getWidth()) / dataset.getSamplingInterval().toMillis()); // data reduction factor
             csvWriter.addValue(queryResults.getError());
             csvWriter.addValue(queryResults.isFlag());
             csvWriter.writeValuesToRow();
@@ -399,7 +406,7 @@ public class Experiments<T> {
         Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
         Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
         QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, zoomFactor, dataset);
-        return sequenceGenerator.generateQuerySequence(q0, seqCount);
+        return sequenceGenerator.generateQuerySequence(q0, seqCount, measureChange);
     }
 
     private void recreateDir(String folder) {

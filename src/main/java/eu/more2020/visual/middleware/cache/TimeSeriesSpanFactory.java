@@ -50,14 +50,14 @@ public class TimeSeriesSpanFactory {
      * @return
      */
     public static List<TimeSeriesSpan> createAggregate(List<AggregatedDataPoint> aggregatedDataPointsList, List<TimeInterval> ranges,
-                                                       List<List<Integer>> measures, long aggregateInterval){
+                                                       List<List<Integer>> measures, long aggregateInterval, int width){
         List<TimeSeriesSpan> spans = new ArrayList<>();
         Iterator<AggregatedDataPoint> it = aggregatedDataPointsList.iterator();
         boolean changed = false;
         AggregatedDataPoint aggregatedDataPoint = null;
         int i = 0;
         for (TimeInterval range : ranges) {
-            AggregateTimeSeriesSpan timeSeriesSpan = new AggregateTimeSeriesSpan(range.getFrom(), range.getTo(),  measures.get(i), aggregateInterval);
+            AggregateTimeSeriesSpan timeSeriesSpan = new AggregateTimeSeriesSpan(range.getFrom(), range.getTo(),  measures.get(i), aggregateInterval, width);
             while(it.hasNext()){
                 if(!changed) aggregatedDataPoint = it.next();
                 else changed = false;

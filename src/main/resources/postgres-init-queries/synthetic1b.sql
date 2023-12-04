@@ -21,6 +21,7 @@ CREATE TABLE more.synthetic1b(
     ,value      FLOAT
     ,id         BIGINT NOT NULL
     ,col        VARCHAR NOT NULL
+    ,PRIMARY KEY(id, epoch)
 );
 
 INSERT INTO more.synthetic1b(epoch, timestamp, value, id, col)
@@ -40,7 +41,6 @@ SELECT date_part('epoch', timestamp) * 1000, timestamp, value_5, 4, 'value_5' FR
 
 DROP TABLE more.synthetic1b_tmp;
 
-CREATE INDEX synthetic1b_index ON more.synthetic1b(epoch, id);
 
 
 

@@ -21,6 +21,7 @@ CREATE TABLE more.synthetic8m(
     ,value      FLOAT
     ,id         BIGINT NOT NULL
     ,col        VARCHAR NOT NULL
+    ,PRIMARY KEY(id, epoch)
 );
 
 INSERT INTO more.synthetic8m(epoch, timestamp, value, id, col)
