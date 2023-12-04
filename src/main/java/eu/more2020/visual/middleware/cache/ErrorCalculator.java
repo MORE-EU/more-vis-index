@@ -96,9 +96,9 @@ public class ErrorCalculator {
         return error;
     }
 
-    public List<MultivariateTimeInterval> getMissingIntervals() {
-        List<MultivariateTimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
-        missingIntervals = DateTimeUtil.groupMultiIntervals(pixelColumnInterval, missingIntervals);
+    public List<TimeInterval> getMissingIntervals() {
+        List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
+        missingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, missingIntervals);
         LOG.info("Unable to Determine Errors: " + missingIntervals);
         return missingIntervals;
     }

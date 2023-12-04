@@ -81,5 +81,19 @@ public class InfluxDBConnection {
 
 
 
+    public InfluxDBClient getClient() {
+        return client;
+    }
 
+    public String getToken() {
+        return token;
+    }
+
+    public String getOrg() {
+        return org;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }

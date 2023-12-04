@@ -145,20 +145,13 @@ public class Experiments<T> {
     @Parameter(names = "--measureMem",  description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
-
-    @Parameter(names = "-org", description = "The organization for InfluxDB")
-    public String org;
-
     @Parameter(names = "--groupBy", converter = OLAPConverter.class, description = "Measure index memory after every query in the sequence")
     private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
 
     @Parameter(names = "--help", help = true, description = "Displays help")
-
-
     private boolean help;
 
 
-    private final Properties influxDbProperties = new Properties();
 
     public Experiments() {
     }
@@ -409,19 +402,6 @@ public class Experiments<T> {
         return sequenceGenerator.generateQuerySequence(q0, seqCount, measureChange);
     }
 
-    private void recreateDir(String folder) {
-        try {
-            File f = new File(folder);
-            if (f.exists()) {
-                FileUtils.cleanDirectory(f); //clean out directory (this is optional -- but good know)
-                FileUtils.forceDelete(f); //delete directory
-            }
-            FileUtils.forceMkdir(f); //create directory
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void initOutput() throws IOException {
         Path outFolderPath = Paths.get(outFolder);
         Path timeQueriesPath = Paths.get(outFolder, "timeQueries");
@@ -433,10 +413,9 @@ public class Experiments<T> {
         FileUtil.build(typePath.toString());
         FileUtil.build(tablePath.toString());
         FileUtil.build(metadataPath.toString());
-//        recreateDir(outFolder);
     }
 
-    private AbstractDataset createDataset() throws IOException, SQLException {
+    private AbstractDataset createDataset() throws SQLException {
         String p = "";
         AbstractDataset dataset = null;
         switch (type) {
@@ -477,6 +456,22 @@ public class Experiments<T> {
         return dataset;
     }
 
+    private AbstractDataset createInitDataset() {
+        AbstractDataset dataset = null;
+        switch (type) {
+            case "postgres":
+                dataset = new PostgreSQLDataset(config, table, schema, table, timeFormat);
+                break;
+            case "modelar":
+                dataset = new ModelarDBDataset(config, table, schema, table, timeFormat);
+            case "influx":
+                dataset = new InfluxDBDataset(config, table, schema, table, timeFormat);
+                break;
+            default:
+                break;
+        }
+        return dataset;
+    }
 
     private QueryExecutor createQueryExecutor(AbstractDataset dataset) throws IOException, SQLException {
         String p = "";
