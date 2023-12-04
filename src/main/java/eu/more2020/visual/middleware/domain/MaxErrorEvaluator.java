@@ -8,25 +8,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class that computes the maximum number of pixel errors.
  */
 public class MaxErrorEvaluator {
-    private static final Logger LOG = LoggerFactory.getLogger(MinMaxCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MaxErrorEvaluator.class);
 
     private final List<Integer> measures;
     private final ViewPort viewPort;
 
     private final List<PixelColumn> pixelColumns;
 
-    private List<TimeInterval> missingRanges;
-
-    private List<List<TimeInterval>> missingRangesPerMeasure;
-
+    private List<MultivariateTimeInterval> missingRanges;
 
 
     public MaxErrorEvaluator(List<Integer> measures, ViewPort viewPort, List<PixelColumn> pixelColumns) {
@@ -38,37 +33,31 @@ public class MaxErrorEvaluator {
     public List<List<Integer>> computeMaxPixelErrorsPerColumnAndMeasure() {
         List<List<Integer>> maxPixelErrorsPerColumnAndMeasure = new ArrayList<>();
         missingRanges = new ArrayList<>();
-        missingRangesPerMeasure = new ArrayList<>();
-        while (missingRangesPerMeasure.size() < measures.size()) {
-            missingRangesPerMeasure.add(new ArrayList<>());
-        }
+
         // The stats aggregator for the whole query interval to keep track of the min/max values
         // and determine the y-axis scale.
         StatsAggregator viewPortStatsAggregator = new StatsAggregator(measures);
         pixelColumns.forEach(pixelColumn -> viewPortStatsAggregator.combine(pixelColumn.getStats()));
-
+        LOG.debug("Viewport stats: {}", viewPortStatsAggregator);
         for (int i = 0; i < pixelColumns.size(); i++) {
             PixelColumn currentPixelColumn = pixelColumns.get(i);
             List<Range<Integer>> maxInnerColumnPixelRanges = currentPixelColumn.computeMaxInnerPixelRange(viewPortStatsAggregator);
+
             if (maxInnerColumnPixelRanges == null) {
                 maxPixelErrorsPerColumnAndMeasure.add(null);
-                for (int measureIdx = 0; measureIdx < measures.size(); measureIdx++) {
-                    int measure = measures.get(measureIdx);
-                    missingRangesPerMeasure.get(measureIdx).add(currentPixelColumn.getRange());
-                }
-                missingRanges.add(currentPixelColumn.getRange());
+                missingRanges.add(new MultivariateTimeInterval(currentPixelColumn.getRange(), measures)); // add all measures as missing for this range
                 continue;
             }
-
+            List<Integer> missingMeasures = new ArrayList<>();
             List<Integer> maxPixelErrorsPerMeasure = new ArrayList<>();
             for (int measureIdx = 0; measureIdx < measures.size(); measureIdx++) {
                 int measure = measures.get(measureIdx);
                 RangeSet<Integer> pixelErrorRangeSet = TreeRangeSet.create();
 
                 // If error is null then add to list
-                if(maxInnerColumnPixelRanges.get(measureIdx) ==  null){
+                if(maxInnerColumnPixelRanges.get(measureIdx) == null){
                     maxPixelErrorsPerMeasure.add(null);
-                    missingRangesPerMeasure.get(measureIdx).add(currentPixelColumn.getRange());
+                    missingMeasures.add(measure);
                     continue;
                 }
 
@@ -99,19 +88,17 @@ public class MaxErrorEvaluator {
                         .sum();
                 maxPixelErrorsPerMeasure.add(maxWrongPixelsForMeasure);
             }
+            if(missingMeasures.size() > 0) missingRanges.add(new MultivariateTimeInterval(currentPixelColumn.getRange(), missingMeasures));
             maxPixelErrorsPerColumnAndMeasure.add(maxPixelErrorsPerMeasure);
         }
-        LOG.debug("Wrong pixels: {}", missingRangesPerMeasure);
         LOG.debug("{}", maxPixelErrorsPerColumnAndMeasure);
         return maxPixelErrorsPerColumnAndMeasure;
     }
 
-    public List<TimeInterval> getMissingRanges() {
+    public List<MultivariateTimeInterval> getMissingRanges() {
         return missingRanges;
     }
 
-    public List<List<TimeInterval>> getMissingRangesPerMeasure() {
-        return missingRangesPerMeasure;
-    }
+
 }
 

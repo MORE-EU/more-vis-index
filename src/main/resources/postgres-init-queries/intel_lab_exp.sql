@@ -21,23 +21,23 @@ CREATE TABLE more.intel_lab_exp(
   ,value      FLOAT
   ,id         INT NOT NULL
   ,col VARCHAR NOT NULL
+  ,PRIMARY KEY(id, epoch)
 );
 
 INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, moteid, 0, 'value_1' FROM more.intel_lab_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, humidity, 0, 'humidity' FROM more.intel_lab_exp_tmp;
 
 INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, temperature, 1, 'value_2' FROM more.intel_lab_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, light, 1, 'light' FROM more.intel_lab_exp_tmp;
 
 INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, humidity, 2, 'value_3' FROM more.intel_lab_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, moteid, 2, 'moteid' FROM more.intel_lab_exp_tmp;
 
 INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, light, 3, 'value_4' FROM more.intel_lab_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, temperature, 3, 'temperature' FROM more.intel_lab_exp_tmp;
 
 INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, voltage, 4, 'value_5' FROM more.intel_lab_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, voltage, 4, 'voltage' FROM more.intel_lab_exp_tmp;
 
 DROP TABLE more.intel_lab_exp_tmp;
 
-CREATE INDEX intel_lab_exp_index ON more.intel_lab_exp(epoch, id);

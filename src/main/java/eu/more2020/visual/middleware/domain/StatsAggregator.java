@@ -25,7 +25,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
     private static final Logger LOG = LoggerFactory.getLogger(StatsAggregator.class);
 
     protected List<Integer> measures;
-    protected int count = 0;
+    protected int count;
     protected final double[] sums;
     protected final double[] minValues;
     protected final long[] minTimestamps;
@@ -48,11 +48,12 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         firstTimestamps = new long[length];
         lastValues = new double[length];
         lastTimestamps = new long[length];
+        count = 0;
         clear();
     }
 
     public void clear() {
-        count = -1;
+        count = 0;
         Arrays.fill(sums, 0d);
         Arrays.fill(minValues, Double.POSITIVE_INFINITY);
         Arrays.fill(minTimestamps, -1l);
@@ -70,14 +71,13 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
      */
     @Override
     public void accept(DataPoint dataPoint) {
-        if(count == -1) count ++;
         if (dataPoint instanceof AggregatedDataPoint) {
             accept((AggregatedDataPoint) dataPoint);
             return;
         }
-        ++count;
         for (int measure : measures) {
             int i = getMeasureIndex(measure);
+            if(i == - 1) continue; // check if datapoint has this measure
             double value = dataPoint.getValues()[i];
             sums[i] += value;
             minValues[i] = Math.min(minValues[i], value);
@@ -96,12 +96,11 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
                 lastValues[i] = value;
                 lastTimestamps[i] = dataPoint.getTimestamp();
             }
+            count ++;
         }
     }
 
     public void accept(UnivariateDataPoint dataPoint, int measure) {
-        if(count == -1) count ++;
-        ++count;
         double value = dataPoint.getValue();
         int i = getMeasureIndex(measure);
 
@@ -124,16 +123,16 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
             lastValues[i] = value;
             lastTimestamps[i] = dataPoint.getTimestamp();
         }
+        count ++;
     }
 
 
     public void accept(AggregatedDataPoint dataPoint) {
-        if(count == -1) count ++;
         Stats stats = dataPoint.getStats();
         if (dataPoint.getCount() != 0) {
-            count += dataPoint.getCount();
             for (int m : measures) {
                 int i = getMeasureIndex(m);
+                if(i == - 1) continue; // check if datapoint has this measure
                 sums[i] += stats.getSum(m);
                 minValues[i] = Math.min(minValues[i], stats.getMinValue(m));
                 if (minValues[i] == stats.getMinValue(m)) {
@@ -151,6 +150,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
                     lastValues[i] = stats.getMaxValue(m);
                     lastTimestamps[i] = stats.getMaxTimestamp(m);
                 }
+                count += dataPoint.getCount();
             }
         }
     }
@@ -166,7 +166,6 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
         if (!hasSameMeasures(other)) {
             throw new IllegalArgumentException("Cannot combine stats with different measures");
         }
-        count += other.getCount();
         if(other.getCount() != 0) {
             for (int m : measures) {
                 int i = getMeasureIndex(m);
@@ -188,6 +187,7 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
                     lastTimestamps[i] = other.getLastTimestamp(m);
                 }
             }
+            count += other.getCount();
         }
     }
 
@@ -199,6 +199,11 @@ public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable
 
     @Override
     public int getCount() {
+        return count;
+    }
+
+    @Override
+    public int getCount(int measure) {
         return count;
     }
 

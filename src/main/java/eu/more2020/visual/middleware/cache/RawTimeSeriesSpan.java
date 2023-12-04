@@ -96,6 +96,11 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         return measures;
     }
 
+    @Override
+    public int getWidth() {
+        return 0;
+    }
+
 
     public TimeRange getTimeRange() {
         return new TimeRange(getFrom(), getTo());

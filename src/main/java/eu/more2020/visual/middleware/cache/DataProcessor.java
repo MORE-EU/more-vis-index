@@ -27,16 +27,15 @@ public class DataProcessor {
         this.dataReductionRatio = dataReductionRatio;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(MinMaxCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DataProcessor.class);
 
     public void processDatapoints(long from, long to, Query query, ViewPort viewPort,
-                                   List<PixelColumn> pixelColumns,List<TimeSeriesSpan> timeSeriesSpans) {
+                                   List<PixelColumn> pixelColumns, List<TimeSeriesSpan> timeSeriesSpans) {
         for (TimeSeriesSpan span : timeSeriesSpans) {
             if (span instanceof AggregateTimeSeriesSpan) {
                 Iterator<AggregatedDataPoint> iterator = ((AggregateTimeSeriesSpan) span).iterator(from, to);
                 while (iterator.hasNext()) {
                     AggregatedDataPoint aggregatedDataPoint = iterator.next();
-
                     addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
                 }
             }
@@ -44,7 +43,7 @@ public class DataProcessor {
                 Iterator<DataPoint> iterator = ((RawTimeSeriesSpan) span).iterator(from, to);
                 while (iterator.hasNext()) {
                     DataPoint dataPoint = iterator.next();
-                    addDataPointToPixelColumns(query, pixelColumns, dataPoint, viewPort);
+                    addDataPointToPixelColumns(query, pixelColumns, dataPoint, span.getMeasures(), viewPort);
                 }
             }
             else{
@@ -54,67 +53,62 @@ public class DataProcessor {
     }
 
 
-    public List<TimeSeriesSpan> getMissing(long from, long to, List<Integer> measures, ViewPort viewPort, List<TimeInterval> missingIntervals,
-                                                               Query query, int aggFactor) {
+    public List<TimeSeriesSpan> getMissing(long from, long to, List<List<Integer>> measures, ViewPort viewPort, List<TimeInterval> missingIntervals, Query query, int aggFactor) {
         List<TimeSeriesSpan> timeSeriesSpans = null;
+        long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
         if (missingIntervals.size() >= 1) {
             // Create time series spans from the missing data and insert them into the interval tree.
-            long numberOfAggDataPoints = 4L * aggFactor * viewPort.getWidth();
-            long numberOfRawDataPoints = missingIntervals.stream().mapToLong(m -> (m.getTo() - m.getFrom()) / dataset.getSamplingInterval().toMillis()).sum();
-
-            if(numberOfAggDataPoints > (numberOfRawDataPoints / dataReductionRatio)){ // get raw data
+            if(aggregateInterval < (dataset.getSamplingInterval().toMillis() * dataReductionRatio)){ // get raw data
                 List<DataPoint> missingDataPointList = null;
                 DataPoints missingDataPoints = null;
-                LOG.info("Fetching {} missing raw data from data source", numberOfRawDataPoints);
+                LOG.info("Fetching missing raw data from data source");
                 missingDataPoints = dataSource.getDataPoints(from, to, missingIntervals, measures);
                 missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
                 LOG.info("Fetched missing data from data source");
-                timeSeriesSpans = TimeSeriesSpanFactory.createRaw(missingDataPointList, measures, missingIntervals);
+                timeSeriesSpans = TimeSeriesSpanFactory.createRaw(missingDataPointList, missingIntervals, measures);
             }
             else{
                 List<AggregatedDataPoint> missingDataPointList = null;
                 AggregatedDataPoints missingDataPoints = null;
                 LOG.info("Fetching missing data from data source");
-                missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, query.getQueryMethod(), measures,
+                missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, query.getQueryMethod(),
                         aggFactor * viewPort.getWidth());
                 missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
                 LOG.info("Fetched missing data from data source");
-                long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
-                timeSeriesSpans = TimeSeriesSpanFactory.createAggregate(missingDataPointList, measures, missingIntervals, aggregateInterval);
+                timeSeriesSpans = TimeSeriesSpanFactory.createAggregate(missingDataPointList, missingIntervals, measures, aggregateInterval, viewPort.getWidth());
             }
         }
         return timeSeriesSpans;
     }
 
-    public List<TimeSeriesSpan> getMissingAndAddToPixelColumns(long from, long to, List<Integer> measures, ViewPort viewPort, List<TimeInterval> missingIntervals,
+    public List<TimeSeriesSpan> getMissingAndAddToPixelColumns(long from, long to, List<List<Integer>> measures,
+                                                               ViewPort viewPort, List<TimeInterval> missingIntervals,
                            Query query, QueryResults queryResults, int aggFactor, List<PixelColumn> pixelColumns) {
         List<TimeSeriesSpan> timeSeriesSpans = null;
+        long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
         if (missingIntervals.size() >= 1) {
             // Create time series spans from the missing data and insert them into the interval tree.
-            long numberOfAggDataPoints = 4L * viewPort.getWidth();
-            long numberOfRawDataPoints = missingIntervals.stream().mapToLong(m -> (m.getTo() - m.getFrom()) / dataset.getSamplingInterval().toMillis()).sum();
-
-
-            if(numberOfAggDataPoints > (numberOfRawDataPoints / dataReductionRatio)){ // get raw data
+            LOG.debug("Sampling Interval: {}, data reduction ratio {}, aggregateInterval {}", dataset.getSamplingInterval(), dataReductionRatio, aggregateInterval);
+            if(aggregateInterval < (dataset.getSamplingInterval().toMillis() * dataReductionRatio)){ // get raw data
                 List<DataPoint> missingDataPointList = null;
                 DataPoints missingDataPoints = null;
-                LOG.info("Fetching {} missing raw data from data source", numberOfRawDataPoints);
+                LOG.info("Fetching {} missing raw data from data source");
                 missingDataPoints = dataSource.getDataPoints(from, to, missingIntervals, measures);
                 missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
                 LOG.info("Fetched missing data from data source");
 
                 // Add the data points fetched from the data store to the pixel columns
                 missingDataPointList.forEach(dataPoint -> {
-                    addDataPointToPixelColumns(query, pixelColumns, dataPoint, viewPort);
+                    addDataPointToPixelColumns(query, pixelColumns, dataPoint, getMeasuresForTimestamp(missingIntervals, measures, dataPoint.getTimestamp()), viewPort);
                 });
                 LOG.debug("Added fetched data points to pixel columns");
-                timeSeriesSpans = TimeSeriesSpanFactory.createRaw(missingDataPointList, measures, missingIntervals);
+                timeSeriesSpans = TimeSeriesSpanFactory.createRaw(missingDataPointList, missingIntervals, measures);
             }
-            else{
+            else {
                 List<AggregatedDataPoint> missingDataPointList = null;
                 AggregatedDataPoints missingDataPoints = null;
                 LOG.info("Fetching missing data from data source");
-                missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, query.getQueryMethod(), measures,
+                missingDataPoints = dataSource.getAggregatedDataPoints(from, to, missingIntervals, measures, query.getQueryMethod(),
                         aggFactor * viewPort.getWidth());
                 missingDataPointList = StreamSupport.stream(missingDataPoints.spliterator(), false).collect(Collectors.toList());
                 LOG.info("Fetched missing data from data source");
@@ -124,8 +118,7 @@ public class DataProcessor {
                     addAggregatedDataPointToPixelColumns(query, pixelColumns, aggregatedDataPoint, viewPort);
                 });
                 LOG.debug("Added fetched data points to pixel columns");
-                long aggregateInterval = (to - from) / ((long) aggFactor * viewPort.getWidth());
-                timeSeriesSpans = TimeSeriesSpanFactory.createAggregate(missingDataPointList, measures, missingIntervals, aggregateInterval);
+                timeSeriesSpans = TimeSeriesSpanFactory.createAggregate(missingDataPointList, missingIntervals, measures, aggregateInterval, viewPort.getWidth());
             }
             timeSeriesSpans.forEach(t -> queryResults.setIoCount(queryResults.getIoCount() + Arrays.stream(t.getCounts()).sum()));
         }
@@ -135,6 +128,15 @@ public class DataProcessor {
     private int getPixelColumnForTimestamp(long timestamp, long from, long to, int width) {
         long aggregateInterval = (to - from) / width;
         return (int) ((timestamp - from) / aggregateInterval);
+    }
+
+    private List<Integer> getMeasuresForTimestamp(List<TimeInterval> ranges, List<List<Integer>> measures, long timestamp){
+        int index = 0;
+        for(TimeInterval range : ranges){
+            if(timestamp < range.getTo()) break;
+            else index ++;
+        }
+        return measures.get(index);
     }
 
     private void addAggregatedDataPointToPixelColumns(Query query, List<PixelColumn> pixelColumns, AggregatedDataPoint aggregatedDataPoint, ViewPort viewPort) {
@@ -150,11 +152,11 @@ public class DataProcessor {
         }
     }
 
-    private void addDataPointToPixelColumns(Query query, List<PixelColumn> pixelColumns, DataPoint dataPoint, ViewPort viewPort){
+    private void addDataPointToPixelColumns(Query query, List<PixelColumn> pixelColumns, DataPoint dataPoint, List<Integer> measures, ViewPort viewPort){
         if(!query.contains(dataPoint.getTimestamp())) return;
         int pixelColumnIndex = getPixelColumnForTimestamp(dataPoint.getTimestamp(), query.getFrom(), query.getTo(), viewPort.getWidth());
         if (pixelColumnIndex < viewPort.getWidth()) {
-            pixelColumns.get(pixelColumnIndex).addDataPoint(dataPoint);
+            pixelColumns.get(pixelColumnIndex).addDataPoint(dataPoint, measures);
         }
     }
 

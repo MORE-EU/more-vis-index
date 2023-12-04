@@ -21,6 +21,7 @@ CREATE TABLE more.synthetic64m(
     ,value      FLOAT
     ,id         BIGINT NOT NULL
     ,col        VARCHAR NOT NULL
+    ,PRIMARY KEY(id, epoch)
 );
 
 INSERT INTO more.synthetic64m(epoch, timestamp, value, id, col)
@@ -39,8 +40,6 @@ INSERT INTO more.synthetic64m(epoch, timestamp, value, id, col)
 SELECT date_part('epoch', timestamp) * 1000, timestamp, value_5, 4, 'value_5' FROM more.synthetic64m_tmp;
 
 DROP TABLE more.synthetic64m_tmp;
-
-CREATE INDEX synthetic64m_index ON more.synthetic64m(epoch, id);
 
 
 

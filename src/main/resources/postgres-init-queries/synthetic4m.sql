@@ -21,6 +21,7 @@ CREATE TABLE more.synthetic4m(
     ,value      FLOAT
     ,id         BIGINT NOT NULL
     ,col        VARCHAR NOT NULL
+    ,PRIMARY KEY(id, epoch)
 );
 
 INSERT INTO more.synthetic4m(epoch, timestamp, value, id, col)
@@ -40,7 +41,6 @@ SELECT date_part('epoch', timestamp) * 1000, timestamp, value_5, 4, 'value_5' FR
 
 DROP TABLE more.synthetic4m_tmp;
 
-CREATE INDEX synthetic4m_index ON more.synthetic4m(epoch, id);
 
 
 

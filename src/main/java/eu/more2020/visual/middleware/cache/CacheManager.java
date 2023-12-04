@@ -40,7 +40,7 @@ public class CacheManager {
                 // Keep only spans with an aggregate interval that is half or less than the pixel column interval to ensure at least one fully contained in every pixel column that the span fully overlaps
                 // This way, each of the groups of the resulting spans will overlap at most two pixel columns.
                 .filter(span -> pixelColumnInterval >= 2 * span.getAggregateInterval()
-                        && areListsEqual(span.getMeasures(), query.getMeasures())
+//                        && areListsEqual(span.getMeasures(), query.getMeasures())
                 )
                 .collect(Collectors.toList());
     }

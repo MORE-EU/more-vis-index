@@ -1,10 +1,13 @@
-package eu.more2020.visual.middleware.datasource;
+package eu.more2020.visual.middleware;
 
 import com.google.common.collect.Iterators;
+import eu.more2020.visual.middleware.datasource.DataSource;
+import eu.more2020.visual.middleware.datasource.ModelarDB.ModelarDBAggregateDataPointsIterator;
+import eu.more2020.visual.middleware.datasource.ModelarDB.ModelarDBDataPointsIterator;
+import eu.more2020.visual.middleware.datasource.ModelarDBQuery;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.ModelarDBQueryExecutor;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Dataset.ModelarDBDataset;
-import eu.more2020.visual.middleware.domain.ModelarDB.ModelarDBConnection;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import cfjd.org.apache.arrow.flight.FlightStream;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ModelarDBDatasource implements DataSource{
+public class ModelarDBDatasource implements DataSource {
 
     ModelarDBQueryExecutor queryExecutor;
     ModelarDBDataset dataset;
@@ -29,29 +32,33 @@ public class ModelarDBDatasource implements DataSource{
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges, QueryMethod queryMethod,
-                                                        List<Integer> measures, int numberOfGroups) {
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> ranges,
+                                                        List<List<Integer>> measures, QueryMethod queryMethod, int numberOfGroups) {
         return new ModelarDBAggregatedDataPoints(from, to, ranges, queryMethod, measures, numberOfGroups);
     }
 
     @Override
     public DataPoints getDataPoints(long from, long to, List<Integer> measures) {
         List<TimeInterval> timeIntervals = new ArrayList<>();
+        List<List<Integer>> allMeasures = new ArrayList<>();
+        allMeasures.add(measures);
         timeIntervals.add(new TimeRange(from, to));
-        return new ModelarDBDatasource.ModelarDBDataPoints(from, to, timeIntervals, measures);
+        return new ModelarDBDatasource.ModelarDBDataPoints(from, to, timeIntervals, allMeasures);
     }
 
     @Override
-    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<Integer> measures) {
+    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<List<Integer>> measures) {
         return new ModelarDBDatasource.ModelarDBDataPoints(from, to, timeIntervals, measures);
     }
 
     @Override
     public DataPoints getAllDataPoints(List<Integer> measures) {
         List<TimeInterval> timeIntervals = new ArrayList<>();
+        List<List<Integer>> allMeasures = new ArrayList<>();
+        allMeasures.add(measures);
         timeIntervals.add(new TimeRange(dataset.getTimeRange().getFrom(), dataset.getTimeRange().getTo()));
         return new ModelarDBDatasource.ModelarDBDataPoints(dataset.getTimeRange().getFrom(),
-                dataset.getTimeRange().getTo(), timeIntervals,  measures);
+                dataset.getTimeRange().getTo(), timeIntervals, allMeasures);
     }
 
     /**
@@ -62,15 +69,15 @@ public class ModelarDBDatasource implements DataSource{
 
         private final ModelarDBQuery modelarDBQuery;
 
-        public ModelarDBDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<Integer> measures) {
-            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+        public ModelarDBDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<List<Integer>> measures) {
+            List<List<String>> measureNames = measures.stream().map(m -> m.stream().map(mm -> dataset.getHeader()[mm]).collect(Collectors.toList())).collect(Collectors.toList());
             this.modelarDBQuery = new ModelarDBQuery(from, to, timeIntervals, measures, measureNames);
         }
 
         @NotNull
         public Iterator<DataPoint> iterator() {
             try {
-                FlightStream flightStream = queryExecutor.executeRawMultiModelarDBQuery(modelarDBQuery);
+                FlightStream flightStream = queryExecutor.executeRawModelarDBQuery(modelarDBQuery);
                 return new ModelarDBDataPointsIterator(modelarDBQuery.getMeasures(),
                         dataset.getTimeCol(), dataset.getValueCol(), dataset.getIdCol(), flightStream);
             }
@@ -82,7 +89,7 @@ public class ModelarDBDatasource implements DataSource{
 
         @Override
         public List<Integer> getMeasures() {
-            return modelarDBQuery.getMeasures();
+            return null;
         }
 
         @Override
@@ -133,8 +140,8 @@ public class ModelarDBDatasource implements DataSource{
 
 
         public ModelarDBAggregatedDataPoints(long from, long to, List<TimeInterval> ranges, QueryMethod queryMethod,
-                                       List<Integer> measures, int numberOfGroups) {
-            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
+                                       List<List<Integer>> measures, int numberOfGroups) {
+            List<List<String>> measureNames = measures.stream().map(m -> m.stream().map(mm -> dataset.getHeader()[mm]).collect(Collectors.toList())).collect(Collectors.toList());
             this.modelarDBQuery = new ModelarDBQuery(from, to, ranges, measures, measureNames, numberOfGroups);
             this.queryMethod = queryMethod;
         }
@@ -154,7 +161,7 @@ public class ModelarDBDatasource implements DataSource{
 
         @Override
         public List<Integer> getMeasures() {
-            return modelarDBQuery.getMeasures();
+            return null;
         }
 
         @Override
@@ -195,6 +202,5 @@ public class ModelarDBDatasource implements DataSource{
         public String getToDate(String format) {
             return Instant.ofEpochMilli(modelarDBQuery.getFrom()).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
         }
-
     }
 }

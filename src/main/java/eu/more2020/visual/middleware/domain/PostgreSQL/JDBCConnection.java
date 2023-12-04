@@ -47,6 +47,7 @@ public class JDBCConnection implements DatabaseConnection {
     public void connect() throws URISyntaxException, SQLException{
         connection = null;
         try {
+            Class.forName("org.postgresql.Driver");
             connection = DriverManager
                     .getConnection(host, user, password);
             LOG.info("Initialized JDBC connection {}", host);

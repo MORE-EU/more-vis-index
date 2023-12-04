@@ -48,8 +48,10 @@ public class PrefetchManager {
         prefetchingIntervals.add(new TimeRange(prefetchingFrom, prefetchingTo));
         prefetchingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, prefetchingIntervals);
 
-        LOG.info("Prefetching: {}", prefetchingIntervals.stream().map(p -> p.getIntervalString()).collect(Collectors.joining(", ")));
-        List<TimeSeriesSpan> missingPrefetchingIntervals = dataProcessor.getMissing(from, to, measures, viewPort, prefetchingIntervals, query, aggFactor);
+        LOG.info("Prefetching: {}", prefetchingIntervals.stream().map(TimeInterval::getIntervalString).collect(Collectors.joining(", ")));
+        List<List<Integer>> allMeasures = new ArrayList<>();
+        allMeasures.add(measures);
+        List<TimeSeriesSpan> missingPrefetchingIntervals = dataProcessor.getMissing(from, to, allMeasures, viewPort, prefetchingIntervals, query, aggFactor);
         cacheManager.addToCache(missingPrefetchingIntervals);
         LOG.info("Inserted new time series spans into interval tree");
         return prefetchingIntervals;

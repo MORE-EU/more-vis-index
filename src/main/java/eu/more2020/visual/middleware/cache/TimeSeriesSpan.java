@@ -11,4 +11,5 @@ public interface TimeSeriesSpan extends TimeInterval, DataPoints {
     int[] getCounts();
     long calculateDeepMemorySize();
     List<Integer> getMeasures();
+    int getWidth();
 }

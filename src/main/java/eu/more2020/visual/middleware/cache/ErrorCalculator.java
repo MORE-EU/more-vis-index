@@ -1,10 +1,7 @@
 package eu.more2020.visual.middleware.cache;
 
-import eu.more2020.visual.middleware.domain.MaxErrorEvaluator;
-import eu.more2020.visual.middleware.domain.PixelColumn;
+import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Query.Query;
-import eu.more2020.visual.middleware.domain.TimeInterval;
-import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.util.DateTimeUtil;
 import org.apache.arrow.flatbuf.Int;
 import org.slf4j.Logger;
@@ -14,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ErrorCalculator {
     private static final Logger LOG = LoggerFactory.getLogger(MinMaxCache.class);
@@ -21,35 +19,48 @@ public class ErrorCalculator {
     private MaxErrorEvaluator maxErrorEvaluator;
     private boolean hasError = true;
     private long pixelColumnInterval;
+    private List<List<Integer>> pixelColumnErrors;
+    private Map<Integer, Double> error;
+    private List<Integer> measuresWithError;
 
     public Map<Integer, Double> calculateValidColumnsErrors(Query query, List<PixelColumn> pixelColumns, ViewPort viewPort, long pixelColumnInterval) {
         // Calculate errors using processed data
         List<Integer> measures = query.getMeasures();
         maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
         this.pixelColumnInterval = pixelColumnInterval;
-        List<List<Integer>> pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
+        pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
         // Find the part of the query interval that is not covered by the spans in the interval tree.
-        Map<Integer, Double> error = new HashMap<>();
-        for (int m : measures) error.put(m, 0.0);
-        int validColumns = 0;
+        error = new HashMap<>();
+        int[] validColumns = new int[measures.size()];
+        int i = 0;
+        for (int m : measures) {
+            error.put(m, 0.0);
+            validColumns[i] = 0;
+            i ++;
+        }
+
         for (List<Integer> pixelColumnError : pixelColumnErrors) {
             if(pixelColumnError == null) continue;
-            int i = 0;
+            i = 0;
             for (int m : measures) {
                 final Double data = error.get(m);
                 final Integer val =  pixelColumnError.get(i);
-                if(val == null) break;// no measure data
+                if(val == null) break; // no measure data
                 error.put(m, data + val);
+                validColumns[i] += 1;
                 i++;
             }
-            if(i == measures.size()) validColumns ++; // Column is valid if it has data for all measures
         }
+        measuresWithError = new ArrayList<>();
         LOG.debug("Valid columns: {}", validColumns);
+        i = 0;
         for (int m : measures) {
-            double measureError = error.get(m) / (viewPort.getHeight() * validColumns);
+            double measureError = error.get(m) / (viewPort.getHeight() * validColumns[i]);
             LOG.info("Measure has error: {}", measureError);
             hasError = measureError > 1 - query.getAccuracy();
+            if(hasError) measuresWithError.add(m);
             error.put(m, measureError);
+            i ++;
         }
         return error;
     }
@@ -60,34 +71,34 @@ public class ErrorCalculator {
         List<Integer> measures = query.getMeasures();
         maxErrorEvaluator = new MaxErrorEvaluator(measures, viewPort, pixelColumns);
         this.pixelColumnInterval = pixelColumnInterval;
-        List<List<Integer>> pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
-        // Find the part of the query interval that is not covered by the spans in the interval tree.
-        Map<Integer, Double> error = new HashMap<>();
+        pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumnAndMeasure();
+        error = new HashMap<>();
         for (int m : measures) error.put(m, 0.0);
         for (List<Integer> pixelColumnError : pixelColumnErrors) {
-            if(pixelColumnError == null) continue;
+            if(pixelColumnError == null) continue; // No data was found for this pixel column
             int i = 0;
             for (int m : measures) {
                 final Double data = error.get(m);
                 final Integer val = pixelColumnError.get(i);
-                if(val == null) break;// no measure data
                 error.put(m, data + val);
                 i++;
             }
         }
         hasError = true;
+        measuresWithError = new ArrayList<>();
         for (int m : measures) {
             double measureError = error.get(m) / (viewPort.getHeight() * viewPort.getWidth());
             LOG.info("Measure has error: {}", measureError);
             hasError = measureError > 1 - query.getAccuracy();
+            if(hasError) measuresWithError.add(m);
             error.put(m, measureError);
         }
         return error;
     }
 
-    public List<TimeInterval> getMissingIntervals() {
-        List<TimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
-        missingIntervals = DateTimeUtil.groupIntervals(pixelColumnInterval, missingIntervals);
+    public List<MultivariateTimeInterval> getMissingIntervals() {
+        List<MultivariateTimeInterval> missingIntervals = maxErrorEvaluator.getMissingRanges();
+        missingIntervals = DateTimeUtil.groupMultiIntervals(pixelColumnInterval, missingIntervals);
         LOG.info("Unable to Determine Errors: " + missingIntervals);
         return missingIntervals;
     }
@@ -95,5 +106,9 @@ public class ErrorCalculator {
 
     public boolean hasError(){
         return hasError;
+    }
+
+    public List<Integer> getMeasuresWithError() {
+        return measuresWithError;
     }
 }

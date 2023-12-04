@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
  */
 public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AggregateTimeSeriesSpan.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DataProcessor.class);
 
     List<Integer> measures;
 
@@ -52,20 +52,23 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
      */
     private long aggregateInterval;
 
-    private void initialize(long from, long to, long aggregateInterval, List<Integer> measures) {
+    private int width;
+
+    private void initialize(long from, long to, long aggregateInterval, int width, List<Integer> measures) {
         this.size = (int) Math.ceil((double)(to - from) / aggregateInterval);
         this.from = from;
         this.to = to;
         this.aggregateInterval = aggregateInterval;
-//        LOG.debug("Initializing time series span [{},{}) with size {} and aggregate interval {}", from, to, size, aggregateInterval);
+        LOG.debug("Initializing time series span [{},{}) with size {}, aggregate interval {} and width {}", from, to, size, aggregateInterval, width);
         this.measures = measures;
         this.counts = new int[size];
         this.aggsByMeasure = new long[this.measures.size()][size * 5];
+        this.width = width;
     }
 
 
-    public AggregateTimeSeriesSpan(long from, long to, List<Integer> measures, long aggregateInterval) {
-        initialize(from, to, aggregateInterval, measures);
+    public AggregateTimeSeriesSpan(long from, long to, List<Integer> measures, long aggregateInterval, int width) {
+        initialize(from, to, aggregateInterval, width, measures);
     }
 
     protected void addAggregatedDataPoint(int i, AggregatedDataPoint aggregatedDataPoint) {
@@ -116,6 +119,11 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
 
     public List<Integer> getMeasures() {
         return measures;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
     }
 
 
@@ -173,7 +181,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
     public String toString() {
         return "{[" + getFromDate() + "(" + getFrom() + ")" +
                 ", " + getToDate() + "(" + getTo() + ")" +
-                "), size=" + size + ", aggregateInterval=" + aggregateInterval + "}";
+                "), size=" + size + ", measures =" + measures + "aggregateInterval=" + aggregateInterval + "}";
     }
 
     private int getMeasureIndex(int measure) {
@@ -266,6 +274,11 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
 
                 @Override
                 public int getCount() {
+                    return counts[index];
+                }
+
+                @Override
+                public int getCount(int measure) {
                     return counts[index];
                 }
 

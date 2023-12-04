@@ -16,10 +16,13 @@
     <logger name="eu.more2020.visual.middleware.experiments.Experiments" level="INFO"/>
     <logger name="eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator" level="INFO"/>
     <logger name="com.mitchellbosecke.pebble" level="ERROR"/>
+
+    <logger name ="eu.more2020.visual.cache.MinMaxCache" level="INFO"/>
     <logger name ="eu.more2020.visual.datasource.QueryExecutor" level="INFO"/>
-    <logger name ="eu.more2020.visual.middleware.cache.TTI" level="DEBUG"/>
-    <logger name ="eu.more2020.visual.middleware.cache.AggregateTimeSeriesSpan" level="ERROR"/>
-    <logger name ="eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory" level="ERROR"/>
+    <logger name ="eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory" level="INFO"/>
+    <logger name ="eu.more2020.visual.middleware.domain.PixelColumn" level="INFO"/>
+    <logger name ="eu.more2020.visual.middleware.datasource.DataSource" level="INFO"/>
+    <logger name ="eu.more2020.visual.middleware.domain.MaxErrorEvaluator" level="INFO"/>
     <root>
         <level>INFO</level>
         <appender-ref ref="CONSOLE"/>

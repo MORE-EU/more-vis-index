@@ -1,30 +1,33 @@
 package eu.more2020.visual.middleware.datasource;
 
+import eu.more2020.visual.middleware.domain.MultivariateTimeInterval;
 import eu.more2020.visual.middleware.domain.TimeInterval;
+import eu.more2020.visual.middleware.domain.TimeRange;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ModelarDBQuery extends DataSourceQuery {
-    private final List<String> measureNames;
+    private final List<List<String>> measureNames;
 
-    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, List<String> measureNames, int numberOfGroups) {
+    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, List<List<String>> measureNames, int numberOfGroups) {
         super(from, to, ranges, measures, numberOfGroups);
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<Integer> measures,  List<String> measureNames, int numberOfGroups) {
-        super(from, to, null, measures, numberOfGroups);
+    public ModelarDBQuery(long from, long to, List<List<Integer>> measures, List<List<String>> measureNames, int numberOfGroups) {
+        super(from, to, new ArrayList<>(List.of(new TimeRange(from, to))), measures, numberOfGroups);
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures,  List<String> measureNames){
+    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, List<List<String>> measureNames){
         super(from, to, ranges, measures,  null);
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<Integer> measures, List<String> measureNames){
-        super(from, to, null, measures,  null);
+    public ModelarDBQuery(long from, long to, List<List<Integer>> measures, List<List<String>> measureNames){
+        super(from, to, new ArrayList<>(List.of(new TimeRange(from, to))), measures,  null);
         this.measureNames = measureNames;
     }
 
@@ -79,21 +82,6 @@ public class ModelarDBQuery extends DataSourceQuery {
                 "ORDER BY k, min_epoch";
     }
 
-    @Override
-    public String m4LikeMultiQuerySkeleton() {
-        return qMultiM4Skeleton() +
-                "SELECT id, MIN(epoch) AS min_epoch, MAX(epoch) AS max_epoch, value, k FROM Q_M " +
-                "GROUP BY id, k, value " +
-                "ORDER BY k, min_epoch";
-    }
-
-    @Override
-    public String m4MultiQuerySkeleton() {
-        return qMultiM4Skeleton() +
-                "SELECT id, MIN(epoch) AS min_epoch, MAX(epoch) AS max_epoch, value, k FROM Q_M " +
-                "GROUP BY id, k, value " +
-                "ORDER BY k, min_epoch";
-    }
 
     @Override
     public String minMaxQuerySkeleton() {
@@ -109,26 +97,11 @@ public class ModelarDBQuery extends DataSourceQuery {
     }
 
     @Override
-    public String m4WithOLAPQuerySkeleton() {
-        return qM4Skeleton() +
-                "";
-    }
-
-    @Override
     public String rawQuerySkeleton() {
         return "SELECT :idCol , :timeCol , :valueCol FROM :tableName \n" +
                 "WHERE :timeCol  >= :from AND :timeCol <= :to \n" +
                 "AND :idCol IN (" + this.measureNames.stream().map(o -> "'" + o + "'").collect(Collectors.joining(",")) + ") \n" +
                 "ORDER BY :timeCol, :idCol";
-    }
-
-    @Override
-    public String rawMultiQuerySkeleton() {
-        return "SELECT :idCol , :timeCol , :valueCol FROM :tableName \n" +
-                "WHERE " +
-                this.ranges.stream().map(r -> "extract(epoch from :timeCol ) * 1000 >= " + r.getFrom() + " AND extract(epoch from :timeCol ) * 1000 < " + r.getTo() + " AND :idCol IN ("
-                        + this.measureNames.stream().map(o -> "'" + o + "'").collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
-                "ORDER BY :timeCol , :idCol";
     }
 
     @Override

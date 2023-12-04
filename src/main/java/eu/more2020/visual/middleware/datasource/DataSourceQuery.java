@@ -16,7 +16,7 @@ public abstract class DataSourceQuery implements TimeInterval {
     final long to;
 
     final List<TimeInterval> ranges;
-    final List<Integer> measures;
+    final List<List<Integer>> measures;
 
     final Integer numberOfGroups;
 
@@ -26,16 +26,17 @@ public abstract class DataSourceQuery implements TimeInterval {
      * @param from           The start time of the time interval that was requested
      * @param to             The end time of the time interval that was requested
      * @param ranges         The actual sub-ranges that are missing from the cache and need to be fetched
-     * @param measures       The measure values to include in every data point
+     * @param measures       The measure values to include in every data point for each range
      * @param numberOfGroups The number of groups to aggregate the data points into
      */
-    public DataSourceQuery(long from, long to, List<TimeInterval> ranges, List<Integer> measures, Integer numberOfGroups) {
+    public DataSourceQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, Integer numberOfGroups) {
         this.from = from;
         this.to = to;
         this.ranges = ranges;
         this.measures = measures;
         this.numberOfGroups = numberOfGroups;
     }
+
 
     @Override
     public long getFrom() {
@@ -71,27 +72,19 @@ public abstract class DataSourceQuery implements TimeInterval {
         return numberOfGroups;
     }
 
-    public List<Integer> getMeasures() {
+    public List<List<Integer>> getMeasures() {
         return measures;
     }
 
     public abstract String m4QuerySkeleton();
 
-    public abstract String m4LikeMultiQuerySkeleton();
-
-    public abstract String m4MultiQuerySkeleton();
-
     public abstract String minMaxQuerySkeleton();
-
-    public abstract String m4WithOLAPQuerySkeleton();
 
     public abstract String rawQuerySkeleton();
 
     public List<TimeInterval> getRanges() {
         return ranges;
     }
-
-    public abstract String rawMultiQuerySkeleton();
 
 }
 

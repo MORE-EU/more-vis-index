@@ -51,7 +51,7 @@ public class QuerySequenceGenerator {
 
 
     public void addRandomElementToList(List<Integer> list1, List<Integer> list2) {
-        Random random = new Random();
+        Random random = new Random(seed);
 
         while (true) {
             // Generate a random index to select an element from list2
@@ -70,40 +70,43 @@ public class QuerySequenceGenerator {
         }
     }
 
-    public List<Query> generateQuerySequence(Query q0, int count) {
+    private int getViewportId(List<ViewPort>  viewPorts, ViewPort viewPort){
+         int idx = 0;
+         for(ViewPort v : viewPorts){
+             if(v.getWidth() == viewPort.getWidth() && v.getHeight() == v.getHeight()) break;
+             idx ++;
+         }
+         return idx;
+    }
+    public List<Query> generateQuerySequence(Query q0, int count, int measureChange) {
         Direction[] directions = Direction.getRandomDirections(count);
-//        double[] shifts = ThreadLocalRandom.current().doubles(count, minShift, maxShift).toArray();
         double[] shifts = new Random(seed).doubles(count, minShift, maxShift).toArray();
         double[] zooms = new Random(seed).doubles(count, 1, zoomFactor).toArray();
-
         Random opRand = new Random(seed);
         List<UserOpType> ops = new ArrayList<>();
 
-//        int pans = 39;
-//        int zoom_in = 20;
-//        int zoom_out = 30;
-//        int resize = 1;
-//        int measure_change = 10;
-
         int pans = 50;
-        int zoom_in = 0;
-        int zoom_out = 0;
-        int resize = 0;
-        int measure_change = 50;
+        int zoom_in = 15;
+        int zoom_out = 30;
+        int resize = 5;
 
         for (int i = 0; i < pans; i++) ops.add(P);
         for (int i = 0; i < zoom_in; i++) ops.add(ZI);
         for (int i = 0; i < zoom_out; i++) ops.add(ZO);
-        for (int i = 0; i < measure_change; i++) ops.add(MC);
         for (int i = 0; i < resize; i++) ops.add(R);
-
 
         List<Query> queries = new ArrayList<>();
         queries.add(q0);
         Query q = q0;
+        List<ViewPort> viewPorts = new ArrayList<>();
+        viewPorts.add(new ViewPort(500, 250));
+        viewPorts.add(new ViewPort(1000, 500));
+        viewPorts.add(new ViewPort(2000, 1000));
+
         for (int i = 0; i < count - 1; i++) {
+            if (measureChange != 0 && (i % (count / measureChange) == 0)) opType = MC;
+            else opType = ops.get(opRand.nextInt(ops.size()));
             zoomFactor = (float) zooms[i];
-            opType = ops.get(opRand.nextInt(ops.size()));
             TimeRange timeRange = null;
             ViewPort viewPort = q.getViewPort();
             List<Integer> measures = q.getMeasures().stream().map(Integer::new).collect(Collectors.toList());
@@ -111,16 +114,22 @@ public class QuerySequenceGenerator {
                 timeRange = zoomIn(q);
             } else if (zoomFactor > 1 && opType.equals(ZO)) {
                 timeRange = zoomOut(q);
-            } else if(opType.equals(P)){
+            } else if (opType.equals(P)) {
                 timeRange = pan(q, shifts[i], directions[i]);
-            } else if(opType.equals(R)){
-                viewPort = new ViewPort((int) (RESIZE_FACTOR * viewPort.getWidth()),
-                        (int) (RESIZE_FACTOR * viewPort.getHeight()));
-            } else if(opType.equals(MC)){
+            } else if (opType.equals(R)) {
+                Random random = new Random(seed);
+                while (true) {
+                    int viewPortId = random.nextInt(viewPorts.size());
+                    if (viewPortId != getViewportId(viewPorts, viewPort)) {
+                        viewPort = viewPorts.get(viewPortId);
+                        break;
+                    }
+                }
+            } else if (opType.equals(MC) && measures.size() != dataset.getMeasures().size()) {
                 addRandomElementToList(measures, dataset.getMeasures());
             }
-            if(timeRange == null) timeRange = new TimeRange(q.getFrom(), q.getTo());
-            else if(timeRange.getFrom() == q.getFrom() && timeRange.getTo() == q.getTo()){
+            if (timeRange == null) timeRange = new TimeRange(q.getFrom(), q.getTo());
+            else if ((timeRange.getFrom() == q.getFrom() && timeRange.getTo() == q.getTo())) {
                 opType = ZI;
                 timeRange = zoomIn(q);
             }

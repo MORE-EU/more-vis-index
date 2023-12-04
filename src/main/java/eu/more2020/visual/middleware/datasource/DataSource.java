@@ -5,6 +5,7 @@ import eu.more2020.visual.middleware.domain.DataPoints;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.TimeInterval;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
 /**
@@ -12,9 +13,8 @@ import java.util.List;
  */
 public interface DataSource {
 
-
-    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals, QueryMethod queryMethod,
-                                                 List<Integer> measures, int numberOfGroups);
+    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals,
+                                                 List<List<Integer>> measures, QueryMethod queryMethod, int numberOfGroups);
 
     /**
      * Returns a {@link DataPoints} instance to access the data points in the time series, that
@@ -27,8 +27,7 @@ public interface DataSource {
      */
     public DataPoints getDataPoints(long from, long to, List<Integer> measures);
 
-    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<Integer> measures);
-
+    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<List<Integer>> measures);
 
     /**
      * Returns a {@link DataPoints} instance to access all the data points in the time series.
