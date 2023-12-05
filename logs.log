@@ -1,0 +1,99 @@
+Picked up _JAVA_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmx14G -XX:+UseCompressedOops -XX:ThreadPriorityPolicy=1
+OpenJDK 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/ch/qos/logback/logback-classic/1.2.11/logback-classic-1.2.11.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/vasilisstamatopoulos/.m2/repository/org/slf4j/slf4j-log4j12/1.7.30/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+17:04:04,047 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+17:04:04,048 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/Users/vasilisstamatopoulos/Documents/Works/ATHENA/Projects/MORE/Code/more-vis-index/target/classes/logback.xml]
+17:04:04,109 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - debug attribute not set
+17:04:04,112 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+17:04:04,113 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [CONSOLE]
+17:04:04,182 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - This appender no longer admits a layout as a sub-component, set an encoder instead.
+17:04:04,182 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - To ensure compatibility, wrapping your layout in LayoutWrappingEncoder.
+17:04:04,182 |-WARN in ch.qos.logback.core.ConsoleAppender[CONSOLE] - See also http://logback.qos.ch/codes.html#layoutInsteadOfEncoder for details
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.parquet] to ERROR
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [org.apache.hadoop] to ERROR
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.ParquetReader] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.util.io.CsvReader.CsvRandomAccessReader] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.Experiments] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.experiments.util.QuerySequenceGenerator] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [com.mitchellbosecke.pebble] to ERROR
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.cache.MinMaxCache] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.datasource.QueryExecutor] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.PixelColumn] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.datasource.DataSource] to INFO
+17:04:04,183 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting level of logger [eu.more2020.visual.middleware.domain.MaxErrorEvaluator] to INFO
+17:04:04,184 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to DEBUG
+17:04:04,184 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [CONSOLE] to Logger[ROOT]
+17:04:04,184 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+17:04:04,185 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@10683d9d - Registering current configuration as safe fallback point
+
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by retrofit2.Platform (file:/Users/vasilisstamatopoulos/.m2/repository/com/squareup/retrofit2/retrofit/2.9.0/retrofit-2.9.0.jar) to constructor java.lang.invoke.MethodHandles$Lookup(java.lang.Class,int)
+WARNING: Please consider reporting this to the maintainers of retrofit2.Platform
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+17:04:04.460 [main] INFO  e.m.v.m.d.I.InfluxDBConnection - Initialized InfluxDB connection
+17:04:04.469 [main] INFO  e.m.v.m.d.Q.InfluxDBQueryExecutor - Executing Query: 
+from(bucket:"more")
+  |> range(start: 1970-01-01T00:00:00.000Z, stop: 2150-01-01T00:00:00.999Z)
+  |> filter(fn: (r) => r["_measurement"] == "manufacturing_exp")
+  |> limit(n: 2)
+  |> yield(name:"first")
+
+Exception in thread "main" com.influxdb.exceptions.InfluxException: connect timed out
+	at com.influxdb.internal.AbstractQueryApi.lambda$static$1(AbstractQueryApi.java:88)
+	at com.influxdb.internal.AbstractRestClient.catchOrPropagateException(AbstractRestClient.java:142)
+	at com.influxdb.internal.AbstractQueryApi.query(AbstractQueryApi.java:240)
+	at com.influxdb.internal.AbstractQueryApi.query(AbstractQueryApi.java:190)
+	at com.influxdb.internal.AbstractQueryApi.query(AbstractQueryApi.java:122)
+	at com.influxdb.client.internal.QueryApiImpl.query(QueryApiImpl.java:802)
+	at com.influxdb.client.internal.QueryApiImpl.query(QueryApiImpl.java:105)
+	at com.influxdb.client.internal.QueryApiImpl.query(QueryApiImpl.java:83)
+	at com.influxdb.client.internal.QueryApiImpl.query(QueryApiImpl.java:73)
+	at eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor.execute(InfluxDBQueryExecutor.java:352)
+	at eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset.fillInfluxDBDatasetInfo(InfluxDBDataset.java:67)
+	at eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset.<init>(InfluxDBDataset.java:55)
+	at eu.more2020.visual.middleware.experiments.Experiments.createDataset(Experiments.java:437)
+	at eu.more2020.visual.middleware.experiments.Experiments.timeQueriesMinMaxCache(Experiments.java:209)
+	at eu.more2020.visual.middleware.experiments.Experiments.timeQueries(Experiments.java:372)
+	at eu.more2020.visual.middleware.experiments.Experiments.run(Experiments.java:189)
+	at eu.more2020.visual.middleware.experiments.Experiments.main(Experiments.java:163)
+Caused by: java.net.SocketTimeoutException: connect timed out
+	at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:399)
+	at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:242)
+	at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:224)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.base/java.net.Socket.connect(Socket.java:609)
+	at okhttp3.internal.platform.Platform.connectSocket(Platform.kt:120)
+	at okhttp3.internal.connection.RealConnection.connectSocket(RealConnection.kt:283)
+	at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:195)
+	at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:249)
+	at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:108)
+	at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:76)
+	at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:245)
+	at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:96)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at com.influxdb.client.internal.GzipInterceptor.intercept(GzipInterceptor.java:91)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at com.influxdb.client.internal.AuthenticateInterceptor.intercept(AuthenticateInterceptor.java:97)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at okhttp3.logging.HttpLoggingInterceptor.intercept(HttpLoggingInterceptor.kt:152)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at com.influxdb.internal.UserAgentInterceptor.intercept(UserAgentInterceptor.java:60)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:100)
+	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:197)
+	at okhttp3.internal.connection.RealCall.execute(RealCall.kt:148)
+	at retrofit2.OkHttpCall.execute(OkHttpCall.java:204)
+	at com.influxdb.internal.AbstractQueryApi.query(AbstractQueryApi.java:237)
+	... 14 more

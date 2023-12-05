@@ -3,6 +3,7 @@ package eu.more2020.visual.middleware.index.csv;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import eu.more2020.visual.middleware.domain.Dataset.CsvDataset;
+import eu.more2020.visual.middleware.domain.ImmutableUnivariateDataPoint;
 import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.index.TimeSeriesIndexUtil;
 import eu.more2020.visual.middleware.index.TreeNode;
@@ -105,7 +106,7 @@ public class CsvQueryProcessor {
         int i = 0;
         for(int measure : measures) {
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                new UnivariateDataPoint(timestamp, values[i]));
+                new ImmutableUnivariateDataPoint(timestamp, values[i]));
             i++;
         }
         queryResults.setData(data);

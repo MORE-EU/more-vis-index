@@ -106,7 +106,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
@@ -124,7 +123,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());

@@ -13,6 +13,7 @@ import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset;
+import eu.more2020.visual.middleware.domain.ImmutableUnivariateDataPoint;
 import eu.more2020.visual.middleware.domain.InfluxDB.InitQueries.*;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
@@ -290,7 +291,6 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
         for (int i = 0; i < q.getRanges().size(); i++) {
             for (int j = 0; j < 4; j++) {
                 args.add(bucket);
@@ -304,7 +304,6 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-        args.add((q.getFrom() % q.getAggregateInterval() + "ms"));
         for (int i = 0; i < q.getRanges().size(); i++) {
             for (int j = 0; j < 2; j++) {
                 args.add(bucket);
@@ -338,7 +337,7 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
             for (FluxRecord fluxRecord : records) {
                 Integer fieldId = Arrays.asList(dataset.getHeader()).indexOf(fluxRecord.getField());
                 data.computeIfAbsent(fieldId, k -> new ArrayList<>()).add(
-                        new UnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
+                        new ImmutableUnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
                                 Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));
             }
         }

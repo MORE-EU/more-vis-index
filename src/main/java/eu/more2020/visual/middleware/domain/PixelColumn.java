@@ -19,8 +19,6 @@ public class PixelColumn implements TimeInterval {
     private final long from;
     private final long to;
 
-    private final int measure;
-
     private final ViewPort viewPort;
 
 
@@ -39,10 +37,9 @@ public class PixelColumn implements TimeInterval {
     private List<AggregatedDataPoint> left = new ArrayList<>();
     private List<AggregatedDataPoint> right = new ArrayList<>();
 
-    public PixelColumn(long from, long to, int measure, ViewPort viewPort) {
+    public PixelColumn(long from, long to, ViewPort viewPort) {
         this.from = from;
         this.to = to;
-        this.measure = measure;
         statsAggregator = new StatsAggregator();
         fullyContainedStatsAggregator = new StatsAggregator();
         this.viewPort = viewPort;
@@ -197,7 +194,6 @@ public class PixelColumn implements TimeInterval {
     /**
      * Returns a closed range of pixel IDs that the line segment intersects within this pixel column.
      *
-     * @param measure       The measure for which to calculate the pixel IDs.
      * @param t1            The first timestamp of the line segment.
      * @param v1            The value at the first timestamp of the line segment.
      * @param t2            The second timestamp of the line segment.
@@ -232,7 +228,6 @@ public class PixelColumn implements TimeInterval {
      * Returns the range of inner-column pixel IDs that can be correctly determined for this pixel column for the give measure.
      * This range is determined by the min and max values over the fully contained groups in this pixel column.
      *
-     * @param measure
      * @param viewPortStats The stats for the entire view port.
      * @return A Range object representing the range of inner-column pixel IDs
      */

@@ -1,6 +1,5 @@
 package eu.more2020.visual.middleware.datasource;
 
-import eu.more2020.visual.middleware.domain.MultivariateTimeInterval;
 import eu.more2020.visual.middleware.domain.TimeInterval;
 import eu.more2020.visual.middleware.domain.TimeRange;
 
@@ -9,25 +8,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ModelarDBQuery extends DataSourceQuery {
-    private final List<List<String>> measureNames;
+    private final List<String> measureNames;
 
-    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, List<List<String>> measureNames, int numberOfGroups) {
+    public ModelarDBQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures, List<String> measureNames, int[] numberOfGroups) {
         super(from, to, ranges, measures, numberOfGroups);
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<List<Integer>> measures, List<List<String>> measureNames, int numberOfGroups) {
-        super(from, to, new ArrayList<>(List.of(new TimeRange(from, to))), measures, numberOfGroups);
+    public ModelarDBQuery(long from, long to, List<Integer> measures, List<String> measureNames, int[] numberOfGroups) {
+        super(from, to, List.of(List.of(new TimeRange(from, to))), measures, numberOfGroups);
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, List<List<String>> measureNames){
+    public ModelarDBQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures, List<String> measureNames){
         super(from, to, ranges, measures,  null);
         this.measureNames = measureNames;
     }
 
-    public ModelarDBQuery(long from, long to, List<List<Integer>> measures, List<List<String>> measureNames){
-        super(from, to, new ArrayList<>(List.of(new TimeRange(from, to))), measures,  null);
+    public ModelarDBQuery(long from, long to, List<Integer> measures, List<String> measureNames){
+        super(from, to, List.of(List.of(new TimeRange(from, to))), measures,  null);
         this.measureNames = measureNames;
     }
 
@@ -60,16 +59,16 @@ public class ModelarDBQuery extends DataSourceQuery {
                 "min(:timeCol ) as t_min, max(:timeCol ) as t_max \n"  +
                 "FROM :tableName \n" +
                 "WHERE " +
-                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
-                        + this.measureNames.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
+//                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND id IN ("
+//                        + this.measureNames.stream().map(Object::toString).collect(Collectors.joining(",")) + ") ").collect(Collectors.joining(" OR ")) +
                 "GROUP BY :idCol, k ) as QA \n"+
                 "ON k = floor((:timeCol - :from ) / ((:to - :from ) / :width )) \n" +
                 "AND QA.id = Q.id \n" +
                 "AND (:valueCol = v_min OR :valueCol = v_max OR \n" +
                 "epoch = t_min OR epoch = t_max) \n" +
                 "WHERE " +
-                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND Q.id IN ("
-                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) +
+//                this.ranges.stream().map(r -> "epoch >= " + r.getFrom() + " AND epoch < " + r.getTo() + " AND Q.id IN ("
+//                        + this.measures.stream().map(Object::toString).collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) +
                 ")\n";
     }
 
@@ -90,8 +89,8 @@ public class ModelarDBQuery extends DataSourceQuery {
                 "min(:valueCol ) as v_min, max(:valueCol ) as v_max \n"  +
                 "FROM :tableName \n" +
                 "WHERE " +
-                this.ranges.stream().map(r -> "extract(epoch from :timeCol ) * 1000 >= " + r.getFrom() + " AND extract(epoch from :timeCol ) * 1000 < " + r.getTo() + " AND :idCol IN ("
-                        + this.measureNames.stream().map(o -> "'" + o + "'").collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) + " " +
+//                this.ranges.stream().map(r -> "extract(epoch from :timeCol ) * 1000 >= " + r.getFrom() + " AND extract(epoch from :timeCol ) * 1000 < " + r.getTo() + " AND :idCol IN ("
+//                        + this.measureNames.stream().map(o -> "'" + o + "'").collect(Collectors.joining(",")) + ")").collect(Collectors.joining(" OR ")) + " " +
                 "GROUP BY :idCol , k " +
                 "ORDER BY k, :idCol";
     }

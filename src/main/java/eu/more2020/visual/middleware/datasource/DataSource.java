@@ -13,8 +13,19 @@ import java.util.List;
  */
 public interface DataSource {
 
-    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<TimeInterval> timeIntervals,
-                                                 List<List<Integer>> measures, QueryMethod queryMethod, int numberOfGroups);
+    /**
+     * Returns a {@link DataPoints} instance to access the data points in the time series, that
+     * have a timestamp greater than or equal to the startTimestamp,
+     * and less than or equal to the endTimestamp.
+     *
+     * @param from The start time of range to fetch
+     * @param to The end time of range to fetch
+     * @param timeIntervals The sub-ranges missing for each measure
+     * @param measures The measure values to include in every data point
+     * @param numberOfGroups The number of groups needed to be fetched for each measure
+     */
+    AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<List<TimeInterval>> timeIntervals,
+                                                 List<Integer> measures, QueryMethod queryMethod, int[] numberOfGroups);
 
     /**
      * Returns a {@link DataPoints} instance to access the data points in the time series, that
@@ -27,7 +38,7 @@ public interface DataSource {
      */
     public DataPoints getDataPoints(long from, long to, List<Integer> measures);
 
-    public DataPoints getDataPoints(long from, long to, List<TimeInterval> timeIntervals, List<List<Integer>> measures);
+    public DataPoints getDataPoints(long from, long to, List<List<TimeInterval>> timeIntervals, List<Integer> measures);
 
     /**
      * Returns a {@link DataPoints} instance to access all the data points in the time series.

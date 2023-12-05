@@ -1,8 +1,6 @@
 package eu.more2020.visual.middleware.cache;
 
-import eu.more2020.visual.middleware.domain.DataPoint;
-import eu.more2020.visual.middleware.domain.DataPoints;
-import eu.more2020.visual.middleware.domain.TimeRange;
+import eu.more2020.visual.middleware.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +16,9 @@ import java.util.*;
 public class RawTimeSeriesSpan implements TimeSeriesSpan {
     private static final Logger LOG = LoggerFactory.getLogger(RawTimeSeriesSpan.class);
 
-    List<Integer> measures;
-
     int count = 0;
     /**
-     * The raw datapoint values. The values of a datapoint for each measure are stored consecutively in the array.
+     * The raw datapoint values.
      */
     private double[] values;
 
@@ -38,43 +34,33 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
     // Keep in mind that the end time is not included in the span,
     private long to;
 
-    public RawTimeSeriesSpan(long from, long to, List<Integer> measures) {
+    /*
+     The measure for which this span is for.
+     */
+    private int measure;
+
+    public RawTimeSeriesSpan(long from, long to, int measure) {
         this.from = from;
         this.to = to;
-        this.measures = measures;
+        this.measure = measure;
     }
 
     /**
      * @param dataPoints
      */
-    public void build(DataPoints dataPoints) {
+
+
+    public void build(UnivariateDataPoints dataPoints) {
         ArrayList<Double> valuesList = new ArrayList<>();
         ArrayList<Long> timestampsList = new ArrayList<>();
-        for (DataPoint dataPoint : dataPoints) {
+        for (UnivariateDataPoint dataPoint : dataPoints) {
             timestampsList.add(dataPoint.getTimestamp());
-            for (double value : dataPoint.getValues()) {
-                valuesList.add(value);
-            }
+            valuesList.add(dataPoint.getValue());
             count ++;
         }
         values = valuesList.stream().mapToDouble(Double::doubleValue).toArray();
         timestamps = timestampsList.stream().mapToLong(Long::longValue).toArray();
     }
-
-    public void build(List<DataPoint> dataPoints) {
-        ArrayList<Double> valuesList = new ArrayList<>();
-        ArrayList<Long> timestampsList = new ArrayList<>();
-        for (DataPoint dataPoint : dataPoints) {
-            timestampsList.add(dataPoint.getTimestamp());
-            for (double value : dataPoint.getValues()) {
-                valuesList.add(value);
-            }
-            count ++;
-        }
-        values = valuesList.stream().mapToDouble(Double::doubleValue).toArray();
-        timestamps = timestampsList.stream().mapToLong(Long::longValue).toArray();
-    }
-
 
 
     /**
@@ -92,16 +78,6 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         return index;
     }
 
-    public List<Integer> getMeasures() {
-        return measures;
-    }
-
-    @Override
-    public int getWidth() {
-        return 0;
-    }
-
-
     public TimeRange getTimeRange() {
         return new TimeRange(getFrom(), getTo());
     }
@@ -111,7 +87,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         return -1;
     }
 
-    public Iterator<DataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp) {
+    public Iterator<UnivariateDataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp) {
         return new RawTimeSeriesSpanIterator(queryStartTimestamp, queryEndTimestamp);
     }
 
@@ -122,7 +98,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
 
 
     @Override
-    public Iterator<DataPoint> iterator() {
+    public Iterator<UnivariateDataPoint> iterator() {
         // Use the first and last timestamps as the range for the iterator
         return new RawTimeSeriesSpanIterator(from, to);
     }
@@ -188,19 +164,22 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         final int REF_SIZE = 4;
 
 
-        long measuresMemory = REF_SIZE + ARRAY_OVERHEAD + (measures.size() * INT_SIZE);
-
         long valuesByMeasureMemory = REF_SIZE + ARRAY_OVERHEAD + (values.length * DOUBLE_SIZE);
 
         long timestampsMemory = REF_SIZE + ARRAY_OVERHEAD + (timestamps.length * LONG_SIZE);
 
-        long deepMemorySize = REF_SIZE + OBJECT_OVERHEAD + measuresMemory +
+        long deepMemorySize = REF_SIZE + OBJECT_OVERHEAD  +
                 valuesByMeasureMemory + timestampsMemory;
 
         return deepMemorySize;
     }
 
-    private class RawTimeSeriesSpanIterator implements Iterator<DataPoint> {
+    @Override
+    public int getMeasure() {
+        return measure;
+    }
+
+    private class RawTimeSeriesSpanIterator implements Iterator<UnivariateDataPoint> {
         private int startIndex;
         private int endIndex;
         private int currentIndex;
@@ -217,25 +196,24 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         }
 
         @Override
-        public DataPoint next() {
+        public UnivariateDataPoint next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
 
             final long timestamp = timestamps[currentIndex];
-            final double[] values = Arrays.copyOfRange(RawTimeSeriesSpan.this.values,
-                    currentIndex * measures.size(), (currentIndex + 1) * measures.size());
+            final double value = values[currentIndex];
             currentIndex++;
 
-            return new DataPoint() {
+            return new UnivariateDataPoint() {
                 @Override
                 public long getTimestamp() {
                     return timestamp;
                 }
 
                 @Override
-                public double[] getValues() {
-                    return values;
+                public double getValue() {
+                    return value;
                 }
             };
         }

@@ -10,19 +10,19 @@ import java.util.stream.IntStream;
 
 public class SQLQuery extends DataSourceQuery {
 
-    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, int numberOfGroups) {
+    public SQLQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures, int[] numberOfGroups) {
         super(from, to, ranges, measures, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<List<Integer>> measures, int numberOfGroups) {
-        super(from, to, new ArrayList<>(List.of(new TimeRange(from, to))), measures, numberOfGroups);
+    public SQLQuery(long from, long to, List<Integer> measures, int[] numberOfGroups) {
+        super(from, to, List.of(List.of(new TimeRange(from, to))), measures, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures){
-        super(from, to, ranges, measures,null);
+    public SQLQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures){
+        super(from, to,  ranges, measures,null);
     }
 
-    public SQLQuery(long from, long to, List<List<Integer>> measures){
+    public SQLQuery(long from, long to, List<Integer> measures){
         super(from, to, null, measures,  null);
     }
 
@@ -38,11 +38,12 @@ public class SQLQuery extends DataSourceQuery {
     }
 
     private String rawQuerySkeletonCreator() {
-        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
-            TimeInterval range = ranges.get(idx);
-            List<Integer> measureOfRange = measures.get(idx);
-            return measureOfRange.stream().map(m -> rawSkeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
-        }).collect(Collectors.joining(" UNION ALL "));
+        return null;
+//        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
+////            TimeInterval range = ranges.get(idx);
+////            List<Integer> measureOfRange = measures.get(idx);
+//            return measureOfRange.stream().map(m -> rawSkeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
+//        }).collect(Collectors.joining(" UNION ALL "));
     }
 
     private String m4Skeleton(TimeInterval range, int measure, int i ){
@@ -66,11 +67,12 @@ public class SQLQuery extends DataSourceQuery {
     }
 
     private String m4QuerySkeletonCreator() {
-        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
-            TimeInterval range = ranges.get(idx);
-            List<Integer> measureOfRange = measures.get(idx);
-            return measureOfRange.stream().map(m -> m4Skeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
-        }).collect(Collectors.joining(" UNION ALL "));
+        return null;
+//        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
+//            TimeInterval range = ranges.get(idx);
+//            List<Integer> measureOfRange = measures.get(idx);
+//            return measureOfRange.stream().map(m -> m4Skeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
+//        }).collect(Collectors.joining(" UNION ALL "));
     }
 
     private String minMaxSkeleton(TimeInterval range, int measure, int i ) {
@@ -84,11 +86,12 @@ public class SQLQuery extends DataSourceQuery {
     }
 
     private String minMaxQuerySkeletonCreator() {
-        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
-            TimeInterval range = ranges.get(idx);
-            List<Integer> measureOfRange = measures.get(idx);
-            return measureOfRange.stream().map(m -> minMaxSkeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
-        }).collect(Collectors.joining(" UNION ALL "));
+        return null;
+//        return IntStream.range(0, ranges.size()).mapToObj(idx -> {
+//            TimeInterval range = ranges.get(idx);
+//            List<Integer> measureOfRange = measures.get(idx);
+//            return measureOfRange.stream().map(m -> minMaxSkeleton(range, m, idx)).collect(Collectors.joining(" UNION ALL "));
+//        }).collect(Collectors.joining(" UNION ALL "));
     }
 
     @Override

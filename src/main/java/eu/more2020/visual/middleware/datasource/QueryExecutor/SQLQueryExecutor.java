@@ -4,6 +4,7 @@ import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.PostgreSQLDataset;
+import eu.more2020.visual.middleware.domain.ImmutableUnivariateDataPoint;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
 import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
@@ -131,7 +132,6 @@ public class SQLQueryExecutor implements QueryExecutor {
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
@@ -150,7 +150,6 @@ public class SQLQueryExecutor implements QueryExecutor {
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
@@ -168,9 +167,9 @@ public class SQLQueryExecutor implements QueryExecutor {
             Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
             if(val == null) continue;
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                    new UnivariateDataPoint(epoch, val));
+                    new ImmutableUnivariateDataPoint(epoch, val));
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                    new UnivariateDataPoint(epoch2, val));
+                    new ImmutableUnivariateDataPoint(epoch2, val));
         }
         data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
         queryResults.setData(data);

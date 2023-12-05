@@ -16,16 +16,16 @@ import java.util.Objects;
 public class InfluxDBDataPointsIterator implements Iterator<DataPoint> {
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
-    private final List<List<String>> measures;
+    private final List<String> measures;
     private final Integer numberOfTables;
     private int currentTable;
     private int currentSize;
     private int current;
-    private List<TimeInterval> ranges;
+    private List<List<TimeInterval>> ranges;
     private List<FluxRecord> currentRecords;
     private final List<FluxTable> tables;
 
-    public InfluxDBDataPointsIterator(List<TimeInterval> ranges, List<List<String>> measures, List<FluxTable> tables) {
+    public InfluxDBDataPointsIterator(List<List<TimeInterval>> ranges, List<String> measures, List<FluxTable> tables) {
         this.measures = measures;
         this.ranges = ranges;
         this.currentTable = 0;
@@ -53,11 +53,12 @@ public class InfluxDBDataPointsIterator implements Iterator<DataPoint> {
 
     @Override
     public DataPoint next() {
-        FluxRecord fluxRecord = tables.get(currentTable).getRecords().get(current ++);
-        double[] values = new double[measures.get(currentTable).size()];
-        for (int i = 0; i < measures.get(currentTable).size(); i++)
-            values[i] = (double) fluxRecord.getValues().get(measures.get(currentTable).get(i));
-        return new ImmutableDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(), values);
+//        FluxRecord fluxRecord = tables.get(currentTable).getRecords().get(current ++);
+//        double[] values = new double[measures.get(currentTable).size()];
+//        for (int i = 0; i < measures.get(currentTable).size(); i++)
+//            values[i] = (double) fluxRecord.getValues().get(measures.get(currentTable).get(i));
+//        return new ImmutableDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(), values);
+        return null;
     }
 
 }

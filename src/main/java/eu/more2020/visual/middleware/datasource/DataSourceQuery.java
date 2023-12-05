@@ -15,21 +15,21 @@ public abstract class DataSourceQuery implements TimeInterval {
     final long from;
     final long to;
 
-    final List<TimeInterval> ranges;
-    final List<List<Integer>> measures;
+    final List<List<TimeInterval>> ranges;
+    final List<Integer> measures;
 
-    final Integer numberOfGroups;
+    final int[] numberOfGroups;
 
     /**
      * Creates a new instance of {@link DataSourceQuery}
      *
      * @param from           The start time of the time interval that was requested
      * @param to             The end time of the time interval that was requested
-     * @param ranges         The actual sub-ranges that are missing from the cache and need to be fetched
-     * @param measures       The measure values to include in every data point for each range
+     * @param ranges         The actual sub-ranges that are missing from the cache and need to be fetched for each measure
+     * @param measures       The measure values for which to fetch data
      * @param numberOfGroups The number of groups to aggregate the data points into
      */
-    public DataSourceQuery(long from, long to, List<TimeInterval> ranges, List<List<Integer>> measures, Integer numberOfGroups) {
+    public DataSourceQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures, int[] numberOfGroups) {
         this.from = from;
         this.to = to;
         this.ranges = ranges;
@@ -68,11 +68,11 @@ public abstract class DataSourceQuery implements TimeInterval {
         return Instant.ofEpochMilli(to).atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(format));
     }
 
-    public Integer getNumberOfGroups() {
+    public int[] getNumberOfGroups() {
         return numberOfGroups;
     }
 
-    public List<List<Integer>> getMeasures() {
+    public List<Integer> getMeasures() {
         return measures;
     }
 
@@ -82,7 +82,7 @@ public abstract class DataSourceQuery implements TimeInterval {
 
     public abstract String rawQuerySkeleton();
 
-    public List<TimeInterval> getRanges() {
+    public List<List<TimeInterval>> getRanges() {
         return ranges;
     }
 

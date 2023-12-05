@@ -32,7 +32,7 @@ public class QueryResults implements Serializable {
 
     private double progressiveQueryTime = 0;
 
-    private int aggFactor;
+    private int[] aggFactors;
 
     private boolean flag;
 
@@ -80,12 +80,12 @@ public class QueryResults implements Serializable {
         this.error = error;
     }
 
-    public void setAggFactor(int aggFactor) {
-        this.aggFactor = aggFactor;
+    public void setAggFactors(int[] aggFactor) {
+        this.aggFactors = aggFactor;
     }
 
-    public int getAggFactor() {
-        return aggFactor;
+    public int[] getAggFactors() {
+        return aggFactors;
     }
 
     public void toCsv(String path) {

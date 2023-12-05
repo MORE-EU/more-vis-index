@@ -145,9 +145,6 @@ public class Experiments<T> {
     @Parameter(names = "--measureMem",  description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
-    @Parameter(names = "--groupBy", converter = OLAPConverter.class, description = "Measure index memory after every query in the sequence")
-    private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
-
     @Parameter(names = "--help", help = true, description = "Displays help")
     private boolean help;
 
@@ -236,7 +233,7 @@ public class Experiments<T> {
             csvWriter.addValue(query.getFrom());
             csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
-            csvWriter.addValue(queryResults.getAggFactor());
+            csvWriter.addValue(queryResults.getAggFactors());
             csvWriter.addValue(0);
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(time);
@@ -245,7 +242,7 @@ public class Experiments<T> {
             csvWriter.addValue(queryResults.getQueryTime());
             csvWriter.addValue(memorySize);
             csvWriter.addValue((query.getTo() - query.getFrom()) / dataset.getSamplingInterval().toMillis()); // raw data points
-            csvWriter.addValue((double) ((query.getTo() - query.getFrom()) / queryResults.getAggFactor() / query.getViewPort().getWidth()) / dataset.getSamplingInterval().toMillis()); // data reduction factor
+//            csvWriter.addValue((double) ((query.getTo() - query.getFrom()) / queryResults.getAggFactor() / query.getViewPort().getWidth()) / dataset.getSamplingInterval().toMillis()); // data reduction factor
             csvWriter.addValue(queryResults.getError());
             csvWriter.addValue(queryResults.isFlag());
             csvWriter.writeValuesToRow();
@@ -317,20 +314,18 @@ public class Experiments<T> {
             double time = 0;
             LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
             List<String> measureNames = query.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            List<List<Integer>> datasourceMeasures = new ArrayList<>();
-            List<List<String>> datasourceMeasureNames = new ArrayList<>();
-            datasourceMeasures.add(query.getMeasures());
-            datasourceMeasureNames.add(measureNames);
+            int[] numberOfGroups = new int[measures.size()];
+            Arrays.fill(numberOfGroups, query.getViewPort().getWidth());
             DataSourceQuery dataSourceQuery = null;
             switch (type) {
                 case "postgres":
-                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), datasourceMeasures, query.getViewPort().getWidth());
+                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), measures, numberOfGroups);
                     break;
                 case "modelar":
-                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), datasourceMeasures, datasourceMeasureNames, query.getViewPort().getWidth());
+                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), measures, measureNames, numberOfGroups);
                     break;
                 case "influx":
-                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), datasourceMeasures, datasourceMeasureNames, query.getViewPort().getWidth());
+                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), measures, measureNames, numberOfGroups);
                     break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);

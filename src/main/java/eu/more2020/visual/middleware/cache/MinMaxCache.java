@@ -21,7 +21,7 @@ public class MinMaxCache {
     public MinMaxCache(QueryExecutor dataQueryExecutor, AbstractDataset dataset, double prefetchingFactor, int aggFactor, int dataReductionRatio) {
         // Constructor logic for MinMaxCache
         cacheQueryExecutor = new CacheQueryExecutor(dataset, aggFactor);
-        cacheManager = new CacheManager();
+        cacheManager = new CacheManager(dataset.getMeasures());
         dataProcessor = new DataProcessor(dataQueryExecutor, dataset, dataReductionRatio);
         errorCalculator = new ErrorCalculator();
         prefetchManager = new PrefetchManager(dataset, prefetchingFactor, cacheManager, dataProcessor);
