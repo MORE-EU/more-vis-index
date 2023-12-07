@@ -11,30 +11,23 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class InfluxDBAggregateDataPointsIteratorM4 implements Iterator<AggregatedDataPoint> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
-    private final List<Integer> measures;
-    private final List<String> measureNames;
     private int current;
     private long groupTimestamp, currentGroupTimestamp;
-    private int i = 0;
 
     private final Integer numberOfTables;
     private int currentTable;
     private int currentSize;
     private List<FluxRecord> currentRecords;
     private final List<FluxTable> tables;
-    StatsAggregator statsAggregator;
 
-    public InfluxDBAggregateDataPointsIteratorM4(List<String> measureNames, List<Integer> measures, List<FluxTable> tables) {
-        this.measures = measures;
-        this.measureNames = measureNames;
+    public InfluxDBAggregateDataPointsIteratorM4(List<FluxTable> tables) {
         this.currentTable = 0;
         this.tables = tables;
         this.currentRecords = tables.get(currentTable).getRecords();
@@ -73,37 +66,30 @@ public class InfluxDBAggregateDataPointsIteratorM4 implements Iterator<Aggregate
     }
 
 
-
     /*
-    * Reads the table every 4 measures (one for each m4 variable)
-    * And inputs them into the stats aggregator.
-    * The _stop variable represents the end of a grouping.
-    * The _time is the time of each m4 variable.
-    * The _start is the start of each grouping.
+       Collect every 4 datapoints and create an aggregated datapoint.
+       Group timestamp represents the start time of the aggregated datapoint.
+       Current group timestamp is the current timestamp of the group and is set to the end of the aggregated datapoint.
     * */
     private AggregatedDataPoint createAggregatedDataPoint() {
-//        statsAggregator = new StatsAggregator(measures.get(currentTable));
-//        for(int i = 0; i < measures.get(currentTable).size() * 4; i ++){
-//            FluxRecord record = currentRecords.get(current);
-//            int measure = measures.get(currentTable).get(measureNames.get(currentTable).indexOf(record.getField()));
-//            if(record.getValue() != null) { // check for empty value
-//                double value = (double) record.getValue();
-//                long timestamp = ((Instant) record.getValues().get("_time")).toEpochMilli();
-//                statsAggregator.accept(new UnivariateDataPoint(timestamp, value), measure);
-//            }
-//            currentGroupTimestamp = ((Instant) currentRecords.get(current).getValues().get("_stop")).toEpochMilli();
-//            current++;
-//        }
-//        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
-//        LOG.debug("Created aggregate Datapoint {} - {} with measures {} with firsts: {}, lasts: {}, mins: {} and maxs: {} ",
-//                DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp), statsAggregator.getMeasures(),
-//                statsAggregator.getMeasures().stream().map(statsAggregator::getFirstDataPoint).collect(Collectors.toList()),
-//                statsAggregator.getMeasures().stream().map(statsAggregator::getLastDataPoint).collect(Collectors.toList()),
-//                statsAggregator.getMeasures().stream().map(statsAggregator::getMinValue).collect(Collectors.toList()),
-//                statsAggregator.getMeasures().stream().map(statsAggregator::getMaxValue).collect(Collectors.toList()));
-//        groupTimestamp = currentGroupTimestamp;
-//        i++;
-//        return aggregatedDataPoint;
-        return null;
+        StatsAggregator statsAggregator = new StatsAggregator();
+        String measure = "";
+        for(int i = 0; i < 4; i ++){
+            FluxRecord record = currentRecords.get(current);
+            if(record.getValue() != null) { // check for empty value
+                double value = (double) record.getValue();
+                long timestamp = ((Instant) record.getValues().get("_time")).toEpochMilli();
+                measure = record.getField();
+                statsAggregator.accept(new ImmutableDataPoint(timestamp, value));
+            }
+            currentGroupTimestamp = ((Instant) currentRecords.get(current).getValues().get("_stop")).toEpochMilli();
+            current++;
+        }
+        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
+        LOG.debug("Created aggregate Datapoint {} - {} with first: {}, last: {}, min: {} and max: {} ",
+                groupTimestamp, currentGroupTimestamp, aggregatedDataPoint.getStats().getFirstValue(),
+                aggregatedDataPoint.getStats().getLastValue(),aggregatedDataPoint.getStats().getMinValue(), aggregatedDataPoint.getStats().getMaxValue());
+        groupTimestamp = currentGroupTimestamp;
+        return aggregatedDataPoint;
     }
 }

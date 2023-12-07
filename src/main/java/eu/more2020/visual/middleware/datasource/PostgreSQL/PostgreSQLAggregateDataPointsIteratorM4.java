@@ -3,6 +3,7 @@ package eu.more2020.visual.middleware.datasource.PostgreSQL;
 import eu.more2020.visual.middleware.datasource.DataSource;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.util.DateTimeUtil;
+import org.apache.arrow.flatbuf.Int;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<AggregatedDataPoint> {
@@ -20,7 +22,7 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
     private final ResultSet resultSet;
     private final long from;
     private final long to;
-    private final int[] noOfGroups;
+    private final Map<Integer, Integer> noOfGroups;
 //    private final long aggregateInterval;
 
     private int k;
@@ -28,7 +30,7 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
 
 
     public PostgreSQLAggregateDataPointsIteratorM4(long from, long to,
-                                                   ResultSet resultSet, int[] noOfGroups) throws SQLException {
+                                                   ResultSet resultSet, Map<Integer, Integer> noOfGroups) throws SQLException {
         this.resultSet = resultSet;
 //        this.aggregateInterval = (to - from) / noOfGroups;
         this.from = from;
@@ -92,8 +94,8 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
 //
 //        for (int i = 0; i < currentMeasures.size(); i ++){
 //            Double value = currentValues.get(i);
-//            UnivariateDataPoint dataPoint1 = new UnivariateDataPoint(currentMinTimestamps.get(i), value);
-//            UnivariateDataPoint dataPoint2 = new UnivariateDataPoint(currentMaxTimestamps.get(i), value);
+//            DataPoint dataPoint1 = new DataPoint(currentMinTimestamps.get(i), value);
+//            DataPoint dataPoint2 = new DataPoint(currentMaxTimestamps.get(i), value);
 //            statsAggregator.accept(dataPoint1, currentMeasures.get(i));
 //            statsAggregator.accept(dataPoint2, currentMeasures.get(i));
 //        }

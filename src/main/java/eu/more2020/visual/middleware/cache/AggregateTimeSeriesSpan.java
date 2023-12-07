@@ -5,11 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * A {@link UnivariateDataPoints} implementation that aggregates a series of consecutive
+ * A {@link DataPoints} implementation that aggregates a series of consecutive
  * raw data points based on the specified aggregation interval.
  * For each aggregation interval included we store 5 doubles,
  * i.e. the sum, min and max aggregate values, 2 longs corresponding to the timestamp of the min and max value, as well as the corresponding
@@ -55,7 +54,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
         this.from = from;
         this.to = to;
         this.aggregateInterval = aggregateInterval;
-        LOG.debug("Initializing time series span [{},{}) with size {}, aggregate interval {}", from, to, size, aggregateInterval);
+        LOG.debug("Initializing time series span [{},{}) with size {}, aggregate interval {}", getFromDate(), getToDate(), size, aggregateInterval);
         this.measure = measure;
         this.counts = new int[size];
         this.aggregates = new long[size * 5];
@@ -316,7 +315,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
         }
 
         @Override
-        public double[] getValues() {
+        public double getValue() {
             throw new UnsupportedOperationException();
         }
     }

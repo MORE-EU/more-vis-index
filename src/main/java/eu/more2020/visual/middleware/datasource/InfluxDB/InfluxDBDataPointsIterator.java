@@ -11,23 +11,22 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class InfluxDBDataPointsIterator implements Iterator<DataPoint> {
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
-    private final List<String> measures;
     private final Integer numberOfTables;
     private int currentTable;
     private int currentSize;
     private int current;
-    private List<List<TimeInterval>> ranges;
     private List<FluxRecord> currentRecords;
+    private final Map<String, List<TimeInterval>> missingIntervalsPerMeasureName;
     private final List<FluxTable> tables;
 
-    public InfluxDBDataPointsIterator(List<List<TimeInterval>> ranges, List<String> measures, List<FluxTable> tables) {
-        this.measures = measures;
-        this.ranges = ranges;
+    public InfluxDBDataPointsIterator(Map<String, List<TimeInterval>> missingIntervalsPerMeasureName, List<FluxTable> tables) {
+        this.missingIntervalsPerMeasureName = missingIntervalsPerMeasureName;
         this.currentTable = 0;
         this.tables = tables;
         this.currentRecords = tables.get(currentTable).getRecords();

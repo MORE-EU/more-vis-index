@@ -1,7 +1,5 @@
 package eu.more2020.visual.middleware.domain;
 
-import java.util.List;
-
 /**
  * A representation of aggregate statistics for multi-variate time series data points.
  */
@@ -28,20 +26,20 @@ public interface Stats {
 
     public double getAverageValue();
 
-    default UnivariateDataPoint getMinDataPoint() {
-        return new ImmutableUnivariateDataPoint(getMinTimestamp(), getMinValue());
+    default DataPoint getMinDataPoint() {
+        return new ImmutableDataPoint(getMinTimestamp(), getMinValue());
     }
 
-    default UnivariateDataPoint getMaxDataPoint() {
-        return new ImmutableUnivariateDataPoint(getMaxTimestamp(), getMaxValue());
+    default DataPoint getMaxDataPoint() {
+        return new ImmutableDataPoint(getMaxTimestamp(), getMaxValue());
     }
 
-    default UnivariateDataPoint getFirstDataPoint() {
-        return new ImmutableUnivariateDataPoint(getFirstTimestamp(), getFirstValue());
+    default DataPoint getFirstDataPoint() {
+        return new ImmutableDataPoint(getFirstTimestamp(), getFirstValue());
     }
 
-    default UnivariateDataPoint getLastDataPoint() {
-        return new ImmutableUnivariateDataPoint(getLastTimestamp(), getLastValue());
+    default DataPoint getLastDataPoint() {
+        return new ImmutableDataPoint(getLastTimestamp(), getLastValue());
     }
 
 

@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
  * safe and efficient parallel execution.
  * @since 1.8
  */
-public class StatsAggregator implements Consumer<UnivariateDataPoint>, Stats, Serializable {
+public class StatsAggregator implements Consumer<DataPoint>, Stats, Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatsAggregator.class);
 
@@ -57,7 +55,7 @@ public class StatsAggregator implements Consumer<UnivariateDataPoint>, Stats, Se
      * @param dataPoint the dataPoint
      */
     @Override
-    public void accept(UnivariateDataPoint dataPoint) {
+    public void accept(DataPoint dataPoint) {
         if (dataPoint instanceof AggregatedDataPoint) {
             accept((AggregatedDataPoint) dataPoint);
             return;

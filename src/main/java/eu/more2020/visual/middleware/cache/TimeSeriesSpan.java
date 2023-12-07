@@ -1,14 +1,13 @@
 package eu.more2020.visual.middleware.cache;
 import eu.more2020.visual.middleware.domain.DataPoints;
 import eu.more2020.visual.middleware.domain.TimeInterval;
-import eu.more2020.visual.middleware.domain.UnivariateDataPoints;
 
 import java.util.Iterator;
-import java.util.List;
+
 /**
  * Represents an interval in time for a single measure. To be stored in an interval tree.
  */
-public interface TimeSeriesSpan extends TimeInterval, UnivariateDataPoints {
+public interface TimeSeriesSpan extends TimeInterval, DataPoints {
     /*
         Iterator for the objects in this time series span.
      */

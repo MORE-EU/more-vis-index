@@ -10,7 +10,6 @@ import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
-import org.apache.arrow.flatbuf.Int;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InfluxDBDatasource implements DataSource {
@@ -37,51 +33,50 @@ public class InfluxDBDatasource implements DataSource {
 
     @Override
     public DataPoints getDataPoints(long from, long to, List<Integer> measures) {
-        List<List<TimeInterval>> timeIntervals = new ArrayList<>();
+        Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(measures.size());
         for (Integer measure : measures) {
             List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
             timeIntervalsForMeasure.add(new TimeRange(from, to));
-            timeIntervals.add(timeIntervalsForMeasure);
+            missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
         }
-        return new InfluxDBDatasource.InfluxDBDatapoints(from, to, timeIntervals, measures);
+        return new InfluxDBDatasource.InfluxDBDatapoints(from, to, missingTimeIntervalsPerMeasure);
     }
 
     @Override
-    public DataPoints getDataPoints(long from, long to, List<List<TimeInterval>> timeIntervals, List<Integer> measures) {
-        return new InfluxDBDatasource.InfluxDBDatapoints(from, to, timeIntervals, measures);
+    public DataPoints getDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure) {
+        return new InfluxDBDatasource.InfluxDBDatapoints(from, to, missingIntervalsPerMeasure);
 
     }
 
     @Override
     public DataPoints getAllDataPoints(List<Integer> measures) {
-        List<List<TimeInterval>> timeIntervals = new ArrayList<>();
+        Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(measures.size());
         for (Integer measure : measures) {
             List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
             timeIntervalsForMeasure.add(new TimeRange(dataset.getTimeRange().getFrom(), dataset.getTimeRange().getTo()));
-            timeIntervals.add(timeIntervalsForMeasure);
+            missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
         }
         return new InfluxDBDatasource.InfluxDBDatapoints(dataset.getTimeRange().getFrom(),
-                dataset.getTimeRange().getTo(), timeIntervals, measures);
+                dataset.getTimeRange().getTo(), missingTimeIntervalsPerMeasure);
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<List<TimeInterval>> ranges,
-                                                        List<Integer> measures, QueryMethod queryMethod, int[] numberOfGroups) {
-        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, ranges,  measures, numberOfGroups, queryMethod);
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure,
+                                                        Map<Integer, Integer> numberOfGroups, QueryMethod queryMethod) {
+        return new InfluxDBDatasource.InfluxDBAggregatedDatapoints(from, to, missingIntervalsPerMeasure, numberOfGroups, queryMethod);
     }
 
     final class InfluxDBDatapoints implements DataPoints {
 
         private final InfluxDBQuery influxDBQuery;
 
-        public InfluxDBDatapoints(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures) {
-            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            this.influxDBQuery = new InfluxDBQuery(from, to, ranges, measures, measureNames);
-        }
-
-        @Override
-        public List<Integer> getMeasures() {
-            return null;
+        public InfluxDBDatapoints(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure) {
+            Map<String, List<TimeInterval>> missingIntervalsPerMeasureName = missingIntervalsPerMeasure.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getValue // Value remains the same
+                    ));
+            this.influxDBQuery = new InfluxDBQuery(from, to, missingIntervalsPerMeasureName);
         }
 
         @Override
@@ -100,7 +95,7 @@ public class InfluxDBDatasource implements DataSource {
             try {
                 List<FluxTable> fluxTables;
                 fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
-                return new InfluxDBDataPointsIterator(influxDBQuery.getRanges(), influxDBQuery.getMeasureNames(), fluxTables);
+                return new InfluxDBDataPointsIterator(influxDBQuery.getMissingIntervalsPerMeasureName(), fluxTables);
             } catch (Exception e){
                 System.out.println("No data in a specified query");
             }
@@ -113,10 +108,20 @@ public class InfluxDBDatasource implements DataSource {
         private final InfluxDBQuery influxDBQuery;
         private final QueryMethod queryMethod;
 
-        public InfluxDBAggregatedDatapoints(long from, long to, List<List<TimeInterval>> ranges,
-                                            List<Integer> measures, int[] numberOfGroups,  QueryMethod queryMethod) {
-            List<String> measureNames = measures.stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            this.influxDBQuery = new InfluxDBQuery(from, to, ranges, measures, measureNames, numberOfGroups);
+        public InfluxDBAggregatedDatapoints(long from, long to,
+                                            Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure,
+                                            Map<Integer, Integer> numberOfGroups, QueryMethod queryMethod) {
+            Map<String, List<TimeInterval>> missingIntervalsPerMeasureName = missingIntervalsPerMeasure.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getValue // Value remains the same
+                    ));
+            Map<String, Integer> numberOfGroupsPerMeasureName = numberOfGroups.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getValue // Value remains the same
+                    ));
+            this.influxDBQuery = new InfluxDBQuery(from, to,  missingIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
             this.queryMethod = queryMethod;
         }
 
@@ -126,18 +131,13 @@ public class InfluxDBDatasource implements DataSource {
             if(queryMethod == QueryMethod.M4){
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4InfluxQuery(influxDBQuery);
                 if(fluxTables.size() == 0) return Collections.emptyIterator();
-                return new InfluxDBAggregateDataPointsIteratorM4(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables);
+                return new InfluxDBAggregateDataPointsIteratorM4(fluxTables);
             }
             else {
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeMinMaxInfluxQuery(influxDBQuery);
                 if (fluxTables.size() == 0) return Collections.emptyIterator();
-                return new InfluxDBAggregateDataPointsIterator(influxDBQuery.getMeasureNames(), influxDBQuery.getMeasures(), fluxTables);
+                return new InfluxDBAggregateDataPointsIterator(fluxTables);
             }
-        }
-
-        @Override
-        public List<Integer> getMeasures() {
-            return null;
         }
 
         @Override

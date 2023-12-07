@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-import eu.more2020.visual.middleware.util.DateTimeUtil;
-import org.apache.arrow.flatbuf.Int;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +43,7 @@ public class PixelColumn implements TimeInterval {
         this.viewPort = viewPort;
     }
 
-    public void addDataPoint(UnivariateDataPoint dp){
+    public void addDataPoint(DataPoint dp){
         statsAggregator.accept(dp);
         fullyContainedStatsAggregator.accept(dp);
         fullyContainedRangeSet.add(TimeInterval.toGuavaRange(new TimeRange(from, dp.getTimestamp())));

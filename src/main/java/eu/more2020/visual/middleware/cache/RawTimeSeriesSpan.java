@@ -50,10 +50,10 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
      */
 
 
-    public void build(UnivariateDataPoints dataPoints) {
+    public void build(List<DataPoint> dataPoints) {
         ArrayList<Double> valuesList = new ArrayList<>();
         ArrayList<Long> timestampsList = new ArrayList<>();
-        for (UnivariateDataPoint dataPoint : dataPoints) {
+        for (DataPoint dataPoint : dataPoints) {
             timestampsList.add(dataPoint.getTimestamp());
             valuesList.add(dataPoint.getValue());
             count ++;
@@ -87,7 +87,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         return -1;
     }
 
-    public Iterator<UnivariateDataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp) {
+    public Iterator<DataPoint> iterator(long queryStartTimestamp, long queryEndTimestamp) {
         return new RawTimeSeriesSpanIterator(queryStartTimestamp, queryEndTimestamp);
     }
 
@@ -98,7 +98,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
 
 
     @Override
-    public Iterator<UnivariateDataPoint> iterator() {
+    public Iterator<DataPoint> iterator() {
         // Use the first and last timestamps as the range for the iterator
         return new RawTimeSeriesSpanIterator(from, to);
     }
@@ -179,7 +179,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         return measure;
     }
 
-    private class RawTimeSeriesSpanIterator implements Iterator<UnivariateDataPoint> {
+    private class RawTimeSeriesSpanIterator implements Iterator<DataPoint> {
         private int startIndex;
         private int endIndex;
         private int currentIndex;
@@ -196,7 +196,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
         }
 
         @Override
-        public UnivariateDataPoint next() {
+        public DataPoint next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
@@ -205,7 +205,7 @@ public class RawTimeSeriesSpan implements TimeSeriesSpan {
             final double value = values[currentIndex];
             currentIndex++;
 
-            return new UnivariateDataPoint() {
+            return new DataPoint() {
                 @Override
                 public long getTimestamp() {
                     return timestamp;

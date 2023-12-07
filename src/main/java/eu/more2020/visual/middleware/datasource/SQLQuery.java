@@ -5,25 +5,19 @@ import eu.more2020.visual.middleware.domain.TimeRange;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SQLQuery extends DataSourceQuery {
 
-    public SQLQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures, int[] numberOfGroups) {
-        super(from, to, ranges, measures, numberOfGroups);
+    public SQLQuery(long from, long to, Map<Integer,List<TimeInterval>> missingTimeIntervalsPerMeasure, Map<Integer, Integer> numberOfGroups) {
+        super(from, to, missingTimeIntervalsPerMeasure, numberOfGroups);
     }
 
-    public SQLQuery(long from, long to, List<Integer> measures, int[] numberOfGroups) {
-        super(from, to, List.of(List.of(new TimeRange(from, to))), measures, numberOfGroups);
-    }
 
-    public SQLQuery(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures){
-        super(from, to,  ranges, measures,null);
-    }
-
-    public SQLQuery(long from, long to, List<Integer> measures){
-        super(from, to, null, measures,  null);
+    public SQLQuery(long from, long to, Map<Integer,List<TimeInterval>> missingTimeIntervalsPerMeasure){
+        super(from, to, missingTimeIntervalsPerMeasure,  null);
     }
 
 

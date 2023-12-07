@@ -14,9 +14,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PostgreSQLDatasource implements DataSource {
 
@@ -29,36 +27,37 @@ public class PostgreSQLDatasource implements DataSource {
     }
 
     @Override
-    public AggregatedDataPoints getAggregatedDataPoints(long from, long to, List<List<TimeInterval>> ranges, List<Integer> measures, QueryMethod queryMethod, int[] numberOfGroups) {
-        return new SQLAggregatedDataPoints(from, to, ranges, measures, numberOfGroups, queryMethod);
+    public AggregatedDataPoints getAggregatedDataPoints(long from, long to,
+                                                        Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure, Map<Integer, Integer> numberOfGroups, QueryMethod queryMethod) {
+        return new SQLAggregatedDataPoints(from, to, missingIntervalsPerMeasure, numberOfGroups, queryMethod);
     }
 
     @Override
     public DataPoints getDataPoints(long from, long to, List<Integer> measures) {
-        List<List<TimeInterval>> timeIntervals = new ArrayList<>();
+        Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>();
         for (Integer measure : measures) {
             List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
             timeIntervalsForMeasure.add(new TimeRange(from, to));
-            timeIntervals.add(timeIntervalsForMeasure);
+            missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
         }
-        return new PostgreSQLDatasource.SQLDataPoints(from, to, timeIntervals, measures);
+        return new PostgreSQLDatasource.SQLDataPoints(from, to, missingTimeIntervalsPerMeasure);
     }
 
     @Override
-    public DataPoints getDataPoints(long from, long to, List<List<TimeInterval>> timeIntervals, List<Integer> measures) {
-        return new PostgreSQLDatasource.SQLDataPoints(from, to, timeIntervals, measures);
+    public DataPoints getDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure) {
+        return new PostgreSQLDatasource.SQLDataPoints(from, to, missingTimeIntervalsPerMeasure);
     }
 
     @Override
     public DataPoints getAllDataPoints(List<Integer> measures) {
-        List<List<TimeInterval>> timeIntervals = new ArrayList<>();
+        Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(measures.size());
         for (Integer measure : measures) {
             List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
             timeIntervalsForMeasure.add(new TimeRange(dataset.getTimeRange().getFrom(), dataset.getTimeRange().getTo()));
-            timeIntervals.add(timeIntervalsForMeasure);
+            missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
         }
         return new PostgreSQLDatasource.SQLDataPoints(dataset.getTimeRange().getFrom(),
-                dataset.getTimeRange().getTo(), timeIntervals,  measures);
+                dataset.getTimeRange().getTo(), missingTimeIntervalsPerMeasure);
     }
 
     /**
@@ -70,25 +69,20 @@ public class PostgreSQLDatasource implements DataSource {
 
         private final SQLQuery sqlQuery;
 
-        public SQLDataPoints(long from, long to, List<List<TimeInterval>> timeIntervals, List<Integer> measures) {
-            this.sqlQuery = new SQLQuery(from, to, timeIntervals, measures);
+        public SQLDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure) {
+            this.sqlQuery = new SQLQuery(from, to, missingTimeIntervalsPerMeasure);
         }
 
         @NotNull
         public Iterator<DataPoint> iterator() {
             try {
                 ResultSet resultSet = sqlQueryExecutor.executeRawSqlQuery(sqlQuery);
-                return new PostgreSQLDataPointsIterator(sqlQuery.getMeasures(), resultSet);
+                return new PostgreSQLDataPointsIterator(new ArrayList<>(), resultSet);
             }
             catch(SQLException e) {
                 e.printStackTrace();
             }
             return Iterators.concat(new Iterator[0]);
-        }
-
-        @Override
-        public List<Integer> getMeasures() {
-            return null;
         }
 
         @Override
@@ -128,9 +122,8 @@ public class PostgreSQLDatasource implements DataSource {
         private final QueryMethod queryMethod;
 
 
-        public SQLAggregatedDataPoints(long from, long to, List<List<TimeInterval>> ranges,
-                                           List<Integer> measures,  int[] numberOfGroups, QueryMethod queryMethod) {
-            this.sqlQuery = new SQLQuery(from, to, ranges, measures, numberOfGroups);
+        public SQLAggregatedDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure, Map<Integer, Integer> numberOfGroups, QueryMethod queryMethod) {
+            this.sqlQuery = new SQLQuery(from, to, missingIntervalsPerMeasure, numberOfGroups);
             this.queryMethod = queryMethod;
         }
 
@@ -151,14 +144,9 @@ public class PostgreSQLDatasource implements DataSource {
         }
 
         @Override
-        public List<Integer> getMeasures() {
-            return null;
-        }
-
-        @Override
         public String toString() {
             return "PostgreSQLDataPoints{" +
-                    "measures=" + sqlQuery.getMeasures() +
+                    "measures=" + sqlQuery.getMissingIntervalsPerMeasure().keySet() +
                     ", from=" + sqlQuery.getFrom() +
                     ", to=" + sqlQuery.getTo() +
                     '}';

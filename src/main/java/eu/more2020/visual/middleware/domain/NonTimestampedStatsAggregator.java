@@ -25,8 +25,7 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
     private double minValue;
     private double maxValue;
 
-    public NonTimestampedStatsAggregator(List<Integer> measures) {
-        int length = measures.size();
+    public NonTimestampedStatsAggregator() {
         clear();
     }
 
@@ -37,7 +36,7 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
         maxValue = Double.NEGATIVE_INFINITY;
     }
 
-    public void accept(double value, int measure) {
+    public void accept(double value) {
         ++count;
         sum += value;
         minValue = Math.min(minValue, value);

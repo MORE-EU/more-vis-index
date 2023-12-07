@@ -16,18 +16,21 @@ public class ErrorCalculator {
     private MaxErrorEvaluator maxErrorEvaluator;
     private boolean hasError = true;
     private long pixelColumnInterval;
-    private List<Integer> pixelColumnErrors;
     private double error;
 
     public double calculateTotalError(List<PixelColumn> pixelColumns, ViewPort viewPort, long pixelColumnInterval, double accuracy) {
         // Calculate errors using processed data
         maxErrorEvaluator = new MaxErrorEvaluator(viewPort, pixelColumns);
         this.pixelColumnInterval = pixelColumnInterval;
-        pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumn();
+        List<Integer> pixelColumnErrors = maxErrorEvaluator.computeMaxPixelErrorsPerColumn();
         // Find the part of the query interval that is not covered by the spans in the interval tree.
         int validColumns = 0;
+        error = 0.0;
         for (Integer pixelColumnError : pixelColumnErrors) {
-            if(pixelColumnError != null) validColumns += 1;
+            if(pixelColumnError != null) {
+                validColumns += 1;
+                error += pixelColumnError;
+            }
         }
         LOG.debug("Valid columns: {}", validColumns);
         error = error / (viewPort.getHeight() * validColumns);

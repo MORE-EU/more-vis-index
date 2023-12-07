@@ -2,12 +2,12 @@ package eu.more2020.visual.middleware.datasource.QueryExecutor;
 
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.SQLQuery;
+import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.PostgreSQLDataset;
-import eu.more2020.visual.middleware.domain.ImmutableUnivariateDataPoint;
+import eu.more2020.visual.middleware.domain.ImmutableDataPoint;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
-import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
 import eu.more2020.visual.middleware.experiments.util.NamedPreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,9 +103,9 @@ public class SQLQueryExecutor implements QueryExecutor {
         }
     }
 
-    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
+    Comparator<DataPoint> compareLists = new Comparator<DataPoint>() {
         @Override
-        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
+        public int compare(DataPoint s1, DataPoint s2) {
             if (s1==null && s2==null) return 0; //swapping has no point here
             if (s1==null) return  1;
             if (s2==null) return -1;
@@ -159,7 +159,7 @@ public class SQLQueryExecutor implements QueryExecutor {
 
     private QueryResults collect(ResultSet resultSet) throws SQLException {
         QueryResults queryResults = new QueryResults();
-        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+        HashMap<Integer, List<DataPoint>> data = new HashMap<>();
         while(resultSet.next()){
             Integer measure = resultSet.getInt(1);
             long epoch = resultSet.getLong(2);
@@ -167,11 +167,11 @@ public class SQLQueryExecutor implements QueryExecutor {
             Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
             if(val == null) continue;
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                    new ImmutableUnivariateDataPoint(epoch, val));
+                    new ImmutableDataPoint(epoch, val));
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                    new ImmutableUnivariateDataPoint(epoch2, val));
+                    new ImmutableDataPoint(epoch2, val));
         }
-        data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
+        data.forEach((k, v) -> v.sort(Comparator.comparingLong(DataPoint::getTimestamp)));
         queryResults.setData(data);
         return queryResults;
     }

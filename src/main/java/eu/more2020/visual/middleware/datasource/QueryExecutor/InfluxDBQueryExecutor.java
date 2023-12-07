@@ -11,13 +11,13 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
+import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.InfluxDBDataset;
-import eu.more2020.visual.middleware.domain.ImmutableUnivariateDataPoint;
+import eu.more2020.visual.middleware.domain.ImmutableDataPoint;
 import eu.more2020.visual.middleware.domain.InfluxDB.InitQueries.*;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
-import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,9 +278,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     }
 
 
-    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
+    Comparator<DataPoint> compareLists = new Comparator<DataPoint>() {
         @Override
-        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
+        public int compare(DataPoint s1, DataPoint s2) {
             if (s1 == null && s2 == null) return 0;//swapping has no point here
             if (s1 == null) return 1;
             if (s2 == null) return -1;
@@ -291,11 +291,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 4; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
+        for(int i = 0; i < q.getNoOfQueries(); i ++) {
+            args.add(bucket);
+            args.add(table);
         }
         String flux = String.format(q.m4QuerySkeleton(), args.toArray());
         return execute(flux);
@@ -304,11 +302,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQuery q) {
         List<String> args = new ArrayList<>();
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 2; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
+        for(int i = 0; i < q.getNoOfQueries(); i ++) {
+            args.add(bucket);
+            args.add(table);
         }
         String flux = String.format(q.minMaxQuerySkeleton(), args.toArray());
         return execute(flux);
@@ -317,11 +313,9 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     public List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q){
         List<String> args = new ArrayList<>();
-        for (int i = 0; i < q.getRanges().size(); i++) {
-            for (int j = 0; j < 2; j++) {
-                args.add(bucket);
-                args.add(table);
-            }
+        for(int i = 0; i < q.getNoOfQueries(); i ++) {
+            args.add(bucket);
+            args.add(table);
         }
         String flux = String.format(q.rawQuerySkeleton(),
                 args.toArray());
@@ -331,17 +325,17 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     private QueryResults collect(List<FluxTable> tables) {
         QueryResults queryResults = new QueryResults();
-        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+        HashMap<Integer, List<DataPoint>> data = new HashMap<>();
         for (FluxTable fluxTable : tables) {
             List<FluxRecord> records = fluxTable.getRecords();
             for (FluxRecord fluxRecord : records) {
                 Integer fieldId = Arrays.asList(dataset.getHeader()).indexOf(fluxRecord.getField());
                 data.computeIfAbsent(fieldId, k -> new ArrayList<>()).add(
-                        new ImmutableUnivariateDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
+                        new ImmutableDataPoint(Objects.requireNonNull(fluxRecord.getTime()).toEpochMilli(),
                                 Double.parseDouble(Objects.requireNonNull(fluxRecord.getValue()).toString())));
             }
         }
-        data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
+        data.forEach((k, v) -> v.sort(Comparator.comparingLong(DataPoint::getTimestamp)));
         queryResults.setData(data);
         return queryResults;
     }

@@ -58,7 +58,7 @@ public class ImmutableAggregatedDataPoint implements AggregatedDataPoint {
 
 
     @Override
-    public double[] getValues() {
+    public double getValue() {
         throw new UnsupportedOperationException();
     }
 

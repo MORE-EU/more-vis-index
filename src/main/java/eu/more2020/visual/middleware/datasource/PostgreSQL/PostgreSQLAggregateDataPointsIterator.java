@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PostgreSQLAggregateDataPointsIterator implements Iterator<AggregatedDataPoint> {
@@ -22,11 +23,11 @@ public class PostgreSQLAggregateDataPointsIterator implements Iterator<Aggregate
     private final long to;
 
 //    private final long aggregateInterval;
-    private final int[] noOfGroups;
+    private final Map<Integer, Integer> noOfGroups;
     private int k;
     private int unionGroup;
 
-    public PostgreSQLAggregateDataPointsIterator(long from, long to, ResultSet resultSet, int[] noOfGroups) throws SQLException {
+    public PostgreSQLAggregateDataPointsIterator(long from, long to, ResultSet resultSet, Map<Integer, Integer> noOfGroups) throws SQLException {
         this.resultSet = resultSet;
 //        this.aggregateInterval = (to - from) / noOfGroups;
         this.from = from;

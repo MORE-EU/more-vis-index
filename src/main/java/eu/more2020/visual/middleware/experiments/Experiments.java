@@ -21,6 +21,7 @@ import eu.more2020.visual.middleware.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.middleware.domain.Query.Query;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
+import eu.more2020.visual.middleware.domain.TimeInterval;
 import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
@@ -313,19 +314,31 @@ public class Experiments<T> {
             QueryResults queryResults;
             double time = 0;
             LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
-            List<String> measureNames = query.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            int[] numberOfGroups = new int[measures.size()];
-            Arrays.fill(numberOfGroups, query.getViewPort().getWidth());
+            Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(measures.size());
+            Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasureName = new HashMap<>(measures.size());
+            Map<String, Integer> numberOfGroupsPerMeasureName = new HashMap<>(measures.size());
+            Map<Integer, Integer> numberOfGroups = new HashMap<>(measures.size());
+
+            for (Integer measure : measures) {
+                String measureName = dataset.getHeader()[measure];
+                List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
+                timeIntervalsForMeasure.add(new TimeRange(query.getFrom(), query.getTo()));
+                missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
+                missingTimeIntervalsPerMeasureName.put(measureName, timeIntervalsForMeasure);
+
+                numberOfGroups.put(measure, query.getViewPort().getWidth());
+                numberOfGroupsPerMeasureName.put(measureName, query.getViewPort().getWidth());
+            }
             DataSourceQuery dataSourceQuery = null;
             switch (type) {
                 case "postgres":
-                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), measures, numberOfGroups);
+                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasure, numberOfGroups);
                     break;
                 case "modelar":
-                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), measures, measureNames, numberOfGroups);
+                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
                 case "influx":
-                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), measures, measureNames, numberOfGroups);
+                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);

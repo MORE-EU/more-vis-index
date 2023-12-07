@@ -23,25 +23,16 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
 
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
 
-    private final List<Integer> measures;
-    private final List<String> measureNames;
     private int current;
-    private long groupTimestamp, currentGroupTimestamp;
-    private long endTimestamp;
-
-    private int i = 0;
-
+    private long groupTimestamp, groupEndTimestamp;
+    private long currentGroupTimestamp;
     private final Integer numberOfTables;
     private int currentTable;
     private int currentSize;
     private List<FluxRecord> currentRecords;
     private final List<FluxTable> tables;
 
-    private NonTimestampedStatsAggregator statsAggregator;
-
-    public InfluxDBAggregateDataPointsIterator(List<String> measureNames, List<Integer> measures, List<FluxTable> tables) {
-        this.measures = measures;
-        this.measureNames = measureNames;
+    public InfluxDBAggregateDataPointsIterator(List<FluxTable> tables) {
         this.currentTable = 0;
         this.tables = tables;
         this.currentRecords = tables.get(currentTable).getRecords();
@@ -50,9 +41,10 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
         this.current = 0;
         if (!currentRecords.isEmpty()) {
             groupTimestamp = ((Instant) currentRecords.get(current).getValues().get("_start")).toEpochMilli();
-            endTimestamp = ((Instant) currentRecords.get(current).getValues().get("_stop")).toEpochMilli();
+            groupEndTimestamp = ((Instant) currentRecords.get(current).getValues().get("_stop")).toEpochMilli();
             currentGroupTimestamp = groupTimestamp;
         }
+        LOG.debug("{}", tables.stream().map(table -> table.getRecords().size()).collect(Collectors.toList()));
     }
 
     @Override
@@ -66,9 +58,8 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
                 currentSize = currentRecords.size();
                 if (!currentRecords.isEmpty()) {
                     groupTimestamp = ((Instant) currentRecords.get(current).getValues().get("_start")).toEpochMilli();
-                    endTimestamp = ((Instant) currentRecords.get(current).getValues().get("_stop")).toEpochMilli();
+                    groupEndTimestamp = ((Instant) currentRecords.get(current).getValues().get("_stop")).toEpochMilli();
                     currentGroupTimestamp = groupTimestamp;
-//                    statsAggregator = new NonTimestampedStatsAggregator(measures.get(currentTable));
                 }
                 return true;
             }
@@ -83,37 +74,32 @@ public class InfluxDBAggregateDataPointsIterator implements Iterator<AggregatedD
     }
 
     /*
-     * Reads the table every 2 measures (one for each min/max variable)
-     * And inputs them into the stats aggregator.
-     * The _time is the time of each grouping.
+        Collect every 2 datapoints and create an aggregated datapoint.
+        Group timestamp represents the start time of the aggregated datapoint.
+        Current group timestamp is the current timestamp of the group and is set to the end of the aggregated datapoint.
      * */
     private AggregatedDataPoint createAggregatedDataPoint() {
-//        statsAggregator = new NonTimestampedStatsAggregator(measures.get(currentTable));
-//        for(int i = 0; i < measures.get(currentTable).size() * 2; i ++){
-//            FluxRecord record = currentRecords.get(current);
-//            int measure = measures.get(currentTable).get(measureNames.get(currentTable).indexOf(record.getField()));
-//            if(record.getValue() != null) { // check for empty value
-//                double value = (double) record.getValue();
-//                statsAggregator.accept(value, measure);
-//            }
-//            current++;
-//        }
-//        if(current == currentSize){
-//            currentGroupTimestamp = endTimestamp;
-//        } else {
-//            currentGroupTimestamp = ((Instant) currentRecords.get(current).getValues().get("_time")).toEpochMilli();
-//        }
-//        statsAggregator.setFrom(groupTimestamp);
-//        statsAggregator.setTo(currentGroupTimestamp);
-//        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
-//        LOG.debug("Created aggregate Datapoint {} - {} with measures {} with mins: {} and maxs: {} ",
-//                DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp), statsAggregator.getMeasures(),
-//                statsAggregator.getMeasures().stream().map(statsAggregator::getMinValue).collect(Collectors.toList()),
-//                statsAggregator.getMeasures().stream().map(statsAggregator::getMaxValue).collect(Collectors.toList()));
-//        groupTimestamp = currentGroupTimestamp;
-//        i++;
-//        return aggregatedDataPoint;
-        return null;
+        NonTimestampedStatsAggregator statsAggregator = new NonTimestampedStatsAggregator();
+        for(int i = 0; i < 2; i ++){
+            FluxRecord record = currentRecords.get(current);
+            if(record.getValue() != null) { // check for empty value
+                double value = (double) record.getValue();
+                statsAggregator.accept(value);
+            }
+            current++;
+        }
+        if(current == currentSize){
+            currentGroupTimestamp = groupEndTimestamp;
+        } else {
+            currentGroupTimestamp = ((Instant) currentRecords.get(current).getValues().get("_time")).toEpochMilli();
+        }
+        statsAggregator.setFrom(groupTimestamp);
+        statsAggregator.setTo(currentGroupTimestamp);
+        AggregatedDataPoint aggregatedDataPoint = new ImmutableAggregatedDataPoint(groupTimestamp, currentGroupTimestamp, statsAggregator);
+        LOG.debug("Created aggregate Datapoint {} - {} with min: {} and max: {} ",
+                DateTimeUtil.format(groupTimestamp), DateTimeUtil.format(currentGroupTimestamp), statsAggregator.getMinValue(), statsAggregator.getMaxValue());
+        groupTimestamp = currentGroupTimestamp;
+        return aggregatedDataPoint;
     }
 
 }
