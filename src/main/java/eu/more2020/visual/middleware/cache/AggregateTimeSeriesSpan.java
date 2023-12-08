@@ -54,7 +54,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
         this.from = from;
         this.to = to;
         this.aggregateInterval = aggregateInterval;
-        LOG.debug("Initializing time series span [{},{}) with size {}, aggregate interval {}", getFromDate(), getToDate(), size, aggregateInterval);
+        LOG.debug("Initializing time series span ({},{}) measure = {} with size {}, aggregate interval {}", getFromDate(), getToDate(), measure, size, aggregateInterval);
         this.measure = measure;
         this.counts = new int[size];
         this.aggregates = new long[size * 5];

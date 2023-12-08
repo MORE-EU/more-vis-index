@@ -57,6 +57,21 @@ public class DataProcessor {
         }
     }
 
+    protected Map<Integer, List<TimeInterval>> sortMeasuresAndIntervals(Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure) {
+        // Sort the map by measure alphabetically
+        Map<Integer, List<TimeInterval>> sortedMap = new TreeMap<>(Comparator.comparing(Object::toString));
+        sortedMap.putAll(missingIntervalsPerMeasure);
+
+        // Sort each list of intervals based on the getFrom() epoch
+        for (List<TimeInterval> intervals : sortedMap.values()) {
+            intervals.sort(Comparator.comparingLong(TimeInterval::getFrom));
+        }
+
+        // Update the original map with the sorted values
+        missingIntervalsPerMeasure.clear();
+        missingIntervalsPerMeasure.putAll(sortedMap);
+        return sortedMap;
+    }
     /**
      * Get missing data between the range from-to. THe data are fetched for each measure and each measure has a list of missingIntervals as well as
      * an aggregationFactor.
@@ -68,6 +83,7 @@ public class DataProcessor {
      **/
     public Map<Integer, List<TimeSeriesSpan>> getMissing(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure,
                                                  Map<Integer, Integer> aggFactors, ViewPort viewPort, QueryMethod queryMethod) {
+        missingIntervalsPerMeasure = sortMeasuresAndIntervals(missingIntervalsPerMeasure); // This helps with parsing the query results
         Map<Integer, List<TimeSeriesSpan>> timeSeriesSpans = new HashMap<>(missingIntervalsPerMeasure.size());
         Map<Integer, Integer> numberOfGroups = new HashMap<>(missingIntervalsPerMeasure.size());
         Map<Integer, Long> aggregateIntervals = new HashMap<>(missingIntervalsPerMeasure.size());

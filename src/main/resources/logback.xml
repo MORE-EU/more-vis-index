@@ -21,7 +21,7 @@
     <logger name ="eu.more2020.visual.datasource.QueryExecutor" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.cache.TimeSeriesSpanFactory" level="DEBUG"/>
     <logger name ="eu.more2020.visual.middleware.domain.PixelColumn" level="INFO"/>
-    <logger name ="eu.more2020.visual.middleware.datasource.DataSource" level="DEBUG"/>
+    <logger name ="eu.more2020.visual.middleware.datasource.DataSource" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.domain.MaxErrorEvaluator" level="INFO"/>
     <root>
         <level>INFO</level>

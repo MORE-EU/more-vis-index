@@ -66,30 +66,31 @@ public class InfluxDBQuery extends DataSourceQuery {
         for (String measureName : missingIntervalsPerMeasureName.keySet()) {
             for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
                 long rangeOffset = range.getFrom() % aggregateIntervals.get(measureName);
-                s += "data_" + i + "() |> aggregate(agg: max, name: \"max\", offset: " + rangeOffset + "ms," + "aggregateInterval:" +  aggregateIntervals.get(measureName) + "ms"+ "),\n" +
-                      "data_" + i + "() |> aggregate(agg: min, name: \"min\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms"+ "),\n";
+                s += "data_" + i + "() |> aggregate(agg: max, name: \"data_" + i + "\", offset: " + rangeOffset + "ms," + "aggregateInterval:" +  aggregateIntervals.get(measureName) + "ms"+ "),\n" +
+                      "data_" + i + "() |> aggregate(agg: min, name: \"data_" + i + "\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms"+ "),\n";
                 i++;
             }
         }
         s+= "])\n";
-        s +=    "|> group(columns: [\"_start\", \"_field\"])\n" +
+        s +=
+                "|> group(columns: [\"_field\", \"_start\", \"_stop\",])\n" +
                 "|> sort(columns: [\"_time\"], desc: false)\n";
-        return s;
+    return s;
     }
 
 
     @Override
     public String m4QuerySkeleton() {
         String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-        String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", aggregateInterval, offset, tables=<-) =>\n" +
+        String s = "customAggregateWindow = (every, fn, column=\"_value\", timeSrc=\"_time\", timeDst=\"_time\", offset, tables=<-) =>\n" +
                 "  tables\n" +
                 "    |> window(every:every, offset: offset, createEmpty:true)\n" +
                 "    |> fn(column:column)\n" +
                 "    |> group()" +
                 "\n" +
-                "aggregate = (tables=<-, agg, name) => tables" +
+                "aggregate = (tables=<-, agg, name, aggregateInterval, offset) => tables" +
                 "\n" +
-                "|> customAggregateWindow(every: aggregateInterval, fn: agg)" +
+                "|> customAggregateWindow(every: aggregateInterval, fn: agg, offset: offset)" +
                 "\n";
 
         int i = 0;
@@ -98,7 +99,7 @@ public class InfluxDBQuery extends DataSourceQuery {
                 s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
                         "|> range(start:" + range.getFromDate(format) + ", stop:" + range.getToDate(format) + ")\n" +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
-                        "|> filter(fn: (r) => r[\"_field\"] ==\""  + measureName + ")\n";
+                        "|> filter(fn: (r) => r[\"_field\"] ==\""  + measureName + "\")\n";
                 i++;
             }
         }
@@ -107,18 +108,17 @@ public class InfluxDBQuery extends DataSourceQuery {
 
         i = 0;
         for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-
             for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
                 long rangeOffset = range.getFrom() % aggregateIntervals.get(measureName);
                 s += "data_" + i + "() |> aggregate(agg: first, name: \"first\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
-                        "data_" + i + "() |> aggregate(agg: max, name: \"max\"), offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
-                        "data_" + i + "() |> aggregate(agg: min, name: \"min\"), offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
-                        "data_" + i + "() |> aggregate(agg: last, name: \"last\" offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms"+ "),\n";
+                        "data_" + i + "() |> aggregate(agg: max, name: \"max\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
+                        "data_" + i + "() |> aggregate(agg: min, name: \"min\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
+                        "data_" + i + "() |> aggregate(agg: last, name: \"last\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms"+ "),\n";
                 i++;
             }
         }
         s += "])\n";
-        s +=    "|> group(columns: [\"_start\", \"_field\"])\n" +
+        s +=    "|> group(columns: [\"table\"])\n" +
                 "|> sort(columns: [\"_time\"], desc: false)\n";
         return s;
     }

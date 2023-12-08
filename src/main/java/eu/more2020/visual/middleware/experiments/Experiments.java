@@ -314,12 +314,12 @@ public class Experiments<T> {
             QueryResults queryResults;
             double time = 0;
             LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
-            Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(measures.size());
-            Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasureName = new HashMap<>(measures.size());
-            Map<String, Integer> numberOfGroupsPerMeasureName = new HashMap<>(measures.size());
-            Map<Integer, Integer> numberOfGroups = new HashMap<>(measures.size());
+            Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(query.getMeasures().size());
+            Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasureName = new HashMap<>(query.getMeasures().size());
+            Map<String, Integer> numberOfGroupsPerMeasureName = new HashMap<>(query.getMeasures().size());
+            Map<Integer, Integer> numberOfGroups = new HashMap<>(query.getMeasures().size());
 
-            for (Integer measure : measures) {
+            for (Integer measure : query.getMeasures()) {
                 String measureName = dataset.getHeader()[measure];
                 List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
                 timeIntervalsForMeasure.add(new TimeRange(query.getFrom(), query.getTo()));
