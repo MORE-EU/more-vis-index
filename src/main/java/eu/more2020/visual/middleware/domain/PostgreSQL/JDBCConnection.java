@@ -32,15 +32,17 @@ public class JDBCConnection implements DatabaseConnection {
             host = properties.getProperty("host");
             user = properties.getProperty("user");
             password = properties.getProperty("password");
-        } catch (IOException e) {
+            connect();
+        } catch (IOException | URISyntaxException | SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public JDBCConnection(String host, String user, String password){
+    public JDBCConnection(String host, String user, String password) throws SQLException, URISyntaxException {
         this.host = host;
         this.user = user;
         this.password = password;
+        connect();
     }
 
     @Override

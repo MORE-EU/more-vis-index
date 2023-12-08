@@ -444,6 +444,7 @@ public class Experiments<T> {
                 break;
             case "modelar":
                 dataset = new ModelarDBDataset(config, table, schema, table, timeFormat);
+                break;
             case "influx":
                 dataset = new InfluxDBDataset(config, table, schema, table, timeFormat);
                 break;
