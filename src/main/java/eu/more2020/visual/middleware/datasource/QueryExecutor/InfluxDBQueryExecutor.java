@@ -92,36 +92,6 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
                 }
                 break;
             }
-            case "intel_lab": {
-                reader = new FileReader(path);
-                CsvToBean<INTEL_LAB> csvToBean = new CsvToBeanBuilder<INTEL_LAB>(reader)
-                        .withType(INTEL_LAB.class)
-                        .build();
-                for (INTEL_LAB data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
-                }
-                break;
-            }
-            case "soccer": {
-                reader = new FileReader(path);
-                CsvToBean<SOCCER> csvToBean = new CsvToBeanBuilder<SOCCER>(reader)
-                        .withType(SOCCER.class)
-                        .build();
-                for (SOCCER data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
-                }
-                break;
-            }
-            case "manufacturing": {
-                reader = new FileReader(path);
-                CsvToBean<MANUFACTURING> csvToBean = new CsvToBeanBuilder<MANUFACTURING>(reader)
-                        .withType(MANUFACTURING.class)
-                        .build();
-                for (MANUFACTURING data : csvToBean) {
-                    writeApi.writeMeasurement(bucket, org, WritePrecision.MS, data);
-                }
-                break;
-            }
             case "intel_lab_exp": {
                 reader = new FileReader(path);
                 CsvToBean<INTEL_LAB_EXP> csvToBean = new CsvToBeanBuilder<INTEL_LAB_EXP>(reader)

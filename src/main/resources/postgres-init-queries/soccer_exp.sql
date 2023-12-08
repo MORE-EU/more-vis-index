@@ -5,8 +5,8 @@ CREATE TABLE more.soccer_exp_tmp(
     ,x      FLOAT
     ,y      FLOAT
     ,z     FLOAT
-    ,abs_vel    FLOAT
-    ,abs_accel FLOAT
+    ,v    FLOAT
+    ,a FLOAT
     ,vx      FLOAT
     ,vy      FLOAT
     ,vz     FLOAT
@@ -16,7 +16,7 @@ CREATE TABLE more.soccer_exp_tmp(
 
 );
 
-COPY more.soccer_exp_tmp(timestamp, x, y, z, abs_vel, abs_accel, vx, vy, vz, ax, ay, az)
+COPY more.soccer_exp_tmp(timestamp, x, y, z, v, a, vx, vy, vz, ax, ay, az)
     FROM '%path'
     DELIMITER ','
     CSV HEADER;
@@ -32,19 +32,19 @@ CREATE TABLE more.soccer_exp(
 
 
 INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, abs_accel, 0, 'abs_accel' FROM more.soccer_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, a, 0, 'a' FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, abs_vel, 1, 'abs_vel' FROM more.soccer_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, ax, 1, 'ax' FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, ax, 2, 'ax' FROM more.soccer_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, ay, 2, 'ay' FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, ay, 3, 'ay' FROM more.soccer_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, az, 3, 'az' FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, az, 4, 'az' FROM more.soccer_exp_tmp;
+SELECT date_part('epoch', timestamp) * 1000, timestamp, v, 4, 'v' FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
 SELECT date_part('epoch', timestamp) * 1000, timestamp, vx, 5, 'vx' FROM more.soccer_exp_tmp;

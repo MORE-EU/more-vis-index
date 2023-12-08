@@ -30,12 +30,12 @@ public class SOCCER_EXP {
     private Double z;
 
     @Column
-    @CsvBindByName(column = "abs_vel")
-    private Double abs_vel;
+    @CsvBindByName(column = "v")
+    private Double v;
 
     @Column
-    @CsvBindByName(column = "abs_accel")
-    private Double abs_accel;
+    @CsvBindByName(column = "a")
+    private Double a;
 
     @Column
     @CsvBindByName(column = "vx")
