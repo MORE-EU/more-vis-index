@@ -115,7 +115,7 @@ public class CacheQueryExecutor {
                 dataProcessor.getMissing(from, to, missingIntervalsPerMeasure, aggFactors, viewPort, query.getQueryMethod()) : new HashMap<>(measures.size());
 
         List<Integer> measuresWithError = new ArrayList<>();
-        // For each measure with a miss, add the fetched datapoints to the pixel columns and recalculate the error.
+        // For each measure with a miss, add the fetched data points to the pixel columns and recalculate the error.
         for(int measureWithMiss : missingTimeSeriesSpansPerMeasure.keySet()) {
             List<PixelColumn> pixelColumns = pixelColumnsPerMeasure.get(measureWithMiss);
             List<TimeSeriesSpan> timeSeriesSpans = missingTimeSeriesSpansPerMeasure.get(measureWithMiss);
@@ -205,7 +205,7 @@ public class CacheQueryExecutor {
         stopwatch.stop();
 
         // Prefetching
-//        prefetchManager.prefetch(from, to, measures, pixelColumnInterval, query, aggFactors);
+        prefetchManager.prefetch(query, aggFactors);
 
         resultData.forEach((k, v) -> v.sort(Comparator.comparingLong(DataPoint::getTimestamp)));
         queryResults.setData(resultData);
