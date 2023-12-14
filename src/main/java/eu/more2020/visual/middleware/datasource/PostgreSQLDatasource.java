@@ -132,10 +132,10 @@ public class PostgreSQLDatasource implements DataSource {
             try {
                 if (queryMethod == QueryMethod.M4) {
                     ResultSet resultSet = sqlQueryExecutor.executeM4SqlQuery(sqlQuery);
-                    return new PostgreSQLAggregateDataPointsIteratorM4(sqlQuery.getFrom(), sqlQuery.getTo(), resultSet, sqlQuery.getNumberOfGroups());
+                    return new PostgreSQLAggregateDataPointsIteratorM4(resultSet, sqlQuery.getMissingIntervalsPerMeasure(), sqlQuery.getAggregateIntervals());
                 } else {
                     ResultSet resultSet = sqlQueryExecutor.executeMinMaxSqlQuery(sqlQuery);
-                    return new PostgreSQLAggregateDataPointsIterator(sqlQuery.getFrom(), sqlQuery.getTo(), resultSet, sqlQuery.getNumberOfGroups());
+                    return new PostgreSQLAggregateDataPointsIterator(resultSet, sqlQuery.getMissingIntervalsPerMeasure(), sqlQuery.getAggregateIntervals());
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

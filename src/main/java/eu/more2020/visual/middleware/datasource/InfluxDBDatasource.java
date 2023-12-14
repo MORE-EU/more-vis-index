@@ -107,7 +107,7 @@ public class InfluxDBDatasource implements DataSource {
 
         private final InfluxDBQuery influxDBQuery;
         private final QueryMethod queryMethod;
-
+        private final Map<String, Integer> measuresMap;
         public InfluxDBAggregatedDatapoints(long from, long to,
                                             Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure,
                                             Map<Integer, Integer> numberOfGroups, QueryMethod queryMethod) {
@@ -121,6 +121,12 @@ public class InfluxDBDatasource implements DataSource {
                             entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
                             Map.Entry::getValue // Value remains the same
                     ));
+
+            this.measuresMap = missingIntervalsPerMeasure.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getKey // Value is the key of the measure
+                    ));
             this.influxDBQuery = new InfluxDBQuery(from, to,  missingIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
             this.queryMethod = queryMethod;
         }
@@ -131,12 +137,12 @@ public class InfluxDBDatasource implements DataSource {
             if(queryMethod == QueryMethod.M4){
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeM4InfluxQuery(influxDBQuery);
                 if(fluxTables.size() == 0) return Collections.emptyIterator();
-                return new InfluxDBAggregateDataPointsIteratorM4(fluxTables);
+                return new InfluxDBAggregateDataPointsIteratorM4(fluxTables, measuresMap);
             }
             else {
                 List<FluxTable> fluxTables = influxDBQueryExecutor.executeMinMaxInfluxQuery(influxDBQuery);
                 if (fluxTables.size() == 0) return Collections.emptyIterator();
-                return new InfluxDBAggregateDataPointsIterator(fluxTables);
+                return new InfluxDBAggregateDataPointsIterator(fluxTables, measuresMap);
             }
         }
 

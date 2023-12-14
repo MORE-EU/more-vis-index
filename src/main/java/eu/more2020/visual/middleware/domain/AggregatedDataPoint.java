@@ -9,13 +9,15 @@ public interface AggregatedDataPoint extends DataPoint, TimeInterval {
     /**
      * @return The number of raw data points represented by this aggregated data point.
      */
-    public int getCount();
+    int getCount();
 
     /**
      * @return The aggregate measure metadata of the raw data points
      * represented by this aggregated data point.
      */
-    public Stats getStats();
+    Stats getStats();
+
+    int getMeasure();
 
     default String getString() {
         return "{from: " + getFrom() + ", to: " + getTo() + ", stats: " + getStats() + "}";

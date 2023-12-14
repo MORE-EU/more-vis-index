@@ -145,8 +145,6 @@ public class SQLQueryExecutor implements QueryExecutor {
     public ResultSet executeMinMaxSqlQuery(SQLQuery q) throws SQLException {
         String sql = q.minMaxQuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());

@@ -137,7 +137,7 @@ public class CacheQueryExecutor {
             Map<Integer, List<TimeInterval>> m4MissingIntervals =  new HashMap<>(measuresWithError.size());
             Map<Integer, Integer> m4AggFactors = new HashMap<>(measuresWithError.size());
             for(int measureWithError : measuresWithError){
-                missingIntervalsPerMeasure.put(measureWithError, List.of(new TimeRange(from, to)));
+                m4MissingIntervals.put(measureWithError, List.of(new TimeRange(from, to)));
                 m4AggFactors.put(measureWithError, 1);
             }
             LOG.info("Cached data are above error bound. Fetching {}: for {} ", m4MissingIntervals, measuresWithError);

@@ -1,6 +1,7 @@
 package eu.more2020.visual.middleware.cache;
 
 import eu.more2020.visual.middleware.domain.*;
+import eu.more2020.visual.middleware.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
 
 
     private void initialize(long from, long to, long aggregateInterval, int measure) {
-        this.size = (int) Math.ceil((double)(to - from) / aggregateInterval);
+        this.size = DateTimeUtil.numberOfIntervals(from, to, aggregateInterval);
         this.from = from;
         this.to = to;
         this.aggregateInterval = aggregateInterval;
@@ -119,7 +120,9 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
         return counts;
     }
 
-
+    public TimeInterval getResidual(){
+        return new TimeRange(from + (aggregateInterval) * (size - 1), to);
+    }
     /**
      * Returns an iterator over the aggregated data points in this span that fall within the given time range.
      *
@@ -296,6 +299,11 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
         }
 
         @Override
+        public int getMeasure() {
+            return measure;
+        }
+
+        @Override
         public long getTimestamp() {
             return timestamp;
         }
@@ -319,4 +327,6 @@ public class AggregateTimeSeriesSpan implements TimeSeriesSpan {
             throw new UnsupportedOperationException();
         }
     }
+
+
 }

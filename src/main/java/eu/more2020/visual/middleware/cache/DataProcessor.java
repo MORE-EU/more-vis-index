@@ -64,7 +64,8 @@ public class DataProcessor {
 
         // Sort each list of intervals based on the getFrom() epoch
         for (List<TimeInterval> intervals : sortedMap.values()) {
-            intervals.sort(Comparator.comparingLong(TimeInterval::getFrom));
+            if(intervals.size() > 1)
+                intervals.sort(Comparator.comparingLong(TimeInterval::getFrom));
         }
 
         // Update the original map with the sorted values

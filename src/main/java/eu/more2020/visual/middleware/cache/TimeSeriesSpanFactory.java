@@ -32,7 +32,7 @@ public class TimeSeriesSpanFactory {
                 while (it.hasNext()) {
                     if (!changed) dataPoint = it.next();
                     else changed = false;
-                    if (dataPoint.getTimestamp() >= range.getTo()) {
+                    if (dataPoint.getTimestamp() >= range.getTo() ) {
                         changed = true;
                         break;
                     }
@@ -58,30 +58,45 @@ public class TimeSeriesSpanFactory {
      */
     public static Map<Integer, List<TimeSeriesSpan>> createAggregate(AggregatedDataPoints aggregatedDataPoints,
                                                                      Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure,
-                                                                     Map<Integer, Long> aggregateIntervalsPerMeasure){
+                                                                     Map<Integer, Long> aggregateIntervalsPerMeasure) {
         Map<Integer, List<TimeSeriesSpan>> spans = new HashMap<>();
         Iterator<AggregatedDataPoint> it = aggregatedDataPoints.iterator();
         AggregatedDataPoint aggregatedDataPoint = null;
+        boolean changed = false;
         for (Integer measure : missingIntervalsPerMeasure.keySet()) {
-            List<TimeSeriesSpan> timeSeriesSpansForMeasure = new ArrayList<>();
             long aggregateInterval = aggregateIntervalsPerMeasure.get(measure);
-            for(TimeInterval range : missingIntervalsPerMeasure.get(measure)) {
-                AggregateTimeSeriesSpan timeSeriesSpan = new AggregateTimeSeriesSpan(range.getFrom(), range.getTo(), measure, aggregateInterval);
+            List<TimeSeriesSpan> timeSeriesSpansForMeasure = new ArrayList<>();
+            for (TimeInterval range : missingIntervalsPerMeasure.get(measure)) {
                 int j = 0;
-                while((j < timeSeriesSpan.getSize() - 1) && it.hasNext()){
-                    aggregatedDataPoint = it.next();
-                    j = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), aggregateInterval, aggregatedDataPoint.getTimestamp());
-                    LOG.debug("Adding {} between {}-{} with aggregate interval {} for measure {} at position {}",
-                           aggregatedDataPoint.getTimestamp(), range.getFrom(), range.getTo(),  aggregateInterval, measure, j);
-                    timeSeriesSpan.addAggregatedDataPoint(j, aggregatedDataPoint);
+                AggregateTimeSeriesSpan timeSeriesSpan = new AggregateTimeSeriesSpan(range.getFrom(), range.getTo(), measure, aggregateInterval);
+                // This is to handle missing fetched data.
+                // There is not a 1-1 mapping between the fetched aggregate data and the time series span we are creating.
+                // Postgres omits results if there is no data in the group (InfluxDB has a fill empty clause and handles this, so we create the empty data points in the iterator).
+                // We use this solution to see when the time series span changes.
+                while (j < (timeSeriesSpan.getSize() - 1)) {
+                    if (!changed){ // if there is a change keep the previous datapoint to process
+                        if(it.hasNext()) aggregatedDataPoint = it.next();
+                        else break;
+                    }
+                    if (aggregatedDataPoint.getTimestamp() < range.getFrom()
+                            || aggregatedDataPoint.getTimestamp() >= range.getTo() || aggregatedDataPoint.getMeasure() != measure) {
+                        changed = true;
+                        break;
+                    }
+                    else {
+                        changed = false;
+                        j = DateTimeUtil.indexInInterval(range.getFrom(), range.getTo(), aggregateInterval, aggregatedDataPoint.getTimestamp());
+                        LOG.debug("Adding {} between {}-{} with aggregate interval {} for measure {} at position {}",
+                                aggregatedDataPoint.getTimestamp(), range.getFrom(), range.getTo(), aggregateInterval, measure, j);
+                        timeSeriesSpan.addAggregatedDataPoint(j, aggregatedDataPoint);
+                    }
                 }
                 timeSeriesSpansForMeasure.add(timeSeriesSpan);
-                LOG.debug("Created aggregate time series span:" + timeSeriesSpan);
             }
             spans.put(measure, timeSeriesSpansForMeasure);
         }
         return spans;
     }
-
-
 }
+
+

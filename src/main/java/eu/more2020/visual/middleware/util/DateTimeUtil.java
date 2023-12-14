@@ -162,11 +162,8 @@ public class DateTimeUtil {
         return dateTime;
     }
 
-    public static int numberOfIntervals(final long startTime, final long endTime, AggregateInterval aggregateInterval, ZoneId zoneId) {
-        if(endTime == startTime) return 0;
-        ZonedDateTime startDateTime = DateTimeUtil.getIntervalStart(startTime, aggregateInterval, zoneId);
-        ZonedDateTime endDateTime = DateTimeUtil.getIntervalStart(endTime, aggregateInterval, zoneId);
-        return (int) Math.ceil(aggregateInterval.getChronoUnit().between(startDateTime, endDateTime) / (double) aggregateInterval.getInterval()) + 1;
+    public static int numberOfIntervals(final long startTime, final long endTime, long aggregateInterval) {
+        return (int) Math.ceil((double)(endTime - startTime) / aggregateInterval);
     }
 
     public static int indexInInterval(final long startTime, final long endTime, final long aggregateInterval, final long time) {

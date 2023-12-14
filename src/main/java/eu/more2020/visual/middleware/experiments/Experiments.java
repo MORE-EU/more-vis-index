@@ -195,7 +195,7 @@ public class Experiments<T> {
 
 
     private void initialize() throws IOException, SQLException {
-        AbstractDataset dataset = createDataset();
+        AbstractDataset dataset = createInitDataset();
         QueryExecutor queryExecutor = createQueryExecutor(dataset);
         queryExecutor.drop();
         queryExecutor.initialize(path);
