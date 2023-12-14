@@ -30,7 +30,9 @@ public class PostgreSQLDataset extends AbstractDataset {
         super(id, table, schema, timeFormat, timeCol, idCol, valueCol);
         this.config = config;
         setTimeCol(timeCol);
-        this.fillPostgreSQLDatasetInfo(new JDBCConnection(config).getSqlQueryExecutor());
+        JDBCConnection jdbcConnection = new JDBCConnection(config);
+        jdbcConnection.connect();
+        this.fillPostgreSQLDatasetInfo(jdbcConnection.getSqlQueryExecutor());
     }
 
     public PostgreSQLDataset(String config, String id, String schema, String table, String timeFormat) {

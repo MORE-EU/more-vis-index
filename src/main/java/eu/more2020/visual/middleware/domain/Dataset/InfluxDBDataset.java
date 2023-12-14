@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class InfluxDBDataset extends AbstractDataset {
 
     private String influxDBCfg;
-    private final String org;
     private final String bucket;
     private final String measurement;
     private final String timeFormat;
@@ -26,13 +25,11 @@ public class InfluxDBDataset extends AbstractDataset {
         this.measurement = measurement;
         this.timeFormat = timeFormat;
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
-        this.org = influxDBConnection.getOrg();
     }
 
-    public InfluxDBDataset(InfluxDBQueryExecutor influxDBQueryExecutor, String id, String org, String bucket,
+    public InfluxDBDataset(InfluxDBQueryExecutor influxDBQueryExecutor, String id, String bucket,
                            String measurement, String timeFormat, String timeCol) {
         super(id);
-        this.org = org;
         this.bucket = bucket;
         this.measurement = measurement;
         this.timeFormat = timeFormat;
@@ -51,7 +48,7 @@ public class InfluxDBDataset extends AbstractDataset {
         this.timeFormat = timeFormat;
         setTimeCol(timeCol);
         InfluxDBConnection influxDBConnection = new InfluxDBConnection(influxDBCfg);
-        this.org = influxDBConnection.getOrg();
+        influxDBConnection.connect();
         this.fillInfluxDBDatasetInfo(influxDBConnection.getSqlQueryExecutor());
     }
 
@@ -101,10 +98,6 @@ public class InfluxDBDataset extends AbstractDataset {
         return timeFormat;
     }
 
-    public String getOrg() {
-        return org;
-    }
-
     @Override
     public String getSchema() {
         return bucket;
@@ -135,7 +128,6 @@ public class InfluxDBDataset extends AbstractDataset {
         return "InfluxDBDataset{" +
                 "fileInfoList=" + fileInfoList +
                 ", influxDBCfg='" + influxDBCfg + '\'' +
-                ", org='" + org + '\'' +
                 ", bucket='" + bucket + '\'' +
                 ", measurement='" + measurement + '\'' +
                 ", timeFormat='" + timeFormat + '\'' +

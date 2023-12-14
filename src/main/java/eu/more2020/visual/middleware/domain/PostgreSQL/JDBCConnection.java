@@ -1,6 +1,7 @@
 package eu.more2020.visual.middleware.domain.PostgreSQL;
 
 import eu.more2020.visual.middleware.datasource.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.middleware.domain.DatabaseConnection;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,9 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
-public class JDBCConnection {
+public class JDBCConnection implements DatabaseConnection {
     private static final Logger LOG = LoggerFactory.getLogger(JDBCConnection.class);
 
     String config;
@@ -32,17 +34,15 @@ public class JDBCConnection {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.connect();
     }
 
     public JDBCConnection(String host, String user, String password){
         this.host = host;
         this.user = user;
         this.password = password;
-        this.connect();
     }
-
-    private void connect() {
+    @Override
+    public void connect() {
         connection = null;
         try {
             Class.forName("org.postgresql.Driver");
@@ -52,6 +52,17 @@ public class JDBCConnection {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error(e.getClass().getName()+": "+e.getMessage());
+        }
+    }
+
+
+    @Override
+    public void closeConnection() throws SQLException {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            LOG.error(e.getClass().getName()+": "+e.getMessage());
+            throw e;
         }
     }
 
@@ -72,5 +83,7 @@ public class JDBCConnection {
     public SQLQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
+
+
 
 }

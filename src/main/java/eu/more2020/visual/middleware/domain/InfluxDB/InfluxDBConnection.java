@@ -4,6 +4,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.middleware.domain.DatabaseConnection;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-public class InfluxDBConnection {
+public class InfluxDBConnection implements DatabaseConnection {
 
     private static final Logger LOG = LoggerFactory.getLogger(InfluxDBConnection.class);
     private String config;
@@ -21,6 +22,7 @@ public class InfluxDBConnection {
     private String token;
     private String org;
     private String url;
+    private String bucket;
     private Properties properties  = new Properties();;
 
     public InfluxDBConnection(String influxDBCfg) {
@@ -32,21 +34,22 @@ public class InfluxDBConnection {
             token = properties.getProperty("token");
             org = properties.getProperty("org");
             url = properties.getProperty("url");
+            bucket = properties.getProperty("bucket");
         }
         catch (Exception e) {
             LOG.error(e.getClass().getName() + ": " + e.getMessage());
         }
-        this.connect();
     }
 
-    public InfluxDBConnection(String url, String org, String token) {
+    public InfluxDBConnection(String url, String org, String token, String bucket) {
         this.url = url;
         this.org = org;
         this.token = token;
-        this.connect();
+        this.bucket = bucket;
     }
 
-    private void connect() {
+    @Override
+    public void connect() {
         OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder()
                 .readTimeout(10, TimeUnit.MINUTES)
                 .writeTimeout(30, TimeUnit.MINUTES)
@@ -55,6 +58,7 @@ public class InfluxDBConnection {
                 .builder()
                 .url(url)
                 .org(org)
+                .bucket(bucket)
                 .authenticateToken(token.toCharArray())
                 .okHttpClient(okHttpClient)
                 .build();
@@ -64,36 +68,32 @@ public class InfluxDBConnection {
     }
 
     private InfluxDBQueryExecutor createQueryExecutor(AbstractDataset dataset) {
-        return new InfluxDBQueryExecutor(client, dataset);
+        return new InfluxDBQueryExecutor(client, dataset, org);
     }
 
     private InfluxDBQueryExecutor createQueryExecutor() {
-        return new InfluxDBQueryExecutor(client);
+        return new InfluxDBQueryExecutor(client, bucket, org);
     }
 
+    @Override
     public InfluxDBQueryExecutor getSqlQueryExecutor() {
         return this.createQueryExecutor();
     }
 
+    @Override
     public InfluxDBQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
 
-
-
-    public InfluxDBClient getClient() {
-        return client;
+    @Override
+    public void closeConnection() {
+        try {
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error(e.getClass().getName() + ": " + e.getMessage());
+            throw e;
+        }
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public String getOrg() {
-        return org;
-    }
-
-    public String getUrl() {
-        return url;
-    }
 }

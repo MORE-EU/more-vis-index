@@ -488,6 +488,7 @@ public class Experiments<T> {
             case "postgres":
                 JDBCConnection postgreSQLConnection =
                         new JDBCConnection(config);
+                postgreSQLConnection.connect();
                 queryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset);
                 break;
             case "modelar":
@@ -498,6 +499,7 @@ public class Experiments<T> {
             case "influx":
                 InfluxDBConnection influxDBConnection =
                         new InfluxDBConnection(config);
+                influxDBConnection.connect();
                 queryExecutor = influxDBConnection.getSqlQueryExecutor(dataset);
             default:
                 break;

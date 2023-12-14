@@ -18,6 +18,7 @@ import eu.more2020.visual.middleware.domain.ImmutableDataPoint;
 import eu.more2020.visual.middleware.domain.InfluxDB.InitQueries.*;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
+import eu.more2020.visual.middleware.domain.TableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,16 +40,17 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
     String bucket;
     String org;
 
-    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient){
+    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, String bucket, String org){
         this.influxDBClient = influxDBClient;
+        this.bucket = bucket;
+        this.org = org;
     }
-
-    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, AbstractDataset dataset) {
+    public InfluxDBQueryExecutor(InfluxDBClient influxDBClient, AbstractDataset dataset, String org) {
         this.influxDBClient = influxDBClient;
         this.dataset = (InfluxDBDataset) dataset;
         this.table = dataset.getTable();
         this.bucket = dataset.getSchema();
-        this.org = ((InfluxDBDataset) dataset).getOrg();
+        this.org = org;
     }
 
     @Override
@@ -346,4 +348,53 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
         return queryApi.query(query);
     }
 
+    @Override
+    public List<TableInfo>  getTableInfo() {
+        String fluxQuery = "from(bucket: \"" + bucket + "\") |> range(start: -1h) |> group(columns: [\"_measurement\"]) |> distinct(column: \"_measurement\") |> limit(n: 1)";
+        List<FluxTable> fluxTables;
+        List<TableInfo> tableInfoArray = new ArrayList<TableInfo>();
+        try {
+            fluxTables = execute(fluxQuery);
+            for (FluxTable table : fluxTables) {
+                List<FluxRecord> fluxRecords = table.getRecords();
+                for (FluxRecord fluxRecord : fluxRecords) {
+                    TableInfo tableInfo = new TableInfo();
+                    String tableName = fluxRecord.getMeasurement();
+                    LOG.debug("Measurement: " + fluxRecord.getMeasurement());
+                    tableInfo.setTable(tableName);
+                    tableInfo.setSchema(bucket);
+                    tableInfoArray.add(tableInfo);
+                }
+            }
+            return tableInfoArray;
+        } catch(Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public List<String> getColumns(String tableName) { //not needed for influx
+        List<String> fields = new ArrayList<String>();
+        String fluxQuery = "from(bucket: \"" + bucket + "\") |> range(start: -1h) |> filter(fn: (r) => r[\"_measurement\"] == \"" + tableName + "\") |> limit(n: 1) |> group(columns: [\"_field\"]) |> distinct(column: \"_field\")";
+        List<FluxTable> fluxTables;
+        try {
+            fluxTables = execute(fluxQuery);
+            for (FluxTable table : fluxTables) {
+                List<FluxRecord> fluxRecords = table.getRecords();
+                for (FluxRecord fluxRecord : fluxRecords) {
+                    String fieldName =  fluxRecord.getField();
+                    LOG.debug("field: " + fieldName);
+                    fields.add(fieldName);
+                }
+            }
+            return fields;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    @Override
+    public List<Object[]> getSample(String schema, String tableName) {
+        List<Object[]> resultList = new ArrayList<>();
+        return resultList;
+    }
 }

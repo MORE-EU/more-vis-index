@@ -7,6 +7,7 @@ import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
+import eu.more2020.visual.middleware.domain.TableInfo;
 import eu.more2020.visual.middleware.experiments.util.PrepareSQLStatement;
 import cfjd.org.apache.arrow.flight.FlightClient;
 import cfjd.org.apache.arrow.flight.FlightStream;
@@ -75,6 +76,21 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
     @Override
     public void drop() throws SQLException {
 
+    }
+
+    @Override
+    public List<TableInfo> getTableInfo() throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<String> getColumns(String tableName) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<Object[]> getSample(String schema, String tableName) throws SQLException {
+        return null;
     }
 
     Comparator<DataPoint> compareLists = new Comparator<DataPoint>() {
