@@ -22,5 +22,5 @@ ssims*/*
 diffs*
 
 *.ipynb
-logs.log
+logs_p.log
 .DS_Store
