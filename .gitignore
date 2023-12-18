@@ -26,3 +26,5 @@ logs_p.log
 .DS_Store
 logs.log
 .DS_Store
+.vscode/launch.json
+.DS_Store

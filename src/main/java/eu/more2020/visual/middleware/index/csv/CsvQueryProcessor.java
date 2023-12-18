@@ -2,6 +2,7 @@ package eu.more2020.visual.middleware.index.csv;
 
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+
 import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.CsvDataset;
 import eu.more2020.visual.middleware.domain.ImmutableDataPoint;
@@ -141,7 +142,6 @@ public class CsvQueryProcessor {
                 if (!currentDate.equals(previousDate) && previousDate != null) {
                     long previousDateTimestamp = TimeSeriesIndexUtil.getTimestampFromLocalDateTime(previousDate);
                     if (queryRange.contains(TimeSeriesIndexUtil.getTimestampFromLocalDateTime(previousDate))) {
-//                        queryResults.getData().add(new DataPoint(previousDate, nodeSelectionFromFile(statsAccumulators)));
                         setNodeData(previousDateTimestamp, nodeSelectionFromFile(statsAccumulators));
                     }
                     statsAccumulators = new DoubleSummaryStatistics[measures.size()];
@@ -154,7 +154,6 @@ public class CsvQueryProcessor {
                 }
                 long currentDateTimestamp = TimeSeriesIndexUtil.getTimestampFromLocalDateTime(currentDate);
                 if (i == treeNode.getDataPointCount() - 1 && (queryRange.contains(TimeSeriesIndexUtil.getTimestampFromLocalDateTime(currentDate)))) {
-//                    queryResults.getData().add(new DataPoint(currentDate, nodeSelectionFromFile(statsAccumulators)));
                     setNodeData(currentDateTimestamp, nodeSelectionFromFile(statsAccumulators));
                 }
             }
