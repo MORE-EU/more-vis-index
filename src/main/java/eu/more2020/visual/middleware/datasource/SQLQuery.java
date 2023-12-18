@@ -1,7 +1,6 @@
 package eu.more2020.visual.middleware.datasource;
 
 import eu.more2020.visual.middleware.domain.TimeInterval;
-import org.apache.arrow.flatbuf.Int;
 
 import java.util.HashMap;
 import java.util.List;

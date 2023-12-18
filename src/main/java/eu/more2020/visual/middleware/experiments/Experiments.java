@@ -487,18 +487,18 @@ public class Experiments<T> {
                 JDBCConnection postgreSQLConnection =
                         new JDBCConnection(config);
                 postgreSQLConnection.connect();
-                queryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset);
+                queryExecutor = postgreSQLConnection.getQueryExecutor(dataset);
                 break;
             case "modelar":
                 ModelarDBConnection modelarDBConnection =
                         new ModelarDBConnection(config);
-                queryExecutor = modelarDBConnection.getSqlQueryExecutor(dataset);
+                queryExecutor = modelarDBConnection.getQueryExecutor(dataset);
                 break;
             case "influx":
                 InfluxDBConnection influxDBConnection =
                         new InfluxDBConnection(config);
                 influxDBConnection.connect();
-                queryExecutor = influxDBConnection.getSqlQueryExecutor(dataset);
+                queryExecutor = influxDBConnection.getQueryExecutor(dataset);
             default:
                 break;
         }

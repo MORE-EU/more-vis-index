@@ -10,10 +10,9 @@ public interface DatabaseConnection {
 
     public void connect() throws  SQLException;
 
+    public QueryExecutor getQueryExecutor();
 
-    public QueryExecutor getSqlQueryExecutor();
-
-    public QueryExecutor getSqlQueryExecutor(AbstractDataset dataset);
+    public QueryExecutor getQueryExecutor(AbstractDataset dataset);
 
     public void closeConnection() throws SQLException;
 }

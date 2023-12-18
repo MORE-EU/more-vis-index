@@ -1,6 +1,8 @@
 package eu.more2020.visual.middleware.domain.ModelarDB;
 
 import eu.more2020.visual.middleware.datasource.QueryExecutor.ModelarDBQueryExecutor;
+import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutor;
+import eu.more2020.visual.middleware.domain.DatabaseConnection;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import cfjd.org.apache.arrow.flight.FlightClient;
 import cfjd.org.apache.arrow.flight.Location;
@@ -12,9 +14,10 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
-public class ModelarDBConnection implements Serializable {
+public class ModelarDBConnection implements Serializable, DatabaseConnection {
     private static final Logger LOG = LoggerFactory.getLogger(ModelarDBConnection.class);
 
     String config;
@@ -46,7 +49,8 @@ public class ModelarDBConnection implements Serializable {
         this.connect();
     }
 
-    private void connect() {
+    @Override
+    public void connect() {
         connection = null;
         try {
             Location location = Location.forGrpcInsecure(host, port);
@@ -74,5 +78,23 @@ public class ModelarDBConnection implements Serializable {
 
     public ModelarDBQueryExecutor getSqlQueryExecutor() {
         return this.createQueryExecutor();
+    }
+
+    @Override
+    public QueryExecutor getQueryExecutor() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public QueryExecutor getQueryExecutor(AbstractDataset dataset) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void closeConnection() throws SQLException {
+        // TODO Auto-generated method stub
+        
     }
 }
