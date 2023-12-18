@@ -1,11 +1,11 @@
 package eu.more2020.visual.middleware.domain;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An object for computing aggregate statistics for multi-variate time series data points.

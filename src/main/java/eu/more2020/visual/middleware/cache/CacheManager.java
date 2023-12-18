@@ -1,7 +1,6 @@
 package eu.more2020.visual.middleware.cache;
 
 import eu.more2020.visual.middleware.domain.Query.Query;
-import org.h2.api.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

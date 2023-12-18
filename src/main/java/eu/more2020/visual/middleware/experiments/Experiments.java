@@ -26,7 +26,6 @@ import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
 import eu.more2020.visual.middleware.util.io.SerializationUtilities;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +35,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 public class Experiments<T> {
@@ -152,12 +149,14 @@ public class Experiments<T> {
 
 
     public Experiments() {
+   
     }
 
 
     public static void main(String... args) throws IOException, ClassNotFoundException, SQLException {
         Experiments experiments = new Experiments();
-        JCommander jCommander = new JCommander(experiments, args);
+        JCommander jCommander = new JCommander(experiments);
+        jCommander.parse(args);
         if (experiments.help) {
             jCommander.usage();
         } else {
@@ -482,7 +481,6 @@ public class Experiments<T> {
     }
 
     private QueryExecutor createQueryExecutor(AbstractDataset dataset) throws IOException, SQLException {
-        String p = "";
         QueryExecutor queryExecutor = null;
         switch (type) {
             case "postgres":
