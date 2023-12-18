@@ -6,13 +6,14 @@
     "configurations": [
 
 
+
         {
             "type": "java",
             "name": "Launch Experiments",
             "request": "launch",
             "mainClass": "eu.more2020.visual.middleware.experiments.Experiments",
             "projectName": "more-vis-index",
-            "args": "-c timeQueries -seqCount 100 -measureChange 0 -type postgres -mode minMax -measures 2 -timeCol epoch -idCol id -valueCol value -zoomFactor 2 -viewport 1000,600 -runs 1 -out output -minShift 0.1 -maxShift 0.5 -schema more -table soccer_exp -timeFormat \"yyyy-MM-dd[ HH:mm:ss.SSS]\" -a 0.95 -q 0.1 -p 1 -agg 4 -reduction 4"
+            "args": "-c timeQueries -seqCount 100 -measureChange 0 -type postgres -mode minMax -measures 2 -timeCol epoch -idCol id -valueCol value -zoomFactor 2 -viewport 1000,600 -runs 1 -out output -minShift 0.1 -maxShift 0.5 -schema more -table manufacturing_exp -timeFormat \"yyyy-MM-dd[ HH:mm:ss.SSS]\" -a 0.95 -q 0.1 -p 1 -agg 4 -reduction 4"
         }
     ]
 }

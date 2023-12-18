@@ -75,12 +75,13 @@ public class JDBCConnection implements DatabaseConnection {
         return new SQLQueryExecutor(connection);
     }
 
-
-    public SQLQueryExecutor getSqlQueryExecutor() {
+    @Override
+    public SQLQueryExecutor getQueryExecutor() {
         return this.createQueryExecutor();
     }
 
-    public SQLQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
+    @Override
+    public SQLQueryExecutor getQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
 

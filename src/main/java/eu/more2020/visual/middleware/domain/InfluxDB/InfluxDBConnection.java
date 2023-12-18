@@ -76,12 +76,12 @@ public class InfluxDBConnection implements DatabaseConnection {
     }
 
     @Override
-    public InfluxDBQueryExecutor getSqlQueryExecutor() {
+    public InfluxDBQueryExecutor getQueryExecutor() {
         return this.createQueryExecutor();
     }
 
     @Override
-    public InfluxDBQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
+    public InfluxDBQueryExecutor getQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
 
