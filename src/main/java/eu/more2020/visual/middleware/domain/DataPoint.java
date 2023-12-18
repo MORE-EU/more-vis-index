@@ -1,21 +1,16 @@
 package eu.more2020.visual.middleware.domain;
 
-
 /**
- * Represents a single multi-measure data point with a number of values and a timestamp.
+ * Represents a single univariate data point with a single value and a timestamp.
  */
 public interface DataPoint {
-
     /**
      * Returns the timestamp(epoch time in milliseconds) of this data point.
      */
-    public long getTimestamp();
+    long getTimestamp();
 
     /**
-     * Returns an array of double values, corresponding to a set of measures.
-     * The mapping of each value to a measure is handled elsewhere (e.g. in the {@link DataPoints}
-     * that include this data point).
+     * Returns a single measure value for the {@code timestamp)
      */
-    public double[] getValues();
-
+    double getValue();
 }

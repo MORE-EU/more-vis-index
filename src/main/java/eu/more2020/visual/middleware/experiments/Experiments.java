@@ -21,11 +21,11 @@ import eu.more2020.visual.middleware.domain.InfluxDB.InfluxDBConnection;
 import eu.more2020.visual.middleware.domain.Query.Query;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
+import eu.more2020.visual.middleware.domain.TimeInterval;
 import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.domain.ViewPort;
 import eu.more2020.visual.middleware.experiments.util.*;
 import eu.more2020.visual.middleware.util.io.SerializationUtilities;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 public class Experiments<T> {
@@ -145,28 +143,20 @@ public class Experiments<T> {
     @Parameter(names = "--measureMem",  description = "Measure index memory after every query in the sequence")
     private boolean measureMem = false;
 
-
-    @Parameter(names = "-org", description = "The organization for InfluxDB")
-    public String org;
-
-    @Parameter(names = "--groupBy", converter = OLAPConverter.class, description = "Measure index memory after every query in the sequence")
-    private ChronoField groupyBy = ChronoField.HOUR_OF_DAY;
-
     @Parameter(names = "--help", help = true, description = "Displays help")
-
-
     private boolean help;
 
 
-    private final Properties influxDbProperties = new Properties();
 
     public Experiments() {
+   
     }
 
 
     public static void main(String... args) throws IOException, ClassNotFoundException, SQLException {
         Experiments experiments = new Experiments();
-        JCommander jCommander = new JCommander(experiments, args);
+        JCommander jCommander = new JCommander(experiments);
+        jCommander.parse(args);
         if (experiments.help) {
             jCommander.usage();
         } else {
@@ -243,7 +233,7 @@ public class Experiments<T> {
             csvWriter.addValue(query.getFrom());
             csvWriter.addValue(query.getTo());
             csvWriter.addValue(query.getFromDate() + " - " + query.getToDate());
-            csvWriter.addValue(queryResults.getAggFactor());
+            csvWriter.addValue(queryResults.getAggFactors());
             csvWriter.addValue(0);
             csvWriter.addValue(queryResults.getIoCount());
             csvWriter.addValue(time);
@@ -252,7 +242,7 @@ public class Experiments<T> {
             csvWriter.addValue(queryResults.getQueryTime());
             csvWriter.addValue(memorySize);
             csvWriter.addValue((query.getTo() - query.getFrom()) / dataset.getSamplingInterval().toMillis()); // raw data points
-            csvWriter.addValue((double) ((query.getTo() - query.getFrom()) / queryResults.getAggFactor() / query.getViewPort().getWidth()) / dataset.getSamplingInterval().toMillis()); // data reduction factor
+//            csvWriter.addValue((double) ((query.getTo() - query.getFrom()) / queryResults.getAggFactor() / query.getViewPort().getWidth()) / dataset.getSamplingInterval().toMillis()); // data reduction factor
             csvWriter.addValue(queryResults.getError());
             csvWriter.addValue(queryResults.isFlag());
             csvWriter.writeValuesToRow();
@@ -323,21 +313,31 @@ public class Experiments<T> {
             QueryResults queryResults;
             double time = 0;
             LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
-            List<String> measureNames = query.getMeasures().stream().map(m -> dataset.getHeader()[m]).collect(Collectors.toList());
-            List<List<Integer>> datasourceMeasures = new ArrayList<>();
-            List<List<String>> datasourceMeasureNames = new ArrayList<>();
-            datasourceMeasures.add(query.getMeasures());
-            datasourceMeasureNames.add(measureNames);
+            Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(query.getMeasures().size());
+            Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasureName = new HashMap<>(query.getMeasures().size());
+            Map<String, Integer> numberOfGroupsPerMeasureName = new HashMap<>(query.getMeasures().size());
+            Map<Integer, Integer> numberOfGroups = new HashMap<>(query.getMeasures().size());
+
+            for (Integer measure : query.getMeasures()) {
+                String measureName = dataset.getHeader()[measure];
+                List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
+                timeIntervalsForMeasure.add(new TimeRange(query.getFrom(), query.getTo()));
+                missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
+                missingTimeIntervalsPerMeasureName.put(measureName, timeIntervalsForMeasure);
+
+                numberOfGroups.put(measure, query.getViewPort().getWidth());
+                numberOfGroupsPerMeasureName.put(measureName, query.getViewPort().getWidth());
+            }
             DataSourceQuery dataSourceQuery = null;
             switch (type) {
                 case "postgres":
-                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), datasourceMeasures, query.getViewPort().getWidth());
+                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasure, numberOfGroups);
                     break;
                 case "modelar":
-                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), datasourceMeasures, datasourceMeasureNames, query.getViewPort().getWidth());
+                    dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
                 case "influx":
-                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), datasourceMeasures, datasourceMeasureNames, query.getViewPort().getWidth());
+                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
@@ -409,19 +409,6 @@ public class Experiments<T> {
         return sequenceGenerator.generateQuerySequence(q0, seqCount, measureChange);
     }
 
-    private void recreateDir(String folder) {
-        try {
-            File f = new File(folder);
-            if (f.exists()) {
-                FileUtils.cleanDirectory(f); //clean out directory (this is optional -- but good know)
-                FileUtils.forceDelete(f); //delete directory
-            }
-            FileUtils.forceMkdir(f); //create directory
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void initOutput() throws IOException {
         Path outFolderPath = Paths.get(outFolder);
         Path timeQueriesPath = Paths.get(outFolder, "timeQueries");
@@ -433,28 +420,9 @@ public class Experiments<T> {
         FileUtil.build(typePath.toString());
         FileUtil.build(tablePath.toString());
         FileUtil.build(metadataPath.toString());
-//        recreateDir(outFolder);
     }
 
-    private AbstractDataset createInitDataset() {
-        AbstractDataset dataset = null;
-        switch (type) {
-            case "postgres":
-                dataset = new PostgreSQLDataset(config, table, schema, table, timeFormat);
-                break;
-            case "modelar":
-                dataset = new ModelarDBDataset(config, table, schema, table, timeFormat);
-                break;
-            case "influx":
-                dataset = new InfluxDBDataset(config, table, schema, table, timeFormat);
-                break;
-            default:
-                break;
-        }
-        return dataset;
-    }
-
-    private AbstractDataset createDataset() throws IOException, SQLException {
+    private AbstractDataset createDataset() throws SQLException {
         String p = "";
         AbstractDataset dataset = null;
         switch (type) {
@@ -495,15 +463,31 @@ public class Experiments<T> {
         return dataset;
     }
 
+    private AbstractDataset createInitDataset() {
+        AbstractDataset dataset = null;
+        switch (type) {
+            case "postgres":
+                dataset = new PostgreSQLDataset(config, table, schema, table, timeFormat);
+                break;
+            case "modelar":
+                dataset = new ModelarDBDataset(config, table, schema, table, timeFormat);
+            case "influx":
+                dataset = new InfluxDBDataset(config, table, schema, table, timeFormat);
+                break;
+            default:
+                break;
+        }
+        return dataset;
+    }
 
-    private QueryExecutor createQueryExecutor(AbstractDataset dataset) {
-        String p = "";
+    private QueryExecutor createQueryExecutor(AbstractDataset dataset) throws IOException, SQLException {
         QueryExecutor queryExecutor = null;
         switch (type) {
             case "postgres":
                 JDBCConnection postgreSQLConnection =
                         new JDBCConnection(config);
-                queryExecutor = postgreSQLConnection.getQueryExecutor(dataset);
+                postgreSQLConnection.connect();
+                queryExecutor = postgreSQLConnection.getSqlQueryExecutor(dataset);
                 break;
             case "modelar":
                 ModelarDBConnection modelarDBConnection =
@@ -513,7 +497,8 @@ public class Experiments<T> {
             case "influx":
                 InfluxDBConnection influxDBConnection =
                         new InfluxDBConnection(config);
-                queryExecutor = influxDBConnection.getQueryExecutor(dataset);
+                influxDBConnection.connect();
+                queryExecutor = influxDBConnection.getSqlQueryExecutor(dataset);
             default:
                 break;
         }

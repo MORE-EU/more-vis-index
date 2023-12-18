@@ -42,11 +42,9 @@ public class JDBCConnection implements DatabaseConnection {
         this.host = host;
         this.user = user;
         this.password = password;
-        connect();
     }
-
     @Override
-    public void connect() throws URISyntaxException, SQLException{
+    public void connect() {
         connection = null;
         try {
             Class.forName("org.postgresql.Driver");
@@ -56,6 +54,17 @@ public class JDBCConnection implements DatabaseConnection {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error(e.getClass().getName()+": "+e.getMessage());
+        }
+    }
+
+
+    @Override
+    public void closeConnection() throws SQLException {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            LOG.error(e.getClass().getName()+": "+e.getMessage());
+            throw e;
         }
     }
 
@@ -78,14 +87,5 @@ public class JDBCConnection implements DatabaseConnection {
         return this.createQueryExecutor(dataset);
     }
 
-    @Override
-    public void closeConnection() throws SQLException{
-        try {
-            connection.close();
-        } catch (Exception e) {
-            LOG.error(e.getClass().getName()+": "+e.getMessage());
-            throw e;
-        }
-    }
 
 }

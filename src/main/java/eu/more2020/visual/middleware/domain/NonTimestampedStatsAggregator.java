@@ -17,37 +17,30 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatsAggregator.class);
 
-    private List<Integer> measures;
     private  long from;
     private long to;
 
     private int count = 0;
-    private final double[] sums;
-    private final double[] minValues;
-    private final double[] maxValues;
+    private double sum;
+    private double minValue;
+    private double maxValue;
 
-    public NonTimestampedStatsAggregator(List<Integer> measures) {
-        this.measures = measures;
-        int length = measures.size();
-        sums = new double[length];
-        minValues = new double[length];
-        maxValues = new double[length];
+    public NonTimestampedStatsAggregator() {
         clear();
     }
 
     public void clear() {
         count = 0;
-        Arrays.fill(sums, 0d);
-        Arrays.fill(minValues, Double.POSITIVE_INFINITY);
-        Arrays.fill(maxValues, Double.NEGATIVE_INFINITY);
+        sum = 0d;
+        minValue = Double.POSITIVE_INFINITY;
+        maxValue = Double.NEGATIVE_INFINITY;
     }
 
-    public void accept(double value, int measure) {
+    public void accept(double value) {
         ++count;
-        int i = getMeasureIndex(measure);
-        sums[i] += value;
-        minValues[i] = Math.min(minValues[i], value);
-        maxValues[i] = Math.max(maxValues[i], value);
+        sum += value;
+        minValue = Math.min(minValue, value);
+        maxValue = Math.max(maxValue, value);
     }
 
     /**
@@ -59,77 +52,63 @@ public class NonTimestampedStatsAggregator implements Stats, Serializable {
      */
     public void combine(Stats other) {
         if(other.getCount() != 0) {
-            for (int m : other.getMeasures()) {
-                int i = getMeasureIndex(m);
-                sums[i] += other.getSum(m);
-                minValues[i] = Math.min(minValues[i], other.getMinValue(m));
-                maxValues[i] = Math.max(maxValues[i], other.getMaxValue(m));
-            }
+            sum += other.getSum();
+            minValue = Math.min(minValue, other.getMinValue());
+            maxValue = Math.max(maxValue, other.getMaxValue());
             count += other.getCount();
         }
     }
 
-    public List<Integer> getMeasures() {
-        return measures;
-    }
 
     public int getCount() {
         return count;
     }
 
-    public int getCount(int measure) {
-        return count;
+    public double getSum() {
+        return sum;
     }
 
-    public double getSum(int measure) {
-        return sums[getMeasureIndex(measure)];
-    }
-
-    public double getMinValue(int measure) {
-        return minValues[getMeasureIndex(measure)];
+    public double getMinValue() {
+        return minValue;
     }
 
     @Override
-    public long getMinTimestamp(int measure) {
+    public long getMinTimestamp() {
         return (from + to) / 2;
     }
 
-    public double getMaxValue(int measure) {
-        return maxValues[getMeasureIndex(measure)];
+    public double getMaxValue() {
+        return maxValue;
     }
 
     @Override
-    public long getMaxTimestamp(int measure) {
+    public long getMaxTimestamp() {
         return (from + to) / 2;
     }
 
     @Override
-    public double getFirstValue(int measure) {
-        return (getMinValue(measure) + getMaxValue(measure)) / 2;
+    public double getFirstValue() {
+        return (getMinValue() + getMaxValue()) / 2;
     }
 
     @Override
-    public long getFirstTimestamp(int measure) {
+    public long getFirstTimestamp() {
         return from + 1;
     }
 
     @Override
-    public double getLastValue(int measure) {
-        return (getMinValue(measure) + getMaxValue(measure)) / 2;
+    public double getLastValue() {
+        return (getMinValue() + getMaxValue()) / 2;
     }
 
     @Override
-    public long getLastTimestamp(int measure) {
+    public long getLastTimestamp() {
         return to - 1;
     }
 
     @Override
-    public double getAverageValue(int measure) {
-        return getSum(measure) / getCount();
-    }
-
-    protected int getMeasureIndex(int measure) {
-        return measures.indexOf(measure);
+    public double getAverageValue() {
+        return getSum() / getCount();
     }
 
     public void setFrom(long from) {

@@ -16,19 +16,17 @@ public class MinMaxCache {
     private final CacheManager cacheManager;
     private final PrefetchManager prefetchManager;
     private final DataProcessor dataProcessor;
-    private final ErrorCalculator errorCalculator;
 
     public MinMaxCache(QueryExecutor dataQueryExecutor, AbstractDataset dataset, double prefetchingFactor, int aggFactor, int dataReductionRatio) {
         // Constructor logic for MinMaxCache
         cacheQueryExecutor = new CacheQueryExecutor(dataset, aggFactor);
-        cacheManager = new CacheManager();
+        cacheManager = new CacheManager(dataset.getMeasures());
         dataProcessor = new DataProcessor(dataQueryExecutor, dataset, dataReductionRatio);
-        errorCalculator = new ErrorCalculator();
         prefetchManager = new PrefetchManager(dataset, prefetchingFactor, cacheManager, dataProcessor);
     }
 
     public QueryResults executeQuery(Query query) {
-        return cacheQueryExecutor.executeQuery(query, cacheManager, errorCalculator, dataProcessor, prefetchManager);
+        return cacheQueryExecutor.executeQuery(query, cacheManager, dataProcessor, prefetchManager);
     }
 
     public long calculateDeepMemorySize() {

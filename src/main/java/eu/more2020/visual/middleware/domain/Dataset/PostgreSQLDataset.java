@@ -17,25 +17,20 @@ public class PostgreSQLDataset extends AbstractDataset {
 
     private String config;
 
-    public PostgreSQLDataset(String config, String id, String schema, String table, String timeFormat) {
-        super(id, table, schema, timeFormat);
-        this.config = config;
-    }
-
-    public PostgreSQLDataset(SQLQueryExecutor sqlQueryExecutor, String id, String schema, String table,
-                             String timeFormat, String timeCol, String idCol, String valueCol) throws SQLException {
-        super(id, table, schema, timeFormat, timeCol, idCol, valueCol);
-        setTimeCol(timeCol);
-        this.fillPostgreSQLDatasetInfo(sqlQueryExecutor);
-    }
-
 
     public PostgreSQLDataset(String config, String id, String schema, String table,
                              String timeFormat, String timeCol, String idCol, String valueCol) throws SQLException {
         super(id, table, schema, timeFormat, timeCol, idCol, valueCol);
         this.config = config;
         setTimeCol(timeCol);
-        this.fillPostgreSQLDatasetInfo(new JDBCConnection(config).getQueryExecutor());
+        JDBCConnection jdbcConnection = new JDBCConnection(config);
+        jdbcConnection.connect();
+        this.fillPostgreSQLDatasetInfo(jdbcConnection.getSqlQueryExecutor());
+    }
+
+    public PostgreSQLDataset(String config, String id, String schema, String table, String timeFormat) {
+        super(id, table, schema, timeFormat);
+        this.config = config;
     }
 
     private void fillPostgreSQLDatasetInfo(SQLQueryExecutor sqlQueryExecutor) throws SQLException {

@@ -17,52 +17,53 @@ import java.util.List;
 public class ModelarDBAggregateDataPointsIterator implements Iterator<AggregatedDataPoint> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataSource.class);
+//
+//    private final FlightStream flightStream;
+//    private final List<List<Integer>> measures;
+//    private final long from;
+//    private final long to;
+//
+//    private final long aggregateInterval;
+//    private final int noOfGroups;
+//
+//    private Iterator<Row> iterator;
+//
+//    private final String timeCol;
+//    private final String valueCol;
+//    private final String idCol;
 
-    private final FlightStream flightStream;
-    private final List<List<Integer>> measures;
-    private final long from;
-    private final long to;
 
-    private final long aggregateInterval;
-    private final int noOfGroups;
-
-    private Iterator<Row> iterator;
-
-    private final String timeCol;
-    private final String valueCol;
-    private final String idCol;
-
-
-    public ModelarDBAggregateDataPointsIterator(long from, long to, List<List<Integer>> measures,
+    public ModelarDBAggregateDataPointsIterator(long from, long to, List<Integer> measures,
                                                 String timeCol,
                                                 String valueCol,
                                                 String idCol,
-                                                FlightStream flightStream, int noOfGroups){
-        this.measures = measures;
-        this.flightStream = flightStream;
-        this.aggregateInterval = (to - from) / noOfGroups;
-        this.from = from;
-        this.to = to;
-        this.idCol = idCol;
-        this.timeCol = timeCol;
-        this.valueCol = valueCol;
-        this.noOfGroups = noOfGroups;
-        flightStream.next();
-        Table t = new Table(flightStream.getRoot());
-        this.iterator  = t.iterator();
+                                                FlightStream flightStream, int[] noOfGroups){
+//        this.measures = measures;
+//        this.flightStream = flightStream;
+//        this.aggregateInterval = (to - from) / noOfGroups;
+//        this.from = from;
+//        this.to = to;
+//        this.idCol = idCol;
+//        this.timeCol = timeCol;
+//        this.valueCol = valueCol;
+//        this.noOfGroups = noOfGroups;
+//        flightStream.next();
+//        Table t = new Table(flightStream.getRoot());
+//        this.iterator  = t.iterator();
     }
 
     @Override
     public boolean hasNext() {
-        if(iterator.hasNext()) return true;
-        else {
-            if(flightStream.next()){
-                Table t = new Table(flightStream.getRoot());
-                this.iterator  = t.iterator();
-                return true;
-            }
-            else return false;
-        }
+//        if(iterator.hasNext()) return true;
+//        else {
+//            if(flightStream.next()){
+//                Table t = new Table(flightStream.getRoot());
+//                this.iterator  = t.iterator();
+//                return true;
+//            }
+//            else return false;
+//        }
+        return false;
     }
 
     @Override

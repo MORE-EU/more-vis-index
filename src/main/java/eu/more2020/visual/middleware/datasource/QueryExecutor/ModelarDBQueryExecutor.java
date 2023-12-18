@@ -3,10 +3,11 @@ package eu.more2020.visual.middleware.datasource.QueryExecutor;
 import cfjd.com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.ModelarDBQuery;
+import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
-import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
+import eu.more2020.visual.middleware.domain.TableInfo;
 import eu.more2020.visual.middleware.experiments.util.PrepareSQLStatement;
 import cfjd.org.apache.arrow.flight.FlightClient;
 import cfjd.org.apache.arrow.flight.FlightStream;
@@ -77,9 +78,24 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
 
     }
 
-    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
+    @Override
+    public List<TableInfo> getTableInfo() throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<String> getColumns(String tableName) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<Object[]> getSample(String schema, String tableName) throws SQLException {
+        return null;
+    }
+
+    Comparator<DataPoint> compareLists = new Comparator<DataPoint>() {
         @Override
-        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
+        public int compare(DataPoint s1, DataPoint s2) {
             if (s1==null && s2==null) return 0; //swapping has no point here
             if (s1==null) return  1;
             if (s2==null) return -1;
@@ -106,7 +122,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
@@ -124,7 +139,6 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         PrepareSQLStatement preparedStatement = new PrepareSQLStatement(sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
@@ -135,7 +149,7 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
 
     private QueryResults collect(FlightStream flightStream)  {
         QueryResults queryResults = new QueryResults();
-        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+        HashMap<Integer, List<DataPoint>> data = new HashMap<>();
         while (flightStream.next()) {
             VectorSchemaRoot vsr = flightStream.getRoot();
             int rowCount = vsr.getRowCount();
@@ -159,7 +173,7 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
         return dataset;
     }
 
-    public Comparator<UnivariateDataPoint> getCompareLists() {
+    public Comparator<DataPoint> getCompareLists() {
         return compareLists;
     }
 

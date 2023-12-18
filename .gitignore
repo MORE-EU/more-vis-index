@@ -22,3 +22,7 @@ ssims*/*
 diffs*
 .vscode
 *.ipynb
+logs_p.log
+.DS_Store
+logs.log
+.DS_Store

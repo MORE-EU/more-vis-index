@@ -2,11 +2,13 @@ package eu.more2020.visual.middleware.datasource.QueryExecutor;
 
 import eu.more2020.visual.middleware.datasource.DataSourceQuery;
 import eu.more2020.visual.middleware.datasource.SQLQuery;
+import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Dataset.PostgreSQLDataset;
+import eu.more2020.visual.middleware.domain.ImmutableDataPoint;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import eu.more2020.visual.middleware.domain.QueryResults;
-import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
+import eu.more2020.visual.middleware.domain.TableInfo;
 import eu.more2020.visual.middleware.experiments.util.NamedPreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,9 +104,9 @@ public class SQLQueryExecutor implements QueryExecutor {
         }
     }
 
-    Comparator<UnivariateDataPoint> compareLists = new Comparator<UnivariateDataPoint>() {
+    Comparator<DataPoint> compareLists = new Comparator<DataPoint>() {
         @Override
-        public int compare(UnivariateDataPoint s1, UnivariateDataPoint s2) {
+        public int compare(DataPoint s1, DataPoint s2) {
             if (s1==null && s2==null) return 0; //swapping has no point here
             if (s1==null) return  1;
             if (s2==null) return -1;
@@ -131,7 +133,6 @@ public class SQLQueryExecutor implements QueryExecutor {
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
         preparedStatement.setLong("from", q.getFrom());
         preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
@@ -145,12 +146,9 @@ public class SQLQueryExecutor implements QueryExecutor {
     public ResultSet executeMinMaxSqlQuery(SQLQuery q) throws SQLException {
         String sql = q.minMaxQuerySkeleton();
         NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
         preparedStatement.setString("timeCol", dataset.getTimeCol());
         preparedStatement.setString("valueCol", dataset.getValueCol());
         preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setInt("width", q.getNumberOfGroups());
         preparedStatement.setString("tableName", schema + "." + table);
         String query = preparedStatement.getPreparedStatement().toString()
                 .replace("'", "");
@@ -160,7 +158,7 @@ public class SQLQueryExecutor implements QueryExecutor {
 
     private QueryResults collect(ResultSet resultSet) throws SQLException {
         QueryResults queryResults = new QueryResults();
-        HashMap<Integer, List<UnivariateDataPoint>> data = new HashMap<>();
+        HashMap<Integer, List<DataPoint>> data = new HashMap<>();
         while(resultSet.next()){
             Integer measure = resultSet.getInt(1);
             long epoch = resultSet.getLong(2);
@@ -168,11 +166,11 @@ public class SQLQueryExecutor implements QueryExecutor {
             Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
             if(val == null) continue;
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                    new UnivariateDataPoint(epoch, val));
+                    new ImmutableDataPoint(epoch, val));
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                    new UnivariateDataPoint(epoch2, val));
+                    new ImmutableDataPoint(epoch2, val));
         }
-        data.forEach((k, v) -> v.sort(Comparator.comparingLong(UnivariateDataPoint::getTimestamp)));
+        data.forEach((k, v) -> v.sort(Comparator.comparingLong(DataPoint::getTimestamp)));
         queryResults.setData(data);
         return queryResults;
     }
@@ -192,20 +190,68 @@ public class SQLQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public ArrayList<String> getDbTables() throws SQLException {
+    public List<TableInfo> getTableInfo() throws SQLException {
         DatabaseMetaData databaseMetaData = null;
-        ArrayList<String> tables = new ArrayList<String>();
+        List<TableInfo> tableInfoArray = new ArrayList<TableInfo>();
         try {
             databaseMetaData = connection.getMetaData();
             ResultSet resultSet = databaseMetaData.getTables(null, null, null, new String[]{"TABLE"});
-            while(resultSet.next()) { 
-                String tableName = resultSet.getString("TABLE_NAME"); 
-                tables.add(tableName);
+            while(resultSet.next()) {
+                TableInfo tableInfo = new TableInfo();
+                String tableName = resultSet.getString("TABLE_NAME");
+                String schemaName = resultSet.getString("TABLE_SCHEM");
+                tableInfo.setSchema(schemaName);
+                tableInfo.setTable(tableName);
+                tableInfoArray.add(tableInfo);
             }
-            return tables;
+            return tableInfoArray;
         } catch (Exception e) {
             throw e;
-        }   
+        }
+    }
+
+    @Override
+    public List<String> getColumns(String tableName) throws SQLException {
+        DatabaseMetaData databaseMetaData = null;
+        List<String> columns = new ArrayList<String>();
+        try {
+            databaseMetaData = connection.getMetaData();
+            ResultSet resultSet = databaseMetaData.getColumns(null, null, tableName, null);
+            while (resultSet.next()) {
+                String columnName = resultSet.getString("COLUMN_NAME");
+                columns.add(columnName);
+            }
+            return columns;
+        } catch(Exception e) {
+            throw e;
+        }
+
+    }
+    @Override
+    public List<Object[]> getSample(String schema, String tableName) throws SQLException {
+        String query = "SELECT * FROM " + schema + "." + tableName + " LIMIT 10;";
+        List<Object[]> resultList = new ArrayList<>();
+        ResultSet resultSet = this.execute(query);
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        String[] columnNames = new String[columnCount];
+
+        for (int i = 1; i <= columnCount; i++) {
+            columnNames[i - 1] = metaData.getColumnName(i);
+        }
+
+        while (resultSet.next()) {
+            Object[] row = new Object[columnCount];
+
+            for (int i = 1; i <= columnCount; i++) {
+                row[i - 1] = resultSet.getObject(i);
+            }
+
+            resultList.add(row);
+        }
+
+        return resultList;
+
     }
 }
 

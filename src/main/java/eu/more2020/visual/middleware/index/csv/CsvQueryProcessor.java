@@ -2,13 +2,14 @@ package eu.more2020.visual.middleware.index.csv;
 
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import eu.more2020.visual.middleware.domain.DataPoint;
 import eu.more2020.visual.middleware.domain.Dataset.CsvDataset;
+import eu.more2020.visual.middleware.domain.ImmutableDataPoint;
 import eu.more2020.visual.middleware.domain.TimeRange;
 import eu.more2020.visual.middleware.index.TimeSeriesIndexUtil;
 import eu.more2020.visual.middleware.index.TreeNode;
 import eu.more2020.visual.middleware.domain.Query.Query;
 import eu.more2020.visual.middleware.domain.QueryResults;
-import eu.more2020.visual.middleware.domain.UnivariateDataPoint;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -105,12 +106,12 @@ public class CsvQueryProcessor {
         }
     }
 
-    private void setNodeData(long timestamp, Double[] values)  {
-        Map<Integer, List<UnivariateDataPoint>> data = queryResults.getData() == null ? new HashMap<>() : queryResults.getData();
+    private void setNodeData(long timestamp, double[] values)  {
+        Map<Integer, List<DataPoint>> data = queryResults.getData() == null ? new HashMap<>() : queryResults.getData();
         int i = 0;
         for(int measure : measures) {
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
-                new UnivariateDataPoint(timestamp, values.length > 0 ? values[i] : null));
+                new ImmutableDataPoint(timestamp, values[i]));
             i++;
         }
         queryResults.setData(data);

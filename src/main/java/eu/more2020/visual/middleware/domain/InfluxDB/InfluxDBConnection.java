@@ -22,6 +22,7 @@ public class InfluxDBConnection implements DatabaseConnection {
     private String token;
     private String org;
     private String url;
+    private String bucket;
     private Properties properties  = new Properties();;
 
     public InfluxDBConnection(String influxDBCfg) {
@@ -33,18 +34,18 @@ public class InfluxDBConnection implements DatabaseConnection {
             token = properties.getProperty("token");
             org = properties.getProperty("org");
             url = properties.getProperty("url");
+            bucket = properties.getProperty("bucket");
         }
         catch (Exception e) {
             LOG.error(e.getClass().getName() + ": " + e.getMessage());
         }
-        connect();
     }
 
-    public InfluxDBConnection(String url, String org, String token) {
+    public InfluxDBConnection(String url, String org, String token, String bucket) {
         this.url = url;
         this.org = org;
         this.token = token;
-        connect();
+        this.bucket = bucket;
     }
 
     @Override
@@ -57,6 +58,7 @@ public class InfluxDBConnection implements DatabaseConnection {
                 .builder()
                 .url(url)
                 .org(org)
+                .bucket(bucket)
                 .authenticateToken(token.toCharArray())
                 .okHttpClient(okHttpClient)
                 .build();
@@ -66,20 +68,20 @@ public class InfluxDBConnection implements DatabaseConnection {
     }
 
     private InfluxDBQueryExecutor createQueryExecutor(AbstractDataset dataset) {
-        return new InfluxDBQueryExecutor(client, dataset);
+        return new InfluxDBQueryExecutor(client, dataset, org);
     }
 
     private InfluxDBQueryExecutor createQueryExecutor() {
-        return new InfluxDBQueryExecutor(client);
+        return new InfluxDBQueryExecutor(client, bucket, org);
     }
 
     @Override
-    public InfluxDBQueryExecutor getQueryExecutor() {
+    public InfluxDBQueryExecutor getSqlQueryExecutor() {
         return this.createQueryExecutor();
     }
 
     @Override
-    public InfluxDBQueryExecutor getQueryExecutor(AbstractDataset dataset) {
+    public InfluxDBQueryExecutor getSqlQueryExecutor(AbstractDataset dataset) {
         return this.createQueryExecutor(dataset);
     }
 
@@ -88,16 +90,10 @@ public class InfluxDBConnection implements DatabaseConnection {
         try {
             client.close();
         } catch (Exception e) {
+            e.printStackTrace();
             LOG.error(e.getClass().getName() + ": " + e.getMessage());
+            throw e;
         }
-    }
-
-    public InfluxDBClient getClient() {
-        return client;
-    }
-
-    public String getToken() {
-        return token;
     }
 
     public String getOrg() {

@@ -16,7 +16,7 @@ public class QueryResults implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<Integer, List<UnivariateDataPoint>> data;
+    private Map<Integer, List<DataPoint>> data;
 
     private Map<Integer, DoubleSummaryStatistics> measureStats;
 
@@ -32,7 +32,7 @@ public class QueryResults implements Serializable {
 
     private double progressiveQueryTime = 0;
 
-    private int aggFactor;
+    private Map<Integer, Integer> aggFactors;
 
     private boolean flag;
 
@@ -44,11 +44,11 @@ public class QueryResults implements Serializable {
         this.timeRange = timeRange;
     }
 
-    public Map<Integer, List<UnivariateDataPoint>> getData() {
+    public Map<Integer, List<DataPoint>> getData() {
         return data;
     }
 
-    public void setData(Map<Integer, List<UnivariateDataPoint>> data) {
+    public void setData(Map<Integer, List<DataPoint>> data) {
         this.data = data;
     }
 
@@ -80,12 +80,12 @@ public class QueryResults implements Serializable {
         this.error = error;
     }
 
-    public void setAggFactor(int aggFactor) {
-        this.aggFactor = aggFactor;
+    public Map<Integer, Integer> getAggFactors() {
+        return aggFactors;
     }
 
-    public int getAggFactor() {
-        return aggFactor;
+    public void setAggFactors(Map<Integer, Integer> aggFactors) {
+        this.aggFactors = aggFactors;
     }
 
     public void toCsv(String path) {
@@ -103,7 +103,7 @@ public class QueryResults implements Serializable {
             int noOfCols = data.size();
             String[] header = new String[getData().size() + 1];
             header[0] = "timestamp";
-            for (Map.Entry<Integer, List<UnivariateDataPoint>> mapEntry : getData().entrySet()) {
+            for (Map.Entry<Integer, List<DataPoint>> mapEntry : getData().entrySet()) {
                 header[index] = String.valueOf(mapEntry.getKey());
                 index++;
                 noOfRows = Math.max(noOfRows, mapEntry.getValue().size());
@@ -112,10 +112,10 @@ public class QueryResults implements Serializable {
             // add data to csv
             String[][] rows = new String[noOfRows][noOfCols + 1];
             int col = 1;
-            for (Map.Entry<Integer, List<UnivariateDataPoint>> mapEntry : getData().entrySet()) {
-                List<UnivariateDataPoint> dataPoints = mapEntry.getValue();
+            for (Map.Entry<Integer, List<DataPoint>> mapEntry : getData().entrySet()) {
+                List<DataPoint> dataPoints = mapEntry.getValue();
                 int row = 0;
-                for (UnivariateDataPoint dataPoint : dataPoints) {
+                for (DataPoint dataPoint : dataPoints) {
                     rows[row][0] = String.valueOf(dataPoint.getTimestamp());
                     rows[row][col] = String.valueOf(dataPoint.getValue());
                     row++;
@@ -137,9 +137,9 @@ public class QueryResults implements Serializable {
             if (!theDir.exists()) {
                 theDir.mkdirs();
             }
-            for (Map.Entry<Integer, List<UnivariateDataPoint>> mapEntry : getData().entrySet()) {
+            for (Map.Entry<Integer, List<DataPoint>> mapEntry : getData().entrySet()) {
                 Integer measure = mapEntry.getKey();
-                List<UnivariateDataPoint> dataPoints = mapEntry.getValue();
+                List<DataPoint> dataPoints = mapEntry.getValue();
                 int noOfRows = dataPoints.size();
                 Path filePath = Paths.get(theDir.getPath(), measure.toString() + ".csv");
                 FileWriter outputFile = new FileWriter(filePath.toString());
@@ -152,7 +152,7 @@ public class QueryResults implements Serializable {
 
                 String[][] rows = new String[noOfRows][2];
                 int row = 0;
-                for (UnivariateDataPoint dataPoint : dataPoints) {
+                for (DataPoint dataPoint : dataPoints) {
                     rows[row][0] = String.valueOf(dataPoint.getTimestamp());
                     rows[row][1] = String.valueOf(dataPoint.getValue());
                     row++;
