@@ -96,11 +96,4 @@ public class InfluxDBConnection implements DatabaseConnection {
         }
     }
 
-    public String getOrg() {
-        return org;
-    }
-
-    public String getUrl() {
-        return url;
-    }
 }

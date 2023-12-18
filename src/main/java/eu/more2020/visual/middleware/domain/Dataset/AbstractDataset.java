@@ -38,13 +38,6 @@ public abstract class AbstractDataset implements Serializable {
 
     }
 
-    public AbstractDataset(String id, String table, String schema, String timeFormat){
-        this.id = id;
-        this.timeFormat = timeFormat;
-        this.schema = schema;
-        this.table = table;
-    }
-
     public AbstractDataset(String path, String id, String table, String timeCol, String timeFormat) {
         this.path = path;
         this.id = id;

@@ -188,10 +188,4 @@ public class ModelarDBQueryExecutor implements QueryExecutor, Serializable {
                 ", compareLists=" + compareLists +
                 '}';
     }
-
-    @Override
-    public ArrayList<String> getDbTables() {
-        return null;
-    }
-
 }

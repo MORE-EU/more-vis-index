@@ -10,56 +10,40 @@ import eu.more2020.visual.middleware.experiments.util.QueryUtils;
 import java.text.ParseException;
 import java.time.Instant;
 
-@Measurement(name = "soccer_exp")
-public class SOCCER_EXP {
+@Measurement(name = "manufacturing")
+public class MANUFACTURING {
 
     @Column(timestamp = true)
-    @CsvCustomBindByName(column="datetime", converter = EpochConverter.class)
+    @CsvCustomBindByName(column="0", converter = EpochConverter.class)
     private Instant datetime;
 
     @Column
-    @CsvBindByName(column = "x")
-    private Double x;
+    @CsvBindByName(column = "1")
+    private Double value_1;
 
     @Column
-    @CsvBindByName(column = "y")
-    private Double y;
+    @CsvBindByName(column = "2")
+    private Double value_2;
 
     @Column
-    @CsvBindByName(column = "z")
-    private Double z;
+    @CsvBindByName(column = "3")
+    private Double value_3;
 
     @Column
-    @CsvBindByName(column = "abs_vel")
-    private Double abs_vel;
+    @CsvBindByName(column = "4")
+    private Double value_4;
 
     @Column
-    @CsvBindByName(column = "abs_accel")
-    private Double abs_accel;
+    @CsvBindByName(column = "5")
+    private Double value_5;
 
     @Column
-    @CsvBindByName(column = "vx")
-    private Double vx;
+    @CsvBindByName(column = "6")
+    private Double value_6;
 
     @Column
-    @CsvBindByName(column = "vy")
-    private Double vy;
-
-    @Column
-    @CsvBindByName(column = "vz")
-    private Double vz;
-
-    @Column
-    @CsvBindByName(column = "ax")
-    private Double ax;
-
-    @Column
-    @CsvBindByName(column = "ay")
-    private Double ay;
-
-    @Column
-    @CsvBindByName(column = "az")
-    private Double az;
+    @CsvBindByName(column = "7")
+    private Double value_7;
 
     public static class EpochConverter extends AbstractBeanField {
 

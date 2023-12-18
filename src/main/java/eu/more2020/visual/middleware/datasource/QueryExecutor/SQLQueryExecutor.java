@@ -91,7 +91,7 @@ public class SQLQueryExecutor implements QueryExecutor {
     @Override
     public void drop() throws SQLException {
         String name = Paths.get(dropFolder, table + ".sql").toString();
-        LOG.info("Opening {}", name);
+        LOG.info("Opgening {}", name);
         InputStream inputStream
                 = getClass().getClassLoader().getResourceAsStream(name);
         String[] statements = new BufferedReader(

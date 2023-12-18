@@ -64,9 +64,9 @@ public class CsvQueryProcessor {
         return queryResults;
     }
 
-    public Double[] nodeSelection(CsvTreeNode treeNode) throws IOException {
+    public double[] nodeSelection(CsvTreeNode treeNode) throws IOException {
         List<Double> filteredVals = new ArrayList<Double>();
-        if(!filter.equals(null)){
+        if(filter != null){
             Boolean filterCheck = filter.entrySet().stream().anyMatch(e ->
                 treeNode.getStats().get(e.getKey()).getAverage() < e.getValue()[0] ||
                 treeNode.getStats().get(e.getKey()).getAverage() > e.getValue()[1]);
@@ -75,34 +75,29 @@ public class CsvQueryProcessor {
                 filteredVals.add(treeNode.getStats().get(mez).getAverage());
             });
         };
-        return filteredVals.stream().mapToDouble(val -> val).boxed()
-        .toArray(Double[]::new);
+        return filteredVals.stream().mapToDouble(val -> val).toArray();
         }else{
         return measures.stream()
         .mapToDouble(mes-> treeNode.getStats().get(mes).getAverage())
-        .boxed()
-        .toArray(Double[]::new);
+        .toArray();
         }
     }
 
-    public Double[] nodeSelectionFromFile(DoubleSummaryStatistics[] statsAccumulators) throws IOException {
-        if(!filter.equals(null)){
+    public double[] nodeSelectionFromFile(DoubleSummaryStatistics[] statsAccumulators) throws IOException {
+        if(filter != null){
         Boolean filterCheck = filter.entrySet().stream().anyMatch(e -> {
            accumulatorCounter++;
-           return (statsAccumulators[0].getAverage() < e.getValue()[0] ||
-            statsAccumulators[0].getAverage() > e.getValue()[1]);
+           return (statsAccumulators[accumulatorCounter - 1].getAverage() < e.getValue()[0] ||
+            statsAccumulators[accumulatorCounter - 1].getAverage() > e.getValue()[1]);
         });
         accumulatorCounter = 0;
         if(!filterCheck){
-            return Arrays.stream(statsAccumulators).mapToDouble(DoubleSummaryStatistics::getAverage).boxed()
-        .toArray(Double[]::new);
+            return Arrays.stream(statsAccumulators).mapToDouble(DoubleSummaryStatistics::getAverage).toArray();
         }else{
-            return new ArrayList<Double>().stream().mapToDouble(m -> m).boxed()
-        .toArray(Double[]::new);
+            return new ArrayList<Double>().stream().mapToDouble(m -> m).toArray();
         }
         }else{
-            return Arrays.stream(statsAccumulators).mapToDouble(DoubleSummaryStatistics::getAverage).boxed()
-        .toArray(Double[]::new);
+            return Arrays.stream(statsAccumulators).mapToDouble(DoubleSummaryStatistics::getAverage).toArray();
         }
     }
 
@@ -120,7 +115,7 @@ public class CsvQueryProcessor {
     public void processNode(CsvTreeNode treeNode) throws IOException {
         if (treeNode.getLevel() == freqLevel) {
             long timestamp = TimeSeriesIndexUtil.getTimestampFromLocalDateTime(getCurrentNodeDateTime());
-            Double[] values = nodeSelection(treeNode);
+            double[] values = nodeSelection(treeNode);
             setNodeData(timestamp, values);
         } else {
             fileInputStream.getChannel().position(treeNode.getFileOffsetStart());
@@ -146,7 +141,7 @@ public class CsvQueryProcessor {
                 if (!currentDate.equals(previousDate) && previousDate != null) {
                     long previousDateTimestamp = TimeSeriesIndexUtil.getTimestampFromLocalDateTime(previousDate);
                     if (queryRange.contains(TimeSeriesIndexUtil.getTimestampFromLocalDateTime(previousDate))) {
-                    //    queryResults.getData().add(new DataPoint(previousDate, nodeSelectionFromFile(statsAccumulators)));
+//                        queryResults.getData().add(new DataPoint(previousDate, nodeSelectionFromFile(statsAccumulators)));
                         setNodeData(previousDateTimestamp, nodeSelectionFromFile(statsAccumulators));
                     }
                     statsAccumulators = new DoubleSummaryStatistics[measures.size()];
@@ -159,7 +154,7 @@ public class CsvQueryProcessor {
                 }
                 long currentDateTimestamp = TimeSeriesIndexUtil.getTimestampFromLocalDateTime(currentDate);
                 if (i == treeNode.getDataPointCount() - 1 && (queryRange.contains(TimeSeriesIndexUtil.getTimestampFromLocalDateTime(currentDate)))) {
-                //    queryResults.getData().add(new DataPoint(currentDate, nodeSelectionFromFile(statsAccumulators)));
+//                    queryResults.getData().add(new DataPoint(currentDate, nodeSelectionFromFile(statsAccumulators)));
                     setNodeData(currentDateTimestamp, nodeSelectionFromFile(statsAccumulators));
                 }
             }

@@ -10,63 +10,39 @@ import eu.more2020.visual.middleware.experiments.util.QueryUtils;
 import java.text.ParseException;
 import java.time.Instant;
 
-@Measurement(name = "soccer_exp")
-public class SOCCER_EXP {
+@Measurement(name = "intel_lab")
+public class INTEL_LAB {
 
     @Column(timestamp = true)
     @CsvCustomBindByName(column="datetime", converter = EpochConverter.class)
     private Instant datetime;
 
     @Column
-    @CsvBindByName(column = "x")
-    private Double x;
+    @CsvBindByName(column = "moteid")
+    private Double moteid;
 
     @Column
-    @CsvBindByName(column = "y")
-    private Double y;
+    @CsvBindByName(column = "temperature")
+    private Double temperature;
 
     @Column
-    @CsvBindByName(column = "z")
-    private Double z;
+    @CsvBindByName(column = "humidity")
+    private Double humidity;
 
     @Column
-    @CsvBindByName(column = "abs_vel")
-    private Double abs_vel;
+    @CsvBindByName(column = "light")
+    private Double light;
 
     @Column
-    @CsvBindByName(column = "abs_accel")
-    private Double abs_accel;
-
-    @Column
-    @CsvBindByName(column = "vx")
-    private Double vx;
-
-    @Column
-    @CsvBindByName(column = "vy")
-    private Double vy;
-
-    @Column
-    @CsvBindByName(column = "vz")
-    private Double vz;
-
-    @Column
-    @CsvBindByName(column = "ax")
-    private Double ax;
-
-    @Column
-    @CsvBindByName(column = "ay")
-    private Double ay;
-
-    @Column
-    @CsvBindByName(column = "az")
-    private Double az;
+    @CsvBindByName(column = "voltage")
+    private Double voltage;
 
     public static class EpochConverter extends AbstractBeanField {
 
         @Override
         public Instant convert(String s) {
             try {
-                return Instant.ofEpochMilli(QueryUtils.convertToEpoch(s, "yyyy-MM-dd[ HH:mm:ss.SSS]"));
+                return Instant.ofEpochMilli(QueryUtils.convertToEpoch(s, "yyyy-MM-dd[ HH:mm:ss]"));
             } catch (ParseException e) {
                 e.printStackTrace();
             }

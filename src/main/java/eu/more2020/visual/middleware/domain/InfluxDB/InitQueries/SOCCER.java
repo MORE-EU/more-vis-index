@@ -10,8 +10,8 @@ import eu.more2020.visual.middleware.experiments.util.QueryUtils;
 import java.text.ParseException;
 import java.time.Instant;
 
-@Measurement(name = "soccer_exp")
-public class SOCCER_EXP {
+@Measurement(name = "soccer")
+public class SOCCER {
 
     @Column(timestamp = true)
     @CsvCustomBindByName(column="datetime", converter = EpochConverter.class)
