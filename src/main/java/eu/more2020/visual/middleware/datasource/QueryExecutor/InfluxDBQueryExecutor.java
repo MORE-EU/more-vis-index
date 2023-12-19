@@ -350,22 +350,21 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
     @Override
     public List<TableInfo>  getTableInfo() {
-        String fluxQuery = "from(bucket: \"" + bucket + "\") |> range(start: -1h) |> group(columns: [\"_measurement\"]) |> distinct(column: \"_measurement\") |> limit(n: 1)";
+        String fluxQuery = "import \"influxdata/influxdb/schema\"\n"
+            + "schema.measurements(bucket: \"" + bucket + "\")";;
         List<FluxTable> fluxTables;
         List<TableInfo> tableInfoArray = new ArrayList<TableInfo>();
         try {
             fluxTables = execute(fluxQuery);
             for (FluxTable table : fluxTables) {
-                List<FluxRecord> fluxRecords = table.getRecords();
-                for (FluxRecord fluxRecord : fluxRecords) {
+                table.getRecords().forEach(record -> {
                     TableInfo tableInfo = new TableInfo();
-                    String tableName = fluxRecord.getMeasurement();
-                    LOG.debug("Measurement: " + fluxRecord.getMeasurement());
+                    String tableName = (String) record.getValue();
                     tableInfo.setTable(tableName);
                     tableInfo.setSchema(bucket);
                     tableInfoArray.add(tableInfo);
-                }
-            }
+                });
+            }            
             return tableInfoArray;
         } catch(Exception e) {
             throw e;
