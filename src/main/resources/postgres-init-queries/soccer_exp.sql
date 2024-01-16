@@ -22,7 +22,7 @@ COPY more.soccer_exp_tmp(timestamp, x, y, z, abs_vel, abs_accel, vx, vy, vz, ax,
     CSV HEADER;
 
 CREATE TABLE more.soccer_exp(
-    ,timestamp   TIMESTAMP NOT NULL
+    timestamp   TIMESTAMP NOT NULL
     ,id VARCHAR NOT NULL
     ,value      FLOAT
     ,PRIMARY KEY(id, timestamp)

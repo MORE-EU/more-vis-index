@@ -17,7 +17,7 @@ COPY more.manufacturing_exp_tmp(timestamp,value_1,value_2,value_3,value_4,value_
     CSV HEADER;
 
 CREATE TABLE more.manufacturing_exp(
-    ,timestamp   TIMESTAMP NOT NULL
+    timestamp   TIMESTAMP NOT NULL
     ,id VARCHAR NOT NULL
     ,value      FLOAT
     ,PRIMARY KEY(id, timestamp)

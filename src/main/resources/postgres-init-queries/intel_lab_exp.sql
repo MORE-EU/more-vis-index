@@ -16,7 +16,7 @@ DELIMITER ','
 CSV HEADER;
 
 CREATE TABLE more.intel_lab_exp(
-  ,timestamp   TIMESTAMP NOT NULL
+  timestamp   TIMESTAMP NOT NULL
   ,id VARCHAR NOT NULL
   ,value      FLOAT
   ,PRIMARY KEY(id, timestamp)
