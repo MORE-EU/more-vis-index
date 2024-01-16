@@ -31,10 +31,10 @@ CREATE TABLE more.soccer_exp(
 --date_part('epoch', timestamp) * 1000,
 
 INSERT INTO more.soccer_exp(timestamp, id, value)
-SELECT timestamp, 'abs_accel', abs_accel, FROM more.soccer_exp_tmp;
+SELECT timestamp, 'abs_accel', abs_accel FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(timestamp, id, value)
-SELECT timestamp, 'abs_vel', abs_vel, FROM more.soccer_exp_tmp;
+SELECT timestamp, 'abs_vel', abs_vel FROM more.soccer_exp_tmp;
 
 INSERT INTO more.soccer_exp(timestamp, id, value)
 SELECT timestamp, 'ax', ax FROM more.soccer_exp_tmp;
