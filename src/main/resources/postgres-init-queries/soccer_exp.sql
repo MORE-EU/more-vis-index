@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS more;
 
 CREATE TABLE more.soccer_exp_tmp(
-                                timestamp        TIMESTAMP NOT NULL
+    timestamp        TIMESTAMP NOT NULL
     ,x      FLOAT
     ,y      FLOAT
     ,z     FLOAT
@@ -22,47 +22,46 @@ COPY more.soccer_exp_tmp(timestamp, x, y, z, abs_vel, abs_accel, vx, vy, vz, ax,
     CSV HEADER;
 
 CREATE TABLE more.soccer_exp(
-    epoch BIGINT NOT NULL
     ,timestamp   TIMESTAMP NOT NULL
+    ,id VARCHAR NOT NULL
     ,value      FLOAT
-    ,id         INT NOT NULL
-    ,col VARCHAR NOT NULL
-    ,PRIMARY KEY(id, epoch)
+    ,PRIMARY KEY(id, timestamp)
 );
 
+--date_part('epoch', timestamp) * 1000,
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, abs_accel, 0, 'abs_accel' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'abs_accel', abs_accel, FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, abs_vel, 1, 'abs_vel' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'abs_vel', abs_vel, FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, ax, 2, 'ax' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'ax', ax FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, ay, 3, 'ay' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'ay', ay FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, az, 4, 'az' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'az', az FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, vx, 5, 'vx' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'vx', vx FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, vy, 6, 'vy' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'vy', vy FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, vz, 7, 'vz' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'vz', vz FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, x, 8, 'x' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'x', x FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, y, 9, 'y' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'y', y FROM more.soccer_exp_tmp;
 
-INSERT INTO more.soccer_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, z, 10, 'z' FROM more.soccer_exp_tmp;
+INSERT INTO more.soccer_exp(timestamp, id, value)
+SELECT timestamp, 'z', z FROM more.soccer_exp_tmp;
 
 
 
@@ -70,3 +69,6 @@ SELECT date_part('epoch', timestamp) * 1000, timestamp, z, 10, 'z' FROM more.soc
 --
 
 DROP TABLE more.soccer_exp_tmp;
+
+analyze more.soccer_exp;
+create statistics s_ext_depend_soccer_exp(dependencies) on timestamp,id from more.soccer_exp ;

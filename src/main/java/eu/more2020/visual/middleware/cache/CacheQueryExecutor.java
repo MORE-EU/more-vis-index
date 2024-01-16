@@ -216,9 +216,5 @@ public class CacheQueryExecutor {
         queryResults.setTimeRange(new TimeRange(from, to));
         queryResults.setAggFactors(aggFactors);
         return queryResults;
-
     }
-
-
-
 }

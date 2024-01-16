@@ -16,28 +16,29 @@ DELIMITER ','
 CSV HEADER;
 
 CREATE TABLE more.intel_lab_exp(
-    epoch BIGINT NOT NULL
   ,timestamp   TIMESTAMP NOT NULL
+  ,id VARCHAR NOT NULL
   ,value      FLOAT
-  ,id         INT NOT NULL
-  ,col VARCHAR NOT NULL
-  ,PRIMARY KEY(id, epoch)
+  ,PRIMARY KEY(id, timestamp)
 );
 
-INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, humidity, 0, 'humidity' FROM more.intel_lab_exp_tmp;
+INSERT INTO more.intel_lab_exp(timestamp, id, value)
+SELECT timestamp, 'humidity', humidity FROM more.intel_lab_exp_tmp;
 
-INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, light, 1, 'light' FROM more.intel_lab_exp_tmp;
+INSERT INTO more.intel_lab_exp(timestamp, id, value)
+SELECT timestamp, 'light', light FROM more.intel_lab_exp_tmp;
 
-INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, moteid, 2, 'moteid' FROM more.intel_lab_exp_tmp;
+INSERT INTO more.intel_lab_exp(timestamp, id, value)
+SELECT timestamp, 'moteid', moteid FROM more.intel_lab_exp_tmp;
 
-INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, temperature, 3, 'temperature' FROM more.intel_lab_exp_tmp;
+INSERT INTO more.intel_lab_exp(timestamp, id, value)
+SELECT timestamp, 'temperature', temperature FROM more.intel_lab_exp_tmp;
 
-INSERT INTO more.intel_lab_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, voltage, 4, 'voltage' FROM more.intel_lab_exp_tmp;
+INSERT INTO more.intel_lab_exp(timestamp, id, value)
+SELECT timestamp, 'voltage', voltage FROM more.intel_lab_exp_tmp;
 
 DROP TABLE more.intel_lab_exp_tmp;
 
+
+analyze more.intel_lab_exp;
+create statistics s_ext_depend_intel_lab_exp(dependencies) on timestamp,id from more.intel_lab_exp ;

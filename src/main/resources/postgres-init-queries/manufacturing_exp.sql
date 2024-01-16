@@ -17,36 +17,35 @@ COPY more.manufacturing_exp_tmp(timestamp,value_1,value_2,value_3,value_4,value_
     CSV HEADER;
 
 CREATE TABLE more.manufacturing_exp(
-     epoch BIGINT NOT NULL
     ,timestamp   TIMESTAMP NOT NULL
+    ,id VARCHAR NOT NULL
     ,value      FLOAT
-    ,id         INT NOT NULL
-    ,col VARCHAR NOT NULL
-    ,PRIMARY KEY(id, epoch)
+    ,PRIMARY KEY(id, timestamp)
 );
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_1, 0, 'value_1' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_1', value_1, FROM more.manufacturing_exp_tmp;
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_2, 1, 'value_2' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_2', value_2 FROM more.manufacturing_exp_tmp;
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_3, 2, 'value_3' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_3', value_3 FROM more.manufacturing_exp_tmp;
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_4, 3, 'value_4' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_4', value_4 FROM more.manufacturing_exp_tmp;
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_5, 4, 'value_5' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_5', value_5 FROM more.manufacturing_exp_tmp;
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_6, 5, 'value_6' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_6', value_6 FROM more.manufacturing_exp_tmp;
 
-INSERT INTO more.manufacturing_exp(epoch, timestamp, value, id, col)
-SELECT date_part('epoch', timestamp) * 1000, timestamp, value_7, 6, 'value_7' FROM more.manufacturing_exp_tmp;
+INSERT INTO more.manufacturing_exp(timestamp, id, value)
+SELECT  timestamp, 'value_7', value_7 FROM more.manufacturing_exp_tmp;
 
 
 DROP TABLE more.manufacturing_exp_tmp;
 
--- CREATE INDEX manufacturing_exp_index ON more.manufacturing_exp(epoch, id);
+analyze more.manufacturing_exp;
+create statistics s_ext_depend_manufacturing_exp(dependencies) on timestamp,id from more.manufacturing_exp ;
