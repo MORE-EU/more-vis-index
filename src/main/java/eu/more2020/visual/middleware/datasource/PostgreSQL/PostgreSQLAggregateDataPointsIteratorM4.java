@@ -3,13 +3,11 @@ package eu.more2020.visual.middleware.datasource.PostgreSQL;
 import eu.more2020.visual.middleware.datasource.DataSource;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.util.DateTimeUtil;
-import org.apache.arrow.flatbuf.Int;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -21,17 +19,20 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
 
     private final ResultSet resultSet;
     private final List<TimeInterval> unionTimeIntervals;
-    private final Map<Integer, Long> aggregateIntervals;
+    private final Map<String, Long> aggregateIntervals;
+
+    private final Map<String, Integer> measuresMap;
 
 
     public PostgreSQLAggregateDataPointsIteratorM4(ResultSet resultSet,
-                                                   Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure,
-                                                   Map<Integer, Long> aggregateIntervals) throws SQLException {
+                                                   Map<String, List<TimeInterval>> missingIntervalsPerMeasure,
+                                                   Map<String, Long> aggregateIntervals, Map<String, Integer> measuresMap) throws SQLException {
         this.resultSet = resultSet;
         this.unionTimeIntervals = missingIntervalsPerMeasure.values().stream()
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
         this.aggregateIntervals = aggregateIntervals;
+        this.measuresMap = measuresMap;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
     @Override
     public AggregatedDataPoint next() {
         try {
-            int measure = resultSet.getInt(1);
+            String measure = resultSet.getString(1);
             long t_min = resultSet.getLong(2);
             long t_max = resultSet.getLong(3);
             double value = resultSet.getDouble(4);
@@ -81,7 +82,7 @@ public class PostgreSQLAggregateDataPointsIteratorM4 implements Iterator<Aggrega
                     statsAggregator.getLastValue(),
                     statsAggregator.getMinValue(),
                     statsAggregator.getMaxValue());
-            return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, measure, statsAggregator);
+            return new ImmutableAggregatedDataPoint(firstTimestamp, lastTimestamp, measuresMap.get(measure), statsAggregator);
         } catch (SQLException e) {
             e.printStackTrace();
         }

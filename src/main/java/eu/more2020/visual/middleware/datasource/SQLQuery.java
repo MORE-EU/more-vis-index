@@ -10,32 +10,37 @@ import java.util.stream.Collectors;
 
 public class SQLQuery extends DataSourceQuery {
 
-    private final Map<Integer, Long> aggregateIntervals;
+    final String schema;
+    final String table;
+    final String timeCol;
+    final String idCol;
+    final String valueCol;
 
-    public SQLQuery(long from, long to, Map<Integer,List<TimeInterval>> missingTimeIntervalsPerMeasure, Map<Integer, Integer> numberOfGroups) {
-        super(from, to, missingTimeIntervalsPerMeasure, numberOfGroups);
-        this.aggregateIntervals = new HashMap<>(numberOfGroups.size());
-        for(Integer measure : numberOfGroups.keySet()){
-            this.aggregateIntervals.put(measure, (to - from) / numberOfGroups.get(measure));
-        }
+    public SQLQuery(String schema, String table, String timeCol, String idCol, String valueCol, long from, long to, Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasure){
+        super(from, to, missingTimeIntervalsPerMeasure);
+        this.schema = schema;
+        this.table = table;
+        this.timeCol = timeCol;
+        this.idCol = idCol;
+        this.valueCol = valueCol;
+    }
+
+    public SQLQuery(String schema, String table, String timeCol, String idCol, String valueCol, long from, long to, Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasure, Map<String, Integer> numberOfGroupsPerMeasure) {
+        super(from, to, missingTimeIntervalsPerMeasure, numberOfGroupsPerMeasure);
+        this.schema = schema;
+        this.table = table;
+        this.timeCol = timeCol;
+        this.idCol = idCol;
+        this.valueCol = valueCol;
     }
 
 
-    public SQLQuery(long from, long to, Map<Integer,List<TimeInterval>> missingTimeIntervalsPerMeasure){
-        super(from, to, missingTimeIntervalsPerMeasure,  null);
-        this.aggregateIntervals = new HashMap<>(numberOfGroups.size());
-        for(Integer measure : numberOfGroups.keySet()){
-            this.aggregateIntervals.put(measure, (to - from) / numberOfGroups.get(measure));
-        }
+    private String calculateFilter(TimeInterval range, String measure) {
+        return  " (" + timeCol + " >= " + "'" + range.getFromDate("yyyy-MM-dd HH:mm:ss.SSS")  + "'" + " AND " + timeCol + " < " + "'" + range.getToDate("yyyy-MM-dd HH:mm:ss.SSS")  + "'" + " AND " + idCol+ " = '" + measure + "' ) \n" ;
     }
 
-
-    private String calculateFilter(TimeInterval range, int measure) {
-        return  " (:timeCol >= " + range.getFrom() + " AND :timeCol < " + range.getTo() + " AND :idCol = " + measure + ") \n" ;
-    }
-
-    private String rawSkeleton(TimeInterval range, int measure, int i){
-        return "SELECT :idCol , :timeCol , :valueCol ," + i + " as u_id FROM :tableName \n" +
+    private String rawSkeleton(TimeInterval range, String measure, int i){
+        return "SELECT " + idCol + " , " + timeCol + " , " + valueCol + " ," + i + " as u_id FROM " + schema + "." + table + " \n" +
                 "WHERE " +
                 calculateFilter(range, measure);
     }
@@ -49,24 +54,24 @@ public class SQLQuery extends DataSourceQuery {
 //        }).collect(Collectors.joining(" UNION ALL "));
     }
 
-    private String m4Skeleton(TimeInterval range, int measure, int width, int i ){
-       return "SELECT Q.:idCol , :timeCol , :valueCol , k, " + i + " as u_id \n" +
-                "FROM :tableName as Q \n" +
+    private String m4Skeleton(TimeInterval range, String measure, int width, int i ){
+       return "SELECT Q." + idCol + " , " +  timeCol + " , " + valueCol + " , k, " + i + " as u_id \n" +
+                "FROM " + schema + "." + table + " as Q \n" +
                 "JOIN " +
-                "(SELECT :idCol , floor( \n" +
-                "(epoch - :from ) / ((:to - :from ) / " + width + " )) as k, \n" +
-                "min(:valueCol ) as v_min, max(:valueCol ) as v_max, \n"  +
-                "min(:timeCol ) as t_min, max(:timeCol ) as t_max \n"  +
-                "FROM :tableName \n" +
+                "(SELECT " + idCol + " , floor( \n" +
+                "(epoch - " + from + " ) / ((" + to + " - " + from + " ) / " + width + " )) as k, \n" +
+                "min(" + valueCol + " ) as v_min, max(" + valueCol + " ) as v_max, \n"  +
+                "min(" + timeCol + " ) as t_min, max(" + timeCol + " ) as t_max \n"  +
+                "FROM " + schema + "." + table + " \n" +
                 "WHERE \n" +
                 calculateFilter(range, measure) +
-                "GROUP BY :idCol , k ) as QA \n"+
-                "ON k = floor((:timeCol - :from ) / ((:to - :from ) / " + width + " )) \n" +
-                "AND QA.id = Q.id \n" +
-                "AND (:valueCol = v_min OR :valueCol = v_max OR \n" +
-                ":timeCol = t_min OR :timeCol = t_max) \n" +
+                "GROUP BY " + idCol + " , k ) as QA \n"+
+                "ON k = floor((" + timeCol + " - " + from + " ) / ((" + to + " - " + from  + ") / " + width + " )) \n" +
+                "AND QA." + idCol + " = " + "Q." + idCol + " \n" +
+                "AND (" + valueCol + " = v_min OR " + valueCol + " = v_max OR \n" +
+                timeCol + " = t_min OR " + timeCol + " = t_max) \n" +
                 "WHERE \n"  +
-                "(:timeCol >= " + range.getFrom() + " AND :timeCol < " + range.getTo() + " AND QA." + ":idCol = " + measure + ") \n" ;
+                "(" + timeCol + " >= " + range.getFrom() + " AND " + timeCol + " < " + range.getTo() + " AND QA." + idCol + " = '" + measure + "' ) \n" ;
     }
 
     private String m4QuerySkeletonCreator() {
@@ -79,14 +84,14 @@ public class SQLQuery extends DataSourceQuery {
 
     }
 
-    private String minMaxSkeleton(TimeInterval range, int measure, int i ) {
-        return "SELECT :idCol , floor( \n" +
-                "(epoch - " + range.getFrom() + " ) / " + aggregateIntervals.get(measure) + ") as k, \n" +
-                "min(:valueCol ) as v_min, max(:valueCol ) as v_max, "  + i + " as u_id \n" +
-                "FROM :tableName \n" +
+    private String minMaxSkeleton(TimeInterval range, String measure, int i ) {
+        return "SELECT " + idCol + " , floor( \n" +
+                "((EXTRACT(epoch FROM " + timeCol + " ) * 1000) - " + range.getFrom() + " ) / " + aggregateIntervals.get(measure) + ") as k, \n" +
+                "min(" + valueCol + " ) as v_min, max(" + valueCol + " ) as v_max, "  + i + " as u_id \n" +
+                "FROM " + schema + "." + table + " \n" +
                 "WHERE " +
                 calculateFilter(range, measure) +
-                "GROUP BY :idCol , k \n";
+                "GROUP BY " + idCol + " , k \n";
     }
 
     private String minMaxQuerySkeletonCreator() {
@@ -102,24 +107,20 @@ public class SQLQuery extends DataSourceQuery {
     @Override
     public String rawQuerySkeleton() {
         return rawQuerySkeletonCreator() +
-                "ORDER BY u_id, :timeCol , :idCol \n";
+                "ORDER BY u_id, " + timeCol + " , " + idCol + "\n";
     }
 
     @Override
     public String m4QuerySkeleton() {
         return "WITH Q_M AS (" + m4QuerySkeletonCreator() + ") \n" +
-                "SELECT :idCol , MIN(epoch) AS min_time , MAX(epoch) AS max_time, :valueCol , k, u_id FROM Q_M \n" +
-                "GROUP BY :idCol , k , :valueCol , u_id \n" +
-                "ORDER BY u_id, k, :idCol";
+                "SELECT " + idCol + " , MIN(" + timeCol + ") AS min_time , MAX(" + timeCol + ") AS max_time, " + valueCol + " , k, u_id FROM Q_M \n" +
+                "GROUP BY " + idCol + " , k , " + valueCol + " , u_id \n" +
+                "ORDER BY u_id, k, " + idCol;
     }
 
     @Override
     public String minMaxQuerySkeleton() {
         return minMaxQuerySkeletonCreator() +
-                " ORDER BY u_id, k, :idCol ";
-    }
-
-    public Map<Integer, Long> getAggregateIntervals() {
-        return aggregateIntervals;
+                " ORDER BY u_id, k, " + idCol;
     }
 }

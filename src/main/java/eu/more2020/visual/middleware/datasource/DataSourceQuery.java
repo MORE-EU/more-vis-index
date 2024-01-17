@@ -5,6 +5,7 @@ import eu.more2020.visual.middleware.domain.TimeInterval;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,9 +17,12 @@ public abstract class DataSourceQuery implements TimeInterval {
     final long from;
     final long to;
 
-    final Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure;
+    final Map<String, List<TimeInterval>> missingIntervalsPerMeasure;
 
-    final Map<Integer, Integer>  numberOfGroups;
+    Map<String, Integer>  numberOfGroups;
+
+    Map<String, Long> aggregateIntervals;
+
 
 
     /**
@@ -29,12 +33,23 @@ public abstract class DataSourceQuery implements TimeInterval {
      * @param missingIntervalsPerMeasure         The actual sub-ranges that are missing from the cache and need to be fetched for each measure
      * @param numberOfGroups The number of groups to aggregate the data points into per measure
      */
-    public DataSourceQuery(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure, Map<Integer, Integer> numberOfGroups) {
+    public DataSourceQuery(long from, long to, Map<String, List<TimeInterval>> missingIntervalsPerMeasure, Map<String, Integer> numberOfGroups) {
         this.from = from;
         this.to = to;
         this.missingIntervalsPerMeasure = missingIntervalsPerMeasure;
         this.numberOfGroups = numberOfGroups;
+        this.aggregateIntervals = new HashMap<>(numberOfGroups.size());
+        for(String measure : numberOfGroups.keySet()){
+            this.aggregateIntervals.put(measure, (to - from) / numberOfGroups.get(measure));
+        }
     }
+
+    public DataSourceQuery(long from, long to, Map<String, List<TimeInterval>> missingIntervalsPerMeasure) {
+        this.from = from;
+        this.to = to;
+        this.missingIntervalsPerMeasure = missingIntervalsPerMeasure;
+    }
+
 
 
     @Override
@@ -73,14 +88,17 @@ public abstract class DataSourceQuery implements TimeInterval {
 
     public abstract String rawQuerySkeleton();
 
-    public Map<Integer, List<TimeInterval>> getMissingIntervalsPerMeasure() {
+    public Map<String, List<TimeInterval>> getMissingIntervalsPerMeasure() {
         return missingIntervalsPerMeasure;
     }
 
-    public Map<Integer, Integer> getNumberOfGroups() {
+    public Map<String, Integer> getNumberOfGroups() {
         return numberOfGroups;
     }
 
+    public Map<String, Long> getAggregateIntervals() {
+        return aggregateIntervals;
+    }
 
     /**
      *

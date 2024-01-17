@@ -43,7 +43,8 @@ public class PostgreSQLDataset extends AbstractDataset {
     private void fillPostgreSQLDatasetInfo(SQLQueryExecutor sqlQueryExecutor) throws SQLException {
         ResultSet resultSet;
         // Header query
-        String headerQuery = "SELECT DISTINCT(" + getIdCol() + ") FROM " + getSchema() + "." + getTable();
+        String headerQuery = "SELECT DISTINCT(" + getIdCol() + ") FROM " + getSchema() + "." + getTable() + " \n" +
+                "ORDER BY " + getIdCol() + " ASC";
 
         resultSet = sqlQueryExecutor.execute(headerQuery);
         List<String> header = new ArrayList<>();
@@ -53,10 +54,10 @@ public class PostgreSQLDataset extends AbstractDataset {
         setHeader(header.toArray(new String[0]));
 
         // First date and sampling frequency query
-        String firstQuery = "SELECT epoch\n" +
+        String firstQuery = "SELECT EXTRACT(epoch FROM " + getTimeCol() + ") * 1000 \n" +
                 "FROM " + getSchema()  + "." + getTable() + " \n" +
-                "WHERE id = " + getMeasures().get(0) + " \n" +
-                "ORDER BY epoch ASC\n" +
+                "WHERE " + getIdCol() + " = " + "'" + header.get(getMeasures().get(0)) + "'" +  " \n" +
+                "ORDER BY " + getTimeCol() + " ASC \n" +
                 "LIMIT 2;";
         resultSet = sqlQueryExecutor.execute(firstQuery);
         resultSet.next();
@@ -66,9 +67,9 @@ public class PostgreSQLDataset extends AbstractDataset {
 
         setSamplingInterval(Duration.of(second - from, ChronoUnit.MILLIS));
         // Last date query
-        String lastQuery = "SELECT epoch\n" +
+        String lastQuery = "SELECT EXTRACT(epoch FROM " + getTimeCol() + ") * 1000 \n" +
                 "FROM " + getSchema()  + "." + getTable() + "\n" +
-                "ORDER BY epoch DESC\n" +
+                "ORDER BY " + getTimeCol() + " DESC \n" +
                 "LIMIT 1;";
         resultSet = sqlQueryExecutor.execute(lastQuery);
         resultSet.next();

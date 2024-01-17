@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PostgreSQLDatasource implements DataSource {
 
@@ -69,8 +70,14 @@ public class PostgreSQLDatasource implements DataSource {
 
         private final SQLQuery sqlQuery;
 
-        public SQLDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure) {
-            this.sqlQuery = new SQLQuery(from, to, missingTimeIntervalsPerMeasure);
+        public SQLDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure) {
+            Map<String, List<TimeInterval>> missingIntervalsPerMeasureName = missingIntervalsPerMeasure.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getValue // Value remains the same
+                    ));
+            this.sqlQuery = new SQLQuery(dataset.getSchema(), dataset.getTable(), dataset.getTimeCol(), dataset.getIdCol(), dataset.getValueCol(),
+                    from, to, missingIntervalsPerMeasureName);
         }
 
         @NotNull
@@ -120,10 +127,33 @@ public class PostgreSQLDatasource implements DataSource {
 
         private final SQLQuery sqlQuery;
         private final QueryMethod queryMethod;
+        private final Map<String, Integer> measuresMap;
 
 
         public SQLAggregatedDataPoints(long from, long to, Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure, Map<Integer, Integer> numberOfGroups, QueryMethod queryMethod) {
-            this.sqlQuery = new SQLQuery(from, to, missingIntervalsPerMeasure, numberOfGroups);
+            Map<String, List<TimeInterval>> missingIntervalsPerMeasureName = missingIntervalsPerMeasure.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getValue, // Value remains the same
+                            (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
+                            LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
+                    ));
+            Map<String, Integer> numberOfGroupsPerMeasureName = numberOfGroups.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getValue, // Value remains the same
+                            (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
+                            LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
+                    ));
+            this.measuresMap = missingIntervalsPerMeasure.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
+                            Map.Entry::getKey, // Value is the key of the measure
+                            (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
+                            LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
+                    ));
+            this.sqlQuery = new SQLQuery(dataset.getSchema(), dataset.getTable(), dataset.getTimeCol(), dataset.getIdCol(), dataset.getValueCol(),
+                    from, to, missingIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
             this.queryMethod = queryMethod;
         }
 
@@ -132,10 +162,10 @@ public class PostgreSQLDatasource implements DataSource {
             try {
                 if (queryMethod == QueryMethod.M4) {
                     ResultSet resultSet = sqlQueryExecutor.executeM4SqlQuery(sqlQuery);
-                    return new PostgreSQLAggregateDataPointsIteratorM4(resultSet, sqlQuery.getMissingIntervalsPerMeasure(), sqlQuery.getAggregateIntervals());
+                    return new PostgreSQLAggregateDataPointsIteratorM4(resultSet, sqlQuery.getMissingIntervalsPerMeasure(), sqlQuery.getAggregateIntervals(), measuresMap);
                 } else {
                     ResultSet resultSet = sqlQueryExecutor.executeMinMaxSqlQuery(sqlQuery);
-                    return new PostgreSQLAggregateDataPointsIterator(resultSet, sqlQuery.getMissingIntervalsPerMeasure(), sqlQuery.getAggregateIntervals());
+                    return new PostgreSQLAggregateDataPointsIterator(resultSet, sqlQuery.getMissingIntervalsPerMeasure(), sqlQuery.getAggregateIntervals(), measuresMap);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

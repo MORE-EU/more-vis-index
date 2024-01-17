@@ -7,27 +7,23 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class InfluxDBQuery extends DataSourceQuery {
-    private final Map<String, List<TimeInterval>>  missingIntervalsPerMeasureName;
-    private final Map<String, Long> aggregateIntervals;
 
-    public InfluxDBQuery(long from, long to, Map<String, List<TimeInterval>> missingIntervalsPerMeasureName, Map<String, Integer> numberOfGroups) {
-        super(from, to, null, null);
-        this.missingIntervalsPerMeasureName = missingIntervalsPerMeasureName;
-        this.aggregateIntervals = new HashMap<>(numberOfGroups.size());
-        for(String measure : numberOfGroups.keySet()){
-            this.aggregateIntervals.put(measure, (to - from) / numberOfGroups.get(measure));
-        }
+    final String bucket;
+    final String measurement;
+
+    public InfluxDBQuery(String bucket, String measurement, long from, long to, Map<String, List<TimeInterval>> missingIntervalsPerMeasure, Map<String, Integer> numberOfGroups) {
+        super(from, to, missingIntervalsPerMeasure, numberOfGroups);
+        this.bucket = bucket;
+        this.measurement = measurement;
     }
 
 
-    public InfluxDBQuery(long from, long to, Map<String, List<TimeInterval>> missingIntervalsPerMeasureName) {
-        this(from, to, missingIntervalsPerMeasureName, null);
+    public InfluxDBQuery(String bucket, String measurement, long from, long to, Map<String, List<TimeInterval>> missingIntervalsPerMeasure) {
+        super(from, to, missingIntervalsPerMeasure);
+        this.bucket = bucket;
+        this.measurement = measurement;
     }
 
-
-    public Map<String, List<TimeInterval>> getMissingIntervalsPerMeasureName() {
-        return missingIntervalsPerMeasureName;
-    }
 
     @Override
     public String getFromDate() {
@@ -51,11 +47,11 @@ public class InfluxDBQuery extends DataSourceQuery {
                         "\n";
 
         int i = 0;
-        for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-            for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
-                s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
+        for (String measureName : missingIntervalsPerMeasure.keySet()) {
+            for(TimeInterval range : missingIntervalsPerMeasure.get(measureName)) {
+                s += "data_" + i + " = () => from(bucket:" + "\"" + bucket + "\"" + ") \n" +
                         "|> range(start:" + range.getFromDate(format) + ", stop:" + range.getToDate(format) + ")\n" +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+                        "|> filter(fn: (r) => r[\"_measurement\"] ==" + "\"" + measurement + "\"" + ") \n" +
                         "|> filter(fn: (r) => r[\"_field\"] ==\"" + measureName + "\")\n";
                 i++;
             }
@@ -63,8 +59,8 @@ public class InfluxDBQuery extends DataSourceQuery {
         s += "union(\n" +
                 "    tables: [\n";
         i = 0;
-        for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-            for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
+        for (String measureName : missingIntervalsPerMeasure.keySet()) {
+            for(TimeInterval range : missingIntervalsPerMeasure.get(measureName)) {
                 long rangeOffset = range.getFrom() % aggregateIntervals.get(measureName);
                 s += "data_" + i + "() |> aggregate(agg: max, name: \"data_" + i + "\", offset: " + rangeOffset + "ms," + "aggregateInterval:" +  aggregateIntervals.get(measureName) + "ms"+ "),\n" +
                       "data_" + i + "() |> aggregate(agg: min, name: \"data_" + i + "\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms"+ "),\n";
@@ -94,11 +90,11 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "\n";
 
         int i = 0;
-        for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-            for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
-                s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
+        for (String measureName : missingIntervalsPerMeasure.keySet()) {
+            for(TimeInterval range : missingIntervalsPerMeasure.get(measureName)) {
+                s += "data_" + i + " = () => from(bucket:" + "\"" + bucket + "\"" + ") \n" +
                         "|> range(start:" + range.getFromDate(format) + ", stop:" + range.getToDate(format) + ")\n" +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+                        "|> filter(fn: (r) => r[\"_measurement\"] ==" + "\"" + measurement + "\"" + ") \n" +
                         "|> filter(fn: (r) => r[\"_field\"] ==\""  + measureName + "\")\n";
                 i++;
             }
@@ -107,8 +103,8 @@ public class InfluxDBQuery extends DataSourceQuery {
                 "    tables: [\n";
 
         i = 0;
-        for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-            for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
+        for (String measureName : missingIntervalsPerMeasure.keySet()) {
+            for(TimeInterval range : missingIntervalsPerMeasure.get(measureName)) {
                 long rangeOffset = range.getFrom() % aggregateIntervals.get(measureName);
                 s += "data_" + i + "() |> aggregate(agg: first, name: \"first\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
                         "data_" + i + "() |> aggregate(agg: max, name: \"max\", offset: " + rangeOffset + "ms," + "aggregateInterval:" + aggregateIntervals.get(measureName) + "ms" + "),\n" +
@@ -129,11 +125,11 @@ public class InfluxDBQuery extends DataSourceQuery {
         String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         String s = "";
         int i = 0;
-        for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-            for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
-                s += "data_" + i + " = () => from(bucket:\"%s\") \n" +
+        for (String measureName : missingIntervalsPerMeasure.keySet()) {
+            for(TimeInterval range : missingIntervalsPerMeasure.get(measureName)) {
+                s += "data_" + i + " = () => from(bucket:" + "\"" + bucket + "\"" + ") \n" +
                         "|> range(start:" + range.getFromDate(format) + ", stop:" + range.getToDate(format) + ")\n" +
-                        "|> filter(fn: (r) => r[\"_measurement\"] == \"%s\") \n" +
+                        "|> filter(fn: (r) => r[\"_measurement\"] ==" + "\"" + measurement + "\"" + ") \n" +
                         "|> filter(fn: (r) => r[\"_field\"] ==\"" + measureName + "\")" +
                         " \n";
                 i++;
@@ -141,8 +137,8 @@ public class InfluxDBQuery extends DataSourceQuery {
         }
         s += "union(\n" +
                 "    tables: [\n";
-        for (String measureName : missingIntervalsPerMeasureName.keySet()) {
-            for(TimeInterval range : missingIntervalsPerMeasureName.get(measureName)) {
+        for (String measureName : missingIntervalsPerMeasure.keySet()) {
+            for(TimeInterval range : missingIntervalsPerMeasure.get(measureName)) {
                 s += "data_" + i + "(),\n";
             }
         }
@@ -154,7 +150,7 @@ public class InfluxDBQuery extends DataSourceQuery {
 
     @Override
     public int getNoOfQueries() {
-        return this.getMissingIntervalsPerMeasureName().size() * this.getMissingIntervalsPerMeasureName().values().stream().mapToInt(List::size).sum();
+        return this.getMissingIntervalsPerMeasure().size() * this.getMissingIntervalsPerMeasure().values().stream().mapToInt(List::size).sum();
 
     }
 

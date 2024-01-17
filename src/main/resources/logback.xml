@@ -33,6 +33,8 @@
     <logger name ="eu.more2020.visual.middleware.domain.PixelColumn" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.datasource.DataSource" level="INFO"/>
     <logger name ="eu.more2020.visual.middleware.domain.MaxErrorEvaluator" level="INFO"/>
+    <logger name ="eu.more2020.visual.middleware.cache.DataProcessor" level="DEBUG"/>
+
     <root>
         <level>INFO</level>
         <appender-ref ref="CONSOLE"/>

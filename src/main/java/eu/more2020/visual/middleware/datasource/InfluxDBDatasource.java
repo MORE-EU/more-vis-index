@@ -76,7 +76,7 @@ public class InfluxDBDatasource implements DataSource {
                             entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
                             Map.Entry::getValue // Value remains the same
                     ));
-            this.influxDBQuery = new InfluxDBQuery(from, to, missingIntervalsPerMeasureName);
+            this.influxDBQuery = new InfluxDBQuery(dataset.getSchema(), dataset.getTable(), from, to, missingIntervalsPerMeasureName);
         }
 
         @Override
@@ -95,7 +95,7 @@ public class InfluxDBDatasource implements DataSource {
             try {
                 List<FluxTable> fluxTables;
                 fluxTables = influxDBQueryExecutor.executeRawInfluxQuery(influxDBQuery);
-                return new InfluxDBDataPointsIterator(influxDBQuery.getMissingIntervalsPerMeasureName(), fluxTables);
+                return new InfluxDBDataPointsIterator(influxDBQuery.getMissingIntervalsPerMeasure(), fluxTables);
             } catch (Exception e){
                 System.out.println("No data in a specified query");
             }
@@ -114,20 +114,26 @@ public class InfluxDBDatasource implements DataSource {
             Map<String, List<TimeInterval>> missingIntervalsPerMeasureName = missingIntervalsPerMeasure.entrySet().stream()
                     .collect(Collectors.toMap(
                             entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
-                            Map.Entry::getValue // Value remains the same
+                            Map.Entry::getValue, // Value remains the same
+                            (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
+                            LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
                     ));
             Map<String, Integer> numberOfGroupsPerMeasureName = numberOfGroups.entrySet().stream()
                     .collect(Collectors.toMap(
                             entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
-                            Map.Entry::getValue // Value remains the same
+                            Map.Entry::getValue, // Value remains the same
+                            (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
+                            LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
                     ));
 
             this.measuresMap = missingIntervalsPerMeasure.entrySet().stream()
                     .collect(Collectors.toMap(
                             entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name
-                            Map.Entry::getKey // Value is the key of the measure
+                            Map.Entry::getKey, // Value is the key of the measure
+                            (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
+                            LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
                     ));
-            this.influxDBQuery = new InfluxDBQuery(from, to,  missingIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
+            this.influxDBQuery = new InfluxDBQuery(dataset.getSchema(), dataset.getTable(), from, to,  missingIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
             this.queryMethod = queryMethod;
         }
 

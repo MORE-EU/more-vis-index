@@ -116,42 +116,19 @@ public class SQLQueryExecutor implements QueryExecutor {
 
 
     public ResultSet executeRawSqlQuery(SQLQuery q) throws SQLException{
-        String sql = q.rawQuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setString("tableName", schema + "." + table);
-        preparedStatement.setString("timeCol", dataset.getTimeCol());
-        preparedStatement.setString("valueCol", dataset.getValueCol());
-        preparedStatement.setString("idCol", dataset.getIdCol());
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "");
+        String query = q.rawQuerySkeleton();
         return execute(query);
     }
 
 
     public ResultSet executeM4SqlQuery(SQLQuery q) throws SQLException {
-        String sql = q.m4QuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setLong("from", q.getFrom());
-        preparedStatement.setLong("to", q.getTo());
-        preparedStatement.setString("timeCol", dataset.getTimeCol());
-        preparedStatement.setString("valueCol", dataset.getValueCol());
-        preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setString("tableName", schema + "." + table);
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "");
+        String query = q.m4QuerySkeleton();
         return execute(query);
     }
 
 
     public ResultSet executeMinMaxSqlQuery(SQLQuery q) throws SQLException {
-        String sql = q.minMaxQuerySkeleton();
-        NamedPreparedStatement preparedStatement = new NamedPreparedStatement(connection, sql);
-        preparedStatement.setString("timeCol", dataset.getTimeCol());
-        preparedStatement.setString("valueCol", dataset.getValueCol());
-        preparedStatement.setString("idCol", dataset.getIdCol());
-        preparedStatement.setString("tableName", schema + "." + table);
-        String query = preparedStatement.getPreparedStatement().toString()
-                .replace("'", "");
+        String query = q.minMaxQuerySkeleton();
         return execute(query);
     }
 

@@ -14,7 +14,7 @@ public class NamedPreparedStatement {
 
     public NamedPreparedStatement(Connection conn, String sql) throws SQLException {
         int pos;
-        while((pos = sql.indexOf(":")) != -1) {
+        while((pos = sql.indexOf("$")) != -1) {
             int end = sql.substring(pos).indexOf(" ");
             if (end == -1)
                 end = sql.length();

@@ -292,35 +292,19 @@ public class InfluxDBQueryExecutor implements QueryExecutor {
 
 
     public List<FluxTable> executeM4InfluxQuery(InfluxDBQuery q) {
-        List<String> args = new ArrayList<>();
-        for(int i = 0; i < q.getNoOfQueries(); i ++) {
-            args.add(bucket);
-            args.add(table);
-        }
-        String flux = String.format(q.m4QuerySkeleton(), args.toArray());
+        String flux = q.m4QuerySkeleton();
         return execute(flux);
     }
 
 
     public List<FluxTable> executeMinMaxInfluxQuery(InfluxDBQuery q) {
-        List<String> args = new ArrayList<>();
-        for(int i = 0; i < q.getNoOfQueries(); i ++) {
-            args.add(bucket);
-            args.add(table);
-        }
-        String flux = String.format(q.minMaxQuerySkeleton(), args.toArray());
+        String flux = q.minMaxQuerySkeleton();
         return execute(flux);
     }
 
 
     public List<FluxTable> executeRawInfluxQuery(InfluxDBQuery q){
-        List<String> args = new ArrayList<>();
-        for(int i = 0; i < q.getNoOfQueries(); i ++) {
-            args.add(bucket);
-            args.add(table);
-        }
-        String flux = String.format(q.rawQuerySkeleton(),
-                args.toArray());
+        String flux = q.rawQuerySkeleton();
         return execute(flux);
     }
 

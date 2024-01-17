@@ -54,9 +54,6 @@ public class Experiments<T> {
     @Parameter(names = "-measures", variableArity = true, description = "Measures IDs to be used")
     public List<Integer> measures;
 
-    @Parameter(names = "-measureNames", variableArity = true, description = "Measures Names to be used")
-    public List<String> measureNames;
-
     @Parameter(names = "-timeCol", description = "Datetime Column name")
     public String timeCol;
 
@@ -331,13 +328,14 @@ public class Experiments<T> {
             DataSourceQuery dataSourceQuery = null;
             switch (type) {
                 case "postgres":
-                    dataSourceQuery = new SQLQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasure, numberOfGroups);
+                    dataSourceQuery = new SQLQuery(dataset.getSchema(), dataset.getTable(), dataset.getTimeCol(), dataset.getIdCol(), dataset.getValueCol(),
+                            query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
                 case "modelar":
                     dataSourceQuery = new ModelarDBQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
                 case "influx":
-                    dataSourceQuery = new InfluxDBQuery(query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
+                    dataSourceQuery = new InfluxDBQuery(dataset.getSchema(), dataset.getTable(), query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
                     break;
             }
             queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
