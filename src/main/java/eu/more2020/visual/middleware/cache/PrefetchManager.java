@@ -58,7 +58,7 @@ public class PrefetchManager {
         long to = prefetchQuery.getTo();
         long pixelColumnInterval = (to - from) / viewPort.getWidth();
 
-        QueryMethod queryMethod = prefetchQuery.getQueryMethod();
+        QueryMethod queryMethod = QueryMethod.MIN_MAX;
         Map<Integer, List<TimeSeriesSpan>> overlappingSpansPerMeasure = cacheManager.getFromCache(prefetchQuery, pixelColumnInterval);
         Map<Integer, List<TimeInterval>> missingIntervalsPerMeasure = new HashMap<>(measures.size());
         // Initialize Pixel Columns

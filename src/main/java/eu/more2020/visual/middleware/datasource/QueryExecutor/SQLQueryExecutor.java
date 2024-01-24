@@ -137,10 +137,10 @@ public class SQLQueryExecutor implements QueryExecutor {
         QueryResults queryResults = new QueryResults();
         HashMap<Integer, List<DataPoint>> data = new HashMap<>();
         while(resultSet.next()){
-            Integer measure = resultSet.getInt(1);
-            long epoch = resultSet.getLong(2);
-            long epoch2 = resultSet.getLong(3);
-            Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4);
+            Integer measure = Arrays.asList(dataset.getHeader()).indexOf(resultSet.getString(1)); // measure
+            long epoch = resultSet.getLong(2); // min_timestamp
+            long epoch2 = resultSet.getLong(3); // max_timestamp
+            Double val = resultSet.getObject(4) == null ? null : resultSet.getDouble(4); // value
             if(val == null) continue;
             data.computeIfAbsent(measure, m -> new ArrayList<>()).add(
                     new ImmutableDataPoint(epoch, val));

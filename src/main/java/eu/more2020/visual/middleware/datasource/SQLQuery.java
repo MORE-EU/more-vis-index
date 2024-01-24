@@ -59,19 +59,19 @@ public class SQLQuery extends DataSourceQuery {
                 "FROM " + schema + "." + table + " as Q \n" +
                 "JOIN " +
                 "(SELECT " + idCol + " , floor( \n" +
-                "(epoch - " + from + " ) / ((" + to + " - " + from + " ) / " + width + " )) as k, \n" +
+                "((EXTRACT(EPOCH FROM " + timeCol + ") * 1000) - " + from + " ) / ((" + to + " - " + from + " ) / " + width + " )) as k, \n" +
                 "min(" + valueCol + " ) as v_min, max(" + valueCol + " ) as v_max, \n"  +
                 "min(" + timeCol + " ) as t_min, max(" + timeCol + " ) as t_max \n"  +
                 "FROM " + schema + "." + table + " \n" +
                 "WHERE \n" +
                 calculateFilter(range, measure) +
                 "GROUP BY " + idCol + " , k ) as QA \n"+
-                "ON k = floor((" + timeCol + " - " + from + " ) / ((" + to + " - " + from  + ") / " + width + " )) \n" +
+                "ON k = floor(((EXTRACT(EPOCH FROM " + timeCol + ") * 1000) - " + from + " ) / ((" + to + " - " + from  + ") / " + width + " )) \n" +
                 "AND QA." + idCol + " = " + "Q." + idCol + " \n" +
                 "AND (" + valueCol + " = v_min OR " + valueCol + " = v_max OR \n" +
                 timeCol + " = t_min OR " + timeCol + " = t_max) \n" +
                 "WHERE \n"  +
-                "(" + timeCol + " >= " + range.getFrom() + " AND " + timeCol + " < " + range.getTo() + " AND QA." + idCol + " = '" + measure + "' ) \n" ;
+                "(" + timeCol + " >= " + "'" + range.getFromDate("yyyy-MM-dd HH:mm:ss.SSS") + "'" + " AND " + timeCol + " < " + "'" + range.getToDate("yyyy-MM-dd HH:mm:ss.SSS") + "'" + " AND QA." + idCol + " = '" + measure + "' ) \n" ;
     }
 
     private String m4QuerySkeletonCreator() {
@@ -113,7 +113,7 @@ public class SQLQuery extends DataSourceQuery {
     @Override
     public String m4QuerySkeleton() {
         return "WITH Q_M AS (" + m4QuerySkeletonCreator() + ") \n" +
-                "SELECT " + idCol + " , MIN(" + timeCol + ") AS min_time , MAX(" + timeCol + ") AS max_time, " + valueCol + " , k, u_id FROM Q_M \n" +
+                "SELECT " + idCol + " , EXTRACT(EPOCH FROM MIN(" + timeCol + ")) * 1000 AS min_time , EXTRACT(EPOCH FROM MAX(" + timeCol + ")) * 1000 AS max_time, " + valueCol + " , k, u_id FROM Q_M \n" +
                 "GROUP BY " + idCol + " , k , " + valueCol + " , u_id \n" +
                 "ORDER BY u_id, k, " + idCol;
     }
