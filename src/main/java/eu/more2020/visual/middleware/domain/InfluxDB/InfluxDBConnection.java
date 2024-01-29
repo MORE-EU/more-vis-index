@@ -96,4 +96,8 @@ public class InfluxDBConnection implements DatabaseConnection {
         }
     }
 
+    @Override
+    public String getType() {
+        return "influx";
+    }
 }

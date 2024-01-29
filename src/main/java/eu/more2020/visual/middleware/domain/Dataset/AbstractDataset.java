@@ -35,7 +35,6 @@ public abstract class AbstractDataset implements Serializable {
 
     public AbstractDataset(String id){
         this.id = id;
-
     }
 
     public AbstractDataset(String path, String id, String table, String timeCol, String timeFormat) {

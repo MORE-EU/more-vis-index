@@ -15,4 +15,5 @@ public interface DatabaseConnection {
     public QueryExecutor getQueryExecutor(AbstractDataset dataset);
 
     public void closeConnection() throws SQLException;
+    String getType();
 }

@@ -125,7 +125,6 @@ public class InfluxDBDatasource implements DataSource {
                             (v1, v2) -> v1, // Merge function to keep the first value in case of key collision
                             LinkedHashMap::new // Specify LinkedHashMap to maintain insertion order
                     ));
-
             this.measuresMap = missingIntervalsPerMeasure.entrySet().stream()
                     .collect(Collectors.toMap(
                             entry -> dataset.getHeader()[entry.getKey()], // Key mapping is the measure name

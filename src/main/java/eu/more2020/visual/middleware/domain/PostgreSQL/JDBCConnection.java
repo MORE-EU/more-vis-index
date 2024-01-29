@@ -87,4 +87,9 @@ public class JDBCConnection implements DatabaseConnection {
 
 
 
+    @Override
+    public String getType() {
+        return "jdbc";
+    }
+
 }

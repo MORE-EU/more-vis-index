@@ -95,6 +95,11 @@ public class ModelarDBConnection implements Serializable, DatabaseConnection {
     @Override
     public void closeConnection() throws SQLException {
         // TODO Auto-generated method stub
-        
+
+    }
+
+    @Override
+    public String getType() {
+        return "modelardb";
     }
 }

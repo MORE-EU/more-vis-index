@@ -6,6 +6,7 @@ import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutor;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Query.QueryMethod;
+import eu.more2020.visual.middleware.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,14 @@ public class DataProcessor {
     private final DataSource dataSource;
     private final int dataReductionRatio;
 
+    private final QueryExecutor queryExecutor;
+
+    private final int RAW_FACTOR = 6;
+
+
     public DataProcessor(QueryExecutor queryExecutor, AbstractDataset dataset, int dataReductionRatio){
         this.dataset = dataset;
+        this.queryExecutor = queryExecutor;
         this.dataSource = DataSourceFactory.getDataSource(queryExecutor, dataset);
         this.dataReductionRatio = dataReductionRatio;
     }
@@ -88,8 +95,10 @@ public class DataProcessor {
         Map<Integer, List<TimeSeriesSpan>> timeSeriesSpans = new HashMap<>(missingIntervalsPerMeasure.size());
         Map<Integer, Integer> numberOfGroups = new HashMap<>(missingIntervalsPerMeasure.size());
         Map<Integer, Long> aggregateIntervals = new HashMap<>(missingIntervalsPerMeasure.size());
+
+        int rawNoOfGroups = DateTimeUtil.numberOfIntervals(from, to, RAW_FACTOR * dataset.getSamplingInterval().toMillis());
         for(int measure : aggFactors.keySet()) {
-            numberOfGroups.put(measure, aggFactors.get(measure) * viewPort.getWidth());
+            numberOfGroups.put(measure, Math.min(rawNoOfGroups, aggFactors.get(measure) * viewPort.getWidth()));
             aggregateIntervals.put(measure, (to - from) / numberOfGroups.get(measure));
         }
         AggregatedDataPoints missingDataPoints = null;
@@ -124,7 +133,7 @@ public class DataProcessor {
         }
     }
 
-    public int getDataReductionRatio() {
-        return dataReductionRatio;
+    public QueryExecutor getQueryExecutor() {
+        return queryExecutor;
     }
 }

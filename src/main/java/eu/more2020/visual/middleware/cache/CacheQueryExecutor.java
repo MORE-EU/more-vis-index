@@ -2,6 +2,14 @@ package eu.more2020.visual.middleware.cache;
 
 import com.google.common.base.Stopwatch;
 
+import eu.more2020.visual.middleware.datasource.DataSourceQuery;
+import eu.more2020.visual.middleware.datasource.InfluxDBQuery;
+import eu.more2020.visual.middleware.datasource.ModelarDBQuery;
+import eu.more2020.visual.middleware.datasource.QueryExecutor.InfluxDBQueryExecutor;
+import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutor;
+import eu.more2020.visual.middleware.datasource.QueryExecutor.QueryExecutorFactory;
+import eu.more2020.visual.middleware.datasource.QueryExecutor.SQLQueryExecutor;
+import eu.more2020.visual.middleware.datasource.SQLQuery;
 import eu.more2020.visual.middleware.domain.*;
 import eu.more2020.visual.middleware.domain.Dataset.AbstractDataset;
 import eu.more2020.visual.middleware.domain.Query.Query;
@@ -9,6 +17,7 @@ import eu.more2020.visual.middleware.domain.Query.QueryMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -18,9 +27,11 @@ public class CacheQueryExecutor {
     private final AbstractDataset dataset;
     private final Map<Integer, Integer> aggFactors;
 
+    private final int initialAggFactor;
     public CacheQueryExecutor(AbstractDataset dataset, int aggFactor) {
         this.dataset = dataset;
         this.aggFactors = new HashMap<>(dataset.getMeasures().size());
+        this.initialAggFactor = aggFactor;
         for(int measure : dataset.getMeasures()) aggFactors.put(measure, aggFactor);
     }
 
@@ -32,6 +43,7 @@ public class CacheQueryExecutor {
     public QueryResults executeQuery(Query query, CacheManager cacheManager,
                                      DataProcessor dataProcessor, PrefetchManager prefetchManager){
         LOG.info("Executing Visual Query {}", query);
+        if(query.getAccuracy() == 1) return executeM4Query(query, dataProcessor.getQueryExecutor());
         long from = query.getFrom();
         long to = query.getTo();
         QueryResults queryResults = new QueryResults();
@@ -89,6 +101,13 @@ public class CacheQueryExecutor {
                 double coveragePercentage = overlappingSpan.percentage(query); // coverage
                 int spanAggFactor = (int) ((double) (pixelColumnInterval) / size);
                 totalAggFactors += coveragePercentage * spanAggFactor;
+                coveragePercentages += coveragePercentage;
+
+            }
+            // The missing intervals get a value equal to the initial value
+            for(TimeInterval missingInterval : missingIntervalsForMeasure){
+                double coveragePercentage = missingInterval.percentage(query); // coverage
+                totalAggFactors += coveragePercentage * initialAggFactor;
                 coveragePercentages += coveragePercentage;
             }
             int meanWeightAggFactor = coveragePercentages != 0 ? (int) Math.ceil(totalAggFactors / coveragePercentages) : aggFactors.get(measure);
@@ -215,6 +234,41 @@ public class CacheQueryExecutor {
         queryResults.setQueryTime(queryTime);
         queryResults.setTimeRange(new TimeRange(from, to));
         queryResults.setAggFactors(aggFactors);
+        return queryResults;
+    }
+
+    private QueryResults executeM4Query(Query query, QueryExecutor queryExecutor) {
+        QueryResults queryResults = null;
+        QueryMethod queryMethod = QueryMethod.M4;
+        DataSourceQuery dataSourceQuery = null;
+        Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(query.getMeasures().size());
+        Map<String, List<TimeInterval>> missingTimeIntervalsPerMeasureName = new HashMap<>(query.getMeasures().size());
+        Map<String, Integer> numberOfGroupsPerMeasureName = new HashMap<>(query.getMeasures().size());
+        Map<Integer, Integer> numberOfGroups = new HashMap<>(query.getMeasures().size());
+
+        for (Integer measure : query.getMeasures()) {
+            String measureName = dataset.getHeader()[measure];
+            List<TimeInterval> timeIntervalsForMeasure = new ArrayList<>();
+            timeIntervalsForMeasure.add(new TimeRange(query.getFrom(), query.getTo()));
+            missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
+            missingTimeIntervalsPerMeasureName.put(measureName, timeIntervalsForMeasure);
+
+            numberOfGroups.put(measure, query.getViewPort().getWidth());
+            numberOfGroupsPerMeasureName.put(measureName, query.getViewPort().getWidth());
+        }
+        if(queryExecutor instanceof SQLQueryExecutor)
+            dataSourceQuery = new SQLQuery(dataset.getSchema(), dataset.getTable(), dataset.getTimeCol(), dataset.getIdCol(), dataset.getValueCol(),
+                    query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
+        else if (queryExecutor instanceof InfluxDBQueryExecutor)
+            dataSourceQuery = new InfluxDBQuery(dataset.getSchema(), dataset.getTable(), query.getFrom(), query.getTo(), missingTimeIntervalsPerMeasureName, numberOfGroupsPerMeasureName);
+        else {
+            throw new RuntimeException("Unsupported query executor");
+        }
+        try {
+            queryResults = queryExecutor.execute(dataSourceQuery, queryMethod);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return queryResults;
     }
 }
