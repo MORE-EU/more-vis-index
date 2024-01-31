@@ -97,12 +97,11 @@ public class CacheQueryExecutor {
             double totalAggFactors = 0.0;
             for (TimeSeriesSpan overlappingSpan : overlappingSpans) {
                 long size = overlappingSpan.getAggregateInterval(); // ms
-                if(size == -1) continue; // if raw data continue
+                if(size <= dataset.getSamplingInterval().toMillis()) continue; // if raw data continue
                 double coveragePercentage = overlappingSpan.percentage(query); // coverage
                 int spanAggFactor = (int) ((double) (pixelColumnInterval) / size);
                 totalAggFactors += coveragePercentage * spanAggFactor;
                 coveragePercentages += coveragePercentage;
-
             }
             // The missing intervals get a value equal to the initial value
             for(TimeInterval missingInterval : missingIntervalsForMeasure){
@@ -152,7 +151,7 @@ public class CacheQueryExecutor {
         }
 
         // Fetch errored measures with M4
-        if(measuresWithError.size() > 0) {
+        if(!measuresWithError.isEmpty()) {
             Map<Integer, List<TimeInterval>> m4MissingIntervals =  new HashMap<>(measuresWithError.size());
             Map<Integer, Integer> m4AggFactors = new HashMap<>(measuresWithError.size());
             for(int measureWithError : measuresWithError){
