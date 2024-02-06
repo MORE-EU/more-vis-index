@@ -8,6 +8,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,6 +81,33 @@ public class QuerySequenceGenerator {
          }
          return idx;
     }
+
+    /**
+     *
+     * @param queriesPath, path to a csv file of from,to values
+     * @return a query sequence based on the file
+     */
+    public List<Query> generateQuerySequence(Query q0, String queriesPath) {
+        List<Query> queries = new ArrayList<Query>();
+        try (BufferedReader br = new BufferedReader(new FileReader(queriesPath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Split the line into two columns
+                String[] columns = line.split(",");
+                // Convert the columns to long values (assuming they are in epoch milliseconds)
+                long from = Long.parseLong(columns[0].trim());
+                long to = Long.parseLong(columns[1].trim());
+                // TODO: Change it to get other variables from the file too. for now though this is enough.
+                Query q = new Query(from, to, q0.getAccuracy(), null,
+                        q0.getQueryMethod(), q0.getMeasures(), q0.getViewPort(), opType);
+                queries.add(q);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return queries;
+    }
+
     public List<Query> generateQuerySequence(Query q0, int count, int measureChange) {
         Direction[] directions = Direction.getRandomDirections(count);
         double[] shifts = new Random(seed).doubles(count, minShift, maxShift).toArray();
@@ -86,9 +116,10 @@ public class QuerySequenceGenerator {
         List<UserOpType> ops = new ArrayList<>();
 
         int pans = 50;
-        int zoom_in = 15;
         int zoom_out = 30;
-        int resize = 5;
+        int zoom_in = 20;
+//        int zoom_in = 15;
+        int resize = 0;
 
         for (int i = 0; i < pans; i++) ops.add(P);
         for (int i = 0; i < zoom_in; i++) ops.add(ZI);

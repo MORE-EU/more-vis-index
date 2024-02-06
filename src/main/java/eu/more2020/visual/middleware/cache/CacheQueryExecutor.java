@@ -238,6 +238,9 @@ public class CacheQueryExecutor {
 
     private QueryResults executeM4Query(Query query, QueryExecutor queryExecutor) {
         QueryResults queryResults = null;
+        double queryTime = 0;
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
         QueryMethod queryMethod = QueryMethod.M4;
         DataSourceQuery dataSourceQuery = null;
         Map<Integer, List<TimeInterval>> missingTimeIntervalsPerMeasure = new HashMap<>(query.getMeasures().size());
@@ -268,6 +271,9 @@ public class CacheQueryExecutor {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+        stopwatch.stop();
+        queryResults.setQueryTime(queryTime);
         return queryResults;
     }
 }

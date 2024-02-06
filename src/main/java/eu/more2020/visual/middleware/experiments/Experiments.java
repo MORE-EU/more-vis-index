@@ -45,6 +45,9 @@ public class Experiments<T> {
     @Parameter(names = "-path", description = "The path of the input file(s)")
     public String path;
 
+    @Parameter(names = "-queries", description = "The path of the input queries file if it exists")
+    public String queries;
+
     @Parameter(names = "-type", description = "The type of the input")
     public String type;
 
@@ -400,11 +403,17 @@ public class Experiments<T> {
 
 
     private List<Query> generateQuerySequence(Query q0, AbstractDataset dataset) {
-        Preconditions.checkNotNull(seqCount, "No sequence count specified.");
         Preconditions.checkNotNull(minShift, "Min query shift must be specified.");
         Preconditions.checkNotNull(maxShift, "Max query shift must be specified.");
         QuerySequenceGenerator sequenceGenerator = new QuerySequenceGenerator(minShift, maxShift, zoomFactor, dataset);
-        return sequenceGenerator.generateQuerySequence(q0, seqCount, measureChange);
+        if(queries != null) {
+            Preconditions.checkNotNull(queries, "No given queries.txt file");
+            return sequenceGenerator.generateQuerySequence(q0, queries);
+        }
+        else {
+            Preconditions.checkNotNull(seqCount, "No sequence count specified.");
+            return sequenceGenerator.generateQuerySequence(q0, seqCount, measureChange);
+        }
     }
 
     private void initOutput() throws IOException {

@@ -3,10 +3,11 @@ a=$1
 q=$2
 p=$3
 aggFactor=$4
-reductionRatio=$5
-type=$6
+w=$5
+h=$6
+type=$7
 
-tables=("intel_lab_exp" "soccer_exp" "manufacturing_exp")
+tables=("manufacturing_exp" "intel_lab_exp" "soccer_exp")
 modes=("raw")
 
 for table in "${tables[@]}"
