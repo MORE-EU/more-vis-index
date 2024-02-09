@@ -77,13 +77,13 @@ public class PixelColumn implements TimeInterval {
                 statsAggregator.accept(dp.getStats().getMaxDataPoint());
             }
 
-            if (this.contains(stats.getFirstTimestamp())) {
-                statsAggregator.accept(dp.getStats().getFirstDataPoint());
-            }
-
-            if (this.contains(stats.getLastTimestamp())) {
-                statsAggregator.accept(dp.getStats().getLastDataPoint());
-            }
+//            if (this.contains(stats.getFirstTimestamp())) {
+//                statsAggregator.accept(dp.getStats().getFirstDataPoint());
+//            }
+//
+//            if (this.contains(stats.getLastTimestamp())) {
+//                statsAggregator.accept(dp.getStats().getLastDataPoint());
+//            }
         }
     }
 
@@ -178,12 +178,10 @@ public class PixelColumn implements TimeInterval {
                 minPixelId = Math.min(minPixelId, getPixelId(leftPartial.getStats().getMinValue(), viewPortStats));
                 maxPixelId = Math.max(maxPixelId, getPixelId(leftPartial.getStats().getMaxValue(), viewPortStats));
             }
-            else return Range.closed(0, 0);
             if (rightPartial != null && rightPartial.getCount() > 0 )  {
                 minPixelId = Math.min(minPixelId, getPixelId(rightPartial.getStats().getMinValue(), viewPortStats));
                 maxPixelId = Math.max(maxPixelId, getPixelId(rightPartial.getStats().getMaxValue(), viewPortStats));
             }
-            else return Range.closed(0, 0);
             return Range.closed(minPixelId, maxPixelId);
         } else return null;
     }

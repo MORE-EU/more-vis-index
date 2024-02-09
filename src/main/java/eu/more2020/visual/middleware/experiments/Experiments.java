@@ -213,7 +213,7 @@ public class Experiments<T> {
         Query q0 = new Query(startTime, endTime, accuracy, null, queryMethod, measures, viewPort, null);
         List<Query> sequence = generateQuerySequence(q0, dataset);
         csvWriter.writeHeaders("dataset", "query #", "operation", "width", "height", "from", "to", "timeRange", "aggFactor", "Results size", "IO Count",
-                "Time (sec)", "Progressive Time (sec)", "Processing Time (sec)", "Query Time (sec)", "Memory", "Est. Raw Datapoints", "Data Reduction Ratio",
+                "Time (sec)", "Progressive Time (sec)", "Processing Time (sec)", "Query Time (sec)", "Memory", "Est. Raw Datapoints",
                 "Error", "flag");
         for (int i = 0; i < sequence.size(); i += 1) {
             stopwatch.start();
@@ -223,6 +223,7 @@ public class Experiments<T> {
             LOG.info("Executing query " + i + " " + query.getOpType() + " " + query.getFromDate() + " - " + query.getToDate());
             queryResults = minMaxCache.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            LOG.info("Query time: {}", time);
             long memorySize = minMaxCache.calculateDeepMemorySize();
             if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);
@@ -273,6 +274,7 @@ public class Experiments<T> {
             LOG.info("Executing query " + i + " " + query.getFromDate() + " - " + query.getToDate());
             queryResults = rawCache.executeQuery(query);
             time = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
+            LOG.info("Query time: {}", time);
             long memorySize = rawCache.calculateDeepMemorySize();
             if(run == 0) queryResults.toMultipleCsv(Paths.get(resultsPath, "query_" + i).toString());
             csvWriter.addValue(table);

@@ -28,8 +28,8 @@ public class MaxErrorEvaluator {
         this.pixelColumns = pixelColumns;
     }
 
-    public List<Integer> computeMaxPixelErrorsPerColumn() {
-        List<Integer> maxPixelErrorsPerColumn = new ArrayList<>();
+    public List<Double> computeMaxPixelErrorsPerColumn() {
+        List<Double> maxPixelErrorsPerColumn = new ArrayList<>();
         missingRanges = new ArrayList<>();
 
         // The stats aggregator for the whole query interval to keep track of the min/max values
@@ -41,7 +41,6 @@ public class MaxErrorEvaluator {
         for (int i = 0; i < pixelColumns.size(); i++) {
             PixelColumn currentPixelColumn = pixelColumns.get(i);
             Range<Integer> maxInnerColumnPixelRanges = currentPixelColumn.computeMaxInnerPixelRange(viewPortStatsAggregator);
-
             if (maxInnerColumnPixelRanges == null) {
                 maxPixelErrorsPerColumn.add(null);
                 missingRanges.add(currentPixelColumn.getRange()); // add range as missing
@@ -71,7 +70,7 @@ public class MaxErrorEvaluator {
             int maxWrongPixels = pixelErrorRangeSet.asRanges().stream()
                     .mapToInt(range -> range.upperEndpoint() - range.lowerEndpoint() + 1)
                     .sum();
-            maxPixelErrorsPerColumn.add(maxWrongPixels);
+            maxPixelErrorsPerColumn.add(((double) maxWrongPixels / (maxInnerColumnPixelRanges.upperEndpoint() - maxInnerColumnPixelRanges.lowerEndpoint() + 1)));
         }
         LOG.debug("{}", maxPixelErrorsPerColumn);
         return maxPixelErrorsPerColumn;

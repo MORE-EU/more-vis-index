@@ -149,6 +149,7 @@ public class CacheQueryExecutor {
             // Add them all to the cache.
             cacheManager.addToCache(timeSeriesSpans);
         }
+        LOG.info("Errors: {}", errorPerMeasure);
 
         // Fetch errored measures with M4
         if(!measuresWithError.isEmpty()) {
