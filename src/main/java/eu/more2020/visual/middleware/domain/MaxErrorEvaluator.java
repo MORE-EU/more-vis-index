@@ -70,7 +70,7 @@ public class MaxErrorEvaluator {
             int maxWrongPixels = pixelErrorRangeSet.asRanges().stream()
                     .mapToInt(range -> range.upperEndpoint() - range.lowerEndpoint() + 1)
                     .sum();
-            maxPixelErrorsPerColumn.add(((double) maxWrongPixels / (maxInnerColumnPixelRanges.upperEndpoint() - maxInnerColumnPixelRanges.lowerEndpoint() + 1)));
+            maxPixelErrorsPerColumn.add(((double) maxWrongPixels / viewPort.getHeight()));
         }
         LOG.debug("{}", maxPixelErrorsPerColumn);
         return maxPixelErrorsPerColumn;

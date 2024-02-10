@@ -34,7 +34,6 @@ public class ErrorCalculator {
         }
         LOG.debug("Valid columns: {}", validColumns);
         error /= validColumns;
-//        error = error / (viewPort.getHeight() * validColumns);
         hasError = error > 1 - accuracy;
         return error;
     }
