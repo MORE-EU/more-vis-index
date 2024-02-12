@@ -153,26 +153,8 @@ public class CacheQueryExecutor {
 
         // Fetch errored measures with M4
         if(!measuresWithError.isEmpty()) {
-            Map<Integer, List<TimeInterval>> m4MissingIntervals =  new HashMap<>(measuresWithError.size());
-            Map<Integer, Integer> m4AggFactors = new HashMap<>(measuresWithError.size());
-            for(int measureWithError : measuresWithError){
-                m4MissingIntervals.put(measureWithError, List.of(new TimeRange(from, to)));
-                m4AggFactors.put(measureWithError, 1);
-            }
-            LOG.info("Cached data are above error bound. Fetching {}: for {} ", m4MissingIntervals, measuresWithError);
-            query.setQueryMethod(QueryMethod.M4);
-            long timeStart = System.currentTimeMillis();
-            Map<Integer, List<TimeSeriesSpan>> m4TimeSeriesSpansPerMeasure =
-                    dataProcessor.getMissing(from, to, m4MissingIntervals, m4AggFactors, viewPort, QueryMethod.M4);
-
-            // Set error to 0 for M4 measures and add to pixel columns
-            for (int measureWithError : measuresWithError) {
-                List<PixelColumn> pixelColumns = pixelColumnsPerMeasure.get(measureWithError);
-                List<TimeSeriesSpan> timeSeriesSpans = m4TimeSeriesSpansPerMeasure.get(measureWithError);
-                dataProcessor.processDatapoints(from, to, viewPort, pixelColumns, timeSeriesSpans);
-                errorPerMeasure.put(measureWithError, 0.0);
-            }
-            queryResults.setProgressiveQueryTime((System.currentTimeMillis() - timeStart) / 1000F);
+            Query m4Query = new Query(from , to, 1.0f, query.getFilter(), QueryMethod.M4, measuresWithError, query.getViewPort(), query.getOpType());
+            return executeM4Query(m4Query, dataProcessor.getQueryExecutor());
         }
 
         // Query Results
@@ -255,7 +237,6 @@ public class CacheQueryExecutor {
             timeIntervalsForMeasure.add(new TimeRange(query.getFrom(), query.getTo()));
             missingTimeIntervalsPerMeasure.put(measure, timeIntervalsForMeasure);
             missingTimeIntervalsPerMeasureName.put(measureName, timeIntervalsForMeasure);
-
             numberOfGroups.put(measure, query.getViewPort().getWidth());
             numberOfGroupsPerMeasureName.put(measureName, query.getViewPort().getWidth());
         }
@@ -272,9 +253,17 @@ public class CacheQueryExecutor {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        Map<Integer, Double> error = new HashMap<>();
+        for(Integer m : query.getMeasures()){
+            error.put(m, 0.0);
+        }
+        queryResults.setError(error);
+
         queryTime = stopwatch.elapsed(TimeUnit.NANOSECONDS) / Math.pow(10d, 9);
         stopwatch.stop();
         queryResults.setQueryTime(queryTime);
+
         return queryResults;
     }
 }

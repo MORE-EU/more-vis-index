@@ -15,9 +15,9 @@
 # sh scripts/run.sh 0.95 0.1 1 32 1000 600 influx
 
 ## Error Bound
-# sh scripts/run.sh 0.9 0.1 1 4 1000 600 influx
-# sh scripts/run.sh 0.95 0.1 1 4 1000 600 influx
-# sh scripts/run.sh 0.99 0.1 1 4 1000 600 influx
+ sh scripts/run.sh 0.9 0.1 1 4 1000 600 postgres
+ sh scripts/run.sh 0.95 0.1 1 4 1000 600 postgres
+ sh scripts/run.sh 0.99 0.1 1 4 1000 600 postgres
 
 # Start Query  Selectivity
 # sh scripts/run.sh 0.95 0.01 1 4 1000 600 influx

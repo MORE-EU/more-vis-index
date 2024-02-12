@@ -24,7 +24,8 @@ diffs*
 *.ipynb
 logs_p.log
 .DS_Store
-logs.log
+logs_p.log
 .DS_Store
 .vscode/launch.json
 .DS_Store
+queries.txt
