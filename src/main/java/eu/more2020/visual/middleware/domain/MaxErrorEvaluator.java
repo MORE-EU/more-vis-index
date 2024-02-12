@@ -3,7 +3,6 @@ package eu.more2020.visual.middleware.domain;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-import eu.more2020.visual.middleware.cache.MinMaxCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,19 +50,31 @@ public class MaxErrorEvaluator {
             // Check if there is a previous PixelColumn
             if (i > 0) {
                 PixelColumn previousPixelColumn = pixelColumns.get(i - 1);
-                if(previousPixelColumn.getStats().getCount() != 0) {
+                if (previousPixelColumn.getStats().getCount() != 0) {
                     Range<Integer> leftMaxFalsePixels = currentPixelColumn.getPixelIdsForLineSegment(previousPixelColumn.getStats().getLastTimestamp(), previousPixelColumn.getStats().getLastValue(),
                             currentPixelColumn.getStats().getFirstTimestamp(), currentPixelColumn.getStats().getFirstValue(), viewPortStatsAggregator);
                     pixelErrorRangeSet.add(leftMaxFalsePixels);
+
+                    if (!getMaxMissingInterColumnPixels(previousPixelColumn, currentPixelColumn, pixelErrorRangeSet, viewPortStatsAggregator)){
+                        maxPixelErrorsPerColumn.add(null);
+                        missingRanges.add(currentPixelColumn.getRange()); // add range as missing
+                        continue;
+                    }
                 }
             }
             // Check if there is a next PixelColumn
             if (i < pixelColumns.size() - 1) {
                 PixelColumn nextPixelColumn = pixelColumns.get(i + 1);
-                if(nextPixelColumn.getStats().getCount() != 0) {
+                if (nextPixelColumn.getStats().getCount() != 0) {
                     Range<Integer> rightMaxFalsePixels = currentPixelColumn.getPixelIdsForLineSegment(currentPixelColumn.getStats().getLastTimestamp(), currentPixelColumn.getStats().getLastValue(),
                             nextPixelColumn.getStats().getFirstTimestamp(), nextPixelColumn.getStats().getFirstValue(), viewPortStatsAggregator);
                     pixelErrorRangeSet.add(rightMaxFalsePixels);
+
+                    if (!getMaxMissingInterColumnPixels(currentPixelColumn, nextPixelColumn, pixelErrorRangeSet, viewPortStatsAggregator)){
+                        maxPixelErrorsPerColumn.add(null);
+                        missingRanges.add(currentPixelColumn.getRange()); // add range as missing
+                        continue;
+                    }
                 }
             }
             pixelErrorRangeSet.remove(currentPixelColumn.getActualInnerColumnPixelRange(viewPortStatsAggregator));
@@ -75,6 +86,45 @@ public class MaxErrorEvaluator {
         LOG.debug("{}", maxPixelErrorsPerColumn);
         return maxPixelErrorsPerColumn;
     }
+
+    /**
+     * Computes the maximum missing inter-column pixel range for these adjacent pixel columns.
+     * For this we consider only the case of fully-contained groups at the left and right boundary of the intersection.
+     * In case of partial containment, this potential missing pixels are is already accounted for in the potential inner-column pixel errors.
+     * This method must be called after the computation of the inner-column pixel errors.
+     *
+     * @param leftPixelColumn
+     * @param rightPixelColumn
+     * @return the maximum missing column pixel range or null in case of partially-contained group at the intersection between the two columns.
+     */
+    private boolean getMaxMissingInterColumnPixels(PixelColumn leftPixelColumn, PixelColumn rightPixelColumn,
+                                                   RangeSet<Integer> pixelErrorRangeSet,
+                                                   StatsAggregator viewPortStatsAggregator) {
+        // check if there is a partially-contained group at the intersection between the two columns
+        AggregatedDataPoint leftPartial = leftPixelColumn.getLeftPartial();
+        if (leftPartial == null) {
+            if (rightPixelColumn.getLeft().size() > 0 && leftPixelColumn.getRight().size() > 0) {
+                // case of fully-contained groups at the boundary of the intersection
+                AggregatedDataPoint left = rightPixelColumn.getLeft().get(0);
+                AggregatedDataPoint right = leftPixelColumn.getRight().get(0);
+                int leftMinPixelId = viewPort.getPixelId(left.getStats().getMinValue(), viewPortStatsAggregator);
+                int rightMaxPixelId = viewPort.getPixelId(right.getStats().getMaxValue(), viewPortStatsAggregator);
+                int leftMaxPixelId = viewPort.getPixelId(left.getStats().getMaxValue(), viewPortStatsAggregator);
+                int rightMinPixelId = viewPort.getPixelId(right.getStats().getMinValue(), viewPortStatsAggregator);
+
+                pixelErrorRangeSet.add(Range.closed(Math.min(leftMinPixelId, rightMaxPixelId), Math.max(leftMinPixelId, rightMaxPixelId)));
+                pixelErrorRangeSet.add(Range.closed(Math.min(leftMaxPixelId, rightMinPixelId), Math.max(leftMaxPixelId, rightMinPixelId)));
+
+            } else {
+                return false;
+            }
+        } else {
+            pixelErrorRangeSet.add(Range.closed(viewPort.getPixelId(leftPartial.getStats().getMinValue(), viewPortStatsAggregator),
+                    viewPort.getPixelId(leftPartial.getStats().getMaxValue(), viewPortStatsAggregator)));
+        }
+        return true;
+    }
+
 
     public List<TimeInterval> getMissingRanges() {
         return missingRanges;

@@ -27,6 +27,18 @@ public class ViewPort {
         this.width = width;
     }
 
+    /**
+     * Returns the vertical pixel id of the given value for the specified measure
+     * considering the current min and max values of the measure over the entire view port.
+     *
+     * @param value
+     * @param viewPortStats
+     * @return the vertical pixel id of the given value for the specified measure
+     */
+    public int getPixelId(double value, Stats viewPortStats) {
+        return (int) ((double) this.getHeight() * (value - viewPortStats.getMinValue()) / (viewPortStats.getMaxValue() - viewPortStats.getMinValue()));
+    }
+
     @Override
     public String toString() {
         return "{" +

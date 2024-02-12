@@ -87,17 +87,6 @@ public class PixelColumn implements TimeInterval {
         }
     }
 
-    /**
-     * Returns the vertical pixel id of the given value for the specified measure
-     * considering the current min and max values of the measure over the entire view port.
-     *
-     * @param value
-     * @param viewPortStats
-     * @return the vertical pixel id of the given value for the specified measure
-     */
-    private int getPixelId(double value, Stats viewPortStats) {
-        return (int) ((double) viewPort.getHeight() * (value - viewPortStats.getMinValue()) / (viewPortStats.getMaxValue() - viewPortStats.getMinValue()));
-    }
 
 
     private void determinePartialContained() {
@@ -125,6 +114,7 @@ public class PixelColumn implements TimeInterval {
                 rightSubRange = differenceList.get(0);
             }
         }
+
 
         if (leftSubRange != null) {
             Range<Long> finalLeftSubRange = leftSubRange;
@@ -155,6 +145,8 @@ public class PixelColumn implements TimeInterval {
         }
     }
 
+
+
     /**
      * Computes the maximum inner pixel range for this Pixel Column. For this we consider both the fully contained and the partially contained groups.
      * @param viewPortStats
@@ -172,19 +164,21 @@ public class PixelColumn implements TimeInterval {
         }
         determinePartialContained();
         if(statsAggregator.getCount() > 0) {
-            int minPixelId = getPixelId(statsAggregator.getMinValue(), viewPortStats);
-            int maxPixelId = getPixelId(statsAggregator.getMaxValue(), viewPortStats);
+            int minPixelId = viewPort.getPixelId(statsAggregator.getMinValue(), viewPortStats);
+            int maxPixelId = viewPort.getPixelId(statsAggregator.getMaxValue(), viewPortStats);
             if (leftPartial != null && leftPartial.getCount() > 0) {
-                minPixelId = Math.min(minPixelId, getPixelId(leftPartial.getStats().getMinValue(), viewPortStats));
-                maxPixelId = Math.max(maxPixelId, getPixelId(leftPartial.getStats().getMaxValue(), viewPortStats));
+                minPixelId = Math.min(minPixelId, viewPort.getPixelId(leftPartial.getStats().getMinValue(), viewPortStats));
+                maxPixelId = Math.max(maxPixelId, viewPort.getPixelId(leftPartial.getStats().getMaxValue(), viewPortStats));
             }
             if (rightPartial != null && rightPartial.getCount() > 0 )  {
-                minPixelId = Math.min(minPixelId, getPixelId(rightPartial.getStats().getMinValue(), viewPortStats));
-                maxPixelId = Math.max(maxPixelId, getPixelId(rightPartial.getStats().getMaxValue(), viewPortStats));
+                minPixelId = Math.min(minPixelId, viewPort.getPixelId(rightPartial.getStats().getMinValue(), viewPortStats));
+                maxPixelId = Math.max(maxPixelId, viewPort.getPixelId(rightPartial.getStats().getMaxValue(), viewPortStats));
             }
             return Range.closed(minPixelId, maxPixelId);
         } else return null;
     }
+
+
 
 
     /**
@@ -213,8 +207,8 @@ public class PixelColumn implements TimeInterval {
         double vEnd = slope * tEnd + yIntercept;
 
         // Convert the values to pixel ids
-        int pixelIdStart = getPixelId(vStart, viewPortStats);
-        int pixelIdEnd = getPixelId(vEnd, viewPortStats);
+        int pixelIdStart = viewPort.getPixelId(vStart, viewPortStats);
+        int pixelIdEnd = viewPort.getPixelId(vEnd, viewPortStats);
 
         // Create a range from the pixel ids and return it
         return Range.closed(Math.min(pixelIdStart, pixelIdEnd), Math.max(pixelIdStart, pixelIdEnd));
@@ -230,8 +224,8 @@ public class PixelColumn implements TimeInterval {
     public Range<Integer> getActualInnerColumnPixelRange(Stats viewPortStats) {
         if(fullyContainedStatsAggregator.getCount() <= 0) return Range.closed(0, 0); // If not initialized or empty
 //        LOG.info("Fully contained stats: {}", fullyContainedStatsAggregator);
-        return Range.closed(getPixelId(fullyContainedStatsAggregator.getMinValue(), viewPortStats),
-                getPixelId(fullyContainedStatsAggregator.getMaxValue(), viewPortStats));
+        return Range.closed(viewPort.getPixelId(fullyContainedStatsAggregator.getMinValue(), viewPortStats),
+                viewPort.getPixelId(fullyContainedStatsAggregator.getMaxValue(), viewPortStats));
     }
 
 
@@ -259,6 +253,14 @@ public class PixelColumn implements TimeInterval {
 
     public AggregatedDataPoint getRightPartial() {
         return rightPartial;
+    }
+
+    public List<AggregatedDataPoint> getLeft() {
+        return left;
+    }
+
+    public List<AggregatedDataPoint> getRight() {
+        return right;
     }
 
     @Override
